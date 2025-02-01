@@ -6,7 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:unit": "jest src/__tests__/unit",
+    "test:integration": "jest src/__tests__/integration",
+    "test:e2e": "jest src/__tests__/e2e",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "clsx": "^2.1.1",

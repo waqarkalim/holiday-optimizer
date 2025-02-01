@@ -13,7 +13,7 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
   const [error, setError] = useState('')
   const [isOptimizing, setIsOptimizing] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsOptimizing(true)
@@ -21,13 +21,13 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
     try {
       const days = parseInt(ctoDays, 10)
       if (isNaN(days) || days < 1 || days > 365) {
-        setError('Please enter a valid number of days between 1 and 365')
+        setError('Please enter a valid number between 1 and 365')
         setIsOptimizing(false)
         return
       }
 
       const optimizedDays = optimizeCtoDays(days)
-      onSuccess({ optimizedDays })
+      await onSuccess({ optimizedDays })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
@@ -36,7 +36,7 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+    <form onSubmit={handleSubmit} className="mt-6 space-y-6" noValidate>
       <div>
         <label htmlFor="ctoDays" className="block text-sm font-medium text-gray-700">
           Number of CTO Days
@@ -56,10 +56,13 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
             min="1"
             max="365"
             required
+            disabled={isOptimizing}
+            aria-invalid={!!error}
+            aria-describedby={error ? 'cto-days-error' : undefined}
           />
         </div>
         {error && (
-          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <p id="cto-days-error" className="mt-2 text-sm text-red-600" role="alert">{error}</p>
         )}
       </div>
 
@@ -67,9 +70,11 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
         <button
           type="submit"
           disabled={isOptimizing}
+          aria-disabled={isOptimizing}
+          data-testid="submit-button"
           className={clsx(
             'flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
-            isOptimizing && 'opacity-50 cursor-not-allowed'
+            isOptimizing && 'opacity-50 cursor-not-allowed bg-blue-400'
           )}
         >
           {isOptimizing ? 'Optimizing...' : 'Optimize Schedule'}
