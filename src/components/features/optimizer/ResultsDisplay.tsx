@@ -1,6 +1,6 @@
 'use client'
 
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, parse } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, parse, getMonth } from 'date-fns'
 import clsx from 'clsx'
 
 interface OptimizedDay {
@@ -43,12 +43,23 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
     }
   })
 
+  // Get holidays for the current month
+  const holidays = days.filter(day => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date())
+    return day.isHoliday && getMonth(date) === month
+  })
+
   return (
     <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow overflow-hidden ring-1 ring-gray-900/5 dark:ring-white/10">
       <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
         <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">
           {MONTHS[month]} {year}
         </h4>
+        {holidays.length > 0 && (
+          <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            Holidays: {holidays.map(h => h.holidayName).join(', ')}
+          </div>
+        )}
       </div>
       <div className="p-4">
         <div className="grid grid-cols-7 gap-1">
@@ -61,7 +72,7 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
             <div
               key={index}
               className={clsx(
-                'aspect-square p-2 text-sm relative',
+                'aspect-square p-2 text-sm relative group',
                 !day && 'bg-gray-50 dark:bg-gray-800/30',
                 day?.isPartOfBreak && 'font-semibold'
               )}
@@ -86,10 +97,16 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
                   )}>
                     {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
                   </div>
+                  {/* Holiday Tooltip */}
                   {day.isHoliday && (
-                    <div className="absolute bottom-1 left-2 right-2 text-[10px] leading-tight text-amber-900 dark:text-amber-100 font-medium z-10 text-center">
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
                       {day.holidayName}
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900 dark:border-t-gray-700" />
                     </div>
+                  )}
+                  {/* Holiday Indicator Dot */}
+                  {day.isHoliday && (
+                    <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400" />
                   )}
                 </>
               )}
