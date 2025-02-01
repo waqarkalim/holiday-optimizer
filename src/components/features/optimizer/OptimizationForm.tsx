@@ -22,13 +22,14 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
       const days = parseInt(ctoDays, 10)
       if (isNaN(days) || days < 1 || days > 365) {
         setError('Please enter a valid number of days between 1 and 365')
+        setIsOptimizing(false)
         return
       }
 
       const optimizedDays = optimizeCtoDays(days)
       onSuccess({ optimizedDays })
     } catch (err) {
-      setError('Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setIsOptimizing(false)
     }
