@@ -38,7 +38,7 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-6" noValidate>
       <div>
-        <label htmlFor="ctoDays" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="ctoDays" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Number of CTO Days
         </label>
         <div className="mt-1">
@@ -49,8 +49,13 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
             value={ctoDays}
             onChange={(e) => setCtoDays(e.target.value)}
             className={clsx(
-              'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
-              error && 'border-red-300 focus:border-red-500 focus:ring-red-500'
+              'block w-full rounded-md shadow-sm sm:text-sm transition-colors',
+              'border-gray-300 dark:border-gray-600/40',
+              'bg-white dark:bg-gray-800/50',
+              'text-gray-900 dark:text-gray-100',
+              'placeholder-gray-400 dark:placeholder-gray-500',
+              'focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400',
+              error && 'border-red-300 dark:border-red-500/50 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400'
             )}
             placeholder="Enter number of days"
             min="1"
@@ -62,7 +67,7 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
           />
         </div>
         {error && (
-          <p id="cto-days-error" className="mt-2 text-sm text-red-600" role="alert">{error}</p>
+          <p id="cto-days-error" className="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">{error}</p>
         )}
       </div>
 
@@ -73,8 +78,12 @@ export function OptimizationForm({ onSuccess }: OptimizationFormProps) {
           aria-disabled={isOptimizing}
           data-testid="submit-button"
           className={clsx(
-            'flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
-            isOptimizing && 'opacity-50 cursor-not-allowed bg-blue-400'
+            'flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition-colors',
+            'bg-blue-600 dark:bg-blue-500 hover:bg-blue-500 dark:hover:bg-blue-400',
+            'text-white dark:text-gray-50',
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+            'focus-visible:outline-blue-600 dark:focus-visible:outline-blue-400',
+            isOptimizing && 'opacity-50 cursor-not-allowed bg-blue-400 dark:bg-blue-400'
           )}
         >
           {isOptimizing ? 'Optimizing...' : 'Optimize Schedule'}

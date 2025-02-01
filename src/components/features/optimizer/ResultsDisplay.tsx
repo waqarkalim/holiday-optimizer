@@ -44,16 +44,16 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
   })
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <h4 className="text-lg font-medium text-gray-900">
+    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow overflow-hidden ring-1 ring-gray-900/5 dark:ring-white/10">
+      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
+        <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">
           {MONTHS[month]} {year}
         </h4>
       </div>
       <div className="p-4">
         <div className="grid grid-cols-7 gap-1">
           {WEEKDAYS.map(day => (
-            <div key={day} className="text-center text-sm font-medium text-gray-700 py-2">
+            <div key={day} className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 py-2">
               {day}
             </div>
           ))}
@@ -62,7 +62,7 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
               key={index}
               className={clsx(
                 'aspect-square p-2 text-sm relative',
-                !day && 'bg-gray-50',
+                !day && 'bg-gray-50 dark:bg-gray-800/30',
                 day?.isPartOfBreak && 'font-semibold'
               )}
             >
@@ -70,24 +70,24 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
                 <>
                   <div 
                     className={clsx(
-                      'absolute inset-1 rounded-lg border',
-                      day.isCTO && 'bg-teal-200 border-teal-400 dark:bg-teal-800 dark:border-teal-600',
-                      day.isHoliday && 'bg-orange-200 border-orange-400 dark:bg-orange-800 dark:border-orange-600',
-                      day.isWeekend && day.isPartOfBreak && !day.isHoliday && !day.isCTO && 'bg-purple-200 border-purple-400 dark:bg-purple-800 dark:border-purple-600',
-                      !(day.isCTO || day.isHoliday || (day.isWeekend && day.isPartOfBreak)) && 'bg-white border-gray-200 dark:border-gray-700'
+                      'absolute inset-1 rounded-lg border transition-colors',
+                      day.isCTO && 'bg-teal-100 dark:bg-teal-900/50 border-teal-200 dark:border-teal-700',
+                      day.isHoliday && 'bg-amber-100 dark:bg-amber-900/50 border-amber-200 dark:border-amber-700',
+                      day.isWeekend && day.isPartOfBreak && !day.isHoliday && !day.isCTO && 'bg-violet-100 dark:bg-violet-900/50 border-violet-200 dark:border-violet-700',
+                      !(day.isCTO || day.isHoliday || (day.isWeekend && day.isPartOfBreak)) && 'bg-white dark:bg-gray-800/30 border-gray-200 dark:border-gray-700'
                     )}
                   />
                   <div className={clsx(
-                    'absolute inset-0 flex items-center justify-center font-medium z-10',
+                    'absolute inset-0 flex items-center justify-center font-medium z-10 transition-colors',
                     day.isCTO && 'text-teal-900 dark:text-teal-100',
-                    day.isHoliday && 'text-orange-900 dark:text-orange-100',
-                    day.isWeekend && day.isPartOfBreak && !day.isHoliday && !day.isCTO && 'text-purple-900 dark:text-purple-100',
+                    day.isHoliday && 'text-amber-900 dark:text-amber-100',
+                    day.isWeekend && day.isPartOfBreak && !day.isHoliday && !day.isCTO && 'text-violet-900 dark:text-violet-100',
                     !(day.isCTO || day.isHoliday || (day.isWeekend && day.isPartOfBreak)) && 'text-gray-700 dark:text-gray-300'
                   )}>
                     {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
                   </div>
                   {day.isHoliday && (
-                    <div className="absolute bottom-1 left-2 right-2 text-[10px] leading-tight text-orange-900 dark:text-orange-100 font-medium z-10 text-center">
+                    <div className="absolute bottom-1 left-2 right-2 text-[10px] leading-tight text-amber-900 dark:text-amber-100 font-medium z-10 text-center">
                       {day.holidayName}
                     </div>
                   )}
@@ -113,20 +113,20 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-teal-100 dark:bg-teal-900 rounded-md p-4">
+      <div className="bg-teal-50 dark:bg-teal-900/30 rounded-md p-4 ring-1 ring-teal-900/10 dark:ring-teal-400/10">
         <div>
           <h3 className="text-lg font-medium text-teal-900 dark:text-teal-100">Optimization Results</h3>
-          <p className="mt-1 text-sm text-teal-800 dark:text-teal-200">
+          <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">
             Total consecutive days off: {totalDaysOff} days
           </p>
           <div className="mt-2 space-y-1">
-            <p className="text-sm text-teal-800 dark:text-teal-200">
+            <p className="text-sm text-teal-700 dark:text-teal-300">
               • {ctoDays} CTO days
             </p>
-            <p className="text-sm text-teal-800 dark:text-teal-200">
+            <p className="text-sm text-teal-700 dark:text-teal-300">
               • {extendedWeekends} weekend days that are part of longer breaks
             </p>
-            <p className="text-sm text-teal-800 dark:text-teal-200">
+            <p className="text-sm text-teal-700 dark:text-teal-300">
               • {holidays} holidays
             </p>
           </div>
@@ -144,23 +144,23 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
         ))}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+      <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm p-4 ring-1 ring-gray-900/5 dark:ring-white/10">
         <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Legend</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-teal-200 border border-teal-400 dark:bg-teal-800 dark:border-teal-600" />
+            <div className="w-6 h-6 rounded-lg bg-teal-100 dark:bg-teal-900/50 border border-teal-200 dark:border-teal-700" />
             <span className="text-sm text-gray-700 dark:text-gray-300">CTO Day</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-orange-200 border border-orange-400 dark:bg-orange-800 dark:border-orange-600" />
+            <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700" />
             <span className="text-sm text-gray-700 dark:text-gray-300">Holiday</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-purple-200 border border-purple-400 dark:bg-purple-800 dark:border-purple-600" />
+            <div className="w-6 h-6 rounded-lg bg-violet-100 dark:bg-violet-900/50 border border-violet-200 dark:border-violet-700" />
             <span className="text-sm text-gray-700 dark:text-gray-300">Extended Weekend</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-white border border-gray-200 dark:border-gray-700" />
+            <div className="w-6 h-6 rounded-lg bg-white dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700" />
             <span className="text-sm text-gray-700 dark:text-gray-300">Regular Day</span>
           </div>
         </div>
