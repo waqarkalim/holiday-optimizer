@@ -77,17 +77,17 @@ function MonthCalendar({ month, year, days }: { month: number; year: number; day
                       !(day.isCTO || day.isHoliday || (day.isWeekend && day.isPartOfBreak)) && 'bg-white border-gray-200 dark:border-gray-700'
                     )}
                   />
-                  <span className={clsx(
-                    'absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center font-medium z-10',
+                  <div className={clsx(
+                    'absolute inset-0 flex items-center justify-center font-medium z-10',
                     day.isCTO && 'text-teal-900 dark:text-teal-100',
                     day.isHoliday && 'text-orange-900 dark:text-orange-100',
                     day.isWeekend && day.isPartOfBreak && !day.isHoliday && !day.isCTO && 'text-purple-900 dark:text-purple-100',
                     !(day.isCTO || day.isHoliday || (day.isWeekend && day.isPartOfBreak)) && 'text-gray-700 dark:text-gray-300'
                   )}>
                     {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
-                  </span>
+                  </div>
                   {day.isHoliday && (
-                    <div className="absolute bottom-1 left-2 right-2 text-[10px] leading-tight text-orange-900 dark:text-orange-100 font-medium z-10">
+                    <div className="absolute bottom-1 left-2 right-2 text-[10px] leading-tight text-orange-900 dark:text-orange-100 font-medium z-10 text-center">
                       {day.holidayName}
                     </div>
                   )}
