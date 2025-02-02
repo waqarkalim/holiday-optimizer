@@ -2,30 +2,29 @@
 
 import { useState } from "react"
 import { OptimizerForm } from "@/components/OptimizerForm"
-import { OptimizedDay, optimizeCtoDays, OptimizationStrategy, CustomDayOff } from "@/services/optimizer"
+import { OptimizedDay, optimizeCtoDays, OptimizationStrategy } from "@/services/optimizer"
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { ResultsDisplay } from "@/components/features/optimizer/ResultsDisplay"
 import { cn } from "@/lib/utils"
+import { OptimizerProvider } from "@/contexts/OptimizerContext"
 
 interface OptimizeParams {
   days: number
   strategy: OptimizationStrategy
-  customDaysOff: CustomDayOff[]
 }
 
 const HomePage = () => {
   const [optimizedDays, setOptimizedDays] = useState<OptimizedDay[] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [customDaysOff, setCustomDaysOff] = useState<CustomDayOff[]>([])
 
-  const handleOptimize = async ({ days, strategy }: Omit<OptimizeParams, 'customDaysOff'>) => {
+  const handleOptimize = async ({ days, strategy }: OptimizeParams) => {
     setIsLoading(true)
     setError(null)
     
     try {
-      const result = optimizeCtoDays(days, strategy, new Date().getFullYear(), customDaysOff)
+      const result = optimizeCtoDays(days, strategy, new Date().getFullYear())
       setOptimizedDays(result.days)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during optimization')
@@ -65,12 +64,12 @@ const HomePage = () => {
                 optimizedDays ? "" : "max-w-xl mx-auto w-full"
               )}>
                 <div className="lg:sticky lg:top-8">
-                  <OptimizerForm 
-                    onSubmit={handleOptimize} 
-                    isLoading={isLoading} 
-                    customDaysOff={customDaysOff}
-                    onCustomDaysOffChange={setCustomDaysOff}
-                  />
+                  <OptimizerProvider>
+                    <OptimizerForm 
+                      onSubmit={handleOptimize} 
+                      isLoading={isLoading}
+                    />
+                  </OptimizerProvider>
                 </div>
               </div>
 
