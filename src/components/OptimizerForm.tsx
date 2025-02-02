@@ -134,32 +134,52 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
     dispatch({ type: 'UPDATE_NEW_CUSTOM_DAY', payload: { [field]: value } })
   }
 
-  const handleStrategyKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number) => {
+  const handleStrategyKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy)
     const lastIndex = OPTIMIZATION_STRATEGIES.length - 1
     
     switch (e.key) {
       case 'ArrowUp':
-      case 'ArrowLeft':
+      case 'ArrowLeft': {
         e.preventDefault()
-        const prevIndex = index === 0 ? lastIndex : index - 1
+        const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1
         const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex]
         dispatch({ type: 'SET_STRATEGY', payload: prevStrategy.id })
-        document.querySelector<HTMLInputElement>(`[data-strategy-index="${prevIndex}"]`)?.focus()
+        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`)
+        radioInput?.focus()
         break
+      }
       case 'ArrowDown':
-      case 'ArrowRight':
+      case 'ArrowRight': {
         e.preventDefault()
-        const nextIndex = index === lastIndex ? 0 : index + 1
+        const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1
         const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex]
         dispatch({ type: 'SET_STRATEGY', payload: nextStrategy.id })
-        document.querySelector<HTMLInputElement>(`[data-strategy-index="${nextIndex}"]`)?.focus()
+        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`)
+        radioInput?.focus()
         break
-      case 'Enter':
-      case ' ':
+      }
+    }
+  }
+
+  const handleWeekdayKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    switch (e.key) {
+      case 'ArrowLeft': {
         e.preventDefault()
-        const targetStrategy = OPTIMIZATION_STRATEGIES[index]
-        dispatch({ type: 'SET_STRATEGY', payload: targetStrategy.id })
+        const prevIndex = index === 0 ? WEEKDAYS.length - 1 : index - 1
+        handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[prevIndex].value))
+        const weekdayButton = document.querySelector<HTMLButtonElement>(`[data-weekday-index="${prevIndex}"]`)
+        weekdayButton?.focus()
         break
+      }
+      case 'ArrowRight': {
+        e.preventDefault()
+        const nextIndex = (index + 1) % WEEKDAYS.length
+        handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[nextIndex].value))
+        const weekdayButton = document.querySelector<HTMLButtonElement>(`[data-weekday-index="${nextIndex}"]`)
+        weekdayButton?.focus()
+        break
+      }
     }
   }
 
@@ -250,10 +270,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 aria-labelledby="strategy-heading"
                 aria-describedby="strategy-description"
                 className="space-y-2"
-                onKeyDown={(e) => {
-                  const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy)
-                  handleStrategyKeyDown(e, currentIndex)
-                }}
+                onKeyDown={handleStrategyKeyDown}
               >
                 {OPTIMIZATION_STRATEGIES.map((strategyOption, index) => {
                   const icons = {
@@ -281,17 +298,9 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                         name="strategy"
                         value={strategyOption.id}
                         checked={isSelected}
-                        data-strategy-index={index}
                         className="sr-only"
-                        tabIndex={isSelected ? 0 : -1}
-                        onChange={() => {
-                          logger.debug('Strategy selected', {
-                            component: 'OptimizerForm',
-                            action: 'strategySelect',
-                            data: { newStrategy: strategyOption.id, oldStrategy: strategy }
-                          })
-                          dispatch({ type: 'SET_STRATEGY', payload: strategyOption.id })
-                        }}
+                        tabIndex={isSelected || (index === 0 && !strategy) ? 0 : -1}
+                        onChange={() => dispatch({ type: 'SET_STRATEGY', payload: strategyOption.id })}
                       />
                       <div className="flex items-center gap-3 w-full">
                         <div className={cn(
@@ -501,8 +510,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                                   type="button"
                                   variant="outline"
                                   role="radio"
-                                  tabIndex={newCustomDay.weekday === parseInt(day.value) ? 0 : -1}
                                   aria-checked={newCustomDay.weekday === parseInt(day.value)}
+                                  tabIndex={newCustomDay.weekday === parseInt(day.value) ? 0 : -1}
                                   className={cn(
                                     "border h-auto py-2 px-1 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-all duration-200",
                                     newCustomDay.weekday === parseInt(day.value)
@@ -510,22 +519,12 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                                       : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                                   )}
                                   onClick={() => handleCustomDayUpdate('weekday', parseInt(day.value))}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'ArrowRight') {
-                                      e.preventDefault()
-                                      const nextIndex = (index + 1) % WEEKDAYS.length
-                                      handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[nextIndex].value))
-                                      document.querySelector<HTMLButtonElement>(`[data-weekday-index="${nextIndex}"]`)?.focus()
-                                    } else if (e.key === 'ArrowLeft') {
-                                      e.preventDefault()
-                                      const prevIndex = index === 0 ? WEEKDAYS.length - 1 : index - 1
-                                      handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[prevIndex].value))
-                                      document.querySelector<HTMLButtonElement>(`[data-weekday-index="${prevIndex}"]`)?.focus()
-                                    }
-                                  }}
+                                  onKeyDown={(e) => handleWeekdayKeyDown(e, index)}
                                   data-weekday-index={index}
                                 >
-                                  <span className="text-sm font-medium text-gray-900 dark:text-white">{day.label.slice(0, 3)}</span>
+                                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                    {day.label.slice(0, 3)}
+                                  </span>
                                 </Button>
                               ))}
                             </div>
@@ -619,7 +618,11 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                       )}
 
                       {/* Form Actions */}
-                      <div className="flex gap-3 pt-2">
+                      <div 
+                        className="flex gap-3 pt-2"
+                        role="group"
+                        aria-label="Form actions"
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -628,6 +631,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                             dispatch({ type: 'RESET_NEW_CUSTOM_DAY' })
                             dispatch({ type: 'SET_IS_ADDING', payload: false })
                           }}
+                          tabIndex={0}
                         >
                           Cancel
                         </Button>
@@ -640,6 +644,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           onClick={handleCustomDayAdd}
                           disabled={!newCustomDay.name || (newCustomDay.isRecurring ? (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined) : !newCustomDay.date)}
                           aria-label="Add custom day off"
+                          tabIndex={0}
                         >
                           Add Day Off
                         </Button>
