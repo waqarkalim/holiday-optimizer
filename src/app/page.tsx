@@ -6,6 +6,7 @@ import { OptimizedDay, optimizeCtoDays, OptimizationStrategy, CustomDayOff } fro
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { ResultsDisplay } from "@/components/features/optimizer/ResultsDisplay"
+import { cn } from "@/lib/utils"
 
 interface OptimizeParams {
   days: number
@@ -17,8 +18,9 @@ const HomePage = () => {
   const [optimizedDays, setOptimizedDays] = useState<OptimizedDay[] | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [customDaysOff, setCustomDaysOff] = useState<CustomDayOff[]>([])
 
-  const handleOptimize = async ({ days, strategy, customDaysOff }: OptimizeParams) => {
+  const handleOptimize = async ({ days, strategy }: Omit<OptimizeParams, 'customDaysOff'>) => {
     setIsLoading(true)
     setError(null)
     
@@ -51,19 +53,34 @@ const HomePage = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-8">
-          <div className={`grid gap-8 ${optimizedDays ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
-            {/* Form Section - Always visible */}
-            <div className={`${optimizedDays ? 'lg:sticky lg:top-8 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-6`}>
-              <OptimizerForm onSubmit={handleOptimize} isLoading={isLoading} />
-            </div>
-
-            {/* Results Section - Appears when there are results */}
-            {optimizedDays && !isLoading && (
-              <div className="space-y-6 min-w-0 max-w-4xl">
-                <ResultsDisplay optimizedDays={optimizedDays} />
+        <div className="min-h-[calc(100vh-20rem)] relative">
+          <div className="max-w-[1800px] mx-auto">
+            <div className={cn(
+              "grid gap-8 px-4 sm:px-6 lg:px-8 py-8",
+              optimizedDays ? "lg:grid-cols-[400px,1fr] xl:grid-cols-[480px,1fr]" : ""
+            )}>
+              {/* Form Section */}
+              <div className={cn(
+                "transition-all duration-500 ease-in-out",
+                optimizedDays ? "" : "max-w-xl mx-auto w-full"
+              )}>
+                <div className="lg:sticky lg:top-8">
+                  <OptimizerForm 
+                    onSubmit={handleOptimize} 
+                    isLoading={isLoading} 
+                    customDaysOff={customDaysOff}
+                    onCustomDaysOffChange={setCustomDaysOff}
+                  />
+                </div>
               </div>
-            )}
+
+              {/* Results Section */}
+              {optimizedDays && !isLoading && (
+                <div className="min-w-0">
+                  <ResultsDisplay optimizedDays={optimizedDays} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

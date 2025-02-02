@@ -6,7 +6,7 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { CustomDayOff } from "@/services/optimizer"
 import { format, parse } from "date-fns"
-import { CalendarDays, Plus, X, Calendar, ArrowRight } from "lucide-react"
+import { CalendarDays, Plus, X, Calendar, ArrowRight, CalendarCheck, CalendarX } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CustomDaysOffProps {
@@ -63,24 +63,32 @@ export function CustomDaysOff({ customDaysOff, onChange }: CustomDaysOffProps) {
   }
 
   return (
-    <div className="space-y-4" role="region" aria-label="Custom days off management">
+    <div className="space-y-6" role="region" aria-label="Custom days off management">
       {/* Existing Custom Days */}
       {customDaysOff.length > 0 && (
-        <div className="grid gap-2" role="list" aria-label="Added custom days off">
+        <div className="grid gap-3" role="list" aria-label="Added custom days off">
           {customDaysOff.map((day, index) => (
             <div 
               key={index} 
-              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 transition-colors rounded-lg border border-gray-200 dark:border-gray-700"
+              className="group relative flex items-center justify-between p-4 bg-white dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-200"
               role="listitem"
             >
-              <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" aria-hidden="true" />
+              <div className="flex items-center gap-4">
+                {day.isRecurring ? (
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                    <CalendarDays className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden="true" />
+                  </div>
+                ) : (
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+                  </div>
+                )}
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{day.name}</p>
+                  <h4 className="font-medium text-gray-900 dark:text-white">{day.name}</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {day.isRecurring
-                      ? `${WEEKDAYS.find(w => w.value === day.weekday?.toString())?.label}s from ${day.startDate} to ${day.endDate}`
-                      : day.date}
+                      ? `${WEEKDAYS.find(w => w.value === day.weekday?.toString())?.label}s from ${format(parse(day.startDate!, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy')} to ${format(parse(day.endDate!, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy')}`
+                      : format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMMM d, yyyy')}
                   </p>
                 </div>
               </div>
@@ -89,7 +97,7 @@ export function CustomDaysOff({ customDaysOff, onChange }: CustomDaysOffProps) {
                 size="icon"
                 onClick={() => handleRemoveCustomDay(index)}
                 onKeyDown={(e) => handleKeyDown(e, () => handleRemoveCustomDay(index))}
-                className="h-8 w-8 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
+                className="opacity-0 group-hover:opacity-100 h-8 w-8 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-opacity"
                 aria-label={`Remove ${day.name}`}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -104,47 +112,54 @@ export function CustomDaysOff({ customDaysOff, onChange }: CustomDaysOffProps) {
         <Button
           type="button"
           variant="outline"
-          className="w-full border border-dashed border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 h-auto py-3"
+          className="w-full bg-white dark:bg-gray-800/60 border-2 border-dashed border-gray-200 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400 h-auto py-4 rounded-xl shadow-sm transition-all duration-200"
           onClick={() => setIsAdding(true)}
           onKeyDown={(e) => handleKeyDown(e, () => setIsAdding(true))}
           aria-expanded={isAdding}
         >
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus className="h-5 w-5 mr-2" aria-hidden="true" />
           Add Custom Day Off
         </Button>
       ) : (
-        <div className="space-y-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700" role="form" aria-label="Add new custom day off">
-          <div className="space-y-4">
+        <div className="bg-white dark:bg-gray-800/60 p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm space-y-6" role="form" aria-label="Add new custom day off">
+          <div className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-gray-900 dark:text-white">Name of Custom Day Off</Label>
+              <Label htmlFor="name" className="text-base font-medium text-gray-900 dark:text-white">Name of Custom Day Off</Label>
               <Input
                 id="name"
                 value={newCustomDay.name}
                 onChange={(e) => setNewCustomDay({ ...newCustomDay, name: e.target.value })}
                 placeholder="e.g., Summer Fridays"
-                className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 focus:border-gray-400 dark:focus:border-gray-600 dark:text-gray-100 dark:placeholder-gray-500"
+                className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 dark:placeholder-gray-500"
                 aria-required="true"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Day off type">
+            <div className="grid grid-cols-2 gap-4" role="radiogroup" aria-label="Day off type">
               <Button
                 type="button"
                 variant="outline"
                 role="radio"
                 aria-checked={!newCustomDay.isRecurring}
                 className={cn(
-                  "border h-auto py-3 flex flex-col gap-1",
+                  "relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200",
                   !newCustomDay.isRecurring
-                    ? "bg-white dark:bg-gray-900 border-gray-900 dark:border-white"
-                    : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900"
+                    ? "bg-teal-50 dark:bg-teal-900/20 border-teal-500 dark:border-teal-400 shadow-sm"
+                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                 )}
                 onClick={() => setNewCustomDay({ ...newCustomDay, isRecurring: false })}
                 onKeyDown={(e) => handleKeyDown(e, () => setNewCustomDay({ ...newCustomDay, isRecurring: false }))}
               >
-                <Calendar className="h-4 w-4 mb-1 text-gray-500 dark:text-gray-400" aria-hidden="true" />
-                <span className="font-medium text-gray-900 dark:text-white">Single Day</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">One-time occurrence</span>
+                <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+                <div className="text-center">
+                  <div className="font-medium text-gray-900 dark:text-white">Single Day</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">One-time occurrence</div>
+                </div>
+                {!newCustomDay.isRecurring && (
+                  <div className="absolute top-2 right-2">
+                    <CalendarCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  </div>
+                )}
               </Button>
               <Button
                 type="button"
@@ -152,108 +167,127 @@ export function CustomDaysOff({ customDaysOff, onChange }: CustomDaysOffProps) {
                 role="radio"
                 aria-checked={newCustomDay.isRecurring}
                 className={cn(
-                  "border h-auto py-3 flex flex-col gap-1",
+                  "relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200",
                   newCustomDay.isRecurring
-                    ? "bg-white dark:bg-gray-900 border-gray-900 dark:border-white"
-                    : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900"
+                    ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm"
+                    : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                 )}
                 onClick={() => setNewCustomDay({ ...newCustomDay, isRecurring: true })}
                 onKeyDown={(e) => handleKeyDown(e, () => setNewCustomDay({ ...newCustomDay, isRecurring: true }))}
               >
-                <CalendarDays className="h-4 w-4 mb-1 text-gray-500 dark:text-gray-400" aria-hidden="true" />
-                <span className="font-medium text-gray-900 dark:text-white">Recurring Pattern</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Repeats weekly</span>
+                <CalendarDays className="h-6 w-6 text-violet-600 dark:text-violet-400" aria-hidden="true" />
+                <div className="text-center">
+                  <div className="font-medium text-gray-900 dark:text-white">Recurring Pattern</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Repeats weekly</div>
+                </div>
+                {newCustomDay.isRecurring && (
+                  <div className="absolute top-2 right-2">
+                    <CalendarCheck className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  </div>
+                )}
               </Button>
             </div>
 
             {newCustomDay.isRecurring ? (
-              <div className="space-y-4">
-                <div 
-                  className="grid grid-cols-2 sm:grid-cols-7 gap-2" 
-                  role="radiogroup" 
-                  aria-label="Select day of the week"
-                >
-                  {WEEKDAYS.map((day) => (
-                    <Button
-                      key={day.value}
-                      type="button"
-                      variant="outline"
-                      role="radio"
-                      aria-checked={newCustomDay.weekday === parseInt(day.value)}
-                      className={cn(
-                        "border h-auto py-2 px-1",
-                        newCustomDay.weekday === parseInt(day.value)
-                          ? "bg-white dark:bg-gray-900 border-gray-900 dark:border-white"
-                          : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900"
-                      )}
-                      onClick={() => setNewCustomDay({ ...newCustomDay, weekday: parseInt(day.value) })}
-                      onKeyDown={(e) => handleKeyDown(e, () => setNewCustomDay({ ...newCustomDay, weekday: parseInt(day.value) }))}
-                    >
-                      <span className="text-gray-900 dark:text-white">{day.label.slice(0, 3)}</span>
-                    </Button>
-                  ))}
+              <div className="space-y-5">
+                <div className="space-y-3">
+                  <Label className="text-base font-medium text-gray-900 dark:text-white">Select Day of Week</Label>
+                  <div 
+                    className="grid grid-cols-7 gap-2" 
+                    role="radiogroup" 
+                    aria-label="Select day of the week"
+                  >
+                    {WEEKDAYS.map((day) => (
+                      <Button
+                        key={day.value}
+                        type="button"
+                        variant="outline"
+                        role="radio"
+                        aria-checked={newCustomDay.weekday === parseInt(day.value)}
+                        className={cn(
+                          "border h-auto py-2 px-1 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-all duration-200",
+                          newCustomDay.weekday === parseInt(day.value)
+                            ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm"
+                            : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                        )}
+                        onClick={() => setNewCustomDay({ ...newCustomDay, weekday: parseInt(day.value) })}
+                        onKeyDown={(e) => handleKeyDown(e, () => setNewCustomDay({ ...newCustomDay, weekday: parseInt(day.value) }))}
+                      >
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{day.label.slice(0, 3)}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="startDate" className="text-gray-900 dark:text-white">Start Date</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={newCustomDay.startDate}
-                      onChange={(e) =>
-                        setNewCustomDay({
-                          ...newCustomDay,
-                          startDate: e.target.value,
-                        })
-                      }
-                      className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 focus:border-gray-400 dark:focus:border-gray-600 dark:text-gray-100"
-                      aria-required="true"
-                    />
+                    <Label htmlFor="startDate" className="text-base font-medium text-gray-900 dark:text-white">Start Date</Label>
+                    <div className="relative">
+                      <Input
+                        id="startDate"
+                        type="date"
+                        value={newCustomDay.startDate}
+                        onChange={(e) =>
+                          setNewCustomDay({
+                            ...newCustomDay,
+                            startDate: e.target.value,
+                          })
+                        }
+                        className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10"
+                        aria-required="true"
+                      />
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="endDate" className="text-gray-900 dark:text-white">End Date</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={newCustomDay.endDate}
-                      onChange={(e) =>
-                        setNewCustomDay({
-                          ...newCustomDay,
-                          endDate: e.target.value,
-                        })
-                      }
-                      className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 focus:border-gray-400 dark:focus:border-gray-600 dark:text-gray-100"
-                      aria-required="true"
-                    />
+                    <Label htmlFor="endDate" className="text-base font-medium text-gray-900 dark:text-white">End Date</Label>
+                    <div className="relative">
+                      <Input
+                        id="endDate"
+                        type="date"
+                        value={newCustomDay.endDate}
+                        onChange={(e) =>
+                          setNewCustomDay({
+                            ...newCustomDay,
+                            endDate: e.target.value,
+                          })
+                        }
+                        className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10"
+                        aria-required="true"
+                      />
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    </div>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <Label htmlFor="date" className="text-gray-900 dark:text-white">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={newCustomDay.date}
-                  onChange={(e) =>
-                    setNewCustomDay({
-                      ...newCustomDay,
-                      date: e.target.value,
-                    })
-                  }
-                  className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 focus:border-gray-400 dark:focus:border-gray-600 dark:text-gray-100"
-                  aria-required="true"
-                />
+                <Label htmlFor="date" className="text-base font-medium text-gray-900 dark:text-white">Select Date</Label>
+                <div className="relative">
+                  <Input
+                    id="date"
+                    type="date"
+                    value={newCustomDay.date}
+                    onChange={(e) =>
+                      setNewCustomDay({
+                        ...newCustomDay,
+                        date: e.target.value,
+                      })
+                    }
+                    className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10"
+                    aria-required="true"
+                  />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-100"
+              className="flex-1 border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300"
               onClick={() => {
                 setNewCustomDay(defaultCustomDay)
                 setIsAdding(false)
@@ -267,7 +301,12 @@ export function CustomDaysOff({ customDaysOff, onChange }: CustomDaysOffProps) {
             </Button>
             <Button
               type="button"
-              className="flex-1 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className={cn(
+                "flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200",
+                newCustomDay.isRecurring
+                  ? "bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-300"
+                  : "bg-teal-500 hover:bg-teal-600 dark:bg-teal-400 dark:hover:bg-teal-300"
+              )}
               onClick={handleAddCustomDay}
               onKeyDown={(e) => handleKeyDown(e, handleAddCustomDay)}
               disabled={!newCustomDay.name || (newCustomDay.isRecurring ? (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined) : !newCustomDay.date)}
