@@ -36,23 +36,41 @@ export interface BreakPreference {
 }
 
 /**
+ * Represents a custom day off provided by the company or organization.
+ */
+export interface CustomDayOff {
+  date: string           // Date in 'yyyy-MM-dd' format
+  name: string          // Description or name of the custom day off
+  isRecurring?: boolean // Whether this applies to all matching weekdays in a date range
+  startDate?: string    // If recurring, the start date of the range
+  endDate?: string      // If recurring, the end date of the range
+  weekday?: number      // If recurring, the day of week (0-6, where 0 is Sunday)
+}
+
+/**
  * Creates an OptimizedDay object for a given date.
  * 
  * @param date - Date to create the day object for
  * @param holidays - List of holidays for the year
+ * @param customDaysOff - Array of custom days off for the year
  * @returns OptimizedDay object with initial properties
  */
-const createDay = (date: Date, holidays: Array<{ date: string; name: string }>): OptimizedDay => {
+const createDay = (
+  date: Date, 
+  holidays: Array<{ date: string; name: string }>,
+  customDaysOff: Array<{ date: string; name: string }> = []
+): OptimizedDay => {
   const dateStr = format(date, 'yyyy-MM-dd')
   const { isHoliday: isHolidayDay, name: holidayName } = isHoliday(date, holidays)
+  const customDay = customDaysOff.find(d => d.date === dateStr)
 
   return {
     date: dateStr,
     isWeekend: isWeekend(date),
     isCTO: false,
-    isPartOfBreak: isHolidayDay,
-    isHoliday: isHolidayDay,
-    holidayName
+    isPartOfBreak: isHolidayDay || !!customDay,
+    isHoliday: isHolidayDay || !!customDay,
+    holidayName: customDay?.name || holidayName
   }
 }
 
@@ -61,12 +79,14 @@ const createDay = (date: Date, holidays: Array<{ date: string; name: string }>):
  * previous year to handle breaks that span across years.
  * 
  * @param year - Target year
+ * @param customDaysOff - Array of custom days off for the year
  * @returns Array of calendar days with their initial properties
  */
-const generateCalendarDays = (year: number): OptimizedDay[] => {
+const generateCalendarDays = (year: number, customDaysOff: CustomDayOff[] = []): OptimizedDay[] => {
   const startDate = new Date(year - 1, 11, 1) // Start from December of previous year
   const daysToGenerate = 365 + 31 // Full year plus December of previous year
   const holidays = getHolidaysForYear(year)
+  const generatedCustomDays = generateCustomDaysOff(customDaysOff, year)
 
   // Generate array of sequential dates
   const dates = Array.from(
@@ -75,7 +95,7 @@ const generateCalendarDays = (year: number): OptimizedDay[] => {
   )
 
   // Convert each date to an OptimizedDay
-  return dates.map(date => createDay(date, holidays))
+  return dates.map(date => createDay(date, holidays, generatedCustomDays))
 }
 
 /**
@@ -753,9 +773,10 @@ const markExtendedWeekends = (days: OptimizedDay[]): OptimizedDay[] => {
  * @param days - Array of all days in the year
  * @param numberOfDays - Number of CTO days available
  * @param year - The year being optimized
+ * @param customDaysOff - Array of custom days off for the year
  * @returns Optimized calendar with CTO days allocated
  */
-const optimizeBalanced = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
+const optimizeBalanced = (days: OptimizedDay[], numberOfDays: number, year: number, customDaysOff: CustomDayOff[] = []): OptimizedDay[] => {
   // Calculate days for each strategy
   const distribution = {
     longWeekends: Math.floor(numberOfDays * 0.4),
@@ -878,19 +899,61 @@ const forceAllocateRemainingDays = (
 }
 
 /**
+ * Generates custom days off for a given year based on recurring patterns.
+ * 
+ * @param customDaysOff - Array of custom days off configurations
+ * @param year - Target year
+ * @returns Array of dates in yyyy-MM-dd format
+ */
+const generateCustomDaysOff = (customDaysOff: CustomDayOff[], year: number): Array<{ date: string; name: string }> => {
+  const result: Array<{ date: string; name: string }> = []
+
+  customDaysOff.forEach(customDay => {
+    if (!customDay.isRecurring) {
+      // For non-recurring days, just add if they're in the target year
+      if (customDay.date.startsWith(year.toString())) {
+        result.push({ date: customDay.date, name: customDay.name })
+      }
+      return
+    }
+
+    // For recurring days, generate all matching dates within the range
+    if (customDay.startDate && customDay.endDate && customDay.weekday !== undefined) {
+      const start = parse(customDay.startDate, 'yyyy-MM-dd', new Date())
+      const end = parse(customDay.endDate, 'yyyy-MM-dd', new Date())
+      let current = start
+
+      while (current <= end) {
+        if (current.getFullYear() === year && getDay(current) === customDay.weekday) {
+          result.push({
+            date: format(current, 'yyyy-MM-dd'),
+            name: customDay.name
+          })
+        }
+        current = addDays(current, 1)
+      }
+    }
+  })
+
+  return result
+}
+
+/**
  * Main optimization function that generates and optimizes a calendar based on
  * the specified strategy and number of CTO days.
  * 
  * @param numberOfDays - Number of CTO days to allocate
  * @param strategy - Optimization strategy to use
  * @param year - Target year (defaults to current year)
+ * @param customDaysOff - Array of custom days off for the year
  * @returns Object containing the optimized calendar days
  * @throws Error if numberOfDays is invalid or if there aren't enough workdays
  */
 export const optimizeCtoDays = (
   numberOfDays: number,
   strategy: OptimizationStrategy,
-  year: number = new Date().getFullYear()
+  year: number = new Date().getFullYear(),
+  customDaysOff: CustomDayOff[] = []
 ): { days: OptimizedDay[] } => {
   // Input validation
   if (numberOfDays <= 0) {
@@ -913,7 +976,7 @@ export const optimizeCtoDays = (
   }
 
   // Initial calendar generation and validation
-  const initialCalendar = generateCalendarDays(year)
+  const initialCalendar = generateCalendarDays(year, customDaysOff)
   const yearDays = initialCalendar.filter(isInYear)
   const availableWorkdays = yearDays.filter(isWorkday).length
 
