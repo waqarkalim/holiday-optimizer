@@ -1,6 +1,6 @@
 'use client'
 
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, parse, getMonth, differenceInDays } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, parse, getMonth } from 'date-fns'
 import clsx from 'clsx'
 import type { OptimizedDay } from '@/services/optimizer'
 import { useMemo } from 'react'
@@ -219,7 +219,7 @@ function BreakCard({ breakPeriod }: { breakPeriod: Break }) {
             </svg>
             <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.holidays}</span>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Holidays</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{breakPeriod.holidays === 1 ? 'Public Holiday' : 'Public Holidays'}</p>
         </div>
         <div className="space-y-1">
           <div className="flex items-center space-x-1.5">
@@ -234,7 +234,7 @@ function BreakCard({ breakPeriod }: { breakPeriod: Break }) {
 
       <div className="mt-4">
         <div className="flex space-x-1">
-          {breakPeriod.days.map((day, index) => (
+          {breakPeriod.days.map((day) => (
             <div
               key={day.date}
               className={clsx(
@@ -258,15 +258,12 @@ function BreakCard({ breakPeriod }: { breakPeriod: Break }) {
 }
 
 export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
-  if (!optimizedDays?.length) {
-    return null
-  }
-
   // Calculate statistics
-  const totalDays = optimizedDays.length
   const ctoDays = optimizedDays.filter(d => d.isCTO).length
   const breakDays = optimizedDays.filter(d => d.isPartOfBreak).length
   const holidays = optimizedDays.filter(d => d.isHoliday).length
+
+  const breaks = useMemo(() => findBreaks(optimizedDays), [optimizedDays])
 
   // Find extended weekends (including those extended by holidays)
   const extendedWeekends = optimizedDays.reduce((count, day, index, arr) => {
@@ -292,8 +289,6 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
 
     return count
   }, 0)
-
-  const breaks = useMemo(() => findBreaks(optimizedDays), [optimizedDays])
 
   return (
     <div className="space-y-8">
@@ -367,7 +362,7 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
               <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-700">
                 <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400" />
               </div>
-              <span className="text-sm text-gray-700 dark:text-gray-300">Holiday</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Public Holiday</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-6 h-6 rounded-lg bg-violet-100 dark:bg-violet-900/50 border border-violet-200 dark:border-violet-700" />

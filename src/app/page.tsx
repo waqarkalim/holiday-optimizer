@@ -56,14 +56,13 @@ const HomePage = () => {
                 onFormChange={setFormState}
                 isOptimizing={isOptimizing}
                 error={error}
-                year={currentYear}
               />
             </div>
 
             {/* Results Section - Appears when there are results */}
-            {optimizedDays && (
+            {optimizedDays && optimizedDays.length > 0 && (
               <div className="space-y-6 min-w-0 max-w-4xl">
-                <ResultsDisplay optimizedDays={optimizedDays} year={currentYear} />
+                <ResultsDisplay optimizedDays={optimizedDays} />
               </div>
             )}
           </div>

@@ -149,7 +149,7 @@ const OptimizerForm = ({ formState, onFormChange, isOptimizing, error }: Optimiz
             Optimization Strategy
           </label>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Choose how you'd like your CTO days to be distributed
+            Choose how you&apos;d like your CTO days to be distributed
           </p>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {STRATEGIES.map(strategy => (

@@ -168,8 +168,8 @@ function optimizeLongWeekends(days: OptimizedDay[], numberOfDays: number, year: 
     if (remainingDays <= 0) break
 
     let canUseBreak = true
-    let startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
-    let endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
+    const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
+    const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
 
     // Check for overlap
     for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
@@ -207,8 +207,8 @@ function optimizeLongWeekends(days: OptimizedDay[], numberOfDays: number, year: 
         return dayOfWeek === 1 || dayOfWeek === 5
       })
       .sort((a, b) => {
-        const scoreA = isNearHoliday(days, a.index, 2, year) ? 1 : 0
-        const scoreB = isNearHoliday(days, b.index, 2, year) ? 1 : 0
+        const scoreA = isNearHoliday(days, a.index, 2) ? 1 : 0
+        const scoreB = isNearHoliday(days, b.index, 2) ? 1 : 0
         return scoreB - scoreA
       })
 
@@ -270,8 +270,8 @@ function optimizeWeekLongBreaks(days: OptimizedDay[], numberOfDays: number, year
     if (remainingDays <= 0) break
 
     let canUseBreak = true
-    let startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
-    let endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
+    const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
+    const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
 
     for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
       if (usedDays.has(format(d, 'yyyy-MM-dd'))) {
@@ -302,8 +302,8 @@ function optimizeWeekLongBreaks(days: OptimizedDay[], numberOfDays: number, year
         if (b.ctoDaysNeeded > remainingDays) return false
         // Check for overlap with used days
         let hasOverlap = false
-        let startDate = parse(b.startDate, 'yyyy-MM-dd', new Date())
-        let endDate = parse(b.endDate, 'yyyy-MM-dd', new Date())
+        const startDate = parse(b.startDate, 'yyyy-MM-dd', new Date())
+        const endDate = parse(b.endDate, 'yyyy-MM-dd', new Date())
         for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
           if (usedDays.has(format(d, 'yyyy-MM-dd'))) {
             hasOverlap = true
@@ -320,8 +320,8 @@ function optimizeWeekLongBreaks(days: OptimizedDay[], numberOfDays: number, year
     for (const breakPeriod of smallerBreaks) {
       if (remainingDays <= 0) break
 
-      let startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
-      let endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
+      const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
+      const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
 
       for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
         const dateStr = format(d, 'yyyy-MM-dd')
@@ -419,8 +419,8 @@ function optimizeExtendedVacations(days: OptimizedDay[], numberOfDays: number, y
     if (remainingDays <= 0) break
 
     let canUseBreak = true
-    let startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
-    let endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
+    const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
+    const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
 
     for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
       if (usedDays.has(format(d, 'yyyy-MM-dd'))) {
@@ -617,101 +617,11 @@ function optimizeBalanced(days: OptimizedDay[], numberOfDays: number, year: numb
   return result
 }
 
-function isNearHoliday(days: OptimizedDay[], index: number, range: number = 2, year: number): boolean {
+function isNearHoliday(days: OptimizedDay[], index: number, range: number = 2): boolean {
   for (let i = Math.max(0, index - range); i <= Math.min(days.length - 1, index + range); i++) {
     if (days[i].isHoliday) return true
   }
   return false
-}
-
-function useRemainingCTODays(
-  days: OptimizedDay[],
-  usedDates: Set<string>,
-  remainingDays: number,
-  year: number,
-  preferredDayTypes: ('nearBreak' | 'nearHoliday' | 'monFri' | 'any')[] = ['nearBreak', 'nearHoliday', 'monFri', 'any']
-): number {
-  let daysLeft = remainingDays
-  let daysUsed = 0
-  
-  // First try with preferred day types
-  for (const dayType of preferredDayTypes) {
-    if (daysLeft <= 0) break
-
-    let candidates = days
-      .map((day, index) => ({ day, index }))
-      .filter(({ day }) => 
-        day.date.startsWith(year.toString()) &&
-        !day.isWeekend &&
-        !day.isHoliday &&
-        !usedDates.has(day.date) &&
-        !day.isCTO
-      )
-
-    // Apply additional filters based on day type
-    switch (dayType) {
-      case 'nearBreak':
-        candidates = candidates.filter(({ day, index }) => {
-          const date = parse(day.date, 'yyyy-MM-dd', new Date())
-          const prevDay = format(addDays(date, -1), 'yyyy-MM-dd')
-          const nextDay = format(addDays(date, 1), 'yyyy-MM-dd')
-          const prevPrevDay = format(addDays(date, -2), 'yyyy-MM-dd')
-          const nextNextDay = format(addDays(date, 2), 'yyyy-MM-dd')
-          return usedDates.has(prevDay) || usedDates.has(nextDay) ||
-                 usedDates.has(prevPrevDay) || usedDates.has(nextNextDay) ||
-                 days[index - 1]?.isHoliday || days[index + 1]?.isHoliday ||
-                 days[index - 2]?.isHoliday || days[index + 2]?.isHoliday
-        })
-        break
-      case 'nearHoliday':
-        candidates = candidates.filter(({ day, index }) => isNearHoliday(days, index, 5, year))
-        break
-      case 'monFri':
-        candidates = candidates.filter(({ day }) => {
-          const date = parse(day.date, 'yyyy-MM-dd', new Date())
-          const dayOfWeek = getDay(date)
-          return dayOfWeek === 1 || dayOfWeek === 5 || dayOfWeek === 2 || dayOfWeek === 4
-        })
-        break
-    }
-
-    // Sort candidates by preference
-    candidates.sort((a, b) => {
-      // Prioritize days that would connect existing breaks
-      const aConnects = doesDayConnectBreaks(days, a.index, usedDates)
-      const bConnects = doesDayConnectBreaks(days, b.index, usedDates)
-      if (aConnects !== bConnects) return bConnects ? 1 : -1
-
-      // Then prioritize by date (earlier dates first)
-      return parse(a.day.date, 'yyyy-MM-dd', new Date()).getTime() -
-             parse(b.day.date, 'yyyy-MM-dd', new Date()).getTime()
-    })
-
-    // Use the best candidates
-    for (const { day, index } of candidates) {
-      if (daysLeft <= 0) break
-      days[index].isCTO = true
-      usedDates.add(day.date)
-      daysLeft--
-      daysUsed++
-    }
-  }
-
-  return daysUsed
-}
-
-function doesDayConnectBreaks(days: OptimizedDay[], index: number, usedDates: Set<string>): boolean {
-  const date = parse(days[index].date, 'yyyy-MM-dd', new Date())
-  const prevDay = format(addDays(date, -1), 'yyyy-MM-dd')
-  const prevPrevDay = format(addDays(date, -2), 'yyyy-MM-dd')
-  const nextDay = format(addDays(date, 1), 'yyyy-MM-dd')
-  const nextNextDay = format(addDays(date, 2), 'yyyy-MM-dd')
-
-  // Check if this day would connect two breaks
-  const hasPrevBreak = usedDates.has(prevPrevDay) || days[index - 2]?.isHoliday || days[index - 2]?.isWeekend
-  const hasNextBreak = usedDates.has(nextNextDay) || days[index + 2]?.isHoliday || days[index + 2]?.isWeekend
-
-  return hasPrevBreak && hasNextBreak
 }
 
 function markExtendedWeekends(days: OptimizedDay[]): void {
