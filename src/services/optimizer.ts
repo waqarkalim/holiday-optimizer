@@ -468,11 +468,9 @@ function optimizeExtendedVacations(days: OptimizedDay[], numberOfDays: number, y
 }
 
 function markBreaks(days: OptimizedDay[]): void {
-  // Reset all break markers except holidays
+  // Reset all break markers
   for (let i = 0; i < days.length; i++) {
-    if (!days[i].isHoliday) {
-      days[i].isPartOfBreak = false
-    }
+    days[i].isPartOfBreak = false
   }
 
   // First pass: Find all breaks that use CTO days
@@ -506,7 +504,36 @@ function markBreaks(days: OptimizedDay[]): void {
     }
   }
 
-  // Second pass: Connect any gaps between CTO days
+  // Second pass: Mark holidays that extend weekends
+  for (let i = 0; i < days.length; i++) {
+    if (days[i].isHoliday) {
+      const prevDay = days[i - 1]
+      const nextDay = days[i + 1]
+      const prevIsWeekendOrCTO = prevDay && (prevDay.isWeekend || prevDay.isCTO || (prevDay.isHoliday && prevDay.isPartOfBreak))
+      const nextIsWeekendOrCTO = nextDay && (nextDay.isWeekend || nextDay.isCTO || (nextDay.isHoliday && nextDay.isPartOfBreak))
+      
+      // Only mark the holiday as part of a break if it's connected to a weekend or CTO day
+      if (prevIsWeekendOrCTO || nextIsWeekendOrCTO) {
+        days[i].isPartOfBreak = true
+        
+        // If connected to a weekend, mark the whole weekend
+        if (prevDay?.isWeekend) {
+          prevDay.isPartOfBreak = true
+          if (i >= 2 && days[i - 2].isWeekend) {
+            days[i - 2].isPartOfBreak = true
+          }
+        }
+        if (nextDay?.isWeekend) {
+          nextDay.isPartOfBreak = true
+          if (i + 2 < days.length && days[i + 2].isWeekend) {
+            days[i + 2].isPartOfBreak = true
+          }
+        }
+      }
+    }
+  }
+
+  // Third pass: Connect any gaps between CTO days
   for (let i = 1; i < days.length - 1; i++) {
     if (!days[i].isPartOfBreak && days[i-1].isPartOfBreak && days[i+1].isPartOfBreak) {
       // Check if either surrounding break has a CTO day
