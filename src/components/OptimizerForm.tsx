@@ -439,19 +439,19 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           className={cn(
                             "relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200",
                             !newCustomDay.isRecurring
-                              ? "bg-teal-50 dark:bg-teal-900/20 border-teal-500 dark:border-teal-400 shadow-sm"
+                              ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm"
                               : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                           )}
                           onClick={() => handleCustomDayUpdate('isRecurring', false)}
                         >
-                          <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+                          <Calendar className="h-6 w-6 text-violet-600 dark:text-violet-400" aria-hidden="true" />
                           <div className="text-center">
                             <div className="font-medium text-gray-900 dark:text-white">Single Day</div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">One-time occurrence</div>
                           </div>
                           {!newCustomDay.isRecurring && (
                             <span className="absolute top-2 right-2" aria-label="Selected">
-                              <CalendarCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                              <CalendarCheck className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                             </span>
                           )}
                         </Button>
@@ -608,7 +608,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                               aria-invalid={!!errors.customDay?.date}
                               aria-errormessage={errors.customDay?.date ? "date-error" : undefined}
                             />
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-400 dark:text-violet-500" aria-hidden="true" />
                           </div>
                           {errors.customDay?.date && (
                             <p id="date-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -635,9 +635,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           type="button"
                           className={cn(
                             "flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200",
-                            newCustomDay.isRecurring
-                              ? "bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-300"
-                              : "bg-teal-500 hover:bg-teal-600 dark:bg-teal-400 dark:hover:bg-teal-300"
+                            "bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-300"
                           )}
                           onClick={handleCustomDayAdd}
                           disabled={!newCustomDay.name || (newCustomDay.isRecurring ? (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined) : !newCustomDay.date)}
