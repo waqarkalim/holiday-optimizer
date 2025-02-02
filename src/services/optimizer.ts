@@ -1,4 +1,5 @@
 import { addDays, isWeekend, format, parse, getDay } from 'date-fns'
+import { pipe } from '@/utils/fp'
 
 /**
  * Represents a single day in the optimization calendar.
@@ -38,26 +39,24 @@ export interface BreakPreference {
  * Returns a list of public holidays for a given year.
  * Currently configured for Canadian holidays.
  */
-function getHolidaysForYear(year: number) {
-  return [
-    { date: `${year}-01-01`, name: "New Year's Day" },
-    { date: `${year}-02-17`, name: 'Family Day' },
-    { date: `${year}-04-18`, name: 'Good Friday' },
-    { date: `${year}-05-19`, name: 'Victoria Day' },
-    { date: `${year}-07-01`, name: 'Canada Day' },
-    { date: `${year}-09-01`, name: 'Labour Day' },
-    { date: `${year}-10-13`, name: 'Thanksgiving Day' },
-    { date: `${year}-11-11`, name: 'Remembrance Day' },
-    { date: `${year}-12-25`, name: 'Christmas Day' },
-    { date: `${year}-12-26`, name: 'Boxing Day' },
-  ]
-}
+const getHolidaysForYear = (year: number): Array<{ date: string; name: string }> => [
+  { date: `${year}-01-01`, name: "New Year's Day" },
+  { date: `${year}-02-17`, name: 'Family Day' },
+  { date: `${year}-04-18`, name: 'Good Friday' },
+  { date: `${year}-05-19`, name: 'Victoria Day' },
+  { date: `${year}-07-01`, name: 'Canada Day' },
+  { date: `${year}-09-01`, name: 'Labour Day' },
+  { date: `${year}-10-13`, name: 'Thanksgiving Day' },
+  { date: `${year}-11-11`, name: 'Remembrance Day' },
+  { date: `${year}-12-25`, name: 'Christmas Day' },
+  { date: `${year}-12-26`, name: 'Boxing Day' },
+]
 
 /**
  * Checks if a given date is a holiday.
  * Returns both the holiday status and the holiday name if applicable.
  */
-function isHoliday(date: Date, holidays: { date: string, name: string }[]): { isHoliday: boolean; name?: string } {
+const isHoliday = (date: Date, holidays: Array<{ date: string; name: string }>): { isHoliday: boolean; name?: string } => {
   const formattedDate = format(date, 'yyyy-MM-dd')
   const holiday = holidays.find(h => h.date === formattedDate)
   return holiday ? { isHoliday: true, name: holiday.name } : { isHoliday: false }
@@ -172,111 +171,192 @@ function findAllPossibleBreaks(days: OptimizedDay[], year: number): Break[] {
   return breaks
 }
 
+// Helper function to get all dates in a range
+const getDatesInRange = (startDate: string, endDate: string): string[] => {
+  const start = parse(startDate, 'yyyy-MM-dd', new Date())
+  const end = parse(endDate, 'yyyy-MM-dd', new Date())
+  const dates: string[] = []
+  let current = start
+
+  while (current <= end) {
+    dates.push(format(current, 'yyyy-MM-dd'))
+    current = addDays(current, 1)
+  }
+
+  return dates
+}
+
 /**
- * Optimizes the calendar for long weekends (3-4 days).
- * Prioritizes creating extended weekends by:
- * 1. Finding optimal 3-4 day breaks near holidays
- * 2. Using remaining days to create additional long weekends
- * 3. Distributing any leftover days
+ * Allocates any remaining CTO days to workdays, prioritizing days near existing breaks or holidays.
  * 
  * @param days - Array of all days in the year
+ * @param remainingDays - Number of CTO days left to allocate
+ * @param year - The year being optimized
+ * @param usedDates - Set of dates that are already used
+ * @returns Updated calendar with all CTO days allocated
+ */
+const allocateRemainingDays = (
+  days: OptimizedDay[],
+  remainingDays: number,
+  year: number,
+  usedDates: Set<string>
+): OptimizedDay[] => {
+  if (remainingDays <= 0) return days
+
+  const isInYear = (date: string) => date.startsWith(year.toString())
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  
+  // Find all available workdays and score them
+  const scoredWorkdays = days
+    .map((day, index) => ({ day, index }))
+    .filter(({ day }) => 
+      isInYear(day.date) &&
+      isWorkday(day) &&
+      !day.isCTO &&
+      !usedDates.has(day.date)
+    )
+    .map(({ day, index }) => ({
+      day,
+      index,
+      score: calculateDayScore(days, index)
+    }))
+    .sort((a, b) => b.score - a.score)
+
+  // Allocate remaining days to the highest scored workdays
+  return scoredWorkdays
+    .slice(0, remainingDays)
+    .reduce(
+      (result, { index }) => {
+        result[index].isCTO = true
+        return result
+      },
+      [...days]
+    )
+}
+
+/**
+ * Calculates a score for a workday based on its proximity to breaks, holidays, and weekends.
+ * Higher scores indicate more desirable days for CTO.
+ * 
+ * @param days - Array of all days in the year
+ * @param index - Index of the day to score
+ * @returns Score for the day (higher is better)
+ */
+const calculateDayScore = (days: OptimizedDay[], index: number): number => {
+  let score = 0
+  const range = 3 // Days to look before and after
+
+  // Check proximity to existing breaks
+  for (let i = Math.max(0, index - range); i <= Math.min(days.length - 1, index + range); i++) {
+    if (i === index) continue
+    const distance = Math.abs(i - index)
+    if (days[i].isPartOfBreak) score += (range - distance + 1) * 2
+    if (days[i].isHoliday) score += (range - distance + 1) * 3
+    if (days[i].isCTO) score += (range - distance + 1) * 2
+    if (days[i].isWeekend) score += (range - distance + 1)
+  }
+
+  // Prefer Mondays and Fridays
+  const dayOfWeek = getDay(parse(days[index].date, 'yyyy-MM-dd', new Date()))
+  if (dayOfWeek === 1 || dayOfWeek === 5) score += 5
+
+  return score
+}
+
+/**
+ * Pure function to optimize for long weekends
+ * @param days - Array of all days in the year with their current status
  * @param numberOfDays - Number of CTO days available
  * @param year - The year being optimized
  * @returns Optimized calendar with CTO days allocated
  */
-function optimizeLongWeekends(days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] {
-  const result = days.map(d => ({ ...d }))
-  let remainingDays = numberOfDays
+const optimizeLongWeekends = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
+  const isInYear = (date: string) => date.startsWith(year.toString())
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isMonOrFri = (date: string) => {
+    const dayOfWeek = getDay(parse(date, 'yyyy-MM-dd', new Date()))
+    return dayOfWeek === 1 || dayOfWeek === 5
+  }
 
-  // Find potential long weekend breaks and sort them by priority
-  const longWeekendBreaks = findAllPossibleBreaks(result, year)
-    .filter(b => {
-      // Filter for 3-4 day breaks using 1-2 CTO days
-      if (b.length < 3 || b.length > 4) return false
-      if (b.ctoDaysNeeded < 1 || b.ctoDaysNeeded > 2) return false
-      if (b.ctoDaysNeeded > remainingDays) return false
-      return true
-    })
+  // Find and sort potential breaks
+  const potentialBreaks = findAllPossibleBreaks(days, year)
+    .filter(b => 
+      b.length >= 3 && b.length <= 4 &&
+      b.ctoDaysNeeded >= 1 && b.ctoDaysNeeded <= 2 &&
+      b.ctoDaysNeeded <= numberOfDays
+    )
     .sort((a, b) => {
-      // Prioritize breaks near holidays
-      const aStartDate = parse(a.startDate, 'yyyy-MM-dd', new Date())
-      const bStartDate = parse(b.startDate, 'yyyy-MM-dd', new Date())
       const aHasHoliday = a.holidaysIncluded > 0 ? 1 : 0
       const bHasHoliday = b.holidaysIncluded > 0 ? 1 : 0
-      return bHasHoliday - aHasHoliday || aStartDate.getTime() - bStartDate.getTime()
+      return bHasHoliday - aHasHoliday ||
+        parse(a.startDate, 'yyyy-MM-dd', new Date()).getTime() -
+        parse(b.startDate, 'yyyy-MM-dd', new Date()).getTime()
     })
 
-  // Track which days have been used
-  const usedDays = new Set<string>()
+  // Apply breaks in order
+  const { result, remainingDays, usedDates } = potentialBreaks.reduce(
+    ({ result, remainingDays, usedDates }, breakPeriod) => {
+      if (remainingDays <= 0) return { result, remainingDays, usedDates }
 
-  // Allocate days to the best long weekend breaks
-  for (const breakPeriod of longWeekendBreaks) {
-    if (remainingDays <= 0) break
-
-    let canUseBreak = true
-    const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
-    const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
-
-    // Check for conflicts with already used days
-    for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
-      if (usedDays.has(format(d, 'yyyy-MM-dd'))) {
-        canUseBreak = false
-        break
-      }
-    }
-
-    // Apply the break if possible
-    if (canUseBreak && breakPeriod.ctoDaysNeeded <= remainingDays) {
-      for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
-        const dateStr = format(d, 'yyyy-MM-dd')
-        usedDays.add(dateStr)
-        const index = days.findIndex(day => day.date === dateStr)
-        if (index >= 0 && !days[index].isWeekend && !days[index].isHoliday) {
-          result[index].isCTO = true
-          remainingDays--
+      const breakDates = getDatesInRange(breakPeriod.startDate, breakPeriod.endDate)
+      const hasConflict = breakDates.some((date: string) => usedDates.has(date))
+      
+      if (!hasConflict && breakPeriod.ctoDaysNeeded <= remainingDays) {
+        const newResult = result.map(day => 
+          breakDates.includes(day.date) && isWorkday(day)
+            ? { ...day, isCTO: true }
+            : day
+        )
+        return {
+          result: newResult,
+          remainingDays: remainingDays - breakPeriod.ctoDaysNeeded,
+          usedDates: new Set([...usedDates, ...breakDates])
         }
       }
-    }
-  }
+      return { result, remainingDays, usedDates }
+    },
+    { result: [...days], remainingDays: numberOfDays, usedDates: new Set<string>() }
+  )
 
-  // Use remaining days strategically on Mondays/Fridays
+  // Use remaining days on Mondays/Fridays
   if (remainingDays > 0) {
-    const mondaysAndFridays = days
+    const monFriWorkdays = days
       .map((day, index) => ({ day, index }))
-      .filter(({ day }) => {
-        if (!day.date.startsWith(year.toString()) ||
-          day.isWeekend ||
-          day.isHoliday ||
-          usedDays.has(day.date)) return false
-        const date = parse(day.date, 'yyyy-MM-dd', new Date())
-        const dayOfWeek = getDay(date)
-        return dayOfWeek === 1 || dayOfWeek === 5
-      })
-      .sort((a, b) => {
-        const scoreA = isNearHoliday(days, a.index, 2) ? 1 : 0
-        const scoreB = isNearHoliday(days, b.index, 2) ? 1 : 0
-        return scoreB - scoreA
-      })
+      .filter(({ day }) => 
+        isInYear(day.date) &&
+        isWorkday(day) &&
+        !usedDates.has(day.date) &&
+        isMonOrFri(day.date)
+      )
+      .sort((a, b) => 
+        (isNearHoliday(days, b.index) ? 1 : 0) -
+        (isNearHoliday(days, a.index) ? 1 : 0)
+      )
 
-    for (const { index } of mondaysAndFridays) {
-      if (remainingDays <= 0) break
-      result[index].isCTO = true
-      usedDays.add(days[index].date)
-      remainingDays--
-    }
-  }
+    const monFriResult = monFriWorkdays.reduce(
+      ({ days, remaining }: { days: OptimizedDay[]; remaining: number }, { index }) =>
+        remaining > 0
+          ? {
+              days: days.map((day, i) => 
+                i === index ? { ...day, isCTO: true } : day
+              ),
+              remaining: remaining - 1
+            }
+          : { days, remaining },
+      { days: result, remaining: remainingDays }
+    )
 
-  // Distribute any remaining days
-  if (remainingDays > 0) {
-    for (let i = 0; i < days.length && remainingDays > 0; i++) {
-      if (days[i].date.startsWith(year.toString()) &&
-        !days[i].isWeekend &&
-        !days[i].isHoliday &&
-        !usedDays.has(days[i].date)) {
-        result[i].isCTO = true
-        remainingDays--
-      }
+    // If we still have days left, allocate them optimally
+    if (monFriResult.remaining > 0) {
+      return allocateRemainingDays(
+        monFriResult.days,
+        monFriResult.remaining,
+        year,
+        usedDates
+      )
     }
+
+    return monFriResult.days
   }
 
   return result
@@ -291,124 +371,157 @@ function optimizeLongWeekends(days: OptimizedDay[], numberOfDays: number, year: 
  * @param year - The year being optimized
  * @returns Optimized calendar with CTO days allocated
  */
-function optimizeWeekLongBreaks(days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] {
-  const result = days.map(d => ({ ...d }))
-  let remainingDays = numberOfDays
+const optimizeWeekLongBreaks = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
+  const isInYear = (date: string) => date.startsWith(year.toString())
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
 
   // Find potential week-long breaks
-  const weekBreaks = findAllPossibleBreaks(result, year)
-    .filter(b => {
-      // Filter for 5-9 day breaks using 2-7 CTO days
-      if (b.length < 5 || b.length > 9) return false
-      if (b.ctoDaysNeeded < 2 || b.ctoDaysNeeded > 7) return false
-      return true
+  const weekBreaks = findAllPossibleBreaks(days, year)
+    .filter(b => b.length >= 5 && b.length <= 9 && b.ctoDaysNeeded >= 2 && b.ctoDaysNeeded <= 7)
+    .sort((a, b) => {
+      // Sort by efficiency (total days / CTO days needed)
+      const aEfficiency = a.length / a.ctoDaysNeeded
+      const bEfficiency = b.length / b.ctoDaysNeeded
+      if (aEfficiency !== bEfficiency) return bEfficiency - aEfficiency
+      // Break ties by preferring breaks with holidays
+      if (a.holidaysIncluded !== b.holidaysIncluded) return b.holidaysIncluded - a.holidaysIncluded
+      // Finally, prefer earlier dates
+      return parse(a.startDate, 'yyyy-MM-dd', new Date()).getTime() -
+             parse(b.startDate, 'yyyy-MM-dd', new Date()).getTime()
     })
 
-  // ... rest of the implementation ...
+  // Apply breaks in order using reduce
+  const { result, remainingDays, usedDates } = weekBreaks.reduce(
+    ({ result, remainingDays, usedDates }, breakPeriod) => {
+      if (remainingDays <= 0) return { result, remainingDays, usedDates }
+
+      const breakDates = getDatesInRange(breakPeriod.startDate, breakPeriod.endDate)
+      const hasConflict = breakDates.some((date: string) => usedDates.has(date))
+      
+      if (!hasConflict && breakPeriod.ctoDaysNeeded <= remainingDays) {
+        const newResult = result.map(day => 
+          breakDates.includes(day.date) && isWorkday(day)
+            ? { ...day, isCTO: true }
+            : day
+        )
+        return {
+          result: newResult,
+          remainingDays: remainingDays - breakPeriod.ctoDaysNeeded,
+          usedDates: new Set([...usedDates, ...breakDates])
+        }
+      }
+      return { result, remainingDays, usedDates }
+    },
+    { result: [...days], remainingDays: numberOfDays, usedDates: new Set<string>() }
+  )
+
+  // Use remaining days for long weekends if possible
+  if (remainingDays >= 1) {
+    const longWeekendResult = optimizeLongWeekends(result, remainingDays, year)
+    return longWeekendResult
+  }
+
+  // If we still have days left, allocate them optimally
+  if (remainingDays > 0) {
+    return allocateRemainingDays(result, remainingDays, year, usedDates)
+  }
+
   return result
 }
 
-function optimizeExtendedVacations(days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] {
-  const result = days.map(d => ({ ...d }))
-  let remainingDays = numberOfDays
+/**
+ * Optimizes the calendar for extended vacations (10-15 days).
+ * Prioritizes creating longer breaks that maximize the use of weekends and holidays.
+ * Any remaining days are used for week-long breaks or long weekends.
+ * 
+ * @param days - Array of all days in the year
+ * @param numberOfDays - Number of CTO days available
+ * @param year - The year being optimized
+ * @returns Optimized calendar with CTO days allocated
+ */
+const optimizeExtendedVacations = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
+  const isInYear = (date: string) => date.startsWith(year.toString())
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
 
-  // Find all potential extended breaks (10-15 days total, 6-10 CTO days)
-  const extendedBreaks = findAllPossibleBreaks(result, year)
-    .filter(b => {
-      // Must be 10-15 days total
-      if (b.length < 10 || b.length > 15) return false
-      // Must use 6-10 CTO days
-      if (b.ctoDaysNeeded < 6 || b.ctoDaysNeeded > 10) return false
-      // Must be affordable with remaining days
-      if (b.ctoDaysNeeded > remainingDays) return false
-      return true
-    })
+  // Find potential extended breaks
+  const extendedBreaks = findAllPossibleBreaks(days, year)
+    .filter(b => 
+      b.length >= 10 && b.length <= 15 &&
+      b.ctoDaysNeeded >= 6 && b.ctoDaysNeeded <= 10 &&
+      b.ctoDaysNeeded <= numberOfDays
+    )
     .sort((a, b) => {
       // Sort by total length first
       if (a.length !== b.length) return b.length - a.length
-      // Then by efficiency
+      // Then by efficiency (total days / CTO days)
       const aEfficiency = a.length / a.ctoDaysNeeded
       const bEfficiency = b.length / b.ctoDaysNeeded
-      // Break ties by preferring breaks with holidays
-      if (aEfficiency === bEfficiency) {
-        return b.holidaysIncluded - a.holidaysIncluded
-      }
-      return bEfficiency - aEfficiency
+      return bEfficiency - aEfficiency || b.holidaysIncluded - a.holidaysIncluded
     })
 
-  // Track used days
-  const usedDays = new Set<string>()
+  // Apply breaks in order using reduce
+  const { result, remainingDays, usedDates } = extendedBreaks.reduce(
+    ({ result, remainingDays, usedDates }, breakPeriod) => {
+      if (remainingDays <= 0) return { result, remainingDays, usedDates }
 
-  // Take the best extended breaks
-  for (const breakPeriod of extendedBreaks) {
-    if (remainingDays <= 0) break
-
-    let canUseBreak = true
-    const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
-    const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
-
-    for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
-      if (usedDays.has(format(d, 'yyyy-MM-dd'))) {
-        canUseBreak = false
-        break
-      }
-    }
-
-    if (canUseBreak && breakPeriod.ctoDaysNeeded <= remainingDays) {
-      for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
-        const dateStr = format(d, 'yyyy-MM-dd')
-        usedDays.add(dateStr)
-        const index = days.findIndex(day => day.date === dateStr)
-        if (index >= 0 && !days[index].isWeekend && !days[index].isHoliday) {
-          result[index].isCTO = true
-          remainingDays--
+      const breakDates = getDatesInRange(breakPeriod.startDate, breakPeriod.endDate)
+      const hasConflict = breakDates.some((date: string) => usedDates.has(date))
+      
+      if (!hasConflict && breakPeriod.ctoDaysNeeded <= remainingDays) {
+        const newResult = result.map(day => 
+          breakDates.includes(day.date) && isWorkday(day)
+            ? { ...day, isCTO: true }
+            : day
+        )
+        return {
+          result: newResult,
+          remainingDays: remainingDays - breakPeriod.ctoDaysNeeded,
+          usedDates: new Set([...usedDates, ...breakDates])
         }
       }
-    }
-  }
+      return { result, remainingDays, usedDates }
+    },
+    { result: [...days], remainingDays: numberOfDays, usedDates: new Set<string>() }
+  )
 
-  // Use remaining days for week-long breaks
+  // Use remaining days optimally based on how many are left
   if (remainingDays >= 2) {
     const weekBreakResult = optimizeWeekLongBreaks(result, remainingDays, year)
-    for (let i = 0; i < days.length; i++) {
-      if (weekBreakResult[i].isCTO && !usedDays.has(days[i].date)) {
-        result[i].isCTO = true
-        remainingDays--
-      }
-    }
+    return weekBreakResult.map((day, i) => 
+      day.isCTO && !usedDates.has(day.date) ? day : result[i]
+    )
+  } else if (remainingDays > 0) {
+    const longWeekendResult = optimizeLongWeekends(result, remainingDays, year)
+    return longWeekendResult.map((day, i) => 
+      day.isCTO && !usedDates.has(day.date) ? day : result[i]
+    )
   }
 
-  // Use any remaining days for long weekends
+  // If we still have days left, allocate them optimally
   if (remainingDays > 0) {
-    const longWeekendResult = optimizeLongWeekends(days, remainingDays, year)
-    for (let i = 0; i < days.length; i++) {
-      if (longWeekendResult[i].isCTO && !usedDays.has(days[i].date)) {
-        result[i].isCTO = true
-        remainingDays--
-      }
-    }
+    return allocateRemainingDays(result, remainingDays, year, usedDates)
   }
 
   return result
 }
 
-function markBreaks(days: OptimizedDay[]): void {
-  // Reset all break markers
-  for (let i = 0; i < days.length; i++) {
-    days[i].isPartOfBreak = false
-  }
+// Pure function to mark breaks and extended weekends
+const markBreaks = (days: OptimizedDay[]): OptimizedDay[] => {
+  const result = [...days]
 
   // First pass: Find all breaks that use CTO days
   let breakStart = -1
-  for (let i = 0; i < days.length; i++) {
-    if (days[i].isCTO) {
+  for (let i = 0; i < result.length; i++) {
+    result[i].isPartOfBreak = false // Reset break markers
+    
+    if (result[i].isCTO) {
       // Found a CTO day, mark it and look backwards/forwards
-      days[i].isPartOfBreak = true
+      result[i].isPartOfBreak = true
       
       // Look backwards
       for (let j = i - 1; j >= 0; j--) {
-        if (days[j].isHoliday || days[j].isWeekend || days[j].isCTO) {
-          days[j].isPartOfBreak = true
+        if (result[j].isHoliday || result[j].isWeekend || result[j].isCTO) {
+          result[j].isPartOfBreak = true
           if (breakStart === -1) breakStart = j
         } else {
           break
@@ -416,42 +529,40 @@ function markBreaks(days: OptimizedDay[]): void {
       }
 
       // Look forwards
-      for (let j = i + 1; j < days.length; j++) {
-        if (days[j].isHoliday || days[j].isWeekend || days[j].isCTO) {
-          days[j].isPartOfBreak = true
+      for (let j = i + 1; j < result.length; j++) {
+        if (result[j].isHoliday || result[j].isWeekend || result[j].isCTO) {
+          result[j].isPartOfBreak = true
         } else {
           break
         }
       }
-    } else if (breakStart !== -1 && !days[i].isPartOfBreak) {
+    } else if (breakStart !== -1 && !result[i].isPartOfBreak) {
       // End of a break
       breakStart = -1
     }
   }
 
   // Second pass: Mark holidays that extend weekends
-  for (let i = 0; i < days.length; i++) {
-    if (days[i].isHoliday) {
-      const prevDay = days[i - 1]
-      const nextDay = days[i + 1]
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].isHoliday) {
+      const prevDay = result[i - 1]
+      const nextDay = result[i + 1]
       const prevIsWeekendOrCTO = prevDay && (prevDay.isWeekend || prevDay.isCTO || (prevDay.isHoliday && prevDay.isPartOfBreak))
       const nextIsWeekendOrCTO = nextDay && (nextDay.isWeekend || nextDay.isCTO || (nextDay.isHoliday && nextDay.isPartOfBreak))
       
-      // Only mark the holiday as part of a break if it's connected to a weekend or CTO day
       if (prevIsWeekendOrCTO || nextIsWeekendOrCTO) {
-        days[i].isPartOfBreak = true
+        result[i].isPartOfBreak = true
         
-        // If connected to a weekend, mark the whole weekend
         if (prevDay?.isWeekend) {
           prevDay.isPartOfBreak = true
-          if (i >= 2 && days[i - 2].isWeekend) {
-            days[i - 2].isPartOfBreak = true
+          if (i >= 2 && result[i - 2].isWeekend) {
+            result[i - 2].isPartOfBreak = true
           }
         }
         if (nextDay?.isWeekend) {
           nextDay.isPartOfBreak = true
-          if (i + 2 < days.length && days[i + 2].isWeekend) {
-            days[i + 2].isPartOfBreak = true
+          if (i + 2 < result.length && result[i + 2].isWeekend) {
+            result[i + 2].isPartOfBreak = true
           }
         }
       }
@@ -459,82 +570,28 @@ function markBreaks(days: OptimizedDay[]): void {
   }
 
   // Third pass: Connect any gaps between CTO days
-  for (let i = 1; i < days.length - 1; i++) {
-    if (!days[i].isPartOfBreak && days[i-1].isPartOfBreak && days[i+1].isPartOfBreak) {
-      // Check if either surrounding break has a CTO day
+  for (let i = 1; i < result.length - 1; i++) {
+    if (!result[i].isPartOfBreak && result[i-1].isPartOfBreak && result[i+1].isPartOfBreak) {
       let hasCTODay = false
+      
       // Look backwards
-      for (let j = i - 1; j >= 0 && days[j].isPartOfBreak; j--) {
-        if (days[j].isCTO) {
+      for (let j = i - 1; j >= 0 && result[j].isPartOfBreak; j--) {
+        if (result[j].isCTO) {
           hasCTODay = true
           break
         }
       }
+      
       // Look forwards
-      for (let j = i + 1; j < days.length && days[j].isPartOfBreak; j++) {
-        if (days[j].isCTO) {
+      for (let j = i + 1; j < result.length && result[j].isPartOfBreak; j++) {
+        if (result[j].isCTO) {
           hasCTODay = true
           break
         }
       }
+      
       if (hasCTODay) {
-        days[i].isPartOfBreak = true
-      }
-    }
-  }
-}
-
-function optimizeBalanced(days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] {
-  const result = days.map(d => ({ ...d }))
-
-  // Divide days into different categories
-  const longWeekendDays = Math.floor(numberOfDays * 0.4)  // 40% for long weekends
-  const weekBreakDays = Math.floor(numberOfDays * 0.4)    // 40% for week breaks
-  const extendedBreakDays = numberOfDays - longWeekendDays - weekBreakDays  // Remainder for extended breaks
-
-  // Create separate copies for each strategy
-  const longWeekendResult = optimizeLongWeekends(days, longWeekendDays, year)
-  const weekBreakResult = optimizeWeekLongBreaks(days, weekBreakDays, year)
-  const extendedResult = optimizeExtendedVacations(days, extendedBreakDays, year)
-
-  // Combine results, prioritizing each strategy's days
-  const usedDays = new Set<string>()
-
-  // First, take long weekend days
-  for (let i = 0; i < days.length; i++) {
-    if (longWeekendResult[i].isCTO) {
-      result[i].isCTO = true
-      usedDays.add(days[i].date)
-    }
-  }
-
-  // Then, take week break days that don't overlap
-  for (let i = 0; i < days.length; i++) {
-    if (weekBreakResult[i].isCTO && !usedDays.has(days[i].date)) {
-      result[i].isCTO = true
-      usedDays.add(days[i].date)
-    }
-  }
-
-  // Finally, take extended vacation days that don't overlap
-  for (let i = 0; i < days.length; i++) {
-    if (extendedResult[i].isCTO && !usedDays.has(days[i].date)) {
-      result[i].isCTO = true
-      usedDays.add(days[i].date)
-    }
-  }
-
-  // If we still haven't used all days, use the remaining on workdays
-  let remainingDays = numberOfDays - usedDays.size
-  if (remainingDays > 0) {
-    for (let i = 0; i < days.length && remainingDays > 0; i++) {
-      if (days[i].date.startsWith(year.toString()) &&
-        !days[i].isWeekend &&
-        !days[i].isHoliday &&
-        !usedDays.has(days[i].date)) {
-        result[i].isCTO = true
-        usedDays.add(days[i].date)
-        remainingDays--
+        result[i].isPartOfBreak = true
       }
     }
   }
@@ -542,27 +599,24 @@ function optimizeBalanced(days: OptimizedDay[], numberOfDays: number, year: numb
   return result
 }
 
-function isNearHoliday(days: OptimizedDay[], index: number, range: number = 2): boolean {
-  for (let i = Math.max(0, index - range); i <= Math.min(days.length - 1, index + range); i++) {
-    if (days[i].isHoliday) return true
-  }
-  return false
-}
+// Pure function to mark extended weekends
+const markExtendedWeekends = (days: OptimizedDay[]): OptimizedDay[] => {
+  const result = [...days]
 
-function markExtendedWeekends(days: OptimizedDay[]): void {
   // First pass: mark weekends that are part of breaks
-  days.forEach((day, index) => {
+  result.forEach((day, index) => {
     if (day.isWeekend && day.isPartOfBreak) {
+      const date = parse(day.date, 'yyyy-MM-dd', new Date())
       // If this is a Saturday, also ensure Sunday is marked
-      if (parse(day.date, 'yyyy-MM-dd', new Date()).getDay() === 6) {
-        const nextDay = days[index + 1]
+      if (date.getDay() === 6) {
+        const nextDay = result[index + 1]
         if (nextDay) {
           nextDay.isPartOfBreak = true
         }
       }
       // If this is a Sunday, also ensure Saturday is marked
-      if (parse(day.date, 'yyyy-MM-dd', new Date()).getDay() === 0) {
-        const prevDay = days[index - 1]
+      if (date.getDay() === 0) {
+        const prevDay = result[index - 1]
         if (prevDay) {
           prevDay.isPartOfBreak = true
         }
@@ -571,92 +625,274 @@ function markExtendedWeekends(days: OptimizedDay[]): void {
   })
 
   // Second pass: mark weekends extended by holidays
-  days.forEach((day, index) => {
+  result.forEach((day, index) => {
     if (day.isWeekend) {
-      const prevDay = days[index - 1]
-      const nextDay = days[index + 1]
+      const prevDay = result[index - 1]
+      const nextDay = result[index + 1]
       const isExtendedByHoliday = prevDay?.isHoliday || nextDay?.isHoliday
 
       if (isExtendedByHoliday) {
         day.isPartOfBreak = true
+        const date = parse(day.date, 'yyyy-MM-dd', new Date())
         // If this is a Saturday, also mark Sunday
-        if (parse(day.date, 'yyyy-MM-dd', new Date()).getDay() === 6 && nextDay) {
+        if (date.getDay() === 6 && nextDay) {
           nextDay.isPartOfBreak = true
         }
         // If this is a Sunday, also mark Saturday
-        if (parse(day.date, 'yyyy-MM-dd', new Date()).getDay() === 0 && prevDay) {
+        if (date.getDay() === 0 && prevDay) {
           prevDay.isPartOfBreak = true
         }
       }
     }
   })
+
+  return result
 }
 
-export function optimizeCtoDays(
+/**
+ * Optimizes the calendar using a balanced approach that distributes CTO days
+ * across different types of breaks: long weekends (40%), week-long breaks (40%),
+ * and extended breaks (20%).
+ * 
+ * @param days - Array of all days in the year
+ * @param numberOfDays - Number of CTO days available
+ * @param year - The year being optimized
+ * @returns Optimized calendar with CTO days allocated
+ */
+const optimizeBalanced = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
+  // Calculate days for each strategy
+  const distribution = {
+    longWeekends: Math.floor(numberOfDays * 0.4),
+    weekBreaks: Math.floor(numberOfDays * 0.4),
+    extended: numberOfDays - 2 * Math.floor(numberOfDays * 0.4)
+  }
+
+  // Apply each strategy independently
+  const strategies = [
+    { fn: optimizeLongWeekends, days: distribution.longWeekends },
+    { fn: optimizeWeekLongBreaks, days: distribution.weekBreaks },
+    { fn: optimizeExtendedVacations, days: distribution.extended }
+  ]
+
+  // Apply strategies in sequence using reduce
+  const finalResult = strategies.reduce(
+    ({ result, usedDates, remainingDays }, { fn, days }) => {
+      if (days <= 0) return { result, usedDates, remainingDays }
+
+      const strategyResult = fn(result, days, year)
+      const newResult = result.map((day, i) => 
+        strategyResult[i].isCTO && !usedDates.has(day.date)
+          ? strategyResult[i]
+          : day
+      )
+
+      const newUsedDates = new Set([
+        ...usedDates,
+        ...newResult
+          .filter(day => day.isCTO)
+          .map(day => day.date)
+      ])
+
+      const usedDaysCount = newResult.filter(day => day.isCTO).length
+      const newRemainingDays = numberOfDays - usedDaysCount
+
+      return {
+        result: newResult,
+        usedDates: newUsedDates,
+        remainingDays: newRemainingDays
+      }
+    },
+    { result: [...days], usedDates: new Set<string>(), remainingDays: numberOfDays }
+  )
+
+  // If we still have days left, allocate them optimally
+  if (finalResult.remainingDays > 0) {
+    return allocateRemainingDays(
+      finalResult.result,
+      finalResult.remainingDays,
+      year,
+      finalResult.usedDates
+    )
+  }
+
+  return finalResult.result
+}
+
+/**
+ * Checks if a day is near a holiday within the specified range.
+ * 
+ * @param days - Array of all days in the year
+ * @param index - Index of the day to check
+ * @param range - Number of days to check before and after (default: 2)
+ * @returns True if there is a holiday within the range
+ */
+const isNearHoliday = (days: OptimizedDay[], index: number, range: number = 2): boolean =>
+  days
+    .slice(Math.max(0, index - range), Math.min(days.length, index + range + 1))
+    .some(day => day.isHoliday)
+
+/**
+ * Forcefully allocates any remaining CTO days to available workdays.
+ * This is a last resort function that will allocate days even if they don't create optimal breaks.
+ * 
+ * @param days - Array of all days in the year
+ * @param remainingDays - Number of CTO days left to allocate
+ * @param year - The year being optimized
+ * @param usedDates - Set of dates that are already used
+ * @returns Updated calendar with ALL CTO days allocated
+ */
+const forceAllocateRemainingDays = (
+  days: OptimizedDay[],
+  remainingDays: number,
+  year: number,
+  usedDates: Set<string>
+): OptimizedDay[] => {
+  if (remainingDays <= 0) return days
+
+  const isInYear = (date: string) => date.startsWith(year.toString())
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  
+  // Get ALL available workdays
+  const availableWorkdays = days
+    .map((day, index) => ({ day, index }))
+    .filter(({ day }) => 
+      isInYear(day.date) &&
+      isWorkday(day) &&
+      !day.isCTO &&
+      !usedDates.has(day.date)
+    )
+    // Sort by preference but will use any days if needed
+    .sort((a, b) => {
+      const aScore = calculateDayScore(days, a.index)
+      const bScore = calculateDayScore(days, b.index)
+      return bScore - aScore
+    })
+
+  // Take exactly the number of days we need
+  const daysToAllocate = availableWorkdays.slice(0, remainingDays)
+  
+  // Allocate the days
+  return daysToAllocate.reduce(
+    (result, { index }) => {
+      result[index].isCTO = true
+      return result
+    },
+    [...days]
+  )
+}
+
+/**
+ * Main optimization function that generates and optimizes a calendar based on
+ * the specified strategy and number of CTO days.
+ * 
+ * @param numberOfDays - Number of CTO days to allocate
+ * @param strategy - Optimization strategy to use
+ * @param year - Target year (defaults to current year)
+ * @returns Object containing the optimized calendar days
+ * @throws Error if numberOfDays is invalid or if there aren't enough workdays
+ */
+export const optimizeCtoDays = (
   numberOfDays: number,
   strategy: OptimizationStrategy,
   year: number = new Date().getFullYear()
-): { days: OptimizedDay[] } {
+): { days: OptimizedDay[] } => {
+  // Input validation
   if (numberOfDays <= 0) {
     throw new Error('Number of CTO days must be greater than 0')
   }
 
-  // Get holidays for the specified year
+  // Generate initial calendar
+  const days = generateCalendarDays(year)
+  const yearDays = days.filter(day => day.date.startsWith(year.toString()))
+  const availableWorkdays = yearDays.filter(day => !day.isWeekend && !day.isHoliday).length
+
+  // Validate workday availability
+  if (availableWorkdays < numberOfDays) {
+    throw new Error(
+      `Not enough workdays available in ${year}. Requested ${numberOfDays} days but only ${availableWorkdays} workdays available.`
+    )
+  }
+
+  // Strategy-specific optimization using composition
+  const optimize = pipe(
+    (days: OptimizedDay[]) => {
+      const strategyMap: Record<OptimizationStrategy, (d: OptimizedDay[], n: number, y: number) => OptimizedDay[]> = {
+        longWeekends: optimizeLongWeekends,
+        weekLongBreaks: optimizeWeekLongBreaks,
+        extendedVacations: optimizeExtendedVacations,
+        balanced: optimizeBalanced
+      }
+      return strategyMap[strategy](days, numberOfDays, year)
+    },
+    markBreaks,
+    markExtendedWeekends
+  )
+
+  let optimizedDays = optimize(days)
+  let yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
+  let usedCtoDays = yearOptimizedDays.filter(day => day.isCTO).length
+
+  // Keep trying to allocate days until we use exactly the number requested
+  while (usedCtoDays < numberOfDays) {
+    const remainingDays = numberOfDays - usedCtoDays
+    const usedDates = new Set(yearOptimizedDays.filter(day => day.isCTO).map(day => day.date))
+
+    // First try optimal allocation
+    optimizedDays = allocateRemainingDays(optimizedDays, remainingDays, year, usedDates)
+    yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
+    usedCtoDays = yearOptimizedDays.filter(day => day.isCTO).length
+
+    // If optimal allocation didn't use all days, force allocate the rest
+    if (usedCtoDays < numberOfDays) {
+      const stillRemainingDays = numberOfDays - usedCtoDays
+      const updatedUsedDates = new Set(yearOptimizedDays.filter(day => day.isCTO).map(day => day.date))
+      
+      optimizedDays = forceAllocateRemainingDays(optimizedDays, stillRemainingDays, year, updatedUsedDates)
+      yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
+      usedCtoDays = yearOptimizedDays.filter(day => day.isCTO).length
+    }
+  }
+
+  // Final validation - this should never happen now but keep as a safeguard
+  if (usedCtoDays !== numberOfDays) {
+    throw new Error(
+      `Critical optimization error: Failed to allocate exact number of CTO days. ` +
+      `Requested ${numberOfDays} days but used ${usedCtoDays} days. ` +
+      `Please report this as a bug.`
+    )
+  }
+
+  // Re-mark breaks after all allocations
+  optimizedDays = pipe(markBreaks, markExtendedWeekends)(optimizedDays)
+  yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
+
+  return { days: yearOptimizedDays }
+}
+
+/**
+ * Generates a calendar for the specified year, including the last month of the
+ * previous year to handle breaks that span across years.
+ * 
+ * @param year - Target year
+ * @returns Array of calendar days with their initial properties
+ */
+const generateCalendarDays = (year: number): OptimizedDay[] => {
+  const startDate = new Date(year - 1, 11, 1) // Start from December of previous year
+  const daysToGenerate = 365 + 31 // Full year plus December of previous year
   const holidays = getHolidaysForYear(year)
 
-  // Initialize the calendar
-  const startDate = new Date(year - 1, 11, 1) // Start from December of previous year
-  const daysToMap = 365 + 31
-  const days: OptimizedDay[] = []
-
-  // Map out all days
-  for (let i = 0; i < daysToMap; i++) {
+  return Array.from({ length: daysToGenerate }, (_, i) => {
     const currentDate = addDays(startDate, i)
-    const isWeekendDay = isWeekend(currentDate)
-    const { isHoliday: isHolidayDay, name: holidayName } = isHoliday(currentDate, holidays)
     const dateStr = format(currentDate, 'yyyy-MM-dd')
+    const { isHoliday: isHolidayDay, name: holidayName } = isHoliday(currentDate, holidays)
 
-    days.push({
+    return {
       date: dateStr,
-      isWeekend: isWeekendDay,
+      isWeekend: isWeekend(currentDate),
       isCTO: false,
       isPartOfBreak: isHolidayDay,
       isHoliday: isHolidayDay,
       holidayName
-    })
-  }
-
-  // Count available workdays for the specified year
-  const availableWorkdays = days.filter(day =>
-    !day.isWeekend &&
-    !day.isHoliday &&
-    day.date.startsWith(year.toString())
-  ).length
-
-  if (availableWorkdays < numberOfDays) {
-    throw new Error(`Not enough workdays available in ${year}. Requested ${numberOfDays} CTO days but only ${availableWorkdays} workdays available.`)
-  }
-
-  // Apply strategy-specific optimization
-  let result: OptimizedDay[]
-  switch (strategy) {
-    case 'longWeekends':
-      result = optimizeLongWeekends(days, numberOfDays, year)
-      break
-    case 'weekLongBreaks':
-      result = optimizeWeekLongBreaks(days, numberOfDays, year)
-      break
-    case 'extendedVacations':
-      result = optimizeExtendedVacations(days, numberOfDays, year)
-      break
-    default:
-      result = optimizeBalanced(days, numberOfDays, year)
-  }
-
-  // Mark breaks and extended weekends
-  markBreaks(result)
-  markExtendedWeekends(result)
-
-  // Return only days for the specified year
-  return { days: result.filter(day => day.date.startsWith(year.toString())) }
+    }
+  })
 } 
