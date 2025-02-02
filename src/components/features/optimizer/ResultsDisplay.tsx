@@ -142,7 +142,7 @@ function AlternativesSection({ alternatives }: { alternatives: AlternativeDay[] 
 
   return (
     <div className="bg-blue-50 dark:bg-blue-900/30 rounded-md p-4 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
-      <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100">Alternative Options</h3>
+      <h3 className="text-lg font-medium text-blue-900 dark:text-blue-300">Alternative Options</h3>
       <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
         You have {alternatives.length} alternative {alternatives.length === 1 ? 'option' : 'options'} for your CTO days:
       </p>
@@ -179,50 +179,87 @@ export function ResultsDisplay({ optimizedDays, alternatives, description, break
   return (
     <div className="space-y-6">
       {/* Optimization Results */}
-      <div className="bg-teal-50 dark:bg-teal-900/30 rounded-md p-4 ring-1 ring-teal-900/10 dark:ring-teal-400/10">
+      <div className="bg-gradient-to-br from-teal-50 to-teal-100/50 dark:from-teal-900/40 dark:to-teal-900/20 rounded-xl p-6 ring-1 ring-teal-900/10 dark:ring-teal-400/10 shadow-sm">
         <div>
-          <h3 className="text-lg font-medium text-teal-900 dark:text-teal-100">Optimization Results</h3>
+          <div className="flex items-center space-x-2">
+            <svg className="h-6 w-6 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="text-xl font-semibold text-teal-900 dark:text-teal-100">Optimization Results</h3>
+          </div>
           {description && (
-            <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">
+            <p className="mt-2 text-sm text-teal-700 dark:text-teal-300 font-medium">
               {description}
             </p>
           )}
-          <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">
-            Total consecutive days off: {totalDaysOff} days
-          </p>
-          <div className="mt-2 space-y-1">
-            <p className="text-sm text-teal-700 dark:text-teal-300">
-              • {ctoDays} CTO days
-            </p>
-            <p className="text-sm text-teal-700 dark:text-teal-300">
-              • {extendedWeekends} weekend days that are part of longer breaks
-            </p>
-            <p className="text-sm text-teal-700 dark:text-teal-300">
-              • {holidays} holidays
-            </p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-4 ring-1 ring-teal-900/5 dark:ring-teal-400/5">
+              <div className="text-3xl font-bold text-teal-600 dark:text-teal-400">{totalDaysOff}</div>
+              <div className="text-sm font-medium text-teal-700 dark:text-teal-300">Total Days Off</div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-400/5">
+                <div className="text-xl font-bold text-teal-600 dark:text-teal-400">{ctoDays}</div>
+                <div className="text-xs font-medium text-teal-700 dark:text-teal-300">CTO Days</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-400/5">
+                <div className="text-xl font-bold text-teal-600 dark:text-teal-400">{extendedWeekends}</div>
+                <div className="text-xs font-medium text-teal-700 dark:text-teal-300">Weekend Days</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-400/5">
+                <div className="text-xl font-bold text-teal-600 dark:text-teal-400">{holidays}</div>
+                <div className="text-xs font-medium text-teal-700 dark:text-teal-300">Holidays</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Break Summaries */}
       {breaks && breaks.length > 0 && (
-        <div className="bg-violet-50 dark:bg-violet-900/30 rounded-md p-4 ring-1 ring-violet-900/10 dark:ring-violet-400/10">
-          <h3 className="text-lg font-medium text-violet-900 dark:text-violet-100">Break Details</h3>
-          <div className="mt-3 space-y-3">
+        <div className="bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-900/40 dark:to-violet-900/20 rounded-xl p-6 ring-1 ring-violet-900/10 dark:ring-violet-400/10 shadow-sm">
+          <div className="flex items-center space-x-2">
+            <svg className="h-6 w-6 text-violet-600 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 className="text-xl font-semibold text-violet-900 dark:text-violet-100">Break Details</h3>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {breaks.map((breakItem, index) => (
-              <div key={index} className="text-sm text-violet-700 dark:text-violet-300">
-                <p className="font-medium">
-                  {format(parse(breakItem.startDate, 'yyyy-MM-dd', new Date()), 'MMMM d')} - {format(parse(breakItem.endDate, 'yyyy-MM-dd', new Date()), 'MMMM d')}
-                </p>
-                <p className="mt-1">
-                  • {breakItem.length} days total ({breakItem.ctoDaysUsed} CTO days)
-                  {breakItem.holidaysIncluded.length > 0 && ` including ${breakItem.holidaysIncluded.join(', ')}`}
-                </p>
-                <p className="text-violet-600 dark:text-violet-400">
-                  {breakItem.type === 'longWeekend' ? 'Long Weekend' : 
-                   breakItem.type === 'weekBreak' ? 'Week-long Break' : 
-                   'Extended Vacation'} ({breakItem.season})
-                </p>
+              <div key={index} className="bg-white dark:bg-gray-800/50 rounded-lg p-4 ring-1 ring-violet-900/5 dark:ring-violet-400/5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-semibold text-violet-900 dark:text-violet-100">
+                      {format(parse(breakItem.startDate, 'yyyy-MM-dd', new Date()), 'MMMM d')} - {format(parse(breakItem.endDate, 'yyyy-MM-dd', new Date()), 'MMMM d')}
+                    </p>
+                    <div className="mt-2 space-y-1 text-sm">
+                      <p className="text-violet-700 dark:text-violet-300">
+                        {breakItem.length} days total ({breakItem.ctoDaysUsed} CTO days)
+                      </p>
+                      {breakItem.holidaysIncluded.length > 0 && (
+                        <p className="text-violet-600 dark:text-violet-400">
+                          Including: {breakItem.holidaysIncluded.join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className={clsx(
+                    'px-2 py-1 rounded-full text-xs font-medium',
+                    breakItem.type === 'longWeekend' && 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
+                    breakItem.type === 'weekBreak' && 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300',
+                    breakItem.type === 'extendedBreak' && 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300'
+                  )}>
+                    {breakItem.type === 'longWeekend' ? 'Long Weekend' : 
+                     breakItem.type === 'weekBreak' ? 'Week Break' : 
+                     'Extended Break'}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center text-xs text-violet-600 dark:text-violet-400">
+                  <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span className="capitalize">{breakItem.season}</span>
+                </div>
               </div>
             ))}
           </div>
