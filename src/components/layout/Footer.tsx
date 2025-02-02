@@ -68,7 +68,7 @@ const Footer = () => (
                 rel="noopener noreferrer"
                 className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
               >
-                Waqar Kalim
+                Waqar Bin Kalim
               </a>
             </div>
           </div>

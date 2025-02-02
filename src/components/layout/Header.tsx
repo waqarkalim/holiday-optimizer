@@ -1,4 +1,8 @@
-const Header = () => (
+interface HeaderProps {
+  currentYear: number
+}
+
+const Header = ({ currentYear }: HeaderProps) => (
   <header className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-700/50">
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="flex h-16 items-center justify-between">
@@ -13,7 +17,7 @@ const Header = () => (
               <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
                 Holiday Optimizer
               </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">2025 Calendar</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{currentYear} Calendar</p>
             </div>
           </div>
         </div>
