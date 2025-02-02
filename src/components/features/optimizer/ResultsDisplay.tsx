@@ -23,9 +23,9 @@ const MONTHS = [
   'January', 'February', 'March', 'April',
   'May', 'June', 'July', 'August',
   'September', 'October', 'November', 'December'
-]
+] as const
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
 
 function MonthCalendar({ month, year, days }: { month: number; year: number; days: OptimizedDay[] }) {
   const firstDay = startOfMonth(new Date(year, month))
@@ -377,7 +377,7 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
             <MonthCalendar
               key={index}
               month={index}
-              year={2025}
+              year={(new Date()).getFullYear()}
               days={optimizedDays}
             />
           ))}
