@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { type OptimizationStrategy } from '@/services/optimizer'
+import { useDebounce } from '@/hooks/useDebounce'
 
 export const STRATEGIES = [
   {
@@ -79,6 +80,19 @@ const validateFormState = (state: FormState) => {
 const OptimizerForm = ({ formState, onFormChange, isOptimizing, error }: OptimizerFormProps) => {
   const [touched, setTouched] = useState<Set<keyof FormState>>(new Set())
   const errors = validateFormState(formState)
+  const [localDays, setLocalDays] = useState<string>(formState.numberOfDays?.toString() ?? '')
+  const debouncedDays = useDebounce(localDays, 300)
+
+  // Update form state when debounced value changes
+  useEffect(() => {
+    const value = debouncedDays === '' ? null : parseInt(debouncedDays) || 0
+    if (value !== formState.numberOfDays) {
+      onFormChange({
+        ...formState,
+        numberOfDays: value
+      })
+    }
+  }, [debouncedDays, formState, onFormChange])
 
   const handleFieldBlur = (field: keyof FormState) => {
     setTouched(prev => new Set([...prev, field]))
@@ -93,7 +107,7 @@ const OptimizerForm = ({ formState, onFormChange, isOptimizing, error }: Optimiz
             Number of CTO Days
           </label>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            How many CTO days would you like to optimize? (1-260 days)
+            How many CTO days would you like to optimize? 
           </p>
           <div className="mt-2">
             <div className="relative rounded-md shadow-sm">
@@ -109,14 +123,8 @@ const OptimizerForm = ({ formState, onFormChange, isOptimizing, error }: Optimiz
                 placeholder="Enter number of days"
                 min={1}
                 max={260}
-                value={formState.numberOfDays ?? ''}
-                onChange={e => {
-                  const value = e.target.value
-                  onFormChange({
-                    ...formState,
-                    numberOfDays: value === '' ? null : parseInt(value) || 0
-                  })
-                }}
+                value={localDays}
+                onChange={e => setLocalDays(e.target.value)}
                 onBlur={() => handleFieldBlur('numberOfDays')}
                 className={clsx(
                   'block w-full rounded-md pl-10 pr-12 py-2.5 text-gray-900 dark:text-gray-100 sm:text-sm',
