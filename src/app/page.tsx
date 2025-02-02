@@ -1,64 +1,96 @@
 'use client'
 
 import { useState } from 'react'
-import { OptimizationForm } from '@/components/features/optimizer/OptimizationForm'
+import { optimizeCtoDays, OptimizedDay, OptimizationStrategy, OPTIMIZATION_STRATEGIES } from '@/services/optimizer'
 import { ResultsDisplay } from '@/components/features/optimizer/ResultsDisplay'
-import { getOptimizationAlternatives } from '@/services/optimizer'
-import type { OptimizedDay, AlternativeDay, OptimizationStrategy, OptimizationOption } from '@/services/optimizer'
 
 export default function Home() {
-  const [optimizationResult, setOptimizationResult] = useState<OptimizationOption | null>(null)
+  const [numDays, setNumDays] = useState<number>(10)
+  const [strategy, setStrategy] = useState<OptimizationStrategy>('balanced')
+  const [result, setResult] = useState<{ days: OptimizedDay[] } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleOptimize = async (numberOfDays: number, strategy: OptimizationStrategy) => {
+  const handleOptimize = () => {
     try {
       setError(null)
-      const result = getOptimizationAlternatives(numberOfDays, strategy)
-      // Use the best option (first one) as the default
-      setOptimizationResult(result.options[0])
+      const optimizationResult = optimizeCtoDays(numDays, strategy)
+      setResult(optimizationResult)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
+      setResult(null)
     }
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-50 sm:text-5xl">
-              CTO Days Optimizer
-            </h1>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-              Maximize your time off by optimizing how you use your CTO days.
-            </p>
-          </div>
-          
-          <div className="mt-12 bg-white dark:bg-gray-800/50 rounded-lg shadow-sm dark:shadow-gray-900/20 ring-1 ring-gray-900/5 dark:ring-white/10 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              Enter Your CTO Days
-            </h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Input the number of CTO days you have available and choose your preferred break style.
-            </p>
-            <OptimizationForm onOptimize={handleOptimize} />
+    <main className="min-h-screen p-8 bg-gray-50">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-gray-800">Holiday Optimizer 2025</h1>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <div className="mb-6">
+            <label htmlFor="numDays" className="block text-sm font-medium text-gray-700 mb-2">
+              Number of CTO Days
+            </label>
+            <input
+              type="number"
+              id="numDays"
+              min="1"
+              max="25"
+              value={numDays}
+              onChange={(e) => setNumDays(Math.max(1, Math.min(25, parseInt(e.target.value) || 0)))}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
 
-          {error && (
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-          )}
+          <div className="mb-6">
+            <label htmlFor="strategy" className="block text-sm font-medium text-gray-700 mb-2">
+              Optimization Strategy
+            </label>
+            <select
+              id="strategy"
+              value={strategy}
+              onChange={(e) => setStrategy(e.target.value as OptimizationStrategy)}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            >
+              {OPTIMIZATION_STRATEGIES.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-sm text-gray-500">
+              {OPTIMIZATION_STRATEGIES.find(s => s.id === strategy)?.description}
+            </p>
+          </div>
 
-          {optimizationResult && (
-            <div className="mt-8 bg-white dark:bg-gray-800/50 rounded-lg shadow-sm dark:shadow-gray-900/20 ring-1 ring-gray-900/5 dark:ring-white/10 p-6">
-              <ResultsDisplay 
-                optimizedDays={optimizationResult.days}
-                alternatives={[]}
-                description={optimizationResult.description}
-                breaks={optimizationResult.breaks}
-              />
-            </div>
-          )}
+          <button
+            onClick={handleOptimize}
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Optimize Holidays
+          </button>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {result && (
+          <ResultsDisplay 
+            optimizedDays={result.days}
+          />
+        )}
       </div>
     </main>
   )
