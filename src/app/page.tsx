@@ -16,8 +16,8 @@ export default function Home() {
   const handleOptimize = async (numberOfDays: number, strategy: OptimizationStrategy) => {
     try {
       setError(null)
-      const result = optimizeCtoDays(numberOfDays, strategy)
-      setOptimizationResult(result)
+      const days = optimizeCtoDays(numberOfDays, strategy)
+      setOptimizationResult({ days, alternatives: [] })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     }
