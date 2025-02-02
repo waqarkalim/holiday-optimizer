@@ -3,21 +3,19 @@
 import { useState } from 'react'
 import { OptimizationForm } from '@/components/features/optimizer/OptimizationForm'
 import { ResultsDisplay } from '@/components/features/optimizer/ResultsDisplay'
-import { optimizeCtoDays } from '@/services/optimizer'
-import type { OptimizedDay, AlternativeDay, OptimizationStrategy } from '@/services/optimizer'
+import { getOptimizationAlternatives } from '@/services/optimizer'
+import type { OptimizedDay, AlternativeDay, OptimizationStrategy, OptimizationOption } from '@/services/optimizer'
 
 export default function Home() {
-  const [optimizationResult, setOptimizationResult] = useState<{
-    days: OptimizedDay[]
-    alternatives: AlternativeDay[]
-  } | null>(null)
+  const [optimizationResult, setOptimizationResult] = useState<OptimizationOption | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const handleOptimize = async (numberOfDays: number, strategy: OptimizationStrategy) => {
     try {
       setError(null)
-      const days = optimizeCtoDays(numberOfDays, strategy)
-      setOptimizationResult({ days, alternatives: [] })
+      const result = getOptimizationAlternatives(numberOfDays, strategy)
+      // Use the best option (first one) as the default
+      setOptimizationResult(result.options[0])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     }
@@ -53,8 +51,10 @@ export default function Home() {
           {optimizationResult && (
             <div className="mt-8 bg-white dark:bg-gray-800/50 rounded-lg shadow-sm dark:shadow-gray-900/20 ring-1 ring-gray-900/5 dark:ring-white/10 p-6">
               <ResultsDisplay 
-                optimizedDays={optimizationResult.days} 
-                alternatives={optimizationResult.alternatives}
+                optimizedDays={optimizationResult.days}
+                alternatives={[]}
+                description={optimizationResult.description}
+                breaks={optimizationResult.breaks}
               />
             </div>
           )}

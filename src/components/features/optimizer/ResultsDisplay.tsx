@@ -18,9 +18,21 @@ interface AlternativeDay {
   reason: string
 }
 
+interface BreakSummary {
+  startDate: string
+  endDate: string
+  length: number
+  ctoDaysUsed: number
+  holidaysIncluded: string[]
+  type: string
+  season: string
+}
+
 interface ResultsDisplayProps {
   optimizedDays: OptimizedDay[]
   alternatives: AlternativeDay[]
+  description?: string
+  breaks?: BreakSummary[]
 }
 
 const MONTHS = [
@@ -154,7 +166,7 @@ function AlternativesSection({ alternatives }: { alternatives: AlternativeDay[] 
   )
 }
 
-export function ResultsDisplay({ optimizedDays, alternatives }: ResultsDisplayProps) {
+export function ResultsDisplay({ optimizedDays, alternatives, description, breaks }: ResultsDisplayProps) {
   if (!optimizedDays?.length) {
     return null
   }
@@ -170,6 +182,11 @@ export function ResultsDisplay({ optimizedDays, alternatives }: ResultsDisplayPr
       <div className="bg-teal-50 dark:bg-teal-900/30 rounded-md p-4 ring-1 ring-teal-900/10 dark:ring-teal-400/10">
         <div>
           <h3 className="text-lg font-medium text-teal-900 dark:text-teal-100">Optimization Results</h3>
+          {description && (
+            <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">
+              {description}
+            </p>
+          )}
           <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">
             Total consecutive days off: {totalDaysOff} days
           </p>
@@ -186,6 +203,31 @@ export function ResultsDisplay({ optimizedDays, alternatives }: ResultsDisplayPr
           </div>
         </div>
       </div>
+
+      {/* Break Summaries */}
+      {breaks && breaks.length > 0 && (
+        <div className="bg-violet-50 dark:bg-violet-900/30 rounded-md p-4 ring-1 ring-violet-900/10 dark:ring-violet-400/10">
+          <h3 className="text-lg font-medium text-violet-900 dark:text-violet-100">Break Details</h3>
+          <div className="mt-3 space-y-3">
+            {breaks.map((breakItem, index) => (
+              <div key={index} className="text-sm text-violet-700 dark:text-violet-300">
+                <p className="font-medium">
+                  {format(parse(breakItem.startDate, 'yyyy-MM-dd', new Date()), 'MMMM d')} - {format(parse(breakItem.endDate, 'yyyy-MM-dd', new Date()), 'MMMM d')}
+                </p>
+                <p className="mt-1">
+                  • {breakItem.length} days total ({breakItem.ctoDaysUsed} CTO days)
+                  {breakItem.holidaysIncluded.length > 0 && ` including ${breakItem.holidaysIncluded.join(', ')}`}
+                </p>
+                <p className="text-violet-600 dark:text-violet-400">
+                  {breakItem.type === 'longWeekend' ? 'Long Weekend' : 
+                   breakItem.type === 'weekBreak' ? 'Week-long Break' : 
+                   'Extended Vacation'} ({breakItem.season})
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Alternatives Section */}
       {alternatives && alternatives.length > 0 && (
