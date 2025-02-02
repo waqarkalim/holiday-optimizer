@@ -36,8 +36,54 @@ export interface BreakPreference {
 }
 
 /**
+ * Creates an OptimizedDay object for a given date.
+ * 
+ * @param date - Date to create the day object for
+ * @param holidays - List of holidays for the year
+ * @returns OptimizedDay object with initial properties
+ */
+const createDay = (date: Date, holidays: Array<{ date: string; name: string }>): OptimizedDay => {
+  const dateStr = format(date, 'yyyy-MM-dd')
+  const { isHoliday: isHolidayDay, name: holidayName } = isHoliday(date, holidays)
+
+  return {
+    date: dateStr,
+    isWeekend: isWeekend(date),
+    isCTO: false,
+    isPartOfBreak: isHolidayDay,
+    isHoliday: isHolidayDay,
+    holidayName
+  }
+}
+
+/**
+ * Generates a calendar for the specified year, including the last month of the
+ * previous year to handle breaks that span across years.
+ * 
+ * @param year - Target year
+ * @returns Array of calendar days with their initial properties
+ */
+const generateCalendarDays = (year: number): OptimizedDay[] => {
+  const startDate = new Date(year - 1, 11, 1) // Start from December of previous year
+  const daysToGenerate = 365 + 31 // Full year plus December of previous year
+  const holidays = getHolidaysForYear(year)
+
+  // Generate array of sequential dates
+  const dates = Array.from(
+    { length: daysToGenerate },
+    (_, i) => addDays(startDate, i)
+  )
+
+  // Convert each date to an OptimizedDay
+  return dates.map(date => createDay(date, holidays))
+}
+
+/**
  * Returns a list of public holidays for a given year.
  * Currently configured for Canadian holidays.
+ * 
+ * @param year - Year to get holidays for
+ * @returns Array of holiday objects with dates and names
  */
 const getHolidaysForYear = (year: number): Array<{ date: string; name: string }> => [
   { date: `${year}-01-01`, name: "New Year's Day" },
@@ -54,9 +100,15 @@ const getHolidaysForYear = (year: number): Array<{ date: string; name: string }>
 
 /**
  * Checks if a given date is a holiday.
- * Returns both the holiday status and the holiday name if applicable.
+ * 
+ * @param date - Date to check
+ * @param holidays - List of holidays to check against
+ * @returns Object indicating if the date is a holiday and its name if applicable
  */
-const isHoliday = (date: Date, holidays: Array<{ date: string; name: string }>): { isHoliday: boolean; name?: string } => {
+const isHoliday = (
+  date: Date,
+  holidays: Array<{ date: string; name: string }>
+): { isHoliday: boolean; name?: string } => {
   const formattedDate = format(date, 'yyyy-MM-dd')
   const holiday = holidays.find(h => h.date === formattedDate)
   return holiday ? { isHoliday: true, name: holiday.name } : { isHoliday: false }
@@ -121,69 +173,93 @@ interface Break {
  * @param year - The year being optimized
  * @returns Array of all possible break combinations
  */
-function findAllPossibleBreaks(days: OptimizedDay[], year: number): Break[] {
-  const breaks: Break[] = []
-  let i = 0
+const findAllPossibleBreaks = (days: OptimizedDay[], year: number): Break[] => {
+  const MAX_BREAK_LENGTH = 21 // Maximum length to look ahead
 
-  while (i < days.length) {
-    // Skip days not in the target year
-    if (!days[i].date.startsWith(year.toString())) {
-      i++
-      continue
-    }
+  // Step 1: Generate all possible sequences
+  const sequences = generateSequences(days.length, MAX_BREAK_LENGTH)
 
-    // Look ahead up to 3 weeks for each potential start date
-    for (let length = 1; length <= 21; length++) {
-      if (i + length >= days.length) break
+  // Step 2: Analyze each sequence
+  const possibleBreaks = sequences
+    .map(({ startIndex, length }) => analyzeBreakSequence(days, startIndex, length, year))
+    .filter((break_): break_ is Break => break_ !== null)
 
-      // Analyze the composition of this potential break
-      let ctoDaysNeeded = 0
-      let holidaysIncluded = 0
-      let weekendsIncluded = 0
-      let hasCTODay = false
-
-      // Count the different types of days in this break
-      for (let j = i; j < i + length; j++) {
-        if (!days[j].date.startsWith(year.toString())) break
-        if (!days[j].isWeekend && !days[j].isHoliday) {
-          ctoDaysNeeded++
-          hasCTODay = true
-        }
-        if (days[j].isHoliday) holidaysIncluded++
-        if (days[j].isWeekend) weekendsIncluded++
-      }
-
-      // Only include breaks that would use CTO days
-      if (hasCTODay) {
-        breaks.push({
-          startDate: days[i].date,
-          endDate: days[i + length - 1].date,
-          length,
-          ctoDaysNeeded,
-          holidaysIncluded,
-          weekendsIncluded
-        })
-      }
-    }
-    i++
-  }
-
-  return breaks
+  return possibleBreaks
 }
 
-// Helper function to get all dates in a range
+/**
+ * Generates all possible sequences of days with given length.
+ * 
+ * @param totalDays - Total number of days
+ * @param maxLength - Maximum sequence length to consider
+ * @returns Array of indices and lengths to analyze
+ */
+const generateSequences = (totalDays: number, maxLength: number): Array<{ startIndex: number; length: number }> =>
+  Array.from({ length: totalDays }, (_, startIndex) =>
+    Array.from({ length: maxLength }, (_, offset) => ({
+      startIndex,
+      length: offset + 1
+    }))
+  ).flat()
+
+/**
+ * Analyzes a sequence of days to determine if they form a valid break.
+ * 
+ * @param days - Array of all days
+ * @param startIndex - Starting index of the sequence
+ * @param length - Length of the sequence to analyze
+ * @param year - Target year
+ * @returns Break object if valid, null if invalid
+ */
+const analyzeBreakSequence = (
+  days: OptimizedDay[],
+  startIndex: number,
+  length: number,
+  year: number
+): Break | null => {
+  const endIndex = startIndex + length
+  if (endIndex > days.length) return null
+
+  const sequence = days.slice(startIndex, endIndex)
+  const isInYear = (day: OptimizedDay) => day.date.startsWith(year.toString())
+  
+  // Check if any day is not in target year
+  if (!sequence.every(isInYear)) return null
+
+  const counts = sequence.reduce(
+    (acc, day) => ({
+      ctoDaysNeeded: acc.ctoDaysNeeded + (!day.isWeekend && !day.isHoliday ? 1 : 0),
+      holidaysIncluded: acc.holidaysIncluded + (day.isHoliday ? 1 : 0),
+      weekendsIncluded: acc.weekendsIncluded + (day.isWeekend ? 1 : 0)
+    }),
+    { ctoDaysNeeded: 0, holidaysIncluded: 0, weekendsIncluded: 0 }
+  )
+
+  // Only include sequences that would use CTO days
+  return counts.ctoDaysNeeded > 0 ? {
+    startDate: sequence[0].date,
+    endDate: sequence[sequence.length - 1].date,
+    length,
+    ...counts
+  } : null
+}
+
+/**
+ * Gets all dates between two dates, inclusive.
+ * 
+ * @param startDate - Start date in yyyy-MM-dd format
+ * @param endDate - End date in yyyy-MM-dd format
+ * @returns Array of dates in yyyy-MM-dd format
+ */
 const getDatesInRange = (startDate: string, endDate: string): string[] => {
   const start = parse(startDate, 'yyyy-MM-dd', new Date())
   const end = parse(endDate, 'yyyy-MM-dd', new Date())
-  const dates: string[] = []
-  let current = start
+  const dayCount = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
 
-  while (current <= end) {
-    dates.push(format(current, 'yyyy-MM-dd'))
-    current = addDays(current, 1)
-  }
-
-  return dates
+  return Array.from(
+    { length: dayCount },
+    (_, i) => format(addDays(start, i), 'yyyy-MM-dd')
+  )
 }
 
 /**
@@ -264,8 +340,9 @@ const calculateDayScore = (days: OptimizedDay[], index: number): number => {
 }
 
 /**
- * Pure function to optimize for long weekends
- * @param days - Array of all days in the year with their current status
+ * Optimizes the calendar for long weekends.
+ * 
+ * @param days - Array of all days in the year
  * @param numberOfDays - Number of CTO days available
  * @param year - The year being optimized
  * @returns Optimized calendar with CTO days allocated
@@ -293,7 +370,7 @@ const optimizeLongWeekends = (days: OptimizedDay[], numberOfDays: number, year: 
         parse(b.startDate, 'yyyy-MM-dd', new Date()).getTime()
     })
 
-  // Apply breaks in order
+  // Apply breaks in order using reduce
   const { result, remainingDays, usedDates } = potentialBreaks.reduce(
     ({ result, remainingDays, usedDates }, breakPeriod) => {
       if (remainingDays <= 0) return { result, remainingDays, usedDates }
@@ -331,7 +408,7 @@ const optimizeLongWeekends = (days: OptimizedDay[], numberOfDays: number, year: 
       .sort((a, b) => 
         (isNearHoliday(days, b.index) ? 1 : 0) -
         (isNearHoliday(days, a.index) ? 1 : 0)
-      )
+    )
 
     const monFriResult = monFriWorkdays.reduce(
       ({ days, remaining }: { days: OptimizedDay[]; remaining: number }, { index }) =>
@@ -505,143 +582,162 @@ const optimizeExtendedVacations = (days: OptimizedDay[], numberOfDays: number, y
   return result
 }
 
-// Pure function to mark breaks and extended weekends
+/**
+ * Marks days that are part of a continuous break period.
+ * 
+ * @param days - Array of all days
+ * @returns Updated array with break periods marked
+ */
 const markBreaks = (days: OptimizedDay[]): OptimizedDay[] => {
-  const result = [...days]
+  // First pass: Reset all break markers and find CTO days
+  const ctoDayIndices = days
+    .map((day, index) => ({ day, index }))
+    .filter(({ day }) => day.isCTO)
+    .map(({ index }) => index)
 
-  // First pass: Find all breaks that use CTO days
-  let breakStart = -1
-  for (let i = 0; i < result.length; i++) {
-    result[i].isPartOfBreak = false // Reset break markers
-    
-    if (result[i].isCTO) {
-      // Found a CTO day, mark it and look backwards/forwards
-      result[i].isPartOfBreak = true
-      
-      // Look backwards
-      for (let j = i - 1; j >= 0; j--) {
-        if (result[j].isHoliday || result[j].isWeekend || result[j].isCTO) {
-          result[j].isPartOfBreak = true
-          if (breakStart === -1) breakStart = j
-        } else {
-          break
-        }
-      }
+  // Helper to check if a day is a non-workday
+  const isNonWorkday = (day: OptimizedDay) => day.isHoliday || day.isWeekend || day.isCTO
 
-      // Look forwards
-      for (let j = i + 1; j < result.length; j++) {
-        if (result[j].isHoliday || result[j].isWeekend || result[j].isCTO) {
-          result[j].isPartOfBreak = true
-        } else {
-          break
-        }
-      }
-    } else if (breakStart !== -1 && !result[i].isPartOfBreak) {
-      // End of a break
-      breakStart = -1
+  // Helper to get continuous range of non-workdays
+  const getContinuousRange = (
+    startIdx: number,
+    direction: -1 | 1,
+    days: OptimizedDay[]
+  ): number[] => {
+    const indices: number[] = []
+    let currentIdx = startIdx + direction
+
+    while (
+      currentIdx >= 0 &&
+      currentIdx < days.length &&
+      isNonWorkday(days[currentIdx])
+    ) {
+      indices.push(currentIdx)
+      currentIdx += direction
     }
+
+    return indices
   }
+
+  // Initialize result with reset break markers
+  const result = days.map(day => ({ ...day, isPartOfBreak: false }))
+
+  // Mark breaks around CTO days
+  ctoDayIndices.forEach(ctoIndex => {
+    result[ctoIndex].isPartOfBreak = true
+
+    // Get continuous ranges in both directions
+    const backwardDays = getContinuousRange(ctoIndex, -1, result)
+    const forwardDays = getContinuousRange(ctoIndex, 1, result)
+
+    // Mark the ranges
+    backwardDays.forEach(idx => { result[idx].isPartOfBreak = true })
+    forwardDays.forEach(idx => { result[idx].isPartOfBreak = true })
+  })
 
   // Second pass: Mark holidays that extend weekends
-  for (let i = 0; i < result.length; i++) {
-    if (result[i].isHoliday) {
-      const prevDay = result[i - 1]
-      const nextDay = result[i + 1]
-      const prevIsWeekendOrCTO = prevDay && (prevDay.isWeekend || prevDay.isCTO || (prevDay.isHoliday && prevDay.isPartOfBreak))
-      const nextIsWeekendOrCTO = nextDay && (nextDay.isWeekend || nextDay.isCTO || (nextDay.isHoliday && nextDay.isPartOfBreak))
-      
-      if (prevIsWeekendOrCTO || nextIsWeekendOrCTO) {
-        result[i].isPartOfBreak = true
-        
-        if (prevDay?.isWeekend) {
-          prevDay.isPartOfBreak = true
-          if (i >= 2 && result[i - 2].isWeekend) {
-            result[i - 2].isPartOfBreak = true
-          }
-        }
-        if (nextDay?.isWeekend) {
-          nextDay.isPartOfBreak = true
-          if (i + 2 < result.length && result[i + 2].isWeekend) {
-            result[i + 2].isPartOfBreak = true
-          }
-        }
-      }
+  days.forEach((day, i) => {
+    if (!day.isHoliday) return
+
+    const surroundingDays = {
+      prev: result[i - 1],
+      next: result[i + 1]
     }
-  }
 
-  // Third pass: Connect any gaps between CTO days
-  for (let i = 1; i < result.length - 1; i++) {
-    if (!result[i].isPartOfBreak && result[i-1].isPartOfBreak && result[i+1].isPartOfBreak) {
-      let hasCTODay = false
-      
-      // Look backwards
-      for (let j = i - 1; j >= 0 && result[j].isPartOfBreak; j--) {
-        if (result[j].isCTO) {
-          hasCTODay = true
-          break
-        }
-      }
-      
-      // Look forwards
-      for (let j = i + 1; j < result.length && result[j].isPartOfBreak; j++) {
-        if (result[j].isCTO) {
-          hasCTODay = true
-          break
-        }
-      }
-      
-      if (hasCTODay) {
-        result[i].isPartOfBreak = true
-      }
-    }
-  }
+    const isConnectedToBreak = 
+      (surroundingDays.prev && (surroundingDays.prev.isWeekend || surroundingDays.prev.isCTO || 
+        (surroundingDays.prev.isHoliday && surroundingDays.prev.isPartOfBreak))) ||
+      (surroundingDays.next && (surroundingDays.next.isWeekend || surroundingDays.next.isCTO || 
+        (surroundingDays.next.isHoliday && surroundingDays.next.isPartOfBreak)))
 
-  return result
-}
+    if (isConnectedToBreak) {
+      result[i].isPartOfBreak = true
 
-// Pure function to mark extended weekends
-const markExtendedWeekends = (days: OptimizedDay[]): OptimizedDay[] => {
-  const result = [...days]
-
-  // First pass: mark weekends that are part of breaks
-  result.forEach((day, index) => {
-    if (day.isWeekend && day.isPartOfBreak) {
-      const date = parse(day.date, 'yyyy-MM-dd', new Date())
-      // If this is a Saturday, also ensure Sunday is marked
-      if (date.getDay() === 6) {
-        const nextDay = result[index + 1]
-        if (nextDay) {
-          nextDay.isPartOfBreak = true
-        }
+      // Mark connected weekends
+      if (surroundingDays.prev?.isWeekend) {
+        surroundingDays.prev.isPartOfBreak = true
+        if (i >= 2) result[i - 2].isPartOfBreak = true
       }
-      // If this is a Sunday, also ensure Saturday is marked
-      if (date.getDay() === 0) {
-        const prevDay = result[index - 1]
-        if (prevDay) {
-          prevDay.isPartOfBreak = true
-        }
+      if (surroundingDays.next?.isWeekend) {
+        surroundingDays.next.isPartOfBreak = true
+        if (i + 2 < result.length) result[i + 2].isPartOfBreak = true
       }
     }
   })
 
-  // Second pass: mark weekends extended by holidays
-  result.forEach((day, index) => {
-    if (day.isWeekend) {
-      const prevDay = result[index - 1]
-      const nextDay = result[index + 1]
-      const isExtendedByHoliday = prevDay?.isHoliday || nextDay?.isHoliday
+  // Third pass: Connect gaps between breaks
+  return result.map((day, i, arr) => {
+    if (i === 0 || i === arr.length - 1 || day.isPartOfBreak) return day
 
-      if (isExtendedByHoliday) {
-        day.isPartOfBreak = true
-        const date = parse(day.date, 'yyyy-MM-dd', new Date())
-        // If this is a Saturday, also mark Sunday
-        if (date.getDay() === 6 && nextDay) {
-          nextDay.isPartOfBreak = true
-        }
-        // If this is a Sunday, also mark Saturday
-        if (date.getDay() === 0 && prevDay) {
-          prevDay.isPartOfBreak = true
-        }
+    const surroundingBreaks = {
+      prev: arr[i - 1].isPartOfBreak,
+      next: arr[i + 1].isPartOfBreak
+    }
+
+    if (!surroundingBreaks.prev || !surroundingBreaks.next) return day
+
+    // Look for CTO days in both directions
+    const findCtoInRange = (startIdx: number, endIdx: number): boolean => {
+      const indices = Array.from(
+        { length: Math.abs(endIdx - startIdx) },
+        (_, idx) => startIdx + (endIdx > startIdx ? idx : -idx)
+      )
+      return indices.some(idx => arr[idx].isCTO && arr[idx].isPartOfBreak)
+    }
+
+    const hasCtoDay = 
+      findCtoInRange(i - 1, 0) || 
+      findCtoInRange(i + 1, arr.length - 1)
+
+    return hasCtoDay ? { ...day, isPartOfBreak: true } : day
+  })
+}
+
+/**
+ * Marks weekends that are part of extended breaks.
+ * 
+ * @param days - Array of all days
+ * @returns Updated array with extended weekends marked
+ */
+const markExtendedWeekends = (days: OptimizedDay[]): OptimizedDay[] => {
+  const result = [...days]
+
+  // Helper to get weekend info
+  const getWeekendInfo = (day: OptimizedDay, index: number) => ({
+    date: parse(day.date, 'yyyy-MM-dd', new Date()),
+    prev: result[index - 1],
+    next: result[index + 1]
+  })
+
+  // First pass: mark weekends that are part of breaks
+  days.forEach((day, index) => {
+    if (!day.isWeekend || !day.isPartOfBreak) return
+
+    const { date, prev, next } = getWeekendInfo(day, index)
+    
+    if (date.getDay() === 6 && next) {
+      next.isPartOfBreak = true
+    }
+    if (date.getDay() === 0 && prev) {
+      prev.isPartOfBreak = true
+    }
+  })
+
+  // Second pass: mark weekends extended by holidays
+  days.forEach((day, index) => {
+    if (!day.isWeekend) return
+
+    const { date, prev, next } = getWeekendInfo(day, index)
+    const isExtendedByHoliday = prev?.isHoliday || next?.isHoliday
+
+    if (isExtendedByHoliday) {
+      day.isPartOfBreak = true
+      
+      if (date.getDay() === 6 && next) {
+        next.isPartOfBreak = true
+      }
+      if (date.getDay() === 0 && prev) {
+        prev.isPartOfBreak = true
       }
     }
   })
@@ -801,98 +897,77 @@ export const optimizeCtoDays = (
     throw new Error('Number of CTO days must be greater than 0')
   }
 
-  // Generate initial calendar
-  const days = generateCalendarDays(year)
-  const yearDays = days.filter(day => day.date.startsWith(year.toString()))
-  const availableWorkdays = yearDays.filter(day => !day.isWeekend && !day.isHoliday).length
+  // Helper functions
+  const isInYear = (day: OptimizedDay) => day.date.startsWith(year.toString())
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const countUsedDays = (days: OptimizedDay[]) => days.filter(day => day.isCTO).length
+  const getUsedDates = (days: OptimizedDay[]) => 
+    new Set(days.filter(day => day.isCTO).map(day => day.date))
 
-  // Validate workday availability
+  // Strategy map
+  const strategyMap: Record<OptimizationStrategy, (d: OptimizedDay[], n: number, y: number) => OptimizedDay[]> = {
+    longWeekends: optimizeLongWeekends,
+    weekLongBreaks: optimizeWeekLongBreaks,
+    extendedVacations: optimizeExtendedVacations,
+    balanced: optimizeBalanced
+  }
+
+  // Initial calendar generation and validation
+  const initialCalendar = generateCalendarDays(year)
+  const yearDays = initialCalendar.filter(isInYear)
+  const availableWorkdays = yearDays.filter(isWorkday).length
+
   if (availableWorkdays < numberOfDays) {
     throw new Error(
       `Not enough workdays available in ${year}. Requested ${numberOfDays} days but only ${availableWorkdays} workdays available.`
     )
   }
 
-  // Strategy-specific optimization using composition
-  const optimize = pipe(
+  // Optimization pipeline
+  const optimizationSteps = [
+    // Step 1: Apply strategy-specific optimization
+    (days: OptimizedDay[]) => strategyMap[strategy](days, numberOfDays, year),
+
+    // Step 2: Try optimal allocation of remaining days
     (days: OptimizedDay[]) => {
-      const strategyMap: Record<OptimizationStrategy, (d: OptimizedDay[], n: number, y: number) => OptimizedDay[]> = {
-        longWeekends: optimizeLongWeekends,
-        weekLongBreaks: optimizeWeekLongBreaks,
-        extendedVacations: optimizeExtendedVacations,
-        balanced: optimizeBalanced
-      }
-      return strategyMap[strategy](days, numberOfDays, year)
-    },
-    markBreaks,
-    markExtendedWeekends
-  )
-
-  let optimizedDays = optimize(days)
-  let yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
-  let usedCtoDays = yearOptimizedDays.filter(day => day.isCTO).length
-
-  // Keep trying to allocate days until we use exactly the number requested
-  while (usedCtoDays < numberOfDays) {
-    const remainingDays = numberOfDays - usedCtoDays
-    const usedDates = new Set(yearOptimizedDays.filter(day => day.isCTO).map(day => day.date))
-
-    // First try optimal allocation
-    optimizedDays = allocateRemainingDays(optimizedDays, remainingDays, year, usedDates)
-    yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
-    usedCtoDays = yearOptimizedDays.filter(day => day.isCTO).length
-
-    // If optimal allocation didn't use all days, force allocate the rest
-    if (usedCtoDays < numberOfDays) {
-      const stillRemainingDays = numberOfDays - usedCtoDays
-      const updatedUsedDates = new Set(yearOptimizedDays.filter(day => day.isCTO).map(day => day.date))
+      const yearDays = days.filter(isInYear)
+      const remainingDays = numberOfDays - countUsedDays(yearDays)
       
-      optimizedDays = forceAllocateRemainingDays(optimizedDays, stillRemainingDays, year, updatedUsedDates)
-      yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
-      usedCtoDays = yearOptimizedDays.filter(day => day.isCTO).length
-    }
-  }
+      return remainingDays > 0
+        ? allocateRemainingDays(days, remainingDays, year, getUsedDates(yearDays))
+        : days
+    },
 
-  // Final validation - this should never happen now but keep as a safeguard
-  if (usedCtoDays !== numberOfDays) {
+    // Step 3: Force allocate any still remaining days
+    (days: OptimizedDay[]) => {
+      const yearDays = days.filter(isInYear)
+      const remainingDays = numberOfDays - countUsedDays(yearDays)
+      
+      return remainingDays > 0
+        ? forceAllocateRemainingDays(days, remainingDays, year, getUsedDates(yearDays))
+        : days
+    },
+
+    // Step 4: Mark breaks and extended weekends
+    markBreaks,
+    markExtendedWeekends,
+
+    // Step 5: Filter to target year
+    (days: OptimizedDay[]) => days.filter(isInYear)
+  ]
+
+  // Apply optimization pipeline
+  const optimizedDays = pipe(...optimizationSteps)(initialCalendar)
+
+  // Final validation
+  const usedDays = countUsedDays(optimizedDays)
+  if (usedDays !== numberOfDays) {
     throw new Error(
       `Critical optimization error: Failed to allocate exact number of CTO days. ` +
-      `Requested ${numberOfDays} days but used ${usedCtoDays} days. ` +
+      `Requested ${numberOfDays} days but used ${usedDays} days. ` +
       `Please report this as a bug.`
     )
   }
 
-  // Re-mark breaks after all allocations
-  optimizedDays = pipe(markBreaks, markExtendedWeekends)(optimizedDays)
-  yearOptimizedDays = optimizedDays.filter(day => day.date.startsWith(year.toString()))
-
-  return { days: yearOptimizedDays }
-}
-
-/**
- * Generates a calendar for the specified year, including the last month of the
- * previous year to handle breaks that span across years.
- * 
- * @param year - Target year
- * @returns Array of calendar days with their initial properties
- */
-const generateCalendarDays = (year: number): OptimizedDay[] => {
-  const startDate = new Date(year - 1, 11, 1) // Start from December of previous year
-  const daysToGenerate = 365 + 31 // Full year plus December of previous year
-  const holidays = getHolidaysForYear(year)
-
-  return Array.from({ length: daysToGenerate }, (_, i) => {
-    const currentDate = addDays(startDate, i)
-    const dateStr = format(currentDate, 'yyyy-MM-dd')
-    const { isHoliday: isHolidayDay, name: holidayName } = isHoliday(currentDate, holidays)
-
-    return {
-      date: dateStr,
-      isWeekend: isWeekend(currentDate),
-      isCTO: false,
-      isPartOfBreak: isHolidayDay,
-      isHoliday: isHolidayDay,
-      holidayName
-    }
-  })
+  return { days: optimizedDays }
 } 
