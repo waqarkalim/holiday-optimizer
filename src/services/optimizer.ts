@@ -252,11 +252,13 @@ const analyzeBreakSequence = (
 
   const counts = sequence.reduce(
     (acc, day) => ({
+      // Consider both holidays and custom days off as non-workdays
       ctoDaysNeeded: acc.ctoDaysNeeded + (!day.isWeekend && !day.isHoliday && !day.isCustomDayOff ? 1 : 0),
-      holidaysIncluded: acc.holidaysIncluded + ((day.isHoliday || day.isCustomDayOff) ? 1 : 0),
+      holidaysIncluded: acc.holidaysIncluded + (day.isHoliday ? 1 : 0),
+      customDaysOff: acc.customDaysOff + (day.isCustomDayOff ? 1 : 0),
       weekendsIncluded: acc.weekendsIncluded + (day.isWeekend ? 1 : 0)
     }),
-    { ctoDaysNeeded: 0, holidaysIncluded: 0, weekendsIncluded: 0 }
+    { ctoDaysNeeded: 0, holidaysIncluded: 0, customDaysOff: 0, weekendsIncluded: 0 }
   )
 
   // Only include sequences that would use CTO days
@@ -351,6 +353,7 @@ const calculateDayScore = (days: OptimizedDay[], index: number): number => {
     if (i === index) continue
     const distance = Math.abs(i - index)
     if (days[i].isPartOfBreak) score += (range - distance + 1) * 2
+    // Treat both holidays and custom days off similarly
     if (days[i].isHoliday || days[i].isCustomDayOff) score += (range - distance + 1) * 3
     if (days[i].isCTO) score += (range - distance + 1) * 2
     if (days[i].isWeekend) score += (range - distance + 1)
@@ -851,7 +854,8 @@ const optimizeBalanced = (days: OptimizedDay[], numberOfDays: number, year: numb
 const isNearHoliday = (days: OptimizedDay[], index: number, range: number = 2): boolean =>
   days
     .slice(Math.max(0, index - range), Math.min(days.length, index + range + 1))
-    .some(day => day.isHoliday)
+    // Consider both holidays and custom days off
+    .some(day => day.isHoliday || day.isCustomDayOff)
 
 /**
  * Forcefully allocates any remaining CTO days to available workdays.

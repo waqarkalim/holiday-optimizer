@@ -81,17 +81,19 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
                 tooltip="Number of public holidays that fall within the calendar year"
                 colorScheme="amber"
               />
-              <StatCard
-                icon={
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                  </svg>
-                }
-                value={customDaysOff}
-                label={customDaysOff === 1 ? 'Custom Day Off' : 'Custom Days Off'}
-                tooltip="Number of custom days off provided by your organization"
-                colorScheme="emerald"
-              />
+              {customDaysOff > 0 && (
+                <StatCard
+                  icon={
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                  }
+                  value={customDaysOff}
+                  label={customDaysOff === 1 ? 'Custom Day Off' : 'Custom Days Off'}
+                  tooltip="Number of custom days off provided by your organization"
+                  colorScheme="emerald"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -124,7 +126,12 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
           <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100">Calendar View</h3>
         </div>
 
-        <CalendarLegend />
+        <CalendarLegend 
+          hasCTODays={ctoDays > 0}
+          hasHolidays={holidays > 0}
+          hasCustomDaysOff={customDaysOff > 0}
+          hasExtendedWeekends={extendedWeekends > 0}
+        />
 
         {/* Monthly Calendar Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

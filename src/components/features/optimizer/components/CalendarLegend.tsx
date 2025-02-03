@@ -13,30 +13,55 @@ function LegendItem({ color, darkColor, label }: LegendItemProps) {
   )
 }
 
-export function CalendarLegend() {
+interface CalendarLegendProps {
+  hasCTODays?: boolean
+  hasHolidays?: boolean
+  hasCustomDaysOff?: boolean
+  hasExtendedWeekends?: boolean
+}
+
+export function CalendarLegend({ 
+  hasCTODays = false,
+  hasHolidays = false,
+  hasCustomDaysOff = false,
+  hasExtendedWeekends = false 
+}: CalendarLegendProps) {
+  const legendItems: LegendItemProps[] = [
+    hasCTODays && {
+      color: "bg-teal-100",
+      darkColor: "bg-teal-900/50",
+      label: "CTO Day"
+    },
+    hasHolidays && {
+      color: "bg-amber-100",
+      darkColor: "bg-amber-900/50",
+      label: "Public Holiday"
+    },
+    hasCustomDaysOff && {
+      color: "bg-emerald-100",
+      darkColor: "bg-emerald-900/50",
+      label: "Custom Day Off"
+    },
+    hasExtendedWeekends && {
+      color: "bg-violet-100",
+      darkColor: "bg-violet-900/50",
+      label: "Extended Weekend"
+    }
+  ].filter((item): item is LegendItemProps => Boolean(item))
+
+  if (legendItems.length === 0) return null
+
   return (
     <div className="mb-6 bg-white dark:bg-gray-800/50 rounded-lg p-4 ring-1 ring-blue-900/5 dark:ring-blue-400/5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <LegendItem
-          color="bg-teal-100"
-          darkColor="bg-teal-900/50"
-          label="CTO Day"
-        />
-        <LegendItem
-          color="bg-amber-100"
-          darkColor="bg-amber-900/50"
-          label="Public Holiday"
-        />
-        <LegendItem
-          color="bg-emerald-100"
-          darkColor="bg-emerald-900/50"
-          label="Custom Day Off"
-        />
-        <LegendItem
-          color="bg-violet-100"
-          darkColor="bg-violet-900/50"
-          label="Extended Weekend"
-        />
+        {legendItems.map((item) => (
+          <LegendItem
+            key={item.label}
+            color={item.color}
+            darkColor={item.darkColor}
+            label={item.label}
+          />
+        ))}
       </div>
     </div>
   )
