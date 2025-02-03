@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { optimizeCtoDays, OptimizationStrategy, CustomDayOff } from '@/services/optimizer'
+import { optimizeCtoDays, OptimizationStrategy, CustomDayOff } from '@/services/optimizer.dp'
 import { ResultsDisplay } from '@/components/features/optimizer/ResultsDisplay'
 import { OptimizerForm } from '@/components/OptimizerForm'
 import { OptimizerProvider } from '@/contexts/OptimizerContext'

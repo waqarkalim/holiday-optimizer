@@ -4,7 +4,7 @@ import { FormEvent, KeyboardEvent } from "react"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import { OptimizationStrategy, OPTIMIZATION_STRATEGIES, CustomDayOff } from '@/services/optimizer'
+import { OptimizationStrategy, CustomDayOff, OPTIMIZATION_STRATEGIES, StrategyOption } from '@/services/optimizer.dp'
 import { format, parse } from "date-fns"
 import { 
   Calendar, 
@@ -30,7 +30,7 @@ const WEEKDAYS = [
   { value: "5", label: "Friday" },
   { value: "6", label: "Saturday" },
   { value: "0", label: "Sunday" },
-]
+] as const
 
 interface OptimizerFormProps {
   onSubmit: (data: {
@@ -42,6 +42,14 @@ interface OptimizerFormProps {
 }
 
 type CustomDayField = keyof Partial<CustomDayOff>
+
+// Update the icons type to match strategy IDs
+const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
+  balanced: Shuffle,
+  longWeekends: Coffee,
+  weekLongBreaks: Sunrise,
+  extendedVacations: Palmtree
+}
 
 export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProps) {
   const { state, dispatch } = useOptimizer()
@@ -295,14 +303,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 onKeyDown={handleStrategyKeyDown}
               >
                 {OPTIMIZATION_STRATEGIES.map((strategyOption, index) => {
-                  const icons = {
-                    balanced: Shuffle,
-                    longWeekends: Coffee,
-                    weekLongBreaks: Sunrise,
-                    extendedVacations: Palmtree
-                  };
-                  const Icon = icons[strategyOption.id];
-                  const isSelected = strategy === strategyOption.id;
+                  const Icon = STRATEGY_ICONS[strategyOption.id]
+                  const isSelected = strategy === strategyOption.id
                   
                   return (
                     <label
