@@ -1,13 +1,14 @@
 import { format, parse } from 'date-fns'
 import clsx from 'clsx'
 import type { OptimizedDay } from '@/services/optimizer'
+import { BREAK_LENGTHS } from '@/services/optimizer.constants'
 
 interface Break {
   startDate: string
   endDate: string
   days: OptimizedDay[]
   totalDays: number
-  ctoDays: number
+  ctoDays: number  // Must be > 0
   holidays: number
   weekends: number
   customDaysOff: number
@@ -18,8 +19,40 @@ interface BreakCardProps {
 }
 
 export function BreakCard({ breakPeriod }: BreakCardProps) {
+  // Validate that this is actually a break (contains CTO days)
+  if (breakPeriod.ctoDays === 0) {
+    console.warn('BreakCard received a period with no CTO days:', breakPeriod)
+    return null
+  }
+
   const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
   const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
+
+  const getBreakType = (totalDays: number) => {
+    if (totalDays >= BREAK_LENGTHS.EXTENDED.MIN) return 'Extended Break'
+    if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) return 'Week Break'
+    return 'Long Weekend'
+  }
+
+  const getBreakDescription = (totalDays: number) => {
+    if (totalDays >= BREAK_LENGTHS.EXTENDED.MIN) {
+      return `${BREAK_LENGTHS.EXTENDED.MIN} or more consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
+    }
+    if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) {
+      return `${BREAK_LENGTHS.WEEK_LONG.MIN}-${BREAK_LENGTHS.WEEK_LONG.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
+    }
+    return `${BREAK_LENGTHS.LONG_WEEKEND.MIN}-${BREAK_LENGTHS.LONG_WEEKEND.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
+  }
+
+  const getBreakStyles = (totalDays: number) => {
+    if (totalDays >= BREAK_LENGTHS.EXTENDED.MIN) {
+      return 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+    }
+    if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) {
+      return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+    }
+    return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-6">
@@ -34,19 +67,11 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         </div>
         <div className={clsx(
           'px-3 py-1 rounded-full text-sm font-medium relative group cursor-help',
-          breakPeriod.totalDays >= 8
-            ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-            : breakPeriod.totalDays >= 5
-              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-              : 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+          getBreakStyles(breakPeriod.totalDays)
         )}>
-          {breakPeriod.totalDays >= 8 ? 'Extended Break' : breakPeriod.totalDays >= 5 ? 'Week Break' : 'Long Weekend'}
+          {getBreakType(breakPeriod.totalDays)}
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
-            {breakPeriod.totalDays >= 8
-              ? '8 or more consecutive days off'
-              : breakPeriod.totalDays >= 5
-                ? '5-7 consecutive days off'
-                : '3-4 consecutive days off, typically around weekends'}
+            {getBreakDescription(breakPeriod.totalDays)}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900 dark:border-t-gray-700" />
           </div>
         </div>
