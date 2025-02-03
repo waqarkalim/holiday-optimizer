@@ -6,7 +6,7 @@ interface StatCardProps {
   value: number
   label: string
   tooltip: string
-  colorScheme: 'blue' | 'violet' | 'amber'
+  colorScheme: 'blue' | 'violet' | 'amber' | 'emerald'
 }
 
 const COLOR_SCHEMES = {
@@ -39,6 +39,16 @@ const COLOR_SCHEMES = {
       icon: 'text-amber-500/70 dark:text-amber-300/70'
     },
     ring: 'ring-teal-900/5 dark:ring-amber-300/10'
+  },
+  emerald: {
+    icon: {
+      bg: 'bg-emerald-100 dark:bg-emerald-900/50',
+      text: 'text-emerald-600 dark:text-emerald-300'
+    },
+    tooltip: {
+      icon: 'text-emerald-500/70 dark:text-emerald-300/70'
+    },
+    ring: 'ring-teal-900/5 dark:ring-emerald-300/10'
   }
 }
 

@@ -10,8 +10,10 @@ export interface OptimizedDay {
   isWeekend: boolean         // Whether this day falls on a weekend
   isCTO: boolean            // Whether this day is selected as a CTO day
   isPartOfBreak: boolean    // Whether this day is part of a longer break period
-  isHoliday?: boolean       // Whether this day is a public holiday
+  isHoliday: boolean       // Whether this day is a public holiday
   holidayName?: string      // Name of the holiday if applicable
+  isCustomDayOff: boolean  // Whether this day is a custom day off
+  customDayName?: string   // Name of the custom day off if applicable
 }
 
 /**
@@ -69,8 +71,10 @@ const createDay = (
     isWeekend: isWeekend(date),
     isCTO: false,
     isPartOfBreak: isHolidayDay || !!customDay,
-    isHoliday: isHolidayDay || !!customDay,
-    holidayName: customDay?.name || holidayName
+    isHoliday: isHolidayDay,
+    holidayName: holidayName,
+    isCustomDayOff: !!customDay,
+    customDayName: customDay?.name
   }
 }
 
@@ -248,8 +252,8 @@ const analyzeBreakSequence = (
 
   const counts = sequence.reduce(
     (acc, day) => ({
-      ctoDaysNeeded: acc.ctoDaysNeeded + (!day.isWeekend && !day.isHoliday ? 1 : 0),
-      holidaysIncluded: acc.holidaysIncluded + (day.isHoliday ? 1 : 0),
+      ctoDaysNeeded: acc.ctoDaysNeeded + (!day.isWeekend && !day.isHoliday && !day.isCustomDayOff ? 1 : 0),
+      holidaysIncluded: acc.holidaysIncluded + ((day.isHoliday || day.isCustomDayOff) ? 1 : 0),
       weekendsIncluded: acc.weekendsIncluded + (day.isWeekend ? 1 : 0)
     }),
     { ctoDaysNeeded: 0, holidaysIncluded: 0, weekendsIncluded: 0 }
@@ -300,7 +304,7 @@ const allocateRemainingDays = (
   if (remainingDays <= 0) return days
 
   const isInYear = (date: string) => date.startsWith(year.toString())
-  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday && !day.isCustomDayOff
   
   // Find all available workdays and score them
   const scoredWorkdays = days
@@ -347,7 +351,7 @@ const calculateDayScore = (days: OptimizedDay[], index: number): number => {
     if (i === index) continue
     const distance = Math.abs(i - index)
     if (days[i].isPartOfBreak) score += (range - distance + 1) * 2
-    if (days[i].isHoliday) score += (range - distance + 1) * 3
+    if (days[i].isHoliday || days[i].isCustomDayOff) score += (range - distance + 1) * 3
     if (days[i].isCTO) score += (range - distance + 1) * 2
     if (days[i].isWeekend) score += (range - distance + 1)
   }
@@ -369,7 +373,7 @@ const calculateDayScore = (days: OptimizedDay[], index: number): number => {
  */
 const optimizeLongWeekends = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
   const isInYear = (date: string) => date.startsWith(year.toString())
-  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday && !day.isCustomDayOff
   const isMonOrFri = (date: string) => {
     const dayOfWeek = getDay(parse(date, 'yyyy-MM-dd', new Date()))
     return dayOfWeek === 1 || dayOfWeek === 5
@@ -427,8 +431,8 @@ const optimizeLongWeekends = (days: OptimizedDay[], numberOfDays: number, year: 
       )
       .sort((a, b) => 
         (isNearHoliday(days, b.index) ? 1 : 0) -
-        (isNearHoliday(days, a.index) ? 1 : 0)
-    )
+        (isNearHoliday(days, a.index) ? 1 : 0),
+      )
 
     const monFriResult = monFriWorkdays.reduce(
       ({ days, remaining }: { days: OptimizedDay[]; remaining: number }, { index }) =>
@@ -470,7 +474,7 @@ const optimizeLongWeekends = (days: OptimizedDay[], numberOfDays: number, year: 
  */
 const optimizeWeekLongBreaks = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
   const isInYear = (date: string) => date.startsWith(year.toString())
-  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday && !day.isCustomDayOff
 
   // Find potential week-long breaks
   const weekBreaks = findAllPossibleBreaks(days, year)
@@ -538,7 +542,7 @@ const optimizeWeekLongBreaks = (days: OptimizedDay[], numberOfDays: number, year
  */
 const optimizeExtendedVacations = (days: OptimizedDay[], numberOfDays: number, year: number): OptimizedDay[] => {
   const isInYear = (date: string) => date.startsWith(year.toString())
-  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday && !day.isCustomDayOff
 
   // Find potential extended breaks
   const extendedBreaks = findAllPossibleBreaks(days, year)
@@ -616,7 +620,8 @@ const markBreaks = (days: OptimizedDay[]): OptimizedDay[] => {
     .map(({ index }) => index)
 
   // Helper to check if a day is a non-workday
-  const isNonWorkday = (day: OptimizedDay) => day.isHoliday || day.isWeekend || day.isCTO
+  const isNonWorkday = (day: OptimizedDay) => 
+    day.isHoliday || day.isWeekend || day.isCTO || day.isCustomDayOff
 
   // Helper to get continuous range of non-workdays
   const getContinuousRange = (
@@ -867,7 +872,7 @@ const forceAllocateRemainingDays = (
   if (remainingDays <= 0) return days
 
   const isInYear = (date: string) => date.startsWith(year.toString())
-  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday && !day.isCustomDayOff
   
   // Get ALL available workdays
   const availableWorkdays = days
@@ -962,7 +967,7 @@ export const optimizeCtoDays = (
 
   // Helper functions
   const isInYear = (day: OptimizedDay) => day.date.startsWith(year.toString())
-  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday
+  const isWorkday = (day: OptimizedDay) => !day.isWeekend && !day.isHoliday && !day.isCustomDayOff
   const countUsedDays = (days: OptimizedDay[]) => days.filter(day => day.isCTO).length
   const getUsedDates = (days: OptimizedDay[]) => 
     new Set(days.filter(day => day.isCTO).map(day => day.date))

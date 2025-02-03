@@ -28,6 +28,7 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
   const ctoDays = optimizedDays.filter(d => d.isCTO).length
   const breakDays = optimizedDays.filter(d => d.isPartOfBreak).length
   const holidays = optimizedDays.filter(d => d.isHoliday).length
+  const customDaysOff = optimizedDays.filter(d => d.isCustomDayOff).length
   const extendedWeekends = countExtendedWeekends(optimizedDays)
   const breaks = useMemo(() => findBreaks(optimizedDays), [optimizedDays])
 
@@ -46,7 +47,7 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
             <TotalDaysOffCard totalDays={breakDays} />
 
             {/* Stats Grid */}
-            <div className="md:col-span-2 grid grid-cols-3 gap-4">
+            <div className="md:col-span-2 grid grid-cols-4 gap-4">
               <StatCard
                 icon={
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,6 +80,17 @@ export function ResultsDisplay({ optimizedDays }: ResultsDisplayProps) {
                 label={holidays === 1 ? 'Public Holiday' : 'Public Holidays'}
                 tooltip="Number of public holidays that fall within the calendar year"
                 colorScheme="amber"
+              />
+              <StatCard
+                icon={
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                }
+                value={customDaysOff}
+                label={customDaysOff === 1 ? 'Custom Day Off' : 'Custom Days Off'}
+                tooltip="Number of custom days off provided by your organization"
+                colorScheme="emerald"
               />
             </div>
           </div>

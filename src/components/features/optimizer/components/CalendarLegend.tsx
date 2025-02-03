@@ -16,7 +16,7 @@ function LegendItem({ color, darkColor, label }: LegendItemProps) {
 export function CalendarLegend() {
   return (
     <div className="mb-6 bg-white dark:bg-gray-800/50 rounded-lg p-4 ring-1 ring-blue-900/5 dark:ring-blue-400/5">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <LegendItem
           color="bg-teal-100"
           darkColor="bg-teal-900/50"
@@ -26,6 +26,11 @@ export function CalendarLegend() {
           color="bg-amber-100"
           darkColor="bg-amber-900/50"
           label="Public Holiday"
+        />
+        <LegendItem
+          color="bg-emerald-100"
+          darkColor="bg-emerald-900/50"
+          label="Custom Day Off"
         />
         <LegendItem
           color="bg-violet-100"

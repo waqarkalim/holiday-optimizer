@@ -59,7 +59,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       action: 'handleSubmit',
       data: { 
         eventType: e.type,
-        target: (e.target as HTMLFormElement).getAttribute('aria-label')
+        target: (e.target as HTMLFormElement).getAttribute('aria-label'),
+        customDaysOff  // Log custom days for debugging
       }
     })
     
@@ -80,7 +81,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       onSubmit({ 
         days: numDays, 
         strategy,
-        customDaysOff
+        customDaysOff  // Make sure customDaysOff is included in submission
       })
     } else {
       logger.warn('Invalid days value in form submission', {
@@ -107,6 +108,23 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       return
     }
 
+    // Ensure all required fields are present based on type
+    if (newCustomDay.isRecurring && (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined)) {
+      logger.warn('Attempted to add incomplete recurring custom day', {
+        component: 'OptimizerForm',
+        data: { newCustomDay }
+      })
+      return
+    }
+
+    if (!newCustomDay.isRecurring && !newCustomDay.date) {
+      logger.warn('Attempted to add single custom day without date', {
+        component: 'OptimizerForm',
+        data: { newCustomDay }
+      })
+      return
+    }
+
     dispatch({ type: 'ADD_CUSTOM_DAY', payload: newCustomDay as CustomDayOff })
     
     logger.debug('Custom day added successfully', {
@@ -114,6 +132,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       action: 'handleCustomDayAdd',
       data: { addedDay: newCustomDay }
     })
+
+    // Reset form and close it
+    dispatch({ type: 'RESET_NEW_CUSTOM_DAY' })
+    dispatch({ type: 'SET_IS_ADDING', payload: false })
   }
 
   const handleCustomDayRemove = (index: number) => {
@@ -377,6 +399,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           onClick={() => handleCustomDayRemove(index)}
                           className="opacity-0 group-hover:opacity-100 h-8 w-8 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-opacity focus:opacity-100"
                           aria-label={`Remove ${day.name}`}
+                          tabIndex={0}
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
                         </Button>

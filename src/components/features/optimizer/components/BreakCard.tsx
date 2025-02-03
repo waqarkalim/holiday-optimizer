@@ -10,6 +10,7 @@ interface Break {
   ctoDays: number
   holidays: number
   weekends: number
+  customDaysOff: number
 }
 
 interface BreakCardProps {
@@ -51,7 +52,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-4">
+      <div className="mt-4 grid grid-cols-4 gap-4">
         <div className="space-y-1">
           <div className="flex items-center space-x-1.5">
             <svg className="h-4 w-4 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,6 +70,15 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
             <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.holidays}</span>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">{breakPeriod.holidays === 1 ? 'Public Holiday' : 'Public Holidays'}</p>
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center space-x-1.5">
+            <svg className="h-4 w-4 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.customDaysOff}</span>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{breakPeriod.customDaysOff === 1 ? 'Custom Day Off' : 'Custom Days Off'}</p>
         </div>
         <div className="space-y-1">
           <div className="flex items-center space-x-1.5">
@@ -90,12 +100,14 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
                 'h-2 flex-1 rounded-full',
                 day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
                 day.isHoliday ? 'bg-amber-500 dark:bg-amber-400' :
+                day.isCustomDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
                 day.isWeekend ? 'bg-violet-500 dark:bg-violet-400' :
                 'bg-gray-200 dark:bg-gray-700'
               )}
               title={`${format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d')} - ${
                 day.isCTO ? 'CTO Day' :
                 day.isHoliday ? day.holidayName || 'Holiday' :
+                day.isCustomDayOff ? day.customDayName || 'Custom Day Off' :
                 day.isWeekend ? 'Weekend' : 'Work Day'
               }`}
             />
