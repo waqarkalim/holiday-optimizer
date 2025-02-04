@@ -8,7 +8,7 @@ interface Break {
   endDate: string
   days: OptimizedDay[]
   totalDays: number
-  ctoDays: number  // Must be > 0
+  ctoDays: number
   holidays: number
   weekends: number
   customDaysOff: number
@@ -19,18 +19,13 @@ interface BreakCardProps {
 }
 
 export function BreakCard({ breakPeriod }: BreakCardProps) {
-  // Validate that this is actually a break (contains CTO days)
-  if (breakPeriod.ctoDays === 0) {
-    console.warn('BreakCard received a period with no CTO days:', breakPeriod)
-    return null
-  }
-
   const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
   const endDate = parse(breakPeriod.endDate, 'yyyy-MM-dd', new Date())
 
   const getBreakType = (totalDays: number) => {
     if (totalDays >= BREAK_LENGTHS.EXTENDED.MIN) return 'Extended Break'
     if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) return 'Week Break'
+    if (totalDays >= BREAK_LENGTHS.MINI_BREAK.MIN) return 'Mini Break'
     return 'Long Weekend'
   }
 
@@ -41,6 +36,9 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
     if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) {
       return `${BREAK_LENGTHS.WEEK_LONG.MIN}-${BREAK_LENGTHS.WEEK_LONG.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
     }
+    if (totalDays >= BREAK_LENGTHS.MINI_BREAK.MIN) {
+      return `${BREAK_LENGTHS.MINI_BREAK.MIN}-${BREAK_LENGTHS.MINI_BREAK.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
+    }
     return `${BREAK_LENGTHS.LONG_WEEKEND.MIN}-${BREAK_LENGTHS.LONG_WEEKEND.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
   }
 
@@ -50,6 +48,9 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
     }
     if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) {
       return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+    }
+    if (totalDays >= BREAK_LENGTHS.MINI_BREAK.MIN) {
+      return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
     }
     return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
   }

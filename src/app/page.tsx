@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { optimizeCtoDays, OptimizationStrategy, CustomDayOff } from '@/services/optimizer.dp'
+import { optimizeCTODays } from '@/services/optimizer.deepseek'
 import { ResultsDisplay } from '@/components/features/optimizer/ResultsDisplay'
 import { OptimizerForm } from '@/components/OptimizerForm'
 import { OptimizerProvider } from '@/contexts/OptimizerContext'
@@ -10,8 +10,8 @@ import Footer from '@/components/layout/Footer'
 
 interface FormState {
   numberOfDays: number | null
-  strategy: OptimizationStrategy
-  customDaysOff: CustomDayOff[]
+  strategy: 'balanced' | 'longWeekends' | 'weekLongBreaks' | 'extendedVacations'
+  customDaysOff: Array<{ date: string, name: string }>
 }
 
 const DEFAULT_FORM_STATE: FormState = {
@@ -25,26 +25,37 @@ const HomePage = () => {
   const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
   const [isOptimizing, setIsOptimizing] = useState(false)
   
-  const { optimizedDays, error } = useMemo(() => {
+  const { optimizedDays, breaks, stats, error } = useMemo(() => {
     if (formState.numberOfDays === null) {
-      return { optimizedDays: null, error: null }
+      return { optimizedDays: null, breaks: [], stats: null, error: null }
     }
 
     try {
       setIsOptimizing(true)
-      const result = optimizeCtoDays(
-        formState.numberOfDays, 
-        formState.strategy, 
-        currentYear,
-        formState.customDaysOff
-      )
-      return { optimizedDays: result.days, error: null }
+      const result = optimizeCTODays({
+        numberOfDays: formState.numberOfDays,
+        strategy: formState.strategy,
+        year: currentYear,
+        customDaysOff: formState.customDaysOff
+      })
+      console.log(`result: `, result)
+      return { 
+        optimizedDays: result.days, 
+        breaks: result.breaks,
+        stats: result.stats,
+        error: null 
+      }
     } catch (e) {
-      return { optimizedDays: null, error: e instanceof Error ? e.message : 'An error occurred' }
+      return { 
+        optimizedDays: null, 
+        breaks: [], 
+        stats: null,
+        error: e instanceof Error ? e.message : 'An error occurred' 
+      }
     } finally {
       setIsOptimizing(false)
     }
-  }, [formState.numberOfDays, formState.strategy, formState.customDaysOff, currentYear])
+  }, [formState.numberOfDays, formState.customDaysOff, formState.strategy])
 
   return (
     <OptimizerProvider>
@@ -85,7 +96,11 @@ const HomePage = () => {
               {/* Results Section - Appears when there are results */}
               {optimizedDays && optimizedDays.length > 0 && (
                 <div className="space-y-6 min-w-0 max-w-4xl">
-                  <ResultsDisplay optimizedDays={optimizedDays} />
+                  <ResultsDisplay 
+                    optimizedDays={optimizedDays}
+                    breaks={breaks}
+                    stats={stats}
+                  />
                 </div>
               )}
             </div>

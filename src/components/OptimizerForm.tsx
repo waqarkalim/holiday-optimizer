@@ -20,7 +20,6 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useOptimizer } from "@/contexts/OptimizerContext"
-import { logger } from "@/utils/logger"
 
 const WEEKDAYS = [
   { value: "1", label: "Monday" },
@@ -55,91 +54,39 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
   const { state, dispatch } = useOptimizer()
   const { days, strategy, errors, customDaysOff, isAdding, newCustomDay } = state
 
-  logger.debug('OptimizerForm rendered', {
-    component: 'OptimizerForm',
-    data: { days, strategy, isAdding, customDaysOffCount: customDaysOff.length }
-  })
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    logger.debug('Form submit event triggered', {
-      component: 'OptimizerForm',
-      action: 'handleSubmit',
-      data: { 
-        eventType: e.type,
-        target: (e.target as HTMLFormElement).getAttribute('aria-label'),
-        customDaysOff  // Log custom days for debugging
-      }
-    })
     
     const numDays = parseInt(days)
     
-    logger.info('Form submission attempted', {
-      component: 'OptimizerForm',
-      action: 'handleSubmit',
-      data: { days: numDays, strategy, customDaysOff }
-    })
-
     if (numDays > 0) {
-      logger.debug('Form submission valid', {
-        component: 'OptimizerForm',
-        action: 'handleSubmit',
-        data: { days: numDays, strategy, customDaysOff }
-      })
       onSubmit({ 
         days: numDays, 
         strategy,
         customDaysOff  // Make sure customDaysOff is included in submission
       })
     } else {
-      logger.warn('Invalid days value in form submission', {
-        component: 'OptimizerForm',
-        action: 'handleSubmit',
-        data: { days, numDays }
-      })
       return
     }
   }
 
   const handleCustomDayAdd = () => {
-    logger.info('Adding new custom day', {
-      component: 'OptimizerForm',
-      action: 'handleCustomDayAdd',
-      data: { newCustomDay }
-    })
 
     if (!newCustomDay.name) {
-      logger.warn('Attempted to add custom day without name', {
-        component: 'OptimizerForm',
-        data: { newCustomDay }
-      })
       return
     }
 
     // Ensure all required fields are present based on type
     if (newCustomDay.isRecurring && (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined)) {
-      logger.warn('Attempted to add incomplete recurring custom day', {
-        component: 'OptimizerForm',
-        data: { newCustomDay }
-      })
       return
     }
 
     if (!newCustomDay.isRecurring && !newCustomDay.date) {
-      logger.warn('Attempted to add single custom day without date', {
-        component: 'OptimizerForm',
-        data: { newCustomDay }
-      })
       return
     }
 
     dispatch({ type: 'ADD_CUSTOM_DAY', payload: newCustomDay as CustomDayOff })
     
-    logger.debug('Custom day added successfully', {
-      component: 'OptimizerForm',
-      action: 'handleCustomDayAdd',
-      data: { addedDay: newCustomDay }
-    })
 
     // Reset form and close it
     dispatch({ type: 'RESET_NEW_CUSTOM_DAY' })
@@ -147,20 +94,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
   }
 
   const handleCustomDayRemove = (index: number) => {
-    logger.info('Removing custom day', {
-      component: 'OptimizerForm',
-      action: 'handleCustomDayRemove',
-      data: { removedDay: customDaysOff[index], index }
-    })
     dispatch({ type: 'REMOVE_CUSTOM_DAY', payload: index })
   }
 
   const handleCustomDayUpdate = (field: CustomDayField, value: any) => {
-    logger.debug('Updating custom day field', {
-      component: 'OptimizerForm',
-      action: 'handleCustomDayUpdate',
-      data: { field, value, previousValue: newCustomDay[field] }
-    })
     dispatch({ type: 'UPDATE_NEW_CUSTOM_DAY', payload: { [field]: value } })
   }
 
@@ -258,11 +195,6 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   max={365}
                   value={days}
                   onChange={(e) => {
-                    logger.debug('Days input changed', {
-                      component: 'OptimizerForm',
-                      action: 'daysChange',
-                      data: { newValue: e.target.value, oldValue: days }
-                    })
                     dispatch({ type: 'SET_DAYS', payload: e.target.value })
                   }}
                   className={cn(

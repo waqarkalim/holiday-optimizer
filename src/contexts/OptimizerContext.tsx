@@ -52,12 +52,6 @@ const initialState: OptimizerState = {
 }
 
 function validateCustomDay(day: Partial<CustomDayOff>): Record<string, string> {
-  logger.debug('Validating custom day', {
-    component: 'OptimizerContext',
-    action: 'validateCustomDay',
-    data: { day }
-  })
-
   const errors: Record<string, string> = {}
 
   if (!day.name?.trim()) {
@@ -83,53 +77,20 @@ function validateCustomDay(day: Partial<CustomDayOff>): Record<string, string> {
     }
   }
 
-  if (Object.keys(errors).length > 0) {
-    logger.warn('Custom day validation failed', {
-      component: 'OptimizerContext',
-      action: 'validateCustomDay',
-      data: { day, errors }
-    })
-  } else {
-    logger.debug('Custom day validation passed', {
-      component: 'OptimizerContext',
-      action: 'validateCustomDay',
-      data: { day }
-    })
-  }
-
   return errors
 }
 
 function optimizerReducer(state: OptimizerState, action: OptimizerAction): OptimizerState {
-  logger.debug('Reducer called', {
-    component: 'OptimizerContext',
-    action: 'reducer',
-    data: { 
-      actionType: action.type,
-      ...(('payload' in action) ? { payload: action.payload } : {})
-    }
-  })
-
   switch (action.type) {
     case 'SET_DAYS': {
       const daysNum = parseInt(action.payload)
       if (action.payload === "" || (daysNum >= 0 && daysNum <= 365)) {
-        logger.info('Days updated successfully', {
-          component: 'OptimizerContext',
-          action: 'SET_DAYS',
-          data: { newValue: action.payload, oldValue: state.days }
-        })
         return {
           ...state,
           days: action.payload,
           errors: { ...state.errors, days: undefined }
         }
       }
-      logger.warn('Invalid days value', {
-        component: 'OptimizerContext',
-        action: 'SET_DAYS',
-        data: { invalidValue: action.payload }
-      })
       return {
         ...state,
         errors: { ...state.errors, days: "Please enter a number between 0 and 365" }
@@ -137,41 +98,21 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'SET_STRATEGY': {
-      logger.info('Strategy updated', {
-        component: 'OptimizerContext',
-        action: 'SET_STRATEGY',
-        data: { newStrategy: action.payload, oldStrategy: state.strategy }
-      })
       return { ...state, strategy: action.payload }
     }
 
     case 'SET_CUSTOM_DAYS': {
-      logger.info('Custom days bulk update', {
-        component: 'OptimizerContext',
-        action: 'SET_CUSTOM_DAYS',
-        data: { newDays: action.payload, oldDays: state.customDaysOff }
-      })
       return { ...state, customDaysOff: action.payload }
     }
 
     case 'ADD_CUSTOM_DAY': {
       const errors = validateCustomDay(action.payload)
       if (Object.keys(errors).length > 0) {
-        logger.warn('Failed to add custom day - validation errors', {
-          component: 'OptimizerContext',
-          action: 'ADD_CUSTOM_DAY',
-          data: { day: action.payload, errors }
-        })
         return {
           ...state,
           errors: { ...state.errors, customDay: errors }
         }
       }
-      logger.info('Custom day added successfully', {
-        component: 'OptimizerContext',
-        action: 'ADD_CUSTOM_DAY',
-        data: { newDay: action.payload }
-      })
       return {
         ...state,
         customDaysOff: [...state.customDaysOff, action.payload],
@@ -183,11 +124,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
 
     case 'REMOVE_CUSTOM_DAY': {
       const removedDay = state.customDaysOff[action.payload]
-      logger.info('Custom day removed', {
-        component: 'OptimizerContext',
-        action: 'REMOVE_CUSTOM_DAY',
-        data: { removedDay, index: action.payload }
-      })
       return {
         ...state,
         customDaysOff: state.customDaysOff.filter((_, i) => i !== action.payload)
@@ -195,11 +131,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'SET_IS_ADDING': {
-      logger.debug('Adding mode toggled', {
-        component: 'OptimizerContext',
-        action: 'SET_IS_ADDING',
-        data: { newValue: action.payload, oldValue: state.isAdding }
-      })
       return {
         ...state,
         isAdding: action.payload,
@@ -212,17 +143,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       const updatedDay = { ...state.newCustomDay, ...action.payload }
       const validationErrors = validateCustomDay(updatedDay)
       
-      logger.debug('New custom day updated', {
-        component: 'OptimizerContext',
-        action: 'UPDATE_NEW_CUSTOM_DAY',
-        data: { 
-          updates: action.payload,
-          previousState: state.newCustomDay,
-          newState: updatedDay,
-          validationErrors
-        }
-      })
-
       return {
         ...state,
         newCustomDay: updatedDay,
@@ -234,11 +154,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'RESET_NEW_CUSTOM_DAY': {
-      logger.debug('New custom day reset', {
-        component: 'OptimizerContext',
-        action: 'RESET_NEW_CUSTOM_DAY',
-        data: { previousState: state.newCustomDay }
-      })
       return {
         ...state,
         newCustomDay: defaultCustomDay,
@@ -247,11 +162,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'SET_ERROR': {
-      logger.warn('Error set manually', {
-        component: 'OptimizerContext',
-        action: 'SET_ERROR',
-        data: { field: action.payload.field, message: action.payload.message }
-      })
       return {
         ...state,
         errors: {
@@ -262,11 +172,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'CLEAR_ERRORS': {
-      logger.debug('Errors cleared', {
-        component: 'OptimizerContext',
-        action: 'CLEAR_ERRORS',
-        data: { previousErrors: state.errors }
-      })
       return {
         ...state,
         errors: {}
@@ -274,11 +179,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     default: {
-      logger.error('Unknown action type', {
-        component: 'OptimizerContext',
-        action: 'reducer',
-        data: { action }
-      })
       return state
     }
   }
@@ -291,19 +191,6 @@ const OptimizerContext = createContext<{
 
 export function OptimizerProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(optimizerReducer, initialState)
-
-  logger.debug('OptimizerProvider rendered', {
-    component: 'OptimizerContext',
-    data: { 
-      currentState: {
-        days: state.days,
-        strategy: state.strategy,
-        customDaysCount: state.customDaysOff.length,
-        isAdding: state.isAdding,
-        hasErrors: Object.keys(state.errors).length > 0
-      }
-    }
-  })
 
   return (
     <OptimizerContext.Provider value={{ state, dispatch }}>
