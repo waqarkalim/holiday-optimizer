@@ -10,6 +10,31 @@ import {
     DISTRIBUTION_WEIGHTS
 } from './optimizer.constants';
 
+const DAYS = {
+    SUNDAY: 0,
+    MONDAY: 1,
+    TUESDAY: 2,
+    WEDNESDAY: 3,
+    THURSDAY: 4,
+    FRIDAY: 5,
+    SATURDAY: 6
+} as const;
+
+const MONTHS = {
+    JANUARY: 0,
+    FEBRUARY: 1,
+    MARCH: 2,
+    APRIL: 3,
+    MAY: 4,
+    JUNE: 5,
+    JULY: 6,
+    AUGUST: 7,
+    SEPTEMBER: 8,
+    OCTOBER: 9,
+    NOVEMBER: 10,
+    DECEMBER: 11
+} as const;
+
 interface Holiday {
     date: Date;
     name: string;
@@ -65,8 +90,8 @@ interface OptimizationStats {
     totalExtendedWeekends: number;
     totalDaysOff: number;
 }
-
-interface OptimizationResult {
+  
+  interface OptimizationResult {
     days: OptimizedDay[];
     breaks: Break[];
     stats: OptimizationStats;
@@ -348,16 +373,16 @@ function optimizeCTODays({
 
     // Mark holidays (including any custom days off passed as holidays)
     const HOLIDAYS: Holiday[] = [
-        { date: parseISO(`${year}-01-01`), name: "New Year's Day" },
-        { date: parseISO(`${year}-02-17`), name: 'Family Day' },
-        { date: parseISO(`${year}-04-18`), name: 'Good Friday' },
-        { date: parseISO(`${year}-05-19`), name: 'Victoria Day' },
-        { date: parseISO(`${year}-07-01`), name: 'Canada Day' },
-        { date: parseISO(`${year}-09-01`), name: 'Labour Day' },
-        { date: parseISO(`${year}-10-13`), name: 'Thanksgiving Day' },
-        { date: parseISO(`${year}-11-11`), name: 'Remembrance Day' },
-        { date: parseISO(`${year}-12-25`), name: 'Christmas Day' },
-        { date: parseISO(`${year}-12-26`), name: 'Boxing Day' },
+        { date: parseISO(`${year}-${MONTHS.JANUARY + 1}-01`), name: "New Year's Day" },
+        { date: parseISO(`${year}-${MONTHS.FEBRUARY + 1}-17`), name: 'Family Day' },
+        { date: parseISO(`${year}-${MONTHS.APRIL + 1}-18`), name: 'Good Friday' },
+        { date: parseISO(`${year}-${MONTHS.MAY + 1}-19`), name: 'Victoria Day' },
+        { date: parseISO(`${year}-${MONTHS.JULY + 1}-01`), name: 'Canada Day' },
+        { date: parseISO(`${year}-${MONTHS.SEPTEMBER + 1}-01`), name: 'Labour Day' },
+        { date: parseISO(`${year}-${MONTHS.OCTOBER + 1}-13`), name: 'Thanksgiving Day' },
+        { date: parseISO(`${year}-${MONTHS.NOVEMBER + 1}-11`), name: 'Remembrance Day' },
+        { date: parseISO(`${year}-${MONTHS.DECEMBER + 1}-25`), name: 'Christmas Day' },
+        { date: parseISO(`${year}-${MONTHS.DECEMBER + 1}-26`), name: 'Boxing Day' },
         ...holidays.map(h => ({ date: parseISO(h.date), name: h.name }))
     ];
 
@@ -413,7 +438,7 @@ function performInitialOptimization(
     
     const breaks = calculateBreaks(allDates);
     const stats = calculateStats(allDates, numberOfDays);
-    
+  
     return {
         days: allDates.map(d => ({
             date: d.dateStr,
@@ -558,7 +583,7 @@ function calculateStats(
             }
         }
     }
-
+  
     return {
         totalCTODays: numberOfDays,
         totalHolidays,
@@ -781,13 +806,13 @@ function calculateStrategyScore(candidate: BreakCandidate, strategy: string): nu
 
     // Apply seasonal weights based on the date
     const month = new Date(candidate.days[0]).getMonth();
-    if (month >= 5 && month <= 7) { // June-August
+    if (month >= MONTHS.JUNE && month <= MONTHS.AUGUST) { // Summer
         score *= SEASONAL_WEIGHTS.SUMMER;
-    } else if (month === 11 || month === 0) { // December-January
+    } else if (month === MONTHS.DECEMBER || month === MONTHS.JANUARY) { // Winter holiday
         score *= SEASONAL_WEIGHTS.WINTER_HOLIDAY;
-    } else if (month >= 8 && month <= 9) { // September-October
+    } else if (month >= MONTHS.SEPTEMBER && month <= MONTHS.OCTOBER) { // Fall
         score *= SEASONAL_WEIGHTS.FALL;
-    } else if (month >= 2 && month <= 4) { // March-May
+    } else if (month >= MONTHS.MARCH && month <= MONTHS.MAY) { // Spring
         score *= SEASONAL_WEIGHTS.SPRING;
     } else {
         score *= SEASONAL_WEIGHTS.WINTER;
@@ -807,7 +832,7 @@ function allocateRemainingDays(
 
     // Strategy-specific allocation of remaining days
     switch (strategy) {
-        case 'longWeekends':
+      case 'longWeekends':
             // Prioritize creating as many long weekends as possible
             while (daysToAllocate >= BREAK_LENGTHS.LONG_WEEKEND.MIN) {
                 const break_ = createLongWeekend(usedDays, allDates);
@@ -817,7 +842,7 @@ function allocateRemainingDays(
             }
             break;
 
-        case 'weekLongBreaks':
+      case 'weekLongBreaks':
             // First try to create full week-long breaks
             while (daysToAllocate >= BREAK_LENGTHS.WEEK_LONG.MIN) {
                 const break_ = createWeekLongBreak(usedDays, allDates);
@@ -835,7 +860,7 @@ function allocateRemainingDays(
             }
             break;
 
-        case 'extendedVacations':
+      case 'extendedVacations':
             // Try to create the longest possible extended breaks
             while (daysToAllocate >= BREAK_LENGTHS.EXTENDED.MIN) {
                 const maxLength = Math.min(
@@ -859,7 +884,7 @@ function allocateRemainingDays(
             }
             break;
 
-        case 'balanced':
+      case 'balanced':
             // Use existing balanced implementation
             const targetDistribution = {
                 longWeekends: Math.round(remainingDays * BALANCED_DISTRIBUTION.LONG_WEEKENDS),
@@ -944,12 +969,12 @@ function createLongWeekend(usedDays: Set<number>, allDates: DayInfo[]): BreakCan
         const date = allDates[i].date;
         const dayOfWeek = date.getDay();
         
-        if ((dayOfWeek === 1 || dayOfWeek === 5) && // Monday or Friday
+        if ((dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) && // Monday or Friday
             !allDates[i].isWeekend && 
             !allDates[i].isHoliday) {
             
             // Check if this would create a long weekend
-            if (dayOfWeek === 5) { // Friday
+            if (dayOfWeek === DAYS.FRIDAY) { // Friday
                 if (i + 2 < allDates.length && 
                     allDates[i + 1].isWeekend && 
                     allDates[i + 2].isWeekend) {
@@ -973,7 +998,7 @@ function createLongWeekend(usedDays: Set<number>, allDates: DayInfo[]): BreakCan
     
     return {
         type: 'extension',
-        days: dayOfWeek === 5 ? 
+        days: dayOfWeek === DAYS.FRIDAY ? 
             [selectedDay, selectedDay + 1, selectedDay + 2] : 
             [selectedDay - 2, selectedDay - 1, selectedDay],
         ctoDaysUsed: 1,
@@ -1107,8 +1132,8 @@ function createStandaloneDay(usedDays: Set<number>, allDates: DayInfo[]): BreakC
             let score = 0;
             
             // Score based on position
-            if (dayOfWeek === 1 || dayOfWeek === 5) score += 3; // Prefer Mondays and Fridays
-            if (dayOfWeek === 2 || dayOfWeek === 4) score += 1; // Tuesday and Thursday next
+            if (dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) score += 3; // Prefer Mondays and Fridays
+            if (dayOfWeek === DAYS.TUESDAY || dayOfWeek === DAYS.THURSDAY) score += 1; // Tuesday and Thursday next
             
             // Bonus for adjacent weekends/holidays
             if (i > 0 && (allDates[i - 1].isWeekend || allDates[i - 1].isHoliday)) score += 2;
