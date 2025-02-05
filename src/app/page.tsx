@@ -8,8 +8,6 @@ import { OptimizerProvider } from '@/contexts/OptimizerContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { CustomDayOff, OptimizationStrategy } from '@/types';
-import { CalendarIcon, ClockIcon, StarIcon, SunIcon } from '@heroicons/react/24/outline';
-import StatCard from '@/components/features/components/StatCard';
 
 interface FormState {
   numberOfDays: number | null
@@ -27,7 +25,7 @@ const HomePage = () => {
   const currentYear = new Date().getFullYear()
   const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
   const [isOptimizing, setIsOptimizing] = useState(false)
-  
+
   const { optimizedDays, breaks, stats, error } = useMemo(() => {
     if (formState.numberOfDays === null) {
       return { optimizedDays: null, breaks: [], stats: null, error: null }
@@ -42,17 +40,17 @@ const HomePage = () => {
         customDaysOff: formState.customDaysOff
       })
       return {
-        optimizedDays: result.days, 
+        optimizedDays: result.days,
         breaks: result.breaks,
         stats: result.stats,
-        error: null 
+        error: null
       }
     } catch (e) {
-      return { 
-        optimizedDays: null, 
-        breaks: [], 
+      return {
+        optimizedDays: null,
+        breaks: [],
         stats: null,
-        error: e instanceof Error ? e.message : 'An error occurred' 
+        error: e instanceof Error ? e.message : 'An error occurred'
       }
     } finally {
       setIsOptimizing(false)
@@ -98,44 +96,11 @@ const HomePage = () => {
               {/* Results Section - Appears when there are results */}
               {optimizedDays && optimizedDays.length > 0 && (
                 <div className="space-y-6 min-w-0 max-w-4xl">
-                  <ResultsDisplay 
+                  <ResultsDisplay
                     optimizedDays={optimizedDays}
                     breaks={breaks}
                     stats={stats}
                   />
-                  <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Results</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <StatCard
-                        icon={<CalendarIcon className="w-6 h-6" />}
-                        value={stats.totalCTODays}
-                        label="CTO Days"
-                        tooltip="Total number of CTO days used"
-                        colorScheme="blue"
-                      />
-                      <StatCard
-                        icon={<StarIcon className="w-6 h-6" />}
-                        value={stats.totalPublicHolidays}
-                        label="Public Holidays"
-                        tooltip="Total number of public holidays in the year"
-                        colorScheme="amber"
-                      />
-                      <StatCard
-                        icon={<SunIcon className="w-6 h-6" />}
-                        value={stats.totalExtendedWeekends}
-                        label="Extended Weekends"
-                        tooltip="Number of weekends that are part of longer breaks"
-                        colorScheme="green"
-                      />
-                      <StatCard
-                        icon={<ClockIcon className="w-6 h-6" />}
-                        value={stats.totalDaysOff}
-                        label="Total Days Off"
-                        tooltip="Total number of days off including weekends and holidays"
-                        colorScheme="purple"
-                      />
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
