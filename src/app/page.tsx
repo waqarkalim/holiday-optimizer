@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import { useState, useMemo } from 'react'
-import { optimizeCTODays } from '@/services/optimizer.deepseek'
-import { ResultsDisplay } from '@/components/features/optimizer/ResultsDisplay'
-import { OptimizerForm } from '@/components/OptimizerForm'
-import { OptimizerProvider } from '@/contexts/OptimizerContext'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import { CustomDayOff, OptimizationStrategy } from '@/types'
-import { CalendarIcon, StarIcon, SunIcon, ClockIcon } from '@heroicons/react/24/outline'
-import StatCard from '@/components/features/optimizer/components/StatCard'
+import { useMemo, useState } from 'react';
+import { optimizeCTODays } from '@/services/optimizer.deepseek';
+import { ResultsDisplay } from '@/components/features/ResultsDisplay';
+import { OptimizerForm } from '@/components/OptimizerForm';
+import { OptimizerProvider } from '@/contexts/OptimizerContext';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { CustomDayOff, OptimizationStrategy } from '@/types';
+import { CalendarIcon, ClockIcon, StarIcon, SunIcon } from '@heroicons/react/24/outline';
+import StatCard from '@/components/features/components/StatCard';
 
 interface FormState {
   numberOfDays: number | null
