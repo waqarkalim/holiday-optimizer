@@ -95,4 +95,29 @@ export const DISTRIBUTION_WEIGHTS = {
   WEEK_LONG_BREAKS: 0.30,    // Balanced with long weekends
   EXTENDED_BREAKS: 0.15,     // Reduced for better distribution
   BALANCED: 0.25            // Equal weight in balanced strategy
-} as const 
+} as const
+
+export const SCORING_MULTIPLIERS = {
+    BREAK_LENGTH_BONUS: 2.0,        // Bonus multiplier for break length
+    ADJACENT_DAY_BONUS: 3.0,        // Bonus for days adjacent to weekends/holidays
+    OPTIMAL_DAY_BONUS: 2.0,         // Bonus for optimal weekdays (Mon/Fri)
+    
+    // Strategy-specific multipliers
+    STRONG_PREFERENCE: 3.0,         // Strong preference multiplier
+    HEAVY_PENALTY: 0.3,             // Heavy penalty multiplier
+    VERY_STRONG_PREFERENCE: 4.0,    // Very strong preference multiplier
+    TWO_WEEK_BONUS: 1.5,           // Bonus for two-week breaks
+    LIGHT_PENALTY: 0.7,            // Light penalty multiplier
+    MODERATE_PENALTY: 0.6,          // Moderate penalty multiplier
+    SEVERE_PENALTY: 0.2,           // Severe penalty multiplier
+    
+    // Standalone day scoring
+    PRIME_POSITION_BONUS: 3.0,      // Bonus for prime positions (Mon/Fri)
+    SECONDARY_POSITION_BONUS: 1.0,  // Bonus for secondary positions (Tue/Thu)
+    ADJACENT_BONUS: 2.0            // Bonus for days adjacent to weekends/holidays
+} as const;
+
+export const BREAK_THRESHOLDS = {
+    TWO_WEEK_MINIMUM: 14,          // Minimum days for two-week break bonus
+    NEARBY_BREAK_RANGE: 3          // Range to check for nearby breaks
+} as const; 
