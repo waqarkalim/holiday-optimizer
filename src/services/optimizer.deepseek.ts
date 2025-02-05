@@ -383,16 +383,16 @@ function optimizeCTODays({
 
     // Mark public holidays
     const PUBLIC_HOLIDAYS: Holiday[] = [
-        { date: parseISO(`${year}-${MONTHS.JANUARY + 1}-01`), name: "New Year's Day" },
-        { date: parseISO(`${year}-${MONTHS.FEBRUARY + 1}-17`), name: 'Family Day' },
-        { date: parseISO(`${year}-${MONTHS.APRIL + 1}-18`), name: 'Good Friday' },
-        { date: parseISO(`${year}-${MONTHS.MAY + 1}-19`), name: 'Victoria Day' },
-        { date: parseISO(`${year}-${MONTHS.JULY + 1}-01`), name: 'Canada Day' },
-        { date: parseISO(`${year}-${MONTHS.SEPTEMBER + 1}-01`), name: 'Labour Day' },
-        { date: parseISO(`${year}-${MONTHS.OCTOBER + 1}-13`), name: 'Thanksgiving Day' },
-        { date: parseISO(`${year}-${MONTHS.NOVEMBER + 1}-11`), name: 'Remembrance Day' },
-        { date: parseISO(`${year}-${MONTHS.DECEMBER + 1}-25`), name: 'Christmas Day' },
-        { date: parseISO(`${year}-${MONTHS.DECEMBER + 1}-26`), name: 'Boxing Day' },
+        { date: parseISO(`${year}-01-01`), name: "New Year's Day" },
+        { date: parseISO(`${year}-02-17`), name: 'Family Day' },
+        { date: parseISO(`${year}-04-18`), name: 'Good Friday' },
+        { date: parseISO(`${year}-05-19`), name: 'Victoria Day' },
+        { date: parseISO(`${year}-07-01`), name: 'Canada Day' },
+        { date: parseISO(`${year}-09-01`), name: 'Labour Day' },
+        { date: parseISO(`${year}-10-13`), name: 'Thanksgiving Day' },
+        { date: parseISO(`${year}-11-11`), name: 'Remembrance Day' },
+        { date: parseISO(`${year}-12-25`), name: 'Christmas Day' },
+        { date: parseISO(`${year}-12-26`), name: 'Boxing Day' },
         ...holidays.map(h => ({ date: parseISO(h.date), name: h.name }))
     ];
 
@@ -417,34 +417,241 @@ function optimizeCTODays({
     // First optimization pass
     const initialResult = performInitialOptimization(allDates, numberOfDays, strategy);
     
-    // Validation and correction pass
-    const validationResult = validateAndFixBreaks(allDates, initialResult.breaks, initialResult.stats);
+    // Validation and correction passes
+    let currentResult = initialResult;
+    let iterationCount = 0;
+    const MAX_ITERATIONS = 3;
     
-    if (!validationResult.isValid) {
-        console.log('Validation failed, applying fixes...');
-        // Fixes have been applied by validateAndFixBreaks
+    while (iterationCount < MAX_ITERATIONS) {
+        // Count current CTO days
+        const currentCTOCount = currentResult.days.filter(d => d.isCTO).length;
         
-        // Recalculate breaks and stats after fixes
-        const finalBreaks = calculateBreaks(allDates);
-        const finalStats = calculateStats(allDates);
-        
-        return {
-            days: allDates.map(d => ({
-                date: d.dateStr,
+        if (currentCTOCount === numberOfDays) {
+            // We have exactly the right number of CTO days
+            break;
+        } else if (currentCTOCount > numberOfDays) {
+            // We have too many CTO days, need to remove some
+            console.log(`Too many CTO days (${currentCTOCount}/${numberOfDays}), removing excess...`);
+            const daysToRemove = currentCTOCount - numberOfDays;
+            
+            // Convert back to DayInfo array for processing
+            const workingDates = currentResult.days.map((d, index) => ({
+                date: parseISO(d.date),
+                dateStr: d.date,
                 isWeekend: d.isWeekend,
-                isCTO: d.isCTO,
-                isPartOfBreak: d.isPartOfBreak,
                 isPublicHoliday: d.isPublicHoliday,
                 publicHolidayName: d.publicHolidayName,
+                isCTO: d.isCTO,
+                isPartOfBreak: d.isPartOfBreak,
                 isCustomDayOff: d.isCustomDayOff,
                 customDayName: d.customDayName
-            })),
-            breaks: finalBreaks,
-            stats: finalStats,
-        };
+            }));
+            
+            // Remove CTO days that have the least impact
+            removeLeastEffectiveCTODays(workingDates, daysToRemove);
+            
+            // Recalculate breaks and stats
+            const breaks = calculateBreaks(workingDates);
+            const stats = calculateStats(workingDates);
+            
+            currentResult = {
+                days: workingDates.map(d => ({
+                    date: d.dateStr,
+                    isWeekend: d.isWeekend,
+                    isCTO: d.isCTO,
+                    isPartOfBreak: d.isPartOfBreak,
+                    isPublicHoliday: d.isPublicHoliday,
+                    publicHolidayName: d.publicHolidayName,
+                    isCustomDayOff: d.isCustomDayOff,
+                    customDayName: d.customDayName
+                })),
+                breaks,
+                stats
+            };
+        } else {
+            // We have too few CTO days, need to add more
+            console.log(`Too few CTO days (${currentCTOCount}/${numberOfDays}), adding more...`);
+            const daysToAdd = numberOfDays - currentCTOCount;
+            
+            // Convert back to DayInfo array for processing
+            const workingDates = currentResult.days.map((d, index) => ({
+                date: parseISO(d.date),
+                dateStr: d.date,
+                isWeekend: d.isWeekend,
+                isPublicHoliday: d.isPublicHoliday,
+                publicHolidayName: d.publicHolidayName,
+                isCTO: d.isCTO,
+                isPartOfBreak: d.isPartOfBreak,
+                isCustomDayOff: d.isCustomDayOff,
+                customDayName: d.customDayName
+            }));
+            
+            // Add CTO days in optimal positions
+            addOptimalCTODays(workingDates, daysToAdd, strategy);
+            
+            // Recalculate breaks and stats
+            const breaks = calculateBreaks(workingDates);
+            const stats = calculateStats(workingDates);
+            
+            currentResult = {
+                days: workingDates.map(d => ({
+                    date: d.dateStr,
+                    isWeekend: d.isWeekend,
+                    isCTO: d.isCTO,
+                    isPartOfBreak: d.isPartOfBreak,
+                    isPublicHoliday: d.isPublicHoliday,
+                    publicHolidayName: d.publicHolidayName,
+                    isCustomDayOff: d.isCustomDayOff,
+                    customDayName: d.customDayName
+                })),
+                breaks,
+                stats
+            };
+        }
+        
+        iterationCount++;
     }
     
-    return initialResult;
+    // Final validation
+    const finalCTOCount = currentResult.days.filter(d => d.isCTO).length;
+    if (finalCTOCount !== numberOfDays) {
+        console.warn(`Warning: Could not achieve exact CTO day count. Requested: ${numberOfDays}, Actual: ${finalCTOCount}`);
+    }
+    
+    return currentResult;
+}
+
+function removeLeastEffectiveCTODays(allDates: DayInfo[], count: number): void {
+    // Score each CTO day based on its effectiveness
+    const ctoDays = allDates
+        .map((day, index) => ({ day, index }))
+        .filter(({ day }) => day.isCTO)
+        .map(({ day, index }) => ({
+            index,
+            score: calculateCTODayEffectiveness(allDates, index)
+        }))
+        .sort((a, b) => a.score - b.score); // Sort by ascending score (remove least effective first)
+    
+    // Remove the specified number of CTO days
+    for (let i = 0; i < Math.min(count, ctoDays.length); i++) {
+        const { index } = ctoDays[i];
+        allDates[index].isCTO = false;
+        updateBreakStatus(allDates, index);
+    }
+}
+
+function calculateCTODayEffectiveness(allDates: DayInfo[], index: number): number {
+    let score = 0;
+    const day = allDates[index];
+    
+    // Check if this CTO day is part of a longer break
+    const breakLength = getBreakLength(allDates, index);
+    score += breakLength * 2; // More points for being part of longer breaks
+    
+    // Check if it's adjacent to weekends or holidays
+    const prevDay = index > 0 ? allDates[index - 1] : null;
+    const nextDay = index < allDates.length - 1 ? allDates[index + 1] : null;
+    
+    if (prevDay?.isWeekend || prevDay?.isPublicHoliday || prevDay?.isCustomDayOff) score += 3;
+    if (nextDay?.isWeekend || nextDay?.isPublicHoliday || nextDay?.isCustomDayOff) score += 3;
+    
+    // Check if it's on a Monday or Friday
+    const dayOfWeek = day.date.getDay();
+    if (dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) score += 2;
+    
+    // Consider seasonal weights
+    const month = day.date.getMonth();
+    if (month >= MONTHS.JUNE && month <= MONTHS.AUGUST) score *= SEASONAL_WEIGHTS.SUMMER;
+    else if (month === MONTHS.DECEMBER || month === MONTHS.JANUARY) score *= SEASONAL_WEIGHTS.WINTER_HOLIDAY;
+    
+    return score;
+}
+
+function addOptimalCTODays(allDates: DayInfo[], count: number, strategy: string): void {
+    // Find all potential positions for new CTO days
+    const candidates = findOptimalCTOPositions(allDates)
+        .filter(index => !allDates[index].isCTO) // Filter out existing CTO days
+        .slice(0, count); // Take only as many as we need
+    
+    // Add CTO days in the optimal positions
+    candidates.forEach(index => {
+        allDates[index].isCTO = true;
+        allDates[index].isPartOfBreak = true;
+        updateBreakStatus(allDates, index);
+    });
+    
+    // If we couldn't add all requested days, try to find suboptimal positions
+    if (candidates.length < count) {
+        const remaining = count - candidates.length;
+        const suboptimalCandidates = findSuboptimalCTOPositions(allDates, strategy)
+            .filter(index => !allDates[index].isCTO)
+            .slice(0, remaining);
+        
+        suboptimalCandidates.forEach(index => {
+            allDates[index].isCTO = true;
+            allDates[index].isPartOfBreak = true;
+            updateBreakStatus(allDates, index);
+        });
+    }
+}
+
+function findSuboptimalCTOPositions(allDates: DayInfo[], strategy: string): number[] {
+    // Find all workdays that aren't already used
+    return allDates
+        .map((day, index) => ({ day, index }))
+        .filter(({ day }) => 
+            !day.isWeekend && 
+            !day.isPublicHoliday && 
+            !day.isCustomDayOff && 
+            !day.isCTO
+        )
+        .map(({ index }) => ({
+            index,
+            score: calculateSuboptimalPositionScore(allDates, index, strategy)
+        }))
+        .sort((a, b) => b.score - a.score) // Sort by descending score
+        .map(({ index }) => index);
+}
+
+function calculateSuboptimalPositionScore(allDates: DayInfo[], index: number, strategy: string): number {
+    let score = 1;
+    const day = allDates[index];
+    const dayOfWeek = day.date.getDay();
+    
+    // Strategy-specific scoring
+    switch (strategy) {
+        case 'longWeekends':
+            if (dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) score *= 2;
+            break;
+        case 'weekLongBreaks':
+            // Prefer days that could potentially connect to other breaks
+            const nearbyBreak = hasNearbyBreak(allDates, index, 3);
+            if (nearbyBreak) score *= 1.5;
+            break;
+        case 'extendedVacations':
+            // Prefer days that could extend existing breaks
+            const adjacentBreak = hasAdjacentBreak(allDates, index);
+            if (adjacentBreak) score *= 2;
+            break;
+    }
+    
+    return score;
+}
+
+function hasNearbyBreak(allDates: DayInfo[], index: number, range: number): boolean {
+    const start = Math.max(0, index - range);
+    const end = Math.min(allDates.length - 1, index + range);
+    
+    for (let i = start; i <= end; i++) {
+        if (allDates[i].isPartOfBreak) return true;
+    }
+    return false;
+}
+
+function hasAdjacentBreak(allDates: DayInfo[], index: number): boolean {
+    const prev = index > 0 ? allDates[index - 1].isPartOfBreak : false;
+    const next = index < allDates.length - 1 ? allDates[index + 1].isPartOfBreak : false;
+    return prev || next;
 }
 
 function performInitialOptimization(
