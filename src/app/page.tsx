@@ -7,11 +7,14 @@ import { OptimizerForm } from '@/components/OptimizerForm'
 import { OptimizerProvider } from '@/contexts/OptimizerContext'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import { CustomDayOff, OptimizationStrategy } from '@/types'
+import { CalendarIcon, StarIcon, SunIcon, ClockIcon } from '@heroicons/react/24/outline'
+import StatCard from '@/components/features/optimizer/components/StatCard'
 
 interface FormState {
   numberOfDays: number | null
-  strategy: 'balanced' | 'longWeekends' | 'weekLongBreaks' | 'extendedVacations'
-  customDaysOff: Array<{ date: string, name: string }>
+  strategy: OptimizationStrategy
+  customDaysOff: Array<CustomDayOff>
 }
 
 const DEFAULT_FORM_STATE: FormState = {
@@ -38,8 +41,7 @@ const HomePage = () => {
         year: currentYear,
         customDaysOff: formState.customDaysOff
       })
-      console.log(`result: `, result)
-      return { 
+      return {
         optimizedDays: result.days, 
         breaks: result.breaks,
         stats: result.stats,
@@ -101,6 +103,39 @@ const HomePage = () => {
                     breaks={breaks}
                     stats={stats}
                   />
+                  <div className="mb-8">
+                    <h2 className="text-xl font-semibold mb-4">Results</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <StatCard
+                        icon={<CalendarIcon className="w-6 h-6" />}
+                        value={stats.totalCTODays}
+                        label="CTO Days"
+                        tooltip="Total number of CTO days used"
+                        colorScheme="blue"
+                      />
+                      <StatCard
+                        icon={<StarIcon className="w-6 h-6" />}
+                        value={stats.totalPublicHolidays}
+                        label="Public Holidays"
+                        tooltip="Total number of public holidays in the year"
+                        colorScheme="amber"
+                      />
+                      <StatCard
+                        icon={<SunIcon className="w-6 h-6" />}
+                        value={stats.totalExtendedWeekends}
+                        label="Extended Weekends"
+                        tooltip="Number of weekends that are part of longer breaks"
+                        colorScheme="green"
+                      />
+                      <StatCard
+                        icon={<ClockIcon className="w-6 h-6" />}
+                        value={stats.totalDaysOff}
+                        label="Total Days Off"
+                        tooltip="Total number of days off including weekends and holidays"
+                        colorScheme="purple"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

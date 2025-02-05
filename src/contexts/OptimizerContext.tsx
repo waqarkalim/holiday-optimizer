@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, ReactNode } from 'react'
-import { OptimizationStrategy, CustomDayOff } from '@/services/optimizer'
 import { isAfter, isBefore, isValid, parse } from 'date-fns'
 import { logger } from '@/utils/logger'
+import {CustomDayOff, OptimizationStrategy} from "@/services/optimizer.deepseek";
 
 interface OptimizerState {
   days: string

@@ -1,25 +1,26 @@
-"use client"
+'use client';
 
-import { FormEvent, KeyboardEvent } from "react"
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Label } from "./ui/label"
-import { OptimizationStrategy, CustomDayOff, OPTIMIZATION_STRATEGIES, StrategyOption } from '@/services/optimizer.dp'
-import { format, parse } from "date-fns"
-import { 
-  Calendar, 
-  Sparkles, 
-  Shuffle, 
-  Coffee, 
-  Sunrise, 
-  Palmtree,
+import { FormEvent, KeyboardEvent } from 'react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { CustomDayOff, OptimizationStrategy } from '@/types';
+import { format, parse } from 'date-fns';
+import {
+  Calendar,
+  CalendarCheck,
   CalendarDays,
+  Coffee,
+  Palmtree,
   Plus,
+  Shuffle,
+  Sparkles,
+  Sunrise,
   X,
-  CalendarCheck
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useOptimizer } from "@/contexts/OptimizerContext"
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useOptimizer } from '@/contexts/OptimizerContext';
+import { OPTIMIZATION_STRATEGIES } from '@/constants';
 
 const WEEKDAYS = [
   { value: "1", label: "Monday" },
