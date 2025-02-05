@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, ReactNode } from 'react'
 import { isAfter, isBefore, isValid, parse } from 'date-fns'
 import { logger } from '@/utils/logger'
-import {CustomDayOff, OptimizationStrategy} from "@/services/optimizer.deepseek";
+import { CustomDayOff, OptimizationStrategy } from '@/types'
 
 interface OptimizerState {
   days: string
@@ -9,6 +9,9 @@ interface OptimizerState {
   customDaysOff: CustomDayOff[]
   isAdding: boolean
   newCustomDay: Partial<CustomDayOff>
+  holidays: Array<{ date: string, name: string }>
+  isAddingHoliday: boolean
+  newHoliday: { date: string, name: string }
   errors: {
     days?: string
     customDay?: {
@@ -17,6 +20,10 @@ interface OptimizerState {
       startDate?: string
       endDate?: string
       weekday?: string
+    }
+    holiday?: {
+      name?: string
+      date?: string
     }
   }
 }
@@ -32,6 +39,11 @@ type OptimizerAction =
   | { type: 'RESET_NEW_CUSTOM_DAY' }
   | { type: 'SET_ERROR'; payload: { field: string; message: string } }
   | { type: 'CLEAR_ERRORS' }
+  | { type: 'ADD_HOLIDAY'; payload: { date: string, name: string } }
+  | { type: 'REMOVE_HOLIDAY'; payload: number }
+  | { type: 'SET_IS_ADDING_HOLIDAY'; payload: boolean }
+  | { type: 'UPDATE_NEW_HOLIDAY'; payload: Partial<{ date: string, name: string }> }
+  | { type: 'RESET_NEW_HOLIDAY' }
 
 export const defaultCustomDay: Partial<CustomDayOff> = {
   name: "",
@@ -42,12 +54,20 @@ export const defaultCustomDay: Partial<CustomDayOff> = {
   date: new Date().toISOString().split('T')[0],
 }
 
+export const defaultHoliday = {
+  name: "",
+  date: new Date().toISOString().split('T')[0],
+}
+
 const initialState: OptimizerState = {
   days: "",
   strategy: "balanced",
   customDaysOff: [],
   isAdding: false,
   newCustomDay: defaultCustomDay,
+  holidays: [],
+  isAddingHoliday: false,
+  newHoliday: defaultHoliday,
   errors: {}
 }
 
@@ -175,6 +195,48 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         errors: {}
+      }
+    }
+
+    case 'ADD_HOLIDAY': {
+      return {
+        ...state,
+        holidays: [...state.holidays, action.payload],
+        isAddingHoliday: false,
+        newHoliday: defaultHoliday,
+        errors: { ...state.errors, holiday: undefined }
+      }
+    }
+
+    case 'REMOVE_HOLIDAY': {
+      return {
+        ...state,
+        holidays: state.holidays.filter((_, i) => i !== action.payload)
+      }
+    }
+
+    case 'SET_IS_ADDING_HOLIDAY': {
+      return {
+        ...state,
+        isAddingHoliday: action.payload,
+        newHoliday: action.payload ? defaultHoliday : state.newHoliday,
+        errors: { ...state.errors, holiday: undefined }
+      }
+    }
+
+    case 'UPDATE_NEW_HOLIDAY': {
+      const updatedHoliday = { ...state.newHoliday, ...action.payload }
+      return {
+        ...state,
+        newHoliday: updatedHoliday,
+      }
+    }
+
+    case 'RESET_NEW_HOLIDAY': {
+      return {
+        ...state,
+        newHoliday: defaultHoliday,
+        errors: { ...state.errors, holiday: undefined }
       }
     }
 

@@ -15,6 +15,7 @@ import {
   Plus,
   Shuffle,
   Sparkles,
+  Star,
   Sunrise,
   X,
 } from 'lucide-react';
@@ -37,6 +38,7 @@ interface OptimizerFormProps {
     days: number
     strategy: OptimizationStrategy
     customDaysOff: CustomDayOff[]
+    holidays: Array<{ date: string, name: string }>
   }) => void
   isLoading?: boolean
 }
@@ -53,7 +55,7 @@ const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
 
 export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProps) {
   const { state, dispatch } = useOptimizer()
-  const { days, strategy, errors, customDaysOff, isAdding, newCustomDay } = state
+  const { days, strategy, errors, customDaysOff, isAdding, newCustomDay, holidays, isAddingHoliday, newHoliday } = state
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -64,7 +66,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       onSubmit({ 
         days: numDays, 
         strategy,
-        customDaysOff  // Make sure customDaysOff is included in submission
+        customDaysOff,
+        holidays
       })
     } else {
       return
@@ -72,7 +75,6 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
   }
 
   const handleCustomDayAdd = () => {
-
     if (!newCustomDay.name) {
       return
     }
@@ -100,6 +102,24 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
   const handleCustomDayUpdate = (field: CustomDayField, value: any) => {
     dispatch({ type: 'UPDATE_NEW_CUSTOM_DAY', payload: { [field]: value } })
+  }
+
+  const handleHolidayAdd = () => {
+    if (!newHoliday.name || !newHoliday.date) {
+      return;
+    }
+
+    dispatch({ type: 'ADD_HOLIDAY', payload: newHoliday });
+    dispatch({ type: 'RESET_NEW_HOLIDAY' });
+    dispatch({ type: 'SET_IS_ADDING_HOLIDAY', payload: false });
+  }
+
+  const handleHolidayRemove = (index: number) => {
+    dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
+  }
+
+  const handleHolidayUpdate = (field: 'name' | 'date', value: string) => {
+    dispatch({ type: 'UPDATE_NEW_HOLIDAY', payload: { [field]: value } });
   }
 
   const handleStrategyKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -605,6 +625,168 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           tabIndex={0}
                         >
                           Add Day Off
+                        </Button>
+                      </div>
+                    </fieldset>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Public Holidays Section */}
+            <section 
+              className="bg-white/80 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-amber-900/5 dark:ring-amber-300/10"
+              aria-labelledby="holidays-heading"
+            >
+              <header className="mb-3">
+                <h2 id="holidays-heading" className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                  Add Public Holidays
+                </h2>
+                <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
+                  Add your region's public holidays.
+                </p>
+              </header>
+              <div className="space-y-6">
+                {/* Existing Holidays List */}
+                {holidays.length > 0 && (
+                  <ul className="grid gap-3" aria-label="Added public holidays">
+                    {holidays.map((holiday, index) => (
+                      <li 
+                        key={index} 
+                        className="group relative flex items-center justify-between p-4 bg-white dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900 dark:text-white">{holiday.name}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {format(parse(holiday.date, 'yyyy-MM-dd', new Date()), 'MMMM d, yyyy')}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleHolidayRemove(index)}
+                          className="opacity-0 group-hover:opacity-100 h-8 w-8 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-opacity focus:opacity-100"
+                          aria-label={`Remove ${holiday.name}`}
+                          tabIndex={0}
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Add New Holiday Button/Form */}
+                {!isAddingHoliday ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full bg-white dark:bg-gray-800/60 border-2 border-dashed border-gray-200 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400 h-auto py-4 rounded-xl shadow-sm transition-all duration-200"
+                    onClick={() => dispatch({ type: 'SET_IS_ADDING_HOLIDAY', payload: true })}
+                    aria-expanded={isAddingHoliday}
+                    aria-controls="holiday-form"
+                    tabIndex={0}
+                  >
+                    <Plus className="h-5 w-5 mr-2" aria-hidden="true" />
+                    Add Public Holiday
+                  </Button>
+                ) : (
+                  <div 
+                    id="holiday-form"
+                    className="bg-white dark:bg-gray-800/60 p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm space-y-6"
+                    role="form" 
+                    aria-label="Add new public holiday"
+                  >
+                    <fieldset className="space-y-5">
+                      <legend className="sr-only">Public holiday details</legend>
+                      
+                      {/* Name Input */}
+                      <div className="space-y-2">
+                        <Label htmlFor="holidayName" className="text-base font-medium text-gray-900 dark:text-white">Holiday Name</Label>
+                        <Input
+                          id="holidayName"
+                          name="holidayName"
+                          value={newHoliday.name}
+                          onChange={(e) => handleHolidayUpdate('name', e.target.value)}
+                          placeholder="e.g., Independence Day"
+                          className={cn(
+                            "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-amber-500 dark:focus:border-amber-400 dark:text-gray-100 dark:placeholder-gray-500",
+                            errors.holiday?.name && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                          )}
+                          aria-required="true"
+                          aria-invalid={!!errors.holiday?.name}
+                          aria-errormessage={errors.holiday?.name ? "holidayName-error" : undefined}
+                        />
+                        {errors.holiday?.name && (
+                          <p id="holidayName-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
+                            {errors.holiday.name}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Date Input */}
+                      <div className="space-y-2">
+                        <Label htmlFor="holidayDate" className="text-base font-medium text-gray-900 dark:text-white">Date</Label>
+                        <div className="relative">
+                          <Input
+                            id="holidayDate"
+                            name="holidayDate"
+                            type="date"
+                            value={newHoliday.date}
+                            onChange={(e) => handleHolidayUpdate('date', e.target.value)}
+                            className={cn(
+                              "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-amber-500 dark:focus:border-amber-400 dark:text-gray-100 pl-10",
+                              errors.holiday?.date && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                            )}
+                            aria-required="true"
+                            aria-invalid={!!errors.holiday?.date}
+                            aria-errormessage={errors.holiday?.date ? "holidayDate-error" : undefined}
+                          />
+                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400 dark:text-amber-500" aria-hidden="true" />
+                        </div>
+                        {errors.holiday?.date && (
+                          <p id="holidayDate-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
+                            {errors.holiday.date}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Form Actions */}
+                      <div 
+                        className="flex gap-3 pt-2"
+                        role="group"
+                        aria-label="Form actions"
+                      >
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1 border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300"
+                          onClick={() => {
+                            dispatch({ type: 'RESET_NEW_HOLIDAY' });
+                            dispatch({ type: 'SET_IS_ADDING_HOLIDAY', payload: false });
+                          }}
+                          tabIndex={0}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          className={cn(
+                            "flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200",
+                            "bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:hover:bg-amber-300"
+                          )}
+                          onClick={handleHolidayAdd}
+                          disabled={!newHoliday.name || !newHoliday.date}
+                          aria-label="Add public holiday"
+                          tabIndex={0}
+                        >
+                          Add Holiday
                         </Button>
                       </div>
                     </fieldset>

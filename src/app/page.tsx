@@ -13,12 +13,14 @@ interface FormState {
   numberOfDays: number | null
   strategy: OptimizationStrategy
   customDaysOff: Array<CustomDayOff>
+  holidays: Array<{ date: string, name: string }>
 }
 
 const DEFAULT_FORM_STATE: FormState = {
   numberOfDays: null,
   strategy: 'balanced',
-  customDaysOff: []
+  customDaysOff: [],
+  holidays: []
 }
 
 const HomePage = () => {
@@ -37,7 +39,8 @@ const HomePage = () => {
         numberOfDays: formState.numberOfDays,
         strategy: formState.strategy,
         year: currentYear,
-        customDaysOff: formState.customDaysOff
+        customDaysOff: formState.customDaysOff,
+        holidays: formState.holidays
       })
       return {
         optimizedDays: result.days,
@@ -55,7 +58,7 @@ const HomePage = () => {
     } finally {
       setIsOptimizing(false)
     }
-  }, [formState.numberOfDays, formState.customDaysOff, formState.strategy])
+  }, [formState.numberOfDays, formState.customDaysOff, formState.strategy, formState.holidays])
 
   return (
     <OptimizerProvider>
@@ -82,11 +85,12 @@ const HomePage = () => {
               {/* Form Section - Always visible */}
               <div className={`${optimizedDays ? 'lg:sticky lg:top-8 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-6`}>
                 <OptimizerForm
-                  onSubmit={({ days, strategy, customDaysOff }) => {
+                  onSubmit={({ days, strategy, customDaysOff, holidays }) => {
                     setFormState({
                       numberOfDays: days,
                       strategy,
-                      customDaysOff
+                      customDaysOff,
+                      holidays
                     })
                   }}
                   isLoading={isOptimizing}
