@@ -104,6 +104,9 @@ export const SCORING_MULTIPLIERS = {
     
     // Strategy-specific multipliers
     STRONG_PREFERENCE: 3.0,         // Strong preference multiplier
+    MODERATE_PREFERENCE: 2.0,       // Moderate preference multiplier
+    LIGHT_PREFERENCE: 1.5,          // Light preference multiplier
+    BALANCED_PREFERENCE: 1.0,       // Balanced preference multiplier
     HEAVY_PENALTY: 0.3,             // Heavy penalty multiplier
     VERY_STRONG_PREFERENCE: 4.0,    // Very strong preference multiplier
     TWO_WEEK_BONUS: 1.5,           // Bonus for two-week breaks
@@ -120,4 +123,28 @@ export const SCORING_MULTIPLIERS = {
 export const BREAK_THRESHOLDS = {
     TWO_WEEK_MINIMUM: 14,          // Minimum days for two-week break bonus
     NEARBY_BREAK_RANGE: 3          // Range to check for nearby breaks
+} as const;
+
+export const OPTIMIZATION_CONSTANTS = {
+    TOLERANCE_DAYS: 5,           // Days tolerance for optimal spacing
+    EFFICIENCY_CALCULATION: {
+        MIN_SEQUENCE_LENGTH: 10,  // Minimum sequence length for extended breaks
+        DEFAULT_EFFICIENCY: 1,    // Default efficiency score
+    },
+    SUBOPTIMAL_SCORING: {
+        NEARBY_BREAK_BONUS: 1.5,  // Bonus for being near other breaks
+        ADJACENT_BREAK_BONUS: 2.0 // Bonus for being adjacent to breaks
+    },
+    PUBLIC_HOLIDAYS: [
+        { month: 1, day: 1, name: "New Year's Day" },
+        { month: 2, day: 17, name: 'Family Day' },
+        { month: 4, day: 18, name: 'Good Friday' },
+        { month: 5, day: 19, name: 'Victoria Day' },
+        { month: 7, day: 1, name: 'Canada Day' },
+        { month: 9, day: 1, name: 'Labour Day' },
+        { month: 10, day: 13, name: 'Thanksgiving Day' },
+        { month: 11, day: 11, name: 'Remembrance Day' },
+        { month: 12, day: 25, name: 'Christmas Day' },
+        { month: 12, day: 26, name: 'Boxing Day' }
+    ] as const
 } as const; 
