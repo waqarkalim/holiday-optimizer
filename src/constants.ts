@@ -1,4 +1,5 @@
 import { StrategyOption } from '@/types';
+import { BREAK_LENGTHS } from './services/optimizer.constants';
 
 export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   {
@@ -9,17 +10,22 @@ export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   {
     id: 'longWeekends',
     label: 'Long Weekends',
-    description: 'Maximize the number of 3-4 day weekends',
+    description: `Maximize the number of ${BREAK_LENGTHS.LONG_WEEKEND.MIN}-${BREAK_LENGTHS.LONG_WEEKEND.MAX} day weekends`,
+  },
+  {
+    id: 'miniBreaks',
+    label: 'Mini Breaks',
+    description: `Spread out days into shorter ${BREAK_LENGTHS.MINI_BREAK.MIN}-${BREAK_LENGTHS.MINI_BREAK.MAX} day breaks`,
   },
   {
     id: 'weekLongBreaks',
     label: 'Week-long Breaks',
-    description: 'Focus on creating 5-7 day breaks',
+    description: `Focus on creating ${BREAK_LENGTHS.WEEK_LONG.MIN}-${BREAK_LENGTHS.WEEK_LONG.MAX} day breaks`,
   },
   {
     id: 'extendedVacations',
     label: 'Extended Vacations',
-    description: 'Combine days for longer vacations (8+ days)',
+    description: `Combine days for longer vacations (${BREAK_LENGTHS.EXTENDED.MIN}-${BREAK_LENGTHS.EXTENDED.MAX} days)`,
   },
 ];
 

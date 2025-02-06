@@ -48,6 +48,7 @@ type CustomDayField = keyof Partial<CustomDayOff>
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
   balanced: Shuffle,
+  miniBreaks: Star,
   longWeekends: Coffee,
   weekLongBreaks: Sunrise,
   extendedVacations: Palmtree

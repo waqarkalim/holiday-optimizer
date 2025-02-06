@@ -1,5 +1,5 @@
 // Optimization Types
-export type OptimizationStrategy = 'balanced' | 'longWeekends' | 'weekLongBreaks' | 'extendedVacations';
+export type OptimizationStrategy = 'balanced' | 'miniBreaks' | 'longWeekends' | 'weekLongBreaks' | 'extendedVacations';
 
 export interface OptimizedDay {
     date: string;
