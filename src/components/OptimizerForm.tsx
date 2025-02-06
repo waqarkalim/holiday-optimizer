@@ -291,6 +291,11 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                         <div className="flex-1">
                           <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                             {strategyOption.label}
+                            {strategyOption.id === 'balanced' && (
+                              <span className="ml-2 inline-flex items-center rounded-md bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 px-2 py-0.5 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                                Recommended
+                              </span>
+                            )}
                           </p>
                           <p className="text-xs text-gray-600 dark:text-gray-300">
                             {strategyOption.description}

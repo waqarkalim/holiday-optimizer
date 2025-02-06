@@ -124,46 +124,6 @@ export const COLOR_SCHEMES = {
       decrease: 'text-pink-500',
     },
   },
-  emerald: {
-    icon: {
-      bg: 'bg-emerald-100 dark:bg-emerald-900/50',
-      text: 'text-emerald-600 dark:text-emerald-300',
-      ring: 'ring-emerald-400/20 dark:ring-emerald-300/20',
-    },
-    tooltip: {
-      icon: 'text-emerald-500/70 dark:text-emerald-300/70',
-      bg: 'bg-emerald-50 dark:bg-emerald-900/90',
-    },
-    card: {
-      hover: 'hover:bg-emerald-50/50 dark:hover:bg-emerald-900/30',
-      ring: 'ring-emerald-900/5 dark:ring-emerald-300/10',
-    },
-    value: {
-      text: 'text-emerald-900 dark:text-emerald-50',
-      increase: 'text-emerald-600',
-      decrease: 'text-emerald-500',
-    },
-  },
-  violet: {
-    icon: {
-      bg: 'bg-violet-100 dark:bg-violet-900/50',
-      text: 'text-violet-600 dark:text-violet-300',
-      ring: 'ring-violet-400/20 dark:ring-violet-300/20',
-    },
-    tooltip: {
-      icon: 'text-violet-500/70 dark:text-violet-300/70',
-      bg: 'bg-violet-50 dark:bg-violet-900/90',
-    },
-    card: {
-      hover: 'hover:bg-violet-50/50 dark:hover:bg-violet-900/30',
-      ring: 'ring-violet-900/5 dark:ring-violet-300/10',
-    },
-    value: {
-      text: 'text-violet-900 dark:text-violet-50',
-      increase: 'text-violet-600',
-      decrease: 'text-violet-500',
-    },
-  },
 };
 
 export const MONTHS = [
