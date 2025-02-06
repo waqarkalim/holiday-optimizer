@@ -1,4 +1,6 @@
 // Optimization Types
+import { COLOR_SCHEMES } from '@/constants';
+
 export type OptimizationStrategy = 'balanced' | 'miniBreaks' | 'longWeekends' | 'weekLongBreaks' | 'extendedVacations';
 
 export interface OptimizedDay {
@@ -62,4 +64,4 @@ export interface StrategyOption {
 }
 
 
-export type ColorScheme = 'blue' | 'green' | 'amber' | 'purple' | 'pink' | 'emerald' | 'violet';
+export type ColorScheme = keyof typeof COLOR_SCHEMES;

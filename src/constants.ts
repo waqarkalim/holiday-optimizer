@@ -90,6 +90,26 @@ export const COLOR_SCHEMES = {
       decrease: 'text-amber-500',
     },
   },
+  emerald: {
+    icon: {
+      bg: 'bg-emerald-100 dark:bg-emerald-900/50',
+      text: 'text-emerald-600 dark:text-emerald-300',
+      ring: 'ring-emerald-400/20 dark:ring-emerald-300/20',
+    },
+    tooltip: {
+      icon: 'text-emerald-500/70 dark:text-emerald-300/70',
+      bg: 'bg-emerald-50 dark:bg-emerald-900/90',
+    },
+    card: {
+      hover: 'hover:bg-emerald-50/50 dark:hover:bg-emerald-900/30',
+      ring: 'ring-emerald-900/5 dark:ring-emerald-300/10',
+    },
+    value: {
+      text: 'text-emerald-900 dark:text-emerald-50',
+      increase: 'text-emerald-600',
+      decrease: 'text-emerald-500',
+    },
+  },
   purple: {
     icon: {
       bg: 'bg-purple-100 dark:bg-purple-900/50',
