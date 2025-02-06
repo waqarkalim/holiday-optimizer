@@ -2,10 +2,45 @@ import { format, parse } from 'date-fns';
 import clsx from 'clsx';
 import { BREAK_LENGTHS } from '@/services/optimizer.constants';
 import { Break } from '@/types';
+import { motion } from 'framer-motion';
 
 interface BreakCardProps {
   breakPeriod: Break;
 }
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: "easeOut",
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.3 }
+  }
+};
+
+const timelineVariants = {
+  hidden: { opacity: 0, scaleX: 0 },
+  visible: { 
+    opacity: 1, 
+    scaleX: 1,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  }
+};
 
 export function BreakCard({ breakPeriod }: BreakCardProps) {
   const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date())
@@ -16,19 +51,6 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
     if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) return 'Week Break'
     if (totalDays >= BREAK_LENGTHS.MINI_BREAK.MIN) return 'Mini Break'
     return 'Long Weekend'
-  }
-
-  const getBreakDescription = (totalDays: number) => {
-    if (totalDays >= BREAK_LENGTHS.EXTENDED.MIN) {
-      return `${BREAK_LENGTHS.EXTENDED.MIN} or more consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
-    }
-    if (totalDays >= BREAK_LENGTHS.WEEK_LONG.MIN) {
-      return `${BREAK_LENGTHS.WEEK_LONG.MIN}-${BREAK_LENGTHS.WEEK_LONG.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
-    }
-    if (totalDays >= BREAK_LENGTHS.MINI_BREAK.MIN) {
-      return `${BREAK_LENGTHS.MINI_BREAK.MIN}-${BREAK_LENGTHS.MINI_BREAK.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
-    }
-    return `${BREAK_LENGTHS.LONG_WEEKEND.MIN}-${BREAK_LENGTHS.LONG_WEEKEND.MAX} consecutive days off (including ${breakPeriod.ctoDays} CTO days)`
   }
 
   const getBreakStyles = (totalDays: number) => {
@@ -45,97 +67,161 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-6">
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      className="bg-white dark:bg-gray-800/50 rounded-xl shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-6 hover:shadow-lg transition-shadow duration-300"
+      whileHover={{ scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
+        <motion.div variants={itemVariants} className="space-y-1">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {format(startDate, 'MMM d')} - {format(endDate, 'MMM d')}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {breakPeriod.totalDays} day{breakPeriod.totalDays !== 1 ? 's' : ''} off
           </p>
-        </div>
+        </motion.div>
         <div className={clsx(
-          'px-3 py-1 rounded-full text-sm font-medium relative group cursor-help',
+          'px-3 py-1 rounded-full text-sm font-medium',
           getBreakStyles(breakPeriod.totalDays)
         )}>
           {getBreakType(breakPeriod.totalDays)}
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
-            {getBreakDescription(breakPeriod.totalDays)}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900 dark:border-t-gray-700" />
-          </div>
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-4 gap-4">
+      <motion.div 
+        variants={itemVariants}
+        className="mt-4 grid grid-cols-4 gap-4"
+      >
         {breakPeriod.ctoDays > 0 && (
-          <div className="space-y-1">
+          <motion.div 
+            className="space-y-1"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
             <div className="flex items-center space-x-1.5">
-              <svg className="h-4 w-4 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <motion.svg 
+                className="h-4 w-4 text-blue-500 dark:text-blue-400" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              </motion.svg>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.ctoDays}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">CTO Days</p>
-          </div>
+          </motion.div>
         )}
         {breakPeriod.publicHolidays > 0 && (
-          <div className="space-y-1">
+          <motion.div 
+            className="space-y-1"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
             <div className="flex items-center space-x-1.5">
-              <svg className="h-4 w-4 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <motion.svg 
+                className="h-4 w-4 text-amber-500 dark:text-amber-400" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
+              </motion.svg>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.publicHolidays}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">{breakPeriod.publicHolidays === 1 ? 'Public Holiday' : 'Public Holidays'}</p>
-          </div>
+          </motion.div>
         )}
         {breakPeriod.customDaysOff > 0 && (
-          <div className="space-y-1">
+          <motion.div 
+            className="space-y-1"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
             <div className="flex items-center space-x-1.5">
-              <svg className="h-4 w-4 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <motion.svg 
+                className="h-4 w-4 text-emerald-500 dark:text-emerald-400" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
+              </motion.svg>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.customDaysOff}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">{breakPeriod.customDaysOff === 1 ? 'Custom Day Off' : 'Custom Days Off'}</p>
-          </div>
+          </motion.div>
         )}
         {breakPeriod.weekends > 0 && (
-          <div className="space-y-1">
+          <motion.div 
+            className="space-y-1"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          >
             <div className="flex items-center space-x-1.5">
-              <svg className="h-4 w-4 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <motion.svg 
+                className="h-4 w-4 text-violet-500 dark:text-violet-400" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              </motion.svg>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{breakPeriod.weekends}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Weekends</p>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
-      <div className="mt-4">
+      <motion.div 
+        variants={timelineVariants}
+        className="mt-4"
+      >
         <div className="flex space-x-1">
-          {breakPeriod.days.map((day) => (
-            <div
+          {breakPeriod.days.map((day, index) => (
+            <motion.div
               key={day.date}
+              initial={{ opacity: 0, scaleY: 0 }}
+              animate={{ opacity: 1, scaleY: 1 }}
+              transition={{ delay: index * 0.02 }}
+              whileHover={{ scaleY: 1.5 }}
               className={clsx(
-                'h-2 flex-1 rounded-full',
+                'h-2 flex-1 rounded-full origin-bottom cursor-help relative group',
                 day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
                   day.isPublicHoliday ? 'bg-amber-500 dark:bg-amber-400' :
                     day.isCustomDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
                       day.isWeekend ? 'bg-violet-500 dark:bg-violet-400' :
                         'bg-gray-200 dark:bg-gray-700'
               )}
-              title={`${format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d')} - ${day.isCTO ? 'CTO Day' :
-                day.isPublicHoliday ? day.publicHolidayName || 'Holiday' :
-                  day.isCustomDayOff ? day.customDayName || 'Custom Day Off' :
-                    day.isWeekend ? 'Weekend' : 'Work Day'
-                }`}
-            />
+            >
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                whileHover={{ opacity: 1, y: -8 }}
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg whitespace-nowrap pointer-events-none z-20"
+              >
+                {`${format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d')} - ${day.isCTO ? 'CTO Day' :
+                  day.isPublicHoliday ? day.publicHolidayName || 'Holiday' :
+                    day.isCustomDayOff ? day.customDayName || 'Custom Day Off' :
+                      day.isWeekend ? 'Weekend' : 'Work Day'
+                  }`}
+              </motion.div>
+            </motion.div>
           ))}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 } 
