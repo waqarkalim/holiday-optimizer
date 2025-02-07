@@ -167,7 +167,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         className="mt-4"
       >
         <div className="flex space-x-1">
-          {breakPeriod.days.map((day, index) => (
+          {breakPeriod.days.map((day) => (
             <motion.div
               key={day.date}
               variants={dayVariants}

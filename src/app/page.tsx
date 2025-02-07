@@ -28,7 +28,7 @@ const HomePage = () => {
   const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
   const [isOptimizing, setIsOptimizing] = useState(false)
 
-  const { optimizedDays, breaks, stats, error } = useMemo(() => {
+  const { optimizedDays, breaks, stats } = useMemo(() => {
     if (formState.numberOfDays === null) {
       return { optimizedDays: null, breaks: [], stats: null, error: null }
     }

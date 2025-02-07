@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { format, isEqual, isSameMonth, isToday, getDay } from 'date-fns';
+import { format, getDay, isEqual, isSameMonth, isToday } from 'date-fns';
 import clsx from 'clsx';
 
 const Calendar: React.FC = () => {
@@ -31,7 +31,7 @@ const Calendar: React.FC = () => {
 
   const colStartClasses = ['col-start-1', 'col-start-2', 'col-start-3', 'col-start-4', 'col-start-5', 'col-start-6', 'col-start-7'];
 
-  const isPublicHoliday = (day: Date) => {
+  const isPublicHoliday = () => {
     // Implement your logic to check if a day is a public holiday
     return false;
   };
@@ -117,7 +117,7 @@ const Calendar: React.FC = () => {
               </time>
             </button>
 
-            {isPublicHoliday(day) && (
+            {isPublicHoliday() && (
               <div className="mx-auto mt-1">
                 <div className={clsx(
                   'h-1 w-1 rounded-full',

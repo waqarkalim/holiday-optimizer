@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import clsx from 'clsx'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react';
+import clsx from 'clsx';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface TotalDaysOffCardProps {
   totalDays: number
@@ -73,7 +73,7 @@ export function TotalDaysOffCard({ totalDays, previousTotalDays }: TotalDaysOffC
                     role="tooltip"
                   >
                     <div className="relative">
-                      Total number of days you'll be off work, including CTO days, public holidays, and weekends
+                      Total number of days you&apos;ll be off work, including CTO days, public holidays, and weekends
                       <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full">
                         <div className="w-0 h-0 border-8 border-transparent border-t-teal-50 dark:border-t-teal-900/90" />
                       </div>

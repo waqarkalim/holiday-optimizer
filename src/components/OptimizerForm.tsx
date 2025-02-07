@@ -24,14 +24,14 @@ import { useOptimizer } from '@/contexts/OptimizerContext';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
 
 const WEEKDAYS = [
-  { value: "1", label: "Monday" },
-  { value: "2", label: "Tuesday" },
-  { value: "3", label: "Wednesday" },
-  { value: "4", label: "Thursday" },
-  { value: "5", label: "Friday" },
-  { value: "6", label: "Saturday" },
-  { value: "0", label: "Sunday" },
-] as const
+  { value: '1', label: 'Monday' },
+  { value: '2', label: 'Tuesday' },
+  { value: '3', label: 'Wednesday' },
+  { value: '4', label: 'Thursday' },
+  { value: '5', label: 'Friday' },
+  { value: '6', label: 'Saturday' },
+  { value: '0', label: 'Sunday' },
+] as const;
 
 interface OptimizerFormProps {
   onSubmit: (data: {
@@ -39,8 +39,8 @@ interface OptimizerFormProps {
     strategy: OptimizationStrategy
     customDaysOff: CustomDayOff[]
     holidays: Array<{ date: string, name: string }>
-  }) => void
-  isLoading?: boolean
+  }) => void;
+  isLoading?: boolean;
 }
 
 type CustomDayField = keyof Partial<CustomDayOff>
@@ -51,59 +51,59 @@ const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
   miniBreaks: Star,
   longWeekends: Coffee,
   weekLongBreaks: Sunrise,
-  extendedVacations: Palmtree
-}
+  extendedVacations: Palmtree,
+};
 
 export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProps) {
-  const { state, dispatch } = useOptimizer()
-  const { days, strategy, errors, customDaysOff, isAdding, newCustomDay, holidays, isAddingHoliday, newHoliday } = state
+  const { state, dispatch } = useOptimizer();
+  const { days, strategy, errors, customDaysOff, isAdding, newCustomDay, holidays, isAddingHoliday, newHoliday } = state;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    const numDays = parseInt(days)
-    
+    e.preventDefault();
+
+    const numDays = parseInt(days);
+
     if (numDays > 0) {
-      onSubmit({ 
-        days: numDays, 
+      onSubmit({
+        days: numDays,
         strategy,
         customDaysOff,
-        holidays
-      })
+        holidays,
+      });
     } else {
-      return
+      return;
     }
-  }
+  };
 
   const handleCustomDayAdd = () => {
     if (!newCustomDay.name) {
-      return
+      return;
     }
 
     // Ensure all required fields are present based on type
     if (newCustomDay.isRecurring && (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined)) {
-      return
+      return;
     }
 
     if (!newCustomDay.isRecurring && !newCustomDay.date) {
-      return
+      return;
     }
 
-    dispatch({ type: 'ADD_CUSTOM_DAY', payload: newCustomDay as CustomDayOff })
-    
+    dispatch({ type: 'ADD_CUSTOM_DAY', payload: newCustomDay as CustomDayOff });
+
 
     // Reset form and close it
-    dispatch({ type: 'RESET_NEW_CUSTOM_DAY' })
-    dispatch({ type: 'SET_IS_ADDING', payload: false })
-  }
+    dispatch({ type: 'RESET_NEW_CUSTOM_DAY' });
+    dispatch({ type: 'SET_IS_ADDING', payload: false });
+  };
 
   const handleCustomDayRemove = (index: number) => {
-    dispatch({ type: 'REMOVE_CUSTOM_DAY', payload: index })
-  }
+    dispatch({ type: 'REMOVE_CUSTOM_DAY', payload: index });
+  };
 
-  const handleCustomDayUpdate = (field: CustomDayField, value: any) => {
-    dispatch({ type: 'UPDATE_NEW_CUSTOM_DAY', payload: { [field]: value } })
-  }
+  const handleCustomDayUpdate = (field: CustomDayField, value: unknown) => {
+    dispatch({ type: 'UPDATE_NEW_CUSTOM_DAY', payload: { [field]: value } });
+  };
 
   const handleHolidayAdd = () => {
     if (!newHoliday.name || !newHoliday.date) {
@@ -113,74 +113,75 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
     dispatch({ type: 'ADD_HOLIDAY', payload: newHoliday });
     dispatch({ type: 'RESET_NEW_HOLIDAY' });
     dispatch({ type: 'SET_IS_ADDING_HOLIDAY', payload: false });
-  }
+  };
 
   const handleHolidayRemove = (index: number) => {
     dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
-  }
+  };
 
   const handleHolidayUpdate = (field: 'name' | 'date', value: string) => {
     dispatch({ type: 'UPDATE_NEW_HOLIDAY', payload: { [field]: value } });
-  }
+  };
 
   const handleStrategyKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy)
-    const lastIndex = OPTIMIZATION_STRATEGIES.length - 1
-    
+    const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy);
+    const lastIndex = OPTIMIZATION_STRATEGIES.length - 1;
+
     switch (e.key) {
       case 'ArrowUp':
       case 'ArrowLeft': {
-        e.preventDefault()
-        const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1
-        const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex]
-        dispatch({ type: 'SET_STRATEGY', payload: prevStrategy.id })
-        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`)
-        radioInput?.focus()
-        break
+        e.preventDefault();
+        const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
+        const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex];
+        dispatch({ type: 'SET_STRATEGY', payload: prevStrategy.id });
+        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`);
+        radioInput?.focus();
+        break;
       }
       case 'ArrowDown':
       case 'ArrowRight': {
-        e.preventDefault()
-        const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1
-        const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex]
-        dispatch({ type: 'SET_STRATEGY', payload: nextStrategy.id })
-        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`)
-        radioInput?.focus()
-        break
+        e.preventDefault();
+        const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
+        const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex];
+        dispatch({ type: 'SET_STRATEGY', payload: nextStrategy.id });
+        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`);
+        radioInput?.focus();
+        break;
       }
     }
-  }
+  };
 
   const handleWeekdayKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
     switch (e.key) {
       case 'ArrowLeft': {
-        e.preventDefault()
-        const prevIndex = index === 0 ? WEEKDAYS.length - 1 : index - 1
-        handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[prevIndex].value))
-        const weekdayButton = document.querySelector<HTMLButtonElement>(`[data-weekday-index="${prevIndex}"]`)
-        weekdayButton?.focus()
-        break
+        e.preventDefault();
+        const prevIndex = index === 0 ? WEEKDAYS.length - 1 : index - 1;
+        handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[prevIndex].value));
+        const weekdayButton = document.querySelector<HTMLButtonElement>(`[data-weekday-index="${prevIndex}"]`);
+        weekdayButton?.focus();
+        break;
       }
       case 'ArrowRight': {
-        e.preventDefault()
-        const nextIndex = (index + 1) % WEEKDAYS.length
-        handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[nextIndex].value))
-        const weekdayButton = document.querySelector<HTMLButtonElement>(`[data-weekday-index="${nextIndex}"]`)
-        weekdayButton?.focus()
-        break
+        e.preventDefault();
+        const nextIndex = (index + 1) % WEEKDAYS.length;
+        handleCustomDayUpdate('weekday', parseInt(WEEKDAYS[nextIndex].value));
+        const weekdayButton = document.querySelector<HTMLButtonElement>(`[data-weekday-index="${nextIndex}"]`);
+        weekdayButton?.focus();
+        break;
       }
     }
-  }
+  };
 
   const handleCustomDaysKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault()
-      dispatch({ type: 'SET_IS_ADDING', payload: true })
+      e.preventDefault();
+      dispatch({ type: 'SET_IS_ADDING', payload: true });
     }
-  }
+  };
 
   return (
-    <main className="bg-gradient-to-br from-teal-50 to-teal-100/50 dark:from-gray-800/80 dark:to-gray-800/40 rounded-xl p-4 ring-1 ring-teal-900/10 dark:ring-teal-300/10 shadow-sm">
+    <main
+      className="bg-gradient-to-br from-teal-50 to-teal-100/50 dark:from-gray-800/80 dark:to-gray-800/40 rounded-xl p-4 ring-1 ring-teal-900/10 dark:ring-teal-300/10 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-6" aria-label="Time off optimizer">
         <div className="space-y-4">
           <header>
@@ -195,8 +196,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
           <div className="space-y-4">
             {/* Days Input Section */}
-            <section 
-              className="bg-white/80 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 space-y-3" 
+            <section
+              className="bg-white/80 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 space-y-3"
               aria-labelledby="days-heading"
             >
               <header>
@@ -217,16 +218,16 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   max={365}
                   value={days}
                   onChange={(e) => {
-                    dispatch({ type: 'SET_DAYS', payload: e.target.value })
+                    dispatch({ type: 'SET_DAYS', payload: e.target.value });
                   }}
                   className={cn(
-                    "max-w-[160px] bg-white dark:bg-gray-900 border-teal-200 dark:border-teal-800 focus:border-teal-400 dark:focus:border-teal-600 text-base text-teal-900 dark:text-teal-100",
-                    errors.days && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                    'max-w-[160px] bg-white dark:bg-gray-900 border-teal-200 dark:border-teal-800 focus:border-teal-400 dark:focus:border-teal-600 text-base text-teal-900 dark:text-teal-100',
+                    errors.days && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                   )}
                   required
                   aria-describedby="days-description days-error"
                   aria-invalid={!!errors.days}
-                  aria-errormessage={errors.days ? "days-error" : undefined}
+                  aria-errormessage={errors.days ? 'days-error' : undefined}
                 />
                 {errors.days && (
                   <p id="days-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -237,7 +238,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
             </section>
 
             {/* Strategy Selection Section */}
-            <section 
+            <section
               className="bg-white/80 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-blue-900/5 dark:ring-blue-300/10 space-y-3"
               aria-labelledby="strategy-heading"
             >
@@ -249,26 +250,26 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   Choose a strategy that matches your preferred vacation style.
                 </p>
               </header>
-              <div 
-                role="radiogroup" 
+              <div
+                role="radiogroup"
                 aria-labelledby="strategy-heading"
                 aria-describedby="strategy-description"
                 className="space-y-2"
                 onKeyDown={handleStrategyKeyDown}
               >
                 {OPTIMIZATION_STRATEGIES.map((strategyOption, index) => {
-                  const Icon = STRATEGY_ICONS[strategyOption.id]
-                  const isSelected = strategy === strategyOption.id
-                  
+                  const Icon = STRATEGY_ICONS[strategyOption.id];
+                  const isSelected = strategy === strategyOption.id;
+
                   return (
                     <label
                       key={strategyOption.id}
                       className={cn(
-                        "flex items-center p-3 rounded-lg transition-all duration-200 cursor-pointer",
-                        "focus-within:ring-2 focus-within:ring-blue-400 dark:focus-within:ring-blue-600",
+                        'flex items-center p-3 rounded-lg transition-all duration-200 cursor-pointer',
+                        'focus-within:ring-2 focus-within:ring-blue-400 dark:focus-within:ring-blue-600',
                         isSelected
-                          ? "bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 ring-1 ring-blue-900/10 dark:ring-blue-400/10"
-                          : "bg-white dark:bg-gray-800/60 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-blue-200 dark:hover:ring-blue-800"
+                          ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 ring-1 ring-blue-900/10 dark:ring-blue-400/10'
+                          : 'bg-white dark:bg-gray-800/60 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-blue-200 dark:hover:ring-blue-800',
                       )}
                     >
                       <input
@@ -282,10 +283,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                       />
                       <div className="flex items-center gap-3 w-full">
                         <div className={cn(
-                          "p-1.5 rounded-md",
+                          'p-1.5 rounded-md',
                           isSelected
-                            ? "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                            ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400',
                         )}>
                           <Icon className="h-4 w-4" aria-hidden="true" />
                         </div>
@@ -293,7 +294,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                             {strategyOption.label}
                             {strategyOption.id === 'balanced' && (
-                              <span className="ml-2 inline-flex items-center rounded-md bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 px-2 py-0.5 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                              <span
+                                className="ml-2 inline-flex items-center rounded-md bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 px-2 py-0.5 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
                                 Recommended
                               </span>
                             )}
@@ -313,7 +315,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
             </section>
 
             {/* Custom Days Off Section */}
-            <section 
+            <section
               className="bg-white/80 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-violet-900/5 dark:ring-violet-300/10"
               aria-labelledby="custom-days-heading"
             >
@@ -330,17 +332,20 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 {customDaysOff.length > 0 && (
                   <ul className="grid gap-3" aria-label="Added custom days off">
                     {customDaysOff.map((day, index) => (
-                      <li 
-                        key={index} 
+                      <li
+                        key={index}
                         className="group relative flex items-center justify-between p-4 bg-white dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-200"
                       >
                         <div className="flex items-center gap-4">
                           {day.isRecurring ? (
-                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                              <CalendarDays className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden="true" />
+                            <div
+                              className="flex-shrink-0 w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                              <CalendarDays className="h-5 w-5 text-violet-600 dark:text-violet-400"
+                                            aria-hidden="true" />
                             </div>
                           ) : (
-                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                            <div
+                              className="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
                               <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
                             </div>
                           )}
@@ -385,18 +390,19 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                     Add Custom Day Off
                   </Button>
                 ) : (
-                  <div 
+                  <div
                     id="custom-day-form"
                     className="bg-white dark:bg-gray-800/60 p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm space-y-6"
-                    role="form" 
+                    role="form"
                     aria-label="Add new custom day off"
                   >
                     <fieldset className="space-y-5">
                       <legend className="sr-only">Custom day off details</legend>
-                      
+
                       {/* Name Input */}
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-base font-medium text-gray-900 dark:text-white">Name of Custom Day Off</Label>
+                        <Label htmlFor="name" className="text-base font-medium text-gray-900 dark:text-white">Name of
+                          Custom Day Off</Label>
                         <Input
                           id="name"
                           name="customDayName"
@@ -404,12 +410,12 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           onChange={(e) => handleCustomDayUpdate('name', e.target.value)}
                           placeholder="e.g., Summer Fridays"
                           className={cn(
-                            "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 dark:placeholder-gray-500",
-                            errors.customDay?.name && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                            'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 dark:placeholder-gray-500',
+                            errors.customDay?.name && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                           )}
                           aria-required="true"
                           aria-invalid={!!errors.customDay?.name}
-                          aria-errormessage={errors.customDay?.name ? "name-error" : undefined}
+                          aria-errormessage={errors.customDay?.name ? 'name-error' : undefined}
                         />
                         {errors.customDay?.name && (
                           <p id="name-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -430,10 +436,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           aria-checked={!newCustomDay.isRecurring}
                           tabIndex={0}
                           className={cn(
-                            "relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200",
+                            'relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200',
                             !newCustomDay.isRecurring
-                              ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm"
-                              : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                              ? 'bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm'
+                              : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
                           )}
                           onClick={() => handleCustomDayUpdate('isRecurring', false)}
                         >
@@ -457,10 +463,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           aria-checked={newCustomDay.isRecurring}
                           tabIndex={0}
                           className={cn(
-                            "relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200",
+                            'relative border-2 h-auto py-4 px-4 flex flex-col items-center gap-2 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200',
                             newCustomDay.isRecurring
-                              ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm"
-                              : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                              ? 'bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm'
+                              : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
                           )}
                           onClick={() => handleCustomDayUpdate('isRecurring', true)}
                         >
@@ -482,10 +488,11 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                         <fieldset className="space-y-5">
                           <legend className="sr-only">Recurring day details</legend>
                           <div className="space-y-3">
-                            <Label id="weekday-label" className="text-base font-medium text-gray-900 dark:text-white">Select Day of Week</Label>
-                            <div 
-                              className="grid grid-cols-7 gap-2" 
-                              role="radiogroup" 
+                            <Label id="weekday-label" className="text-base font-medium text-gray-900 dark:text-white">Select
+                              Day of Week</Label>
+                            <div
+                              className="grid grid-cols-7 gap-2"
+                              role="radiogroup"
                               aria-labelledby="weekday-label"
                             >
                               {WEEKDAYS.map((day, index) => (
@@ -497,10 +504,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                                   aria-checked={newCustomDay.weekday === parseInt(day.value)}
                                   tabIndex={newCustomDay.weekday === parseInt(day.value) ? 0 : -1}
                                   className={cn(
-                                    "border h-auto py-2 px-1 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-all duration-200",
+                                    'border h-auto py-2 px-1 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-all duration-200',
                                     newCustomDay.weekday === parseInt(day.value)
-                                      ? "bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm"
-                                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                                      ? 'bg-violet-50 dark:bg-violet-900/20 border-violet-500 dark:border-violet-400 shadow-sm'
+                                      : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
                                   )}
                                   onClick={() => handleCustomDayUpdate('weekday', parseInt(day.value))}
                                   onKeyDown={(e) => handleWeekdayKeyDown(e, index)}
@@ -521,7 +528,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="startDate" className="text-base font-medium text-gray-900 dark:text-white">Start Date</Label>
+                              <Label htmlFor="startDate"
+                                     className="text-base font-medium text-gray-900 dark:text-white">Start Date</Label>
                               <div className="relative">
                                 <Input
                                   id="startDate"
@@ -530,23 +538,27 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                                   value={newCustomDay.startDate}
                                   onChange={(e) => handleCustomDayUpdate('startDate', e.target.value)}
                                   className={cn(
-                                    "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10",
-                                    errors.customDay?.startDate && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                                    'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10',
+                                    errors.customDay?.startDate && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                                   )}
                                   aria-required="true"
                                   aria-invalid={!!errors.customDay?.startDate}
-                                  aria-errormessage={errors.customDay?.startDate ? "startDate-error" : undefined}
+                                  aria-errormessage={errors.customDay?.startDate ? 'startDate-error' : undefined}
                                 />
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                                <Calendar
+                                  className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500"
+                                  aria-hidden="true" />
                               </div>
                               {errors.customDay?.startDate && (
-                                <p id="startDate-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
+                                <p id="startDate-error" role="alert"
+                                   className="text-xs text-red-500 dark:text-red-400 mt-1">
                                   {errors.customDay.startDate}
                                 </p>
                               )}
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="endDate" className="text-base font-medium text-gray-900 dark:text-white">End Date</Label>
+                              <Label htmlFor="endDate" className="text-base font-medium text-gray-900 dark:text-white">End
+                                Date</Label>
                               <div className="relative">
                                 <Input
                                   id="endDate"
@@ -555,17 +567,20 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                                   value={newCustomDay.endDate}
                                   onChange={(e) => handleCustomDayUpdate('endDate', e.target.value)}
                                   className={cn(
-                                    "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10",
-                                    errors.customDay?.endDate && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                                    'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10',
+                                    errors.customDay?.endDate && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                                   )}
                                   aria-required="true"
                                   aria-invalid={!!errors.customDay?.endDate}
-                                  aria-errormessage={errors.customDay?.endDate ? "endDate-error" : undefined}
+                                  aria-errormessage={errors.customDay?.endDate ? 'endDate-error' : undefined}
                                 />
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+                                <Calendar
+                                  className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500"
+                                  aria-hidden="true" />
                               </div>
                               {errors.customDay?.endDate && (
-                                <p id="endDate-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
+                                <p id="endDate-error" role="alert"
+                                   className="text-xs text-red-500 dark:text-red-400 mt-1">
                                   {errors.customDay.endDate}
                                 </p>
                               )}
@@ -575,7 +590,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                       ) : (
                         /* Single Date */
                         <div className="space-y-2">
-                          <Label htmlFor="date" className="text-base font-medium text-gray-900 dark:text-white">Select Date</Label>
+                          <Label htmlFor="date" className="text-base font-medium text-gray-900 dark:text-white">Select
+                            Date</Label>
                           <div className="relative">
                             <Input
                               id="date"
@@ -584,14 +600,16 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                               value={newCustomDay.date}
                               onChange={(e) => handleCustomDayUpdate('date', e.target.value)}
                               className={cn(
-                                "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10",
-                                errors.customDay?.date && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                                'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-violet-500 dark:focus:border-violet-400 dark:text-gray-100 pl-10',
+                                errors.customDay?.date && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                               )}
                               aria-required="true"
                               aria-invalid={!!errors.customDay?.date}
-                              aria-errormessage={errors.customDay?.date ? "date-error" : undefined}
+                              aria-errormessage={errors.customDay?.date ? 'date-error' : undefined}
                             />
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-400 dark:text-violet-500" aria-hidden="true" />
+                            <Calendar
+                              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-400 dark:text-violet-500"
+                              aria-hidden="true" />
                           </div>
                           {errors.customDay?.date && (
                             <p id="date-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
@@ -602,7 +620,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                       )}
 
                       {/* Form Actions */}
-                      <div 
+                      <div
                         className="flex gap-3 pt-2"
                         role="group"
                         aria-label="Form actions"
@@ -612,8 +630,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           variant="outline"
                           className="flex-1 border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300"
                           onClick={() => {
-                            dispatch({ type: 'RESET_NEW_CUSTOM_DAY' })
-                            dispatch({ type: 'SET_IS_ADDING', payload: false })
+                            dispatch({ type: 'RESET_NEW_CUSTOM_DAY' });
+                            dispatch({ type: 'SET_IS_ADDING', payload: false });
                           }}
                           tabIndex={0}
                         >
@@ -622,8 +640,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                         <Button
                           type="button"
                           className={cn(
-                            "flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200",
-                            "bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-300"
+                            'flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200',
+                            'bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-300',
                           )}
                           onClick={handleCustomDayAdd}
                           disabled={!newCustomDay.name || (newCustomDay.isRecurring ? (!newCustomDay.startDate || !newCustomDay.endDate || newCustomDay.weekday === undefined) : !newCustomDay.date)}
@@ -640,7 +658,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
             </section>
 
             {/* Public Holidays Section */}
-            <section 
+            <section
               className="bg-white/80 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-amber-900/5 dark:ring-amber-300/10"
               aria-labelledby="holidays-heading"
             >
@@ -649,7 +667,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   Add Public Holidays
                 </h2>
                 <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
-                  Add your region's public holidays.
+                  Add your region&apos;s public holidays.
                 </p>
               </header>
               <div className="space-y-6">
@@ -657,12 +675,13 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 {holidays.length > 0 && (
                   <ul className="grid gap-3" aria-label="Added public holidays">
                     {holidays.map((holiday, index) => (
-                      <li 
-                        key={index} 
+                      <li
+                        key={index}
                         className="group relative flex items-center justify-between p-4 bg-white dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-200"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                          <div
+                            className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                             <Star className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
                           </div>
                           <div>
@@ -703,18 +722,19 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                     Add Public Holiday
                   </Button>
                 ) : (
-                  <div 
+                  <div
                     id="holiday-form"
                     className="bg-white dark:bg-gray-800/60 p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 shadow-sm space-y-6"
-                    role="form" 
+                    role="form"
                     aria-label="Add new public holiday"
                   >
                     <fieldset className="space-y-5">
                       <legend className="sr-only">Public holiday details</legend>
-                      
+
                       {/* Name Input */}
                       <div className="space-y-2">
-                        <Label htmlFor="holidayName" className="text-base font-medium text-gray-900 dark:text-white">Holiday Name</Label>
+                        <Label htmlFor="holidayName" className="text-base font-medium text-gray-900 dark:text-white">Holiday
+                          Name</Label>
                         <Input
                           id="holidayName"
                           name="holidayName"
@@ -722,15 +742,16 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                           onChange={(e) => handleHolidayUpdate('name', e.target.value)}
                           placeholder="e.g., Independence Day"
                           className={cn(
-                            "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-amber-500 dark:focus:border-amber-400 dark:text-gray-100 dark:placeholder-gray-500",
-                            errors.holiday?.name && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                            'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-amber-500 dark:focus:border-amber-400 dark:text-gray-100 dark:placeholder-gray-500',
+                            errors.holiday?.name && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                           )}
                           aria-required="true"
                           aria-invalid={!!errors.holiday?.name}
-                          aria-errormessage={errors.holiday?.name ? "holidayName-error" : undefined}
+                          aria-errormessage={errors.holiday?.name ? 'holidayName-error' : undefined}
                         />
                         {errors.holiday?.name && (
-                          <p id="holidayName-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
+                          <p id="holidayName-error" role="alert"
+                             className="text-xs text-red-500 dark:text-red-400 mt-1">
                             {errors.holiday.name}
                           </p>
                         )}
@@ -738,7 +759,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
                       {/* Date Input */}
                       <div className="space-y-2">
-                        <Label htmlFor="holidayDate" className="text-base font-medium text-gray-900 dark:text-white">Date</Label>
+                        <Label htmlFor="holidayDate"
+                               className="text-base font-medium text-gray-900 dark:text-white">Date</Label>
                         <div className="relative">
                           <Input
                             id="holidayDate"
@@ -747,24 +769,27 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                             value={newHoliday.date}
                             onChange={(e) => handleHolidayUpdate('date', e.target.value)}
                             className={cn(
-                              "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-amber-500 dark:focus:border-amber-400 dark:text-gray-100 pl-10",
-                              errors.holiday?.date && "border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500"
+                              'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 focus:border-amber-500 dark:focus:border-amber-400 dark:text-gray-100 pl-10',
+                              errors.holiday?.date && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
                             )}
                             aria-required="true"
                             aria-invalid={!!errors.holiday?.date}
-                            aria-errormessage={errors.holiday?.date ? "holidayDate-error" : undefined}
+                            aria-errormessage={errors.holiday?.date ? 'holidayDate-error' : undefined}
                           />
-                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400 dark:text-amber-500" aria-hidden="true" />
+                          <Calendar
+                            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-400 dark:text-amber-500"
+                            aria-hidden="true" />
                         </div>
                         {errors.holiday?.date && (
-                          <p id="holidayDate-error" role="alert" className="text-xs text-red-500 dark:text-red-400 mt-1">
+                          <p id="holidayDate-error" role="alert"
+                             className="text-xs text-red-500 dark:text-red-400 mt-1">
                             {errors.holiday.date}
                           </p>
                         )}
                       </div>
 
                       {/* Form Actions */}
-                      <div 
+                      <div
                         className="flex gap-3 pt-2"
                         role="group"
                         aria-label="Form actions"
@@ -784,8 +809,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                         <Button
                           type="button"
                           className={cn(
-                            "flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200",
-                            "bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:hover:bg-amber-300"
+                            'flex-1 text-white dark:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200',
+                            'bg-amber-500 hover:bg-amber-600 dark:bg-amber-400 dark:hover:bg-amber-300',
                           )}
                           onClick={handleHolidayAdd}
                           disabled={!newHoliday.name || !newHoliday.date}
@@ -804,25 +829,25 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
         </div>
 
         <footer className="flex justify-end">
-          <Button 
-            type="submit" 
-            size="default" 
+          <Button
+            type="submit"
+            size="default"
             disabled={isLoading || !days || parseInt(days) <= 0}
             className={cn(
-              "bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-500 dark:to-blue-500",
-              "hover:from-teal-500 hover:to-blue-500 dark:hover:from-teal-400 dark:hover:to-blue-400",
-              "text-white shadow-sm hover:shadow-md transition-all duration-200",
-              "disabled:opacity-50 disabled:cursor-not-allowed px-6",
-              "focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600"
+              'bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-500 dark:to-blue-500',
+              'hover:from-teal-500 hover:to-blue-500 dark:hover:from-teal-400 dark:hover:to-blue-400',
+              'text-white shadow-sm hover:shadow-md transition-all duration-200',
+              'disabled:opacity-50 disabled:cursor-not-allowed px-6',
+              'focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600',
             )}
-            aria-label={isLoading ? "Optimizing..." : "Optimize Calendar"}
+            aria-label={isLoading ? 'Optimizing...' : 'Optimize Calendar'}
             tabIndex={0}
           >
             <Sparkles className="w-4 h-4 mr-2" aria-hidden="true" />
-            {isLoading ? "Optimizing..." : "Optimize Calendar"}
+            {isLoading ? 'Optimizing...' : 'Optimize Calendar'}
           </Button>
         </footer>
       </form>
     </main>
-  )
+  );
 } 
