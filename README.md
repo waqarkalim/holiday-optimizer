@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Holiday Optimizer
+
+A smart vacation day optimizer that helps you maximize your time off by strategically planning your holidays around weekends and public holidays.
+
+## Features
+
+- 🎯 **Smart Optimization**: Automatically finds the best days to take off based on your preferences
+- 📅 **Multiple Strategies**:
+  - Balanced Mix: Optimal combination of short and long breaks
+  - Long Weekends: Maximize the number of extended weekends
+  - Mini Breaks: Spread out into shorter breaks
+  - Week-long Breaks: Focus on week-length vacations
+  - Extended Vacations: Combine days for longer holidays
+- 🌍 **Public Holiday Integration**: Considers public holidays in your planning
+- 📊 **Visual Calendar**: See your optimized schedule in an interactive calendar
+- 🔄 **Real-time Updates**: Instantly see how changes affect your yearly schedule
+- 🌙 **Dark Mode Support**: Comfortable viewing in any lighting condition
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 20.x or later
+- pnpm (recommended) or npm
+
+### Local Development
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/holiday-optimizer.git
+cd holiday-optimizer
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) to view the application
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+holiday-optimizer/
+├── src/
+│   ├── app/              # Next.js app router
+│   ├── components/       # React components
+│   ├── contexts/         # React contexts
+│   ├── services/         # Business logic
+│   └── types/           # TypeScript types
+└── public/             # Static assets
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How It Works
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The optimizer uses sophisticated algorithms to:
+1. Analyze your available vacation days
+2. Consider public holidays and weekends
+3. Apply your chosen strategy
+4. Calculate optimal break periods
+5. Balance different types of breaks
+6. Account for seasonal factors
 
-## Deploy on Vercel
+The optimization strategies include:
+- **Balanced Mix**: Optimal distribution of short and long breaks throughout the year
+- **Long Weekends**: Maximizes the number of extended weekends by strategically placing days off
+- **Mini Breaks**: Creates shorter, more frequent breaks spread throughout the year
+- **Week-long Breaks**: Focuses on creating full-week vacation periods
+- **Extended Vacations**: Combines days for longer vacation periods, perfect for extensive travel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Tech Stack
+
+- 🚀 [Next.js](https://nextjs.org) - React framework
+- 💅 [Tailwind CSS](https://tailwindcss.com) - Styling
+- 📅 [date-fns](https://date-fns.org) - Date manipulation
+- 🌙 Dark mode support
+- �� Responsive design
