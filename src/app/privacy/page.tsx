@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
           <h2 className="text-2xl font-semibold mb-4">👋 Overview</h2>
           <p>
             CTO Planner is a static web application that runs entirely in your browser.
-            We believe in privacy by design, which is why we've built this tool to operate
+            We believe in privacy by design, which is why we&apos;ve built this tool to operate
             without any data collection or external API calls.
           </p>
         </section>
@@ -33,7 +33,7 @@ export default function PrivacyPolicy() {
             <li>Performs all calculations locally in your browser</li>
           </ul>
           <p className="mt-4 text-sm italic">
-            Any data you input is processed entirely in your browser's memory and is cleared when you close the page.
+            Any data you input is processed entirely in your browser&apos;s memory and is cleared when you close the page.
           </p>
         </section>
 
@@ -57,8 +57,8 @@ export default function PrivacyPolicy() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">🔄 Updates</h2>
           <p>
-            While we don't anticipate significant changes to this privacy policy (since we don't
-            collect data), any updates will be reflected in the "Last updated" date above.
+            While we don&apos;t anticipate significant changes to this privacy policy (since we don&apos;t
+            collect data), any updates will be reflected in the &ldquo;Last updated&rdquo; date above.
           </p>
         </section>
       </div>
