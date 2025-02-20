@@ -220,11 +220,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     max_ttl                = 86400
     compress               = true
 
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.s3_distribution_function.arn
-    }
-
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" // CachingOptimized
   }
 
