@@ -1,7 +1,6 @@
-import { createContext, useContext, useReducer, ReactNode } from 'react'
-import { isAfter, isBefore, isValid, parse } from 'date-fns'
-import { logger } from '@/utils/logger'
-import { CustomDayOff, OptimizationStrategy } from '@/types'
+import { createContext, ReactNode, useContext, useReducer } from 'react';
+import { isAfter, isValid, parse } from 'date-fns';
+import { CustomDayOff, OptimizationStrategy } from '@/types';
 
 interface OptimizerState {
   days: string
@@ -143,7 +142,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'REMOVE_CUSTOM_DAY': {
-      const removedDay = state.customDaysOff[action.payload]
       return {
         ...state,
         customDaysOff: state.customDaysOff.filter((_, i) => i !== action.payload)

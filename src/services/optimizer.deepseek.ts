@@ -197,38 +197,6 @@ function calculatePositionScore(allDates: DayInfo[], index: number): number {
   return score;
 }
 
-function countNearbyHolidays(allDates: DayInfo[], index: number, range: number): number {
-  let count = 0;
-  const start = Math.max(0, index - range);
-  const end = Math.min(allDates.length - 1, index + range);
-
-  for (let i = start; i <= end; i++) {
-    if (allDates[i].isPublicHoliday) count++;
-  }
-
-  return count;
-}
-
-function countConsecutiveCTODays(allDates: DayInfo[], index: number): number {
-  let count = 1;
-  let currentIndex = index - 1;
-
-  // Count backwards
-  while (currentIndex >= 0 && allDates[currentIndex].isCTO) {
-    count++;
-    currentIndex--;
-  }
-
-  // Count forwards
-  currentIndex = index + 1;
-  while (currentIndex < allDates.length && allDates[currentIndex].isCTO) {
-    count++;
-    currentIndex++;
-  }
-
-  return count;
-}
-
 function splitDiscontinuousBreak(allDates: DayInfo[], breakPeriod: Break): void {
   const breakDays = breakPeriod.days;
   let currentBreakStart = 0;
@@ -279,7 +247,7 @@ function fixWeekendPairIntegrity(allDates: DayInfo[], saturdayIndex: number): vo
   }
 }
 
-function expandCustomDaysOff(customDaysOff: Array<CustomDayOff>, year: number): Array<{ date: Date, name: string }> {
+function expandCustomDaysOff(customDaysOff: Array<CustomDayOff>): Array<{ date: Date, name: string }> {
   const expandedDays: Array<{ date: Date, name: string }> = [];
 
   customDaysOff.forEach(customDay => {
@@ -418,7 +386,7 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
   ];
 
   // Expand and mark custom days off
-  const expandedCustomDays = expandCustomDaysOff(customDaysOff, year);
+  const expandedCustomDays = expandCustomDaysOff(customDaysOff);
 
   allDates.forEach(day => {
     const publicHoliday = PUBLIC_HOLIDAYS.find(h => isSameDay(h.date, day.date));
@@ -643,7 +611,7 @@ function removeLeastEffectiveCTODays(allDates: DayInfo[], count: number): void {
   const ctoDays = allDates
     .map((day, index) => ({ day, index }))
     .filter(({ day }) => day.isCTO)
-    .map(({ day, index }) => ({
+    .map(({ index }) => ({
       index,
       score: calculateCTODayEffectiveness(allDates, index),
     }))

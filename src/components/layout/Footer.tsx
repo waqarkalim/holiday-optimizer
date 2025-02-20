@@ -14,7 +14,7 @@ const Footer = () => (
               </div>
               <div>
                 <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
-                  Holiday Optimizer
+                  CTO Planner
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Maximize your time off in 2025
@@ -77,7 +77,7 @@ const Footer = () => (
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Holiday Optimizer. All rights reserved.
+            &copy; {new Date().getFullYear()} CTO Planner. All rights reserved.
           </p>
           <div className="flex items-center space-x-6 mt-4 sm:mt-0">
             <a

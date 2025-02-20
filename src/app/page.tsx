@@ -5,8 +5,6 @@ import { optimizeCTODays } from '@/services/optimizer.deepseek';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { CustomDayOff, OptimizationStrategy } from '@/types';
 
 interface FormState {
@@ -28,7 +26,7 @@ const HomePage = () => {
   const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
   const [isOptimizing, setIsOptimizing] = useState(false)
 
-  const { optimizedDays, breaks, stats, error } = useMemo(() => {
+  const { optimizedDays, breaks, stats } = useMemo(() => {
     if (formState.numberOfDays === null) {
       return { optimizedDays: null, breaks: [], stats: null, error: null }
     }
@@ -61,9 +59,7 @@ const HomePage = () => {
   }, [formState.numberOfDays, formState.customDaysOff, formState.strategy, formState.holidays])
 
   return (
-    <OptimizerProvider>
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <Header currentYear={currentYear} />
+      <OptimizerProvider>
         <main className="flex-grow">
           {/* Title Section */}
           <div className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-700/50 py-8">
@@ -110,9 +106,7 @@ const HomePage = () => {
             </div>
           </div>
         </main>
-        <Footer />
-      </div>
-    </OptimizerProvider>
+      </OptimizerProvider>
   )
 }
 
