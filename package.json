@@ -15,14 +15,13 @@
     "test:coverage": "jest --coverage",
     "tf:bootstrap:init": "cd terraform/bootstrap && terraform init",
     "tf:bootstrap:plan": "cd terraform/bootstrap && terraform plan",
-    "tf:bootstrap:apply": "cd terraform/bootstrap && terraform apply -auto-approve",
-    "tf:bootstrap:destroy": "cd terraform/bootstrap && terraform destroy -auto-approve",
+    "tf:bootstrap:apply": "cd terraform/bootstrap && terraform apply",
+    "tf:bootstrap:destroy": "cd terraform/bootstrap && terraform destroy",
     "tf:init": "cd terraform && terraform init",
     "tf:plan": "cd terraform && terraform plan",
-    "tf:apply": "cd terraform && terraform apply -auto-approve",
-    "tf:destroy": "cd terraform && terraform destroy -auto-approve",
-    "tf:setup": "pnpm run tf:bootstrap:init && pnpm run tf:bootstrap:apply && pnpm run tf:init && pnpm run tf:apply",
-    "tf:teardown": "pnpm run tf:destroy && pnpm run tf:bootstrap:destroy"
+    "tf:apply": "cd terraform && terraform apply",
+    "tf:destroy": "cd terraform && terraform destroy",
+    "deploy": "./deploy.sh"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

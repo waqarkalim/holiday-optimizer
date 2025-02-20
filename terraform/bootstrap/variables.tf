@@ -5,7 +5,8 @@ variable "project_name" {
 }
 
 variable "aws_default_region" {
-  description = "AWS Default Region"
+  description = "The default AWS region for resources"
+  type        = string
   default     = "us-east-1"
 }
 
@@ -13,5 +14,15 @@ variable "domain_name" {
   type        = string
   default     = "ctoplanner.com"
   description = "Domain name for the project"
+}
+
+variable "github_org" {
+  description = "The GitHub organization name"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "The GitHub repository name"
+  type        = string
 }
 
