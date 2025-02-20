@@ -1,90 +1,158 @@
-# Holiday Optimizer
+# CTO Planner
 
-A smart vacation day optimizer that helps you maximize your time off by strategically planning your holidays around weekends and public holidays.
+A static web application that helps professionals optimize their vacation days. Built with Next.js and hosted on AWS.
 
-## Features
+## 🚀 Quick Start
 
-- 🎯 **Smart Optimization**: Automatically finds the best days to take off based on your preferences
-- 📅 **Multiple Strategies**:
-  - Balanced Mix: Optimal combination of short and long breaks
-  - Long Weekends: Maximize the number of extended weekends
-  - Mini Breaks: Spread out into shorter breaks
-  - Week-long Breaks: Focus on week-length vacations
-  - Extended Vacations: Combine days for longer holidays
-- 🌍 **Public Holiday Integration**: Considers public holidays in your planning
-- 📊 **Visual Calendar**: See your optimized schedule in an interactive calendar
-- 🔄 **Real-time Updates**: Instantly see how changes affect your yearly schedule
-- 🌙 **Dark Mode Support**: Comfortable viewing in any lighting condition
+```bash
+# Install dependencies
+pnpm install
 
-## Getting Started
+# Run development server
+pnpm dev
+
+# Run tests
+pnpm test
+
+# Build for production
+pnpm build
+```
+
+## 🏗️ Deployment Setup
+
+The application uses AWS for hosting and GitHub Actions for CI/CD. Here's how to set it up:
 
 ### Prerequisites
 
-- Node.js 20.x or later
-- pnpm (recommended) or npm
+- AWS Account
+- GitHub Account
+- Node.js 20+
+- pnpm 8.15.1+
+- Terraform 1.7.2+
 
-### Local Development
+### First-Time Setup
 
-1. Clone the repository:
+⚠️ **IMPORTANT**: The bootstrap setup is a one-time, manual process that must be performed by an administrator. It creates the foundation for CI/CD and should never be automated.
+
+1. **Create AWS Credentials**
+   - Create bootstrap admin credentials (one-time setup)
+   - Create regular development credentials (day-to-day use)
+   ```bash
+   # Use bootstrap admin credentials for initial setup only
+   export AWS_ACCESS_KEY_ID="bootstrap_admin_access_key"
+   export AWS_SECRET_ACCESS_KEY="bootstrap_admin_secret_key"
+   ```
+
+2. **Set Up Infrastructure Backend**
+   ```bash
+   # One-time bootstrap setup (requires admin credentials)
+   cd terraform/bootstrap
+   terraform init
+   terraform apply \
+     -var="github_org=your-github-username" \
+     -var="github_repo=cto-planner"
+   
+   # Save the role ARN from the output
+   # After this, switch to regular development credentials
+   ```
+
+3. **Configure GitHub Repository**
+   - Go to Settings > Actions > General
+     - Enable "Allow GitHub Actions to create and approve pull requests"
+     - Set "Workflow permissions" to "Read and write permissions"
+   - Go to Settings > Secrets and Variables > Actions
+     - Add `AWS_ROLE_ARN` secret with the value from step 2
+
+### Deployment
+
+#### Automatic Deployment
+Push to the `main` branch to trigger automatic deployment via GitHub Actions.
+
+#### Manual Deployment
 ```bash
-git clone https://github.com/yourusername/holiday-optimizer.git
-cd holiday-optimizer
+# Run full deployment (including infrastructure)
+./deploy.sh
 ```
 
-2. Install dependencies:
-```bash
-pnpm install
+## 🏛️ Architecture
+
+- **Frontend**: Next.js static site
+- **Hosting**: AWS S3 + CloudFront
+- **DNS**: Route53
+- **SSL**: AWS Certificate Manager
+- **CI/CD**: GitHub Actions
+- **IaC**: Terraform
+
+### Infrastructure Components
+
+- S3 bucket for static hosting
+- CloudFront distribution
+- Route53 DNS management
+- ACM SSL certificate
+- OIDC authentication for GitHub Actions
+
+## 📁 Project Structure
+
+```
+.
+├── src/                  # Application source code
+├── terraform/           # Main infrastructure
+│   ├── bootstrap/      # Backend & OIDC setup
+│   └── main.tf         # Main infrastructure
+├── .github/
+│   └── workflows/      # GitHub Actions workflows
+├── deploy.sh           # Deployment script
+└── next.config.js      # Next.js configuration
 ```
 
-3. Run the development server:
+## 🔧 Development
+
 ```bash
+# Start development server
 pnpm dev
+
+# Run tests
+pnpm test
+
+# Lint code
+pnpm lint
+
+# Build for production
+pnpm build
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to view the application
+## 🛠️ Infrastructure Management
 
-## Project Structure
+```bash
+# Initialize Terraform
+pnpm run tf:init
 
+# Plan changes
+pnpm run tf:plan
+
+# Apply changes
+pnpm run tf:apply
+
+# Destroy infrastructure
+pnpm run tf:destroy
 ```
-holiday-optimizer/
-├── src/
-│   ├── app/              # Next.js app router
-│   ├── components/       # React components
-│   ├── contexts/         # React contexts
-│   ├── services/         # Business logic
-│   └── types/           # TypeScript types
-└── public/             # Static assets
-```
 
-## How It Works
+## 📝 Notes
 
-The optimizer uses sophisticated algorithms to:
-1. Analyze your available vacation days
-2. Consider public holidays and weekends
-3. Apply your chosen strategy
-4. Calculate optimal break periods
-5. Balance different types of breaks
-6. Account for seasonal factors
+- The application is completely static and runs entirely in the browser
+- No data collection or external API calls
+- Infrastructure changes should be made through Terraform
+- Bootstrap infrastructure (OIDC, state backend) is set up once manually
+- Regular deployments handle only the main infrastructure and application code
 
-The optimization strategies include:
-- **Balanced Mix**: Optimal distribution of short and long breaks throughout the year
-- **Long Weekends**: Maximizes the number of extended weekends by strategically placing days off
-- **Mini Breaks**: Creates shorter, more frequent breaks spread throughout the year
-- **Week-long Breaks**: Focuses on creating full-week vacation periods
-- **Extended Vacations**: Combines days for longer vacation periods, perfect for extensive travel
+## 🤝 Contributing
 
-## Contributing
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
+## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Tech Stack
-
-- 🚀 [Next.js](https://nextjs.org) - React framework
-- 💅 [Tailwind CSS](https://tailwindcss.com) - Styling
-- 📅 [date-fns](https://date-fns.org) - Date manipulation
-- 🌙 Dark mode support
-- �� Responsive design

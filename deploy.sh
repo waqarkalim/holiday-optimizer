@@ -16,14 +16,14 @@ pnpm build
 
 echo "🌍 Setting up infrastructure..."
 
-# Apply terraform configurations with variables
-echo "  → Setting up bootstrap infrastructure..."
-cd terraform/bootstrap
-terraform init
-terraform apply -auto-approve \
-  -var="github_org=${GITHUB_REPOSITORY_OWNER}" \
-  -var="github_repo=${GITHUB_REPOSITORY#*/}"
-cd ../..
+# Skip bootstrap in CI since it's already set up manually
+if [[ -z "${GITHUB_ACTIONS}" ]]; then
+  echo "  → Running locally - setting up bootstrap infrastructure..."
+  cd terraform/bootstrap
+  terraform init
+  terraform apply -auto-approve
+  cd ../..
+fi
 
 echo "  → Setting up main infrastructure..."
 cd terraform
