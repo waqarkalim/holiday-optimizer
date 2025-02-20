@@ -199,8 +199,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   enabled         = true
   is_ipv6_enabled = true
 
-  default_root_object = "index.html"
-
   viewer_certificate {
     acm_certificate_arn            = aws_acm_certificate_validation.acm_certificate_validation.certificate_arn
     cloudfront_default_certificate = true
