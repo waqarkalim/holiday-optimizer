@@ -246,12 +246,3 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     aws_cloudfront_origin_access_control.s3_distribution_oac
   ]
 }
-
-// CloudFront Function
-resource "aws_cloudfront_function" "s3_distribution_function" {
-  name    = "${var.project_name}-s3_distribution_function"
-  runtime = "cloudfront-js-2.0"
-  comment = "URL rewrite to append index.html to the URI for single page applications"
-  publish = true
-  code    = file("${path.module}/function.js")
-}
