@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { optimizeCTODays } from '@/services/optimizer.deepseek';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
@@ -25,6 +25,8 @@ const HomePage = () => {
   const currentYear = new Date().getFullYear()
   const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
   const [isOptimizing, setIsOptimizing] = useState(false)
+  const [shouldScrollToResults, setShouldScrollToResults] = useState(false)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   const { optimizedDays, breaks, stats } = useMemo(() => {
     if (formState.numberOfDays === null) {
@@ -40,6 +42,7 @@ const HomePage = () => {
         customDaysOff: formState.customDaysOff,
         holidays: formState.holidays
       })
+      setShouldScrollToResults(true)
       return {
         optimizedDays: result.days,
         breaks: result.breaks,
@@ -57,6 +60,13 @@ const HomePage = () => {
       setIsOptimizing(false)
     }
   }, [currentYear, formState.numberOfDays, formState.customDaysOff, formState.strategy, formState.holidays])
+
+  useEffect(() => {
+    if (shouldScrollToResults && resultsRef.current && window.innerWidth < 1024) {
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setShouldScrollToResults(false);
+    }
+  }, [shouldScrollToResults, optimizedDays]);
 
   return (
       <OptimizerProvider>
@@ -97,6 +107,7 @@ const HomePage = () => {
               {optimizedDays && optimizedDays.length > 0 && (
                 <div className="space-y-4 min-w-0 max-w-4xl">
                   <ResultsDisplay
+                    ref={resultsRef}
                     optimizedDays={optimizedDays}
                     breaks={breaks}
                     stats={stats}

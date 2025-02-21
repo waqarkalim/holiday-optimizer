@@ -5,6 +5,7 @@ import { Break, OptimizationStats, OptimizedDay } from '@/types';
 import { OptimizationStatsComponent } from '@/components/features/OptimizationStatsComponent';
 import { BreakDetails } from '@/components/features/BreakDetails';
 import { CalendarView } from '@/components/features/CalendarView';
+import { forwardRef } from 'react';
 
 const container = {
   hidden: { opacity: 0 },
@@ -24,22 +25,25 @@ interface ResultsDisplayProps {
   stats: OptimizationStats;
 }
 
-export function ResultsDisplay({ optimizedDays, breaks, stats }: ResultsDisplayProps) {
-  return (
-    <motion.div
-      className="space-y-8"
-      initial="hidden"
-      animate="show"
-      variants={container}
-    >
-      {/* Summary Section */}
-      <OptimizationStatsComponent stats={stats} />
+export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
+  ({ optimizedDays, breaks, stats }, ref) => {
+    return (
+      <motion.div
+        ref={ref}
+        className="space-y-8"
+        initial="hidden"
+        animate="show"
+        variants={container}
+      >
+        {/* Summary Section */}
+        <OptimizationStatsComponent stats={stats} />
 
-      {/* Break Details */}
-      <BreakDetails breaks={breaks} />
+        {/* Break Details */}
+        <BreakDetails breaks={breaks} />
 
-      {/* Calendar View */}
-      <CalendarView optimizedDays={optimizedDays} stats={stats} />
-    </motion.div>
-  );
-} 
+        {/* Calendar View */}
+        <CalendarView optimizedDays={optimizedDays} stats={stats} />
+      </motion.div>
+    );
+  }
+); 
