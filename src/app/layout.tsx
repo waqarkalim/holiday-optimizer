@@ -17,8 +17,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  minimumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -38,7 +39,7 @@ export default function RootLayout({
       <TooltipProvider>
         <div className="relative min-h-screen flex flex-col">
           <Header />
-          <main className="flex-grow bg-gray-50 dark:bg-gray-900">
+          <main id="main-content" className="flex-grow bg-gray-50 dark:bg-gray-900" role="main">
             {children}
           </main>
           <Footer />
