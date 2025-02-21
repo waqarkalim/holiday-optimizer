@@ -27,7 +27,7 @@ const StatCard: FC<StatCardProps> = (props) => {
     <div
       className={clsx(
         'w-full bg-white dark:bg-gray-800/60',
-        'rounded-2xl p-5',
+        'rounded-lg p-3',
         'ring-1',
         colors.card.ring,
       )}
@@ -35,10 +35,10 @@ const StatCard: FC<StatCardProps> = (props) => {
       aria-label={`${(props.label)}: ${(props.value)}`}
     >
       {/* Header with icon and tooltip */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2.5">
         <div
           className={clsx(
-            'h-11 w-11 rounded-xl flex items-center justify-center ring-2',
+            'h-8 w-8 rounded-lg flex items-center justify-center ring-1',
             colors.icon.bg,
             colors.icon.ring,
           )}
@@ -55,14 +55,14 @@ const StatCard: FC<StatCardProps> = (props) => {
               <button
                 type="button"
                 className={clsx(
-                  'rounded-full p-1',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+                  'rounded-full p-0.5',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
                 )}
                 aria-label={`Show information about ${(props.label)}`}
               >
                 <svg
                   className={clsx(
-                    'h-5 w-5',
+                    'h-4 w-4',
                     colors.tooltip.icon
                   )}
                   fill="none"
@@ -75,23 +75,23 @@ const StatCard: FC<StatCardProps> = (props) => {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{props.tooltip}</p>
+              <p className="text-xs">{props.tooltip}</p>
             </TooltipContent>
           </Tooltip>
         )}
       </div>
 
       {/* Content */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         <p className={clsx(
-          'text-sm font-medium',
+          'text-xs font-medium',
           'text-gray-600 dark:text-gray-300',
         )}>
           {props.label}
         </p>
-        <div className="flex items-baseline gap-3">
+        <div className="flex items-baseline gap-2">
           <p className={clsx(
-            'text-3xl font-bold tracking-tight',
+            'text-2xl font-bold tracking-tight leading-none',
             colors.value.text,
           )}>
             {props.value}
@@ -99,12 +99,12 @@ const StatCard: FC<StatCardProps> = (props) => {
           {hasChanged && (
             <span
               className={clsx(
-                'text-sm font-medium',
+                'text-xs font-medium',
                 isIncrease ? colors.value.increase : colors.value.decrease,
               )}
             >
               {isIncrease ? '↑' : '↓'} {Math.abs(changeAmount)}
-              <span className="text-xs ml-1">
+              <span className="text-[10px] ml-0.5">
                 ({changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%)
               </span>
             </span>

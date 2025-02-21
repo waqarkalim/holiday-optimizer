@@ -6,9 +6,9 @@ interface LegendItemProps {
 
 function LegendItem({ color, darkColor, label }: LegendItemProps) {
   return (
-    <div className="flex items-center space-x-2">
-      <div className={`w-6 h-6 rounded-lg ${color} dark:${darkColor} border border-${color.replace('bg-', '')}-200 dark:border-${darkColor.replace('bg-', '')}-700`} />
-      <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+    <div className="flex items-center space-x-1.5">
+      <div className={`w-4 h-4 rounded-md ${color} dark:${darkColor} border border-${color.replace('bg-', '')}-200 dark:border-${darkColor.replace('bg-', '')}-700`} />
+      <span className="text-xs text-gray-700 dark:text-gray-300">{label}</span>
     </div>
   )
 }
@@ -52,8 +52,8 @@ export function CalendarLegend({
   if (legendItems.length === 0) return null
 
   return (
-    <div className="mb-6 bg-white dark:bg-gray-800/50 rounded-lg p-4 ring-1 ring-blue-900/5 dark:ring-blue-400/5">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="mb-3 bg-white dark:bg-gray-800/50 rounded-lg p-2.5 ring-1 ring-blue-900/5 dark:ring-blue-400/5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {legendItems.map((item) => (
           <LegendItem
             key={item.label}

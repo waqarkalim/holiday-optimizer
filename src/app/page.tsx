@@ -62,13 +62,13 @@ const HomePage = () => {
       <OptimizerProvider>
         <main className="flex-grow">
           {/* Title Section */}
-          <div className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900/50 border-b border-gray-200 dark:border-gray-700/50 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-b from-white/90 to-gray-50/90 dark:from-gray-800/90 dark:to-gray-900/80 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
               <div className="text-center">
-                <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
                   Plan Your Time Off
                 </h1>
-                <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                   Optimize your CTO days for maximum time off in {currentYear}
                 </p>
               </div>
@@ -76,10 +76,10 @@ const HomePage = () => {
           </div>
 
           {/* Main Content Area */}
-          <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-8">
-            <div className={`grid gap-8 ${optimizedDays ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
+          <div className="max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
+            <div className={`grid gap-6 ${optimizedDays ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
               {/* Form Section - Always visible */}
-              <div className={`${optimizedDays ? 'lg:sticky lg:top-8 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-6`}>
+              <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
                 <OptimizerForm
                   onSubmit={({ days, strategy, customDaysOff, holidays }) => {
                     setFormState({
@@ -95,7 +95,7 @@ const HomePage = () => {
 
               {/* Results Section - Appears when there are results */}
               {optimizedDays && optimizedDays.length > 0 && (
-                <div className="space-y-6 min-w-0 max-w-4xl">
+                <div className="space-y-4 min-w-0 max-w-4xl">
                   <ResultsDisplay
                     optimizedDays={optimizedDays}
                     breaks={breaks}

@@ -70,21 +70,21 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow overflow-hidden ring-1 ring-gray-900/5 dark:ring-white/10">
-      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
-        <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-900/5 dark:ring-white/10">
+      <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
+        <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 leading-none">
           {format(firstDay, 'MMMM yyyy')}
         </h4>
         {holidays.length > 0 && (
-          <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
             Holidays: {holidays.map(h => h.publicHolidayName).join(', ')}
           </div>
         )}
       </div>
-      <div className="p-4">
-        <div className="grid grid-cols-7 gap-1">
+      <div className="p-2">
+        <div className="grid grid-cols-7 gap-0.5">
           {WEEKDAYS.map(day => (
-            <div key={day} className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 py-2">
+            <div key={day} className="text-center text-xs font-medium text-gray-600 dark:text-gray-400 py-1">
               {day}
             </div>
           ))}
@@ -92,7 +92,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
             <div
               key={index}
               className={clsx(
-                'aspect-square p-2 text-sm relative',
+                'aspect-square p-1 text-xs relative',
                 !day && 'bg-gray-50 dark:bg-gray-800/30',
                 day?.isPartOfBreak && 'font-semibold'
               )}
@@ -101,14 +101,14 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                 <>
                   <div 
                     className={clsx(
-                      'absolute inset-1 rounded-lg',
+                      'absolute inset-0.5 rounded-md',
                       getDayColor(day)
                     )}
                   />
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className={clsx(
-                        'absolute inset-0 flex items-center justify-center font-medium z-10',
+                        'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
                         getDayTextColor(day)
                       )}>
                         {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
@@ -116,13 +116,13 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                     </TooltipTrigger>
                     {getDayTooltip(day) && (
                       <TooltipContent>
-                        <p>{getDayTooltip(day)}</p>
+                        <p className="text-xs">{getDayTooltip(day)}</p>
                       </TooltipContent>
                     )}
                   </Tooltip>
                   {/* Holiday Indicator Dot */}
                   {hasPublicHoliday && day.isPublicHoliday && (
-                    <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400" />
+                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full bg-amber-500 dark:bg-amber-400" />
                   )}
                 </>
               )}

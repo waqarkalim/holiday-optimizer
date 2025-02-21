@@ -70,7 +70,7 @@ export function BreakTypeLegend() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"
     >
       {breakTypes.map((type) => {
         const Icon = type.icon;
@@ -79,19 +79,19 @@ export function BreakTypeLegend() {
             key={type.name}
             variants={item}
             whileHover={{ scale: 1.02 }}
-            className={`relative overflow-hidden rounded-2xl ${type.bgColor} border ${type.borderColor} shadow-sm`}
+            className={`relative overflow-hidden rounded-lg ${type.bgColor} border ${type.borderColor} shadow-sm`}
             role="article"
             aria-label={type.ariaLabel}
           >
-            <div className="relative p-3 flex items-start space-x-3">
-              <div className={`p-2 rounded-lg ${type.iconBg} flex-shrink-0`}>
-                <Icon className={`h-4 w-4 ${type.iconColor}`} aria-hidden="true" />
+            <div className="relative p-2 flex items-start space-x-2">
+              <div className={`p-1.5 rounded-md ${type.iconBg} flex-shrink-0`}>
+                <Icon className={`h-3.5 w-3.5 ${type.iconColor}`} aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h3 className={`text-sm font-medium leading-5 mb-0.5 ${type.color}`}>
+                <h3 className={`text-xs font-medium leading-none mb-0.5 ${type.color}`}>
                   {type.name}
                 </h3>
-                <p className={`text-xs leading-4 ${type.color} opacity-90`}>
+                <p className={`text-[10px] leading-tight ${type.color} opacity-90`}>
                   {type.description}
                 </p>
               </div>

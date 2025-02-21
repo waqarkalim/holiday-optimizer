@@ -19,23 +19,23 @@ export const CalendarView = ({ stats, optimizedDays }: CalendarViewProps) => <mo
   className="relative overflow-hidden"
 >
   <div
-    className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-950/20 dark:to-transparent rounded-3xl" />
-  <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl" />
+    className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10 dark:to-transparent rounded-xl" />
+  <div className="absolute inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-xl" />
 
-  <div className="relative rounded-3xl p-8 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
-    <div className="flex items-center space-x-3 mb-6">
-      <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-        <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24"
+  <div className="relative rounded-xl p-4 ring-1 ring-blue-900/5 dark:ring-blue-400/5">
+    <div className="flex items-center space-x-2 mb-4">
+      <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+        <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24"
              stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
       <div>
-        <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100">
+        <h3 className="text-base font-semibold text-blue-900 dark:text-blue-100 leading-none mb-0.5">
           Calendar View
         </h3>
-        <p className="text-sm text-blue-600/80 dark:text-blue-300/80">
+        <p className="text-xs text-blue-600/70 dark:text-blue-300/70">
           Your year at a glance
         </p>
       </div>
@@ -48,7 +48,7 @@ export const CalendarView = ({ stats, optimizedDays }: CalendarViewProps) => <mo
       hasExtendedWeekends={stats.totalExtendedWeekends > 0}
     />
 
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
       {MONTHS.map((_, index) => (
         <MonthCalendar
           key={index}
