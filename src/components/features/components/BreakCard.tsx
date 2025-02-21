@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { BREAK_LENGTHS } from '@/services/optimizer.constants';
 import { Break } from '@/types';
 import { motion } from 'framer-motion';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface BreakCardProps {
   breakPeriod: Break;
@@ -13,8 +14,8 @@ const cardVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3 }
-  }
+    transition: { duration: 0.3 },
+  },
 };
 
 const timelineVariants = {
@@ -23,18 +24,18 @@ const timelineVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.03,
-      delayChildren: 0.2
-    }
-  }
+      delayChildren: 0.2,
+    },
+  },
 };
 
 const dayVariants = {
   hidden: { opacity: 0, scaleY: 0 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scaleY: 1,
-    transition: { duration: 0.2 }
-  }
+    transition: { duration: 0.2 },
+  },
 };
 
 export function BreakCard({ breakPeriod }: BreakCardProps) {
@@ -168,26 +169,29 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
       >
         <div className="flex space-x-1">
           {breakPeriod.days.map((day) => (
-            <motion.div
-              key={day.date}
-              variants={dayVariants}
-              className={clsx(
-                'h-2 flex-1 rounded-full relative group cursor-help',
-                day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
-                  day.isPublicHoliday ? 'bg-amber-500 dark:bg-amber-400' :
-                    day.isCustomDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
-                      day.isWeekend ? 'bg-violet-500 dark:bg-violet-400' :
-                        'bg-gray-200 dark:bg-gray-700',
-              )}
-            >
-              <div className="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg whitespace-nowrap pointer-events-none z-20 transition-opacity">
-                {`${format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d')} - ${day.isCTO ? 'CTO Day' :
+            <Tooltip key={day.date}>
+              <TooltipTrigger asChild>
+                <motion.div
+                  key={day.date}
+                  variants={dayVariants}
+                  className={clsx(
+                    'h-2 flex-1 rounded-full relative group cursor-help',
+                    day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
+                      day.isPublicHoliday ? 'bg-amber-500 dark:bg-amber-400' :
+                        day.isCustomDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
+                          day.isWeekend ? 'bg-violet-500 dark:bg-violet-400' :
+                            'bg-gray-200 dark:bg-gray-700',
+                  )}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{`${format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d')} - ${day.isCTO ? 'CTO Day' :
                   day.isPublicHoliday ? day.publicHolidayName || 'Holiday' :
                     day.isCustomDayOff ? day.customDayName || 'Custom Day Off' :
                       day.isWeekend ? 'Weekend' : 'Work Day'
-                }`}
-              </div>
-            </motion.div>
+                }`}</p>
+              </TooltipContent>
+            </Tooltip>
           ))}
         </div>
       </motion.div>

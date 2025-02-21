@@ -1,6 +1,6 @@
 import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOfMonth } from 'date-fns';
 import clsx from 'clsx';
-
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
 
 interface MonthCalendarProps {
@@ -92,7 +92,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
             <div
               key={index}
               className={clsx(
-                'aspect-square p-2 text-sm relative group',
+                'aspect-square p-2 text-sm relative',
                 !day && 'bg-gray-50 dark:bg-gray-800/30',
                 day?.isPartOfBreak && 'font-semibold'
               )}
@@ -101,23 +101,25 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                 <>
                   <div 
                     className={clsx(
-                      'absolute inset-1 rounded-lg transition-colors',
+                      'absolute inset-1 rounded-lg',
                       getDayColor(day)
                     )}
                   />
-                  <div className={clsx(
-                    'absolute inset-0 flex items-center justify-center font-medium z-10 transition-colors',
-                    getDayTextColor(day)
-                  )}>
-                    {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
-                  </div>
-                  {/* Holiday Tooltip */}
-                  {hasPublicHoliday && day.isPublicHoliday && (
-                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 text-xs font-medium bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
-                      {getDayTooltip(day)}
-                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900 dark:border-t-gray-700" />
-                    </div>
-                  )}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className={clsx(
+                        'absolute inset-0 flex items-center justify-center font-medium z-10',
+                        getDayTextColor(day)
+                      )}>
+                        {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
+                      </div>
+                    </TooltipTrigger>
+                    {getDayTooltip(day) && (
+                      <TooltipContent>
+                        <p>{getDayTooltip(day)}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                   {/* Holiday Indicator Dot */}
                   {hasPublicHoliday && day.isPublicHoliday && (
                     <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-500 dark:bg-amber-400" />

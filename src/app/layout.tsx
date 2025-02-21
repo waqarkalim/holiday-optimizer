@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import React from 'react';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,15 +25,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <ThemeProvider>
-      <div className="relative">
-        <ThemeToggle />
-        <div
-          className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-          <Header currentYear={currentYear} />
-          {children}
-          <Footer />
+      <TooltipProvider>
+        <div className="relative">
+          <ThemeToggle />
+          <div
+            className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+            <Header currentYear={currentYear} />
+            {children}
+            <Footer />
+          </div>
         </div>
-      </div>
+      </TooltipProvider>
     </ThemeProvider>
     </body>
     </html>
