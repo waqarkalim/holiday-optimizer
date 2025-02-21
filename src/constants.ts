@@ -159,3 +159,5 @@ export const MONTHS = [
 ] as const;
 
 export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+
+export const PROJECT_NAME = 'Holiday Planner'

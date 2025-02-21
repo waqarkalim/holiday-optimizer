@@ -1,8 +1,9 @@
+import { PROJECT_NAME } from '@/constants';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Terms of Service | CTO Planner",
-  description: "Terms of service and conditions for using CTO Planner.",
+  title: `Terms of Service | ${PROJECT_NAME}`,
+  description: `Terms of service and conditions for using ${PROJECT_NAME}.`,
 };
 
 export default function TermsOfService() {
@@ -18,7 +19,7 @@ export default function TermsOfService() {
               <span className="text-base">👋</span> Welcome
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Thank you for visiting CTO Planner. This is an independent project created to help
+              Thank you for visiting {PROJECT_NAME}. This is an independent project created to help
               professionals optimize their vacation days. While I aim to keep the service straightforward,
               these terms outline the guidelines that help ensure a positive experience for everyone.
             </p>
@@ -29,7 +30,7 @@ export default function TermsOfService() {
               <span className="text-base">🎯</span> Service Overview
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              CTO Planner is a tool designed to help you plan your time off more effectively.
+              {PROJECT_NAME} is a tool designed to help you plan your time off more effectively.
               The service analyzes your available holiday dates and suggests optimal combinations
               to maximize your time off. Simple, focused, and practical.
             </p>
@@ -43,7 +44,7 @@ export default function TermsOfService() {
             <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
               <span className="text-base">🤝</span> Terms of Use
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">By using CTO Planner, you agree to:</p>
+            <p className="text-gray-600 dark:text-gray-400">By using {PROJECT_NAME}, you agree to:</p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
               <li>Use the service for personal holiday planning purposes</li>
               <li>Respect the system&apos;s security and integrity</li>
@@ -57,7 +58,7 @@ export default function TermsOfService() {
               <span className="text-base">🎨</span> Development & Attribution
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              CTO Planner was developed using modern tools and practices, including significant
+              {PROJECT_NAME} was developed using modern tools and practices, including significant
               contributions from Cursor AI&apos;s pair programming capabilities. While the development process
               leveraged AI assistance, all final decisions and responsibility for the service rest with
               the project maintainer. Users are welcome to use and enjoy the service, but redistribution
@@ -74,7 +75,7 @@ export default function TermsOfService() {
               <span className="text-base">⚠️</span> Liability & Limitations
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              CTO Planner is provided &ldquo;as is&rdquo; without warranties of any kind, either express or implied.
+              {PROJECT_NAME} is provided &ldquo;as is&rdquo; without warranties of any kind, either express or implied.
               While I implement reasonable precautions and best practices, I cannot accept liability for:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
@@ -94,7 +95,7 @@ export default function TermsOfService() {
               <span className="text-base">🔄</span> Updates & Modifications
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              As an evolving project, CTO Planner may undergo periodic updates and improvements.
+              As an evolving project, {PROJECT_NAME} may undergo periodic updates and improvements.
               I reserve the right to modify or update these terms and the service&apos;s functionality.
               Users are encouraged to periodically review these terms for any changes.
             </p>

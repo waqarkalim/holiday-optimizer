@@ -1,26 +1,29 @@
+import { PROJECT_NAME } from '@/constants';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | CTO Planner",
-  description: "Privacy policy for CTO Planner - Learn how we protect and handle your data.",
+  title: `Privacy Policy | ${PROJECT_NAME}`,
+  description: `Privacy policy for ${PROJECT_NAME} - Learn how we protect and handle your data.`,
 };
 
 export default function PrivacyPolicy() {
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
-      <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
+      <div
+        className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
         <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Privacy Policy</h1>
         <div className="prose dark:prose-invert max-w-none text-sm">
-          <p className="text-base mb-4 text-gray-600 dark:text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
-          
+          <p className="text-base mb-4 text-gray-600 dark:text-gray-400">Last
+            updated: {new Date().toLocaleDateString()}</p>
+
           <section className="mb-6">
             <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
               <span className="text-base">👋</span> Overview
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              CTO Planner is a static web application that runs entirely in your browser.
-              I believe in privacy by design, which is why I've built this tool to operate
-              without any data collection or external API calls.
+              {PROJECT_NAME} is a static web application that runs entirely in your browser. I believe in privacy by
+              design, which is why I&apos;ve built this tool to operate without any data collection or external API
+              calls.
             </p>
           </section>
 
@@ -38,7 +41,8 @@ export default function PrivacyPolicy() {
               <li>Performs all calculations locally in your browser</li>
             </ul>
             <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
-              Any data you input is processed entirely in your browser&apos;s memory and is cleared when you close the page.
+              Any data you input is processed entirely in your browser&apos;s memory and is cleared when you close the
+              page.
             </p>
           </section>
 
