@@ -209,6 +209,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 </p>
               </header>
               <div>
+                <label htmlFor="days" className="sr-only">Enter number of CTO days available (numeric input field)</label>
                 <Input
                   autoFocus
                   id="days"
