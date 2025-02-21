@@ -16,7 +16,7 @@ export default function TermsOfService() {
           <h2 className="text-2xl font-semibold mb-4">👋 Welcome</h2>
           <p>
             Thank you for visiting CTO Planner. This is an independent project created to help
-            professionals optimize their vacation days. While we aim to keep the service straightforward,
+            professionals optimize their vacation days. While I aim to keep the service straightforward,
             these terms outline the guidelines that help ensure a positive experience for everyone.
           </p>
         </section>
@@ -30,7 +30,7 @@ export default function TermsOfService() {
           </p>
           <p className="mt-4 text-sm italic">
             Note: As an independent project, service availability and features may vary.
-            We strive for reliability but cannot guarantee uninterrupted service.
+            I strive for reliability but cannot guarantee uninterrupted service.
           </p>
         </section>
 
@@ -64,7 +64,7 @@ export default function TermsOfService() {
           <h2 className="text-2xl font-semibold mb-4">⚠️ Liability & Limitations</h2>
           <p>
             CTO Planner is provided &ldquo;as is&rdquo; without warranties of any kind, either express or implied.
-            While we implement reasonable precautions and best practices, we cannot accept liability for:
+            While I implement reasonable precautions and best practices, I cannot accept liability for:
           </p>
           <ul className="list-disc pl-6 mt-4">
             <li>Accuracy of holiday planning suggestions</li>
@@ -82,7 +82,7 @@ export default function TermsOfService() {
           <h2 className="text-2xl font-semibold mb-4">🔄 Updates & Modifications</h2>
           <p>
             As an evolving project, CTO Planner may undergo periodic updates and improvements.
-            We reserve the right to modify or update these terms and the service&apos;s functionality.
+            I reserve the right to modify or update these terms and the service&apos;s functionality.
             Users are encouraged to periodically review these terms for any changes.
           </p>
         </section>
