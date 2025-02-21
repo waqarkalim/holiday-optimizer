@@ -75,11 +75,11 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
         <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 leading-none">
           {format(firstDay, 'MMMM yyyy')}
         </h4>
-        {holidays.length > 0 && (
-          <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-            Holidays: {holidays.map(h => h.publicHolidayName).join(', ')}
-          </div>
-        )}
+        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 min-h-[1.25rem]">
+          {holidays.length > 0 && (
+            <>Holidays: {holidays.map(h => h.publicHolidayName).join(', ')}</>
+          )}
+        </div>
       </div>
       <div className="p-2">
         <div className="grid grid-cols-7 gap-0.5">
