@@ -12,6 +12,12 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'CTO Days Optimizer',
   description: 'Optimize your Compensatory Time Off days to maximize your time off throughout the year.',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({
@@ -29,13 +35,12 @@ export default function RootLayout({
       disableTransitionOnChange
     >
       <TooltipProvider>
-        <div className="relative">
-          <div
-            className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-            <Header />
+        <div className="relative min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-grow bg-gray-50 dark:bg-gray-900">
             {children}
-            <Footer />
-          </div>
+          </main>
+          <Footer />
         </div>
       </TooltipProvider>
     </ThemeProvider>

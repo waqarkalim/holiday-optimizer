@@ -70,7 +70,7 @@ const HomePage = () => {
 
   return (
       <OptimizerProvider>
-        <main className="flex-grow">
+        <div className="flex-grow">
           {/* Title Section */}
           <div className="bg--gray-50/90 dark:gray-900 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
@@ -86,7 +86,7 @@ const HomePage = () => {
           </div>
 
           {/* Main Content Area */}
-          <div className="max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
+          <div className="w-full max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
             <div className={`grid gap-6 ${optimizedDays ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
               {/* Form Section - Always visible */}
               <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
@@ -105,7 +105,7 @@ const HomePage = () => {
 
               {/* Results Section - Appears when there are results */}
               {optimizedDays && optimizedDays.length > 0 && (
-                <div className="space-y-4 min-w-0 max-w-4xl">
+                <div className="space-y-4 min-w-0 max-w-4xl w-full">
                   <ResultsDisplay
                     ref={resultsRef}
                     optimizedDays={optimizedDays}
@@ -116,7 +116,7 @@ const HomePage = () => {
               )}
             </div>
           </div>
-        </main>
+        </div>
       </OptimizerProvider>
   )
 }
