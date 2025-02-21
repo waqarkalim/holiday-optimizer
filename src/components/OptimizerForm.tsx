@@ -828,63 +828,48 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
           </div>
         </div>
 
-        <footer className="flex justify-end">
+        <footer className="mt-6">
           <Button
             type="submit"
-            size="sm"
             disabled={isLoading || !days || parseInt(days) <= 0}
             className={cn(
-              'relative overflow-hidden group',
-              'bg-violet-600 dark:bg-violet-500 hover:bg-violet-500 dark:hover:bg-violet-400',
-              'text-white dark:text-gray-900 font-medium',
-              'px-6 py-2.5 rounded-lg',
-              'transform transition-all duration-200',
-              'hover:scale-[1.02] active:scale-[0.98]',
-              'shadow-md hover:shadow-lg',
-              'disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100',
-              'focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-violet-300 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
-              'text-sm'
+              'w-full',
+              'bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-500',
+              'text-white dark:text-gray-900',
+              'h-10 rounded-lg',
+              'transition-colors',
+              'shadow-sm',
+              'disabled:opacity-50 disabled:cursor-not-allowed',
+              'focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-violet-300 focus:ring-offset-2',
             )}
             aria-label={isLoading ? 'Optimizing your calendar...' : 'Optimize your calendar'}
-            aria-disabled={isLoading || !days || parseInt(days) <= 0}
-            tabIndex={0}
           >
             <span className="flex items-center justify-center gap-2">
-              <Sparkles 
-                className={cn(
-                  "w-4 h-4 transition-transform duration-200",
-                  "text-white dark:text-gray-900",
-                  "group-hover:rotate-12 group-active:rotate-0"
-                )} 
-                aria-hidden="true" 
-              />
-              <span className="relative">
-                {isLoading ? (
-                  <>
-                    <span className="opacity-0">Optimize Calendar</span>
-                    <span className="absolute inset-0 flex items-center justify-center">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle 
-                          className="opacity-25" 
-                          cx="12" 
-                          cy="12" 
-                          r="10" 
-                          stroke="currentColor" 
-                          strokeWidth="4"
-                        />
-                        <path 
-                          className="opacity-75" 
-                          fill="currentColor" 
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      <span className="sr-only">Loading...</span>
-                    </span>
-                  </>
-                ) : (
-                  'Optimize Calendar'
-                )}
-              </span>
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle 
+                      className="opacity-25" 
+                      cx="12" 
+                      cy="12" 
+                      r="10" 
+                      stroke="currentColor" 
+                      strokeWidth="4"
+                    />
+                    <path 
+                      className="opacity-75" 
+                      fill="currentColor" 
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span>Optimizing...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" aria-hidden="true" />
+                  <span>Optimize Calendar</span>
+                </>
+              )}
             </span>
           </Button>
         </footer>
