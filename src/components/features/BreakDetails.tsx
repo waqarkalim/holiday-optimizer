@@ -40,19 +40,10 @@ export function BreakDetails({ breaks }: BreakDetailsProps) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="px-4 py-2 bg-violet-100 dark:bg-violet-900/50 rounded-lg text-sm font-medium text-violet-700 dark:text-violet-300">
+            <span
+              className="px-4 py-2 bg-violet-100 dark:bg-violet-900/50 rounded-lg text-sm font-medium text-violet-700 dark:text-violet-300">
               {breaks.length} break{breaks.length !== 1 ? 's' : ''} planned
             </span>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-2 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/70 transition-colors"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-            </motion.button>
           </div>
         </div>
 
