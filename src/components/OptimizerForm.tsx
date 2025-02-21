@@ -181,7 +181,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
   return (
     <main
-      className="bg-gradient-to-br from-teal-50/30 to-teal-100/30 dark:from-gray-800/80 dark:to-gray-800/40 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 shadow-sm">
+      className="bg-teal-50/30 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-4" aria-label="Time off optimizer">
         <div className="space-y-3">
           <header>
@@ -268,7 +268,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                         'flex items-center p-2 rounded-lg transition-all duration-200 cursor-pointer',
                         'focus-within:ring-2 focus-within:ring-blue-400 dark:focus-within:ring-blue-600',
                         isSelected
-                          ? 'bg-gradient-to-br from-blue-50/80 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 ring-1 ring-blue-900/10 dark:ring-blue-400/10'
+                          ? 'bg-blue-50/80 dark:bg-blue-900/30 ring-1 ring-blue-900/10 dark:ring-blue-400/10'
                           : 'bg-white dark:bg-gray-800/60 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-blue-200 dark:hover:ring-blue-800',
                       )}
                     >
@@ -295,7 +295,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                             {strategyOption.label}
                             {strategyOption.id === 'balanced' && (
                               <span
-                                className="ml-1.5 inline-flex items-center rounded-md bg-gradient-to-br from-blue-50/80 to-blue-100/50 dark:from-blue-900/40 dark:to-blue-900/20 px-1.5 py-0.5 text-[10px] font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                                className="ml-1.5 inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-1.5 py-0.5 text-[10px] font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
                                 Recommended
                               </span>
                             )}
@@ -834,8 +834,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
             size="sm"
             disabled={isLoading || !days || parseInt(days) <= 0}
             className={cn(
-              'bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-500 dark:to-blue-500',
-              'hover:from-teal-500 hover:to-blue-500 dark:hover:from-teal-400 dark:hover:to-blue-400',
+              'bg-teal-600 dark:bg-teal-500',
+              'hover:bg-teal-500 dark:hover:bg-teal-400',
               'text-white shadow-sm hover:shadow-md transition-all duration-200',
               'disabled:opacity-50 disabled:cursor-not-allowed px-4 py-1.5',
               'focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-600',

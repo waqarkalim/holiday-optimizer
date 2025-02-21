@@ -7,7 +7,7 @@ export function OptimizationStatsComponent({ stats }: { stats: OptimizationStats
     <div className="relative overflow-hidden rounded-xl">
       {/* Glass effect background */}
       <div className="absolute inset-0 rounded-xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-50/30 to-transparent dark:from-teal-950/10 rounded-xl" />
+        <div className="absolute inset-0 bg-teal-50/30 dark:bg-teal-950/10 rounded-xl" />
         <div className="absolute inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-xl" />
       </div>
 

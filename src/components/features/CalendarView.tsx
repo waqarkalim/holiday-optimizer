@@ -19,7 +19,7 @@ export const CalendarView = ({ stats, optimizedDays }: CalendarViewProps) => <mo
   className="relative overflow-hidden"
 >
   <div
-    className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/10 dark:to-transparent rounded-xl" />
+    className="absolute inset-0 bg-blue-50/30 dark:bg-blue-950/10 rounded-xl" />
   <div className="absolute inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-xl" />
 
   <div className="relative rounded-xl p-4 ring-1 ring-blue-900/5 dark:ring-blue-400/5">

@@ -28,7 +28,7 @@ export default function RootLayout({
         <div className="relative">
           <ThemeToggle />
           <div
-            className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+            className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
             <Header />
             {children}
             <Footer />

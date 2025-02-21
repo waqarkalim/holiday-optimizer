@@ -4,7 +4,7 @@ import { PROJECT_NAME } from '@/constants';
 
 const Footer = () => (
   <footer
-    className="bg-gradient-to-t from-white/90 to-gray-50/90 dark:from-gray-800/90 dark:to-gray-900/80 border-t border-gray-200/60 dark:border-gray-700/30">
+    className="bg-white/90 dark:bg-gray-800/90 border-t border-gray-200/60 dark:border-gray-700/30">
     <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
       <div className="py-8">
         {/* Main Footer Content */}

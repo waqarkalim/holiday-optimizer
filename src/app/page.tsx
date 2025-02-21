@@ -62,7 +62,7 @@ const HomePage = () => {
       <OptimizerProvider>
         <main className="flex-grow">
           {/* Title Section */}
-          <div className="bg-gradient-to-b from-white/90 to-gray-50/90 dark:from-gray-800/90 dark:to-gray-900/80 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
+          <div className="bg--gray-50/90 dark:gray-900 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
               <div className="text-center">
                 <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">

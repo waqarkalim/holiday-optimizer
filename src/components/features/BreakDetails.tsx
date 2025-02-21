@@ -17,7 +17,7 @@ export function BreakDetails({ breaks }: BreakDetailsProps) {
   return (
     <motion.div
       variants={item}
-      className="relative overflow-hidden rounded-xl bg-gradient-to-b from-white/90 to-gray-50/90 dark:from-gray-900/90 dark:to-gray-900/95 shadow-sm"
+      className="relative overflow-hidden rounded-xl bg-white/90 dark:bg-gray-900/90 shadow-sm"
     >
       <div className="relative p-4 space-y-4">
         {/* Header Section */}
