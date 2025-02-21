@@ -76,10 +76,10 @@ const HomePage = () => {
           </div>
 
           {/* Main Content Area */}
-          <div className="max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
-            <div className={`grid gap-6 ${optimizedDays ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
+          <div className="max-w-[1800px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-12 py-4 sm:py-6">
+            <div className={`grid gap-4 sm:gap-6 ${optimizedDays ? 'lg:grid-cols-[minmax(380px,1fr),minmax(380px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
               {/* Form Section - Always visible */}
-              <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
+              <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-3 sm:space-y-4`}>
                 <OptimizerForm
                   onSubmit={({ days, strategy, customDaysOff, holidays }) => {
                     setFormState({
@@ -95,7 +95,7 @@ const HomePage = () => {
 
               {/* Results Section - Appears when there are results */}
               {optimizedDays && optimizedDays.length > 0 && (
-                <div className="space-y-4 min-w-0 max-w-4xl">
+                <div className="space-y-3 sm:space-y-4 min-w-0 max-w-4xl">
                   <ResultsDisplay
                     optimizedDays={optimizedDays}
                     breaks={breaks}
