@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import React from 'react';
@@ -23,10 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
-    <ThemeProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <TooltipProvider>
         <div className="relative">
-          <ThemeToggle />
           <div
             className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
             <Header />

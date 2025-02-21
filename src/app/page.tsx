@@ -56,7 +56,7 @@ const HomePage = () => {
     } finally {
       setIsOptimizing(false)
     }
-  }, [formState.numberOfDays, formState.customDaysOff, formState.strategy, formState.holidays])
+  }, [currentYear, formState.numberOfDays, formState.customDaysOff, formState.strategy, formState.holidays])
 
   return (
       <OptimizerProvider>
