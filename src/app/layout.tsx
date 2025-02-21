@@ -20,7 +20,6 @@ export default function RootLayout({
                                    }: {
   children: React.ReactNode
 }) {
-  const currentYear = new Date().getFullYear();
   return (
     <html lang="en" suppressHydrationWarning>
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
@@ -30,7 +29,7 @@ export default function RootLayout({
           <ThemeToggle />
           <div
             className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-            <Header currentYear={currentYear} />
+            <Header />
             {children}
             <Footer />
           </div>

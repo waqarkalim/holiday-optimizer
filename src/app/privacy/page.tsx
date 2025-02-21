@@ -72,7 +72,7 @@ export default function PrivacyPolicy() {
               <span className="text-base">🔄</span> Updates
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              While I don't anticipate significant changes to this privacy policy (since I don't
+              While I don&apos;t anticipate significant changes to this privacy policy (since I don&apos;t
               collect data), any updates will be reflected in the &ldquo;Last updated&rdquo; date above.
             </p>
           </section>

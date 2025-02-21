@@ -1,10 +1,6 @@
 import { Logo } from '@/components/Logo';
 
-interface HeaderProps {
-  currentYear: number;
-}
-
-const Header = ({ currentYear }: HeaderProps) => (
+const Header = () => (
   <header
     className="bg-gradient-to-b from-white/90 to-gray-50/90 dark:from-gray-800/90 dark:to-gray-900/80 border-b border-gray-200/60 dark:border-gray-700/30">
     <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
