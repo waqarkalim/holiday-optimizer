@@ -46,4 +46,6 @@ export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
       </motion.div>
     );
   }
-); 
+);
+
+ResultsDisplay.displayName = 'ResultsDisplay';
