@@ -96,10 +96,12 @@ export function MonthCalendarSelector({
         nav_button_previous: 'absolute left-1 flex items-center justify-center',
         nav_button_next: 'absolute right-1 flex items-center justify-center',
         table: 'w-full border-collapse',
-        head_row: 'flex w-full',
+        head_row: 'flex w-full border-b border-gray-100 dark:border-gray-800',
         head_cell: cn(
-          'text-gray-500 dark:text-gray-400 rounded-md w-full font-normal text-[0.8rem]',
-          'first-letter:uppercase text-center',
+          'flex-1 pb-2 text-center text-[10px] font-medium tracking-widest uppercase',
+          'text-gray-400 dark:text-gray-500',
+          '[&:first-child]:text-red-400/60 dark:[&:first-child]:text-red-500/50',
+          'select-none transition-colors duration-200'
         ),
         row: 'flex w-full mt-2',
         cell: cn(
