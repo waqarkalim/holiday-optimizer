@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { optimizeCTODays } from '@/services/optimizer.deepseek';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
@@ -91,7 +91,7 @@ const HomePage = () => {
               {/* Form Section - Always visible */}
               <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
                 <OptimizerForm
-                  onSubmit={({ days, strategy, customDaysOff, holidays }) => {
+                  onSubmitAction={({ days, strategy, customDaysOff, holidays }) => {
                     setFormState({
                       numberOfDays: days,
                       strategy,

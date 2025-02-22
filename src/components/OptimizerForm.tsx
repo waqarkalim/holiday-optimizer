@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { CustomDayOff, OptimizationStrategy } from '@/types';
 import { format, parse } from 'date-fns';
-import { Calendar, Coffee, Palmtree, Shuffle, Sparkles, Star, Sunrise, X } from 'lucide-react';
+import { Calendar, Coffee, MapPin, Palmtree, Shuffle, Sparkles, Star, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
@@ -19,10 +19,10 @@ import {
 } from '@/lib/storage/customDays';
 import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
-import { MapPin } from 'lucide-react';
+import { DateList } from './features/components/DateList';
 
 interface OptimizerFormProps {
-  onSubmit: (data: {
+  onSubmitAction: (data: {
     days: number
     strategy: OptimizationStrategy
     customDaysOff: CustomDayOff[]
@@ -40,7 +40,7 @@ const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
   extendedVacations: Palmtree,
 };
 
-export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProps) {
+export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFormProps) {
   const { state, dispatch } = useOptimizer();
   const { days, strategy, errors, customDaysOff, holidays } = state;
 
@@ -63,17 +63,9 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
     e.preventDefault();
 
     const numDays = parseInt(days);
+    if (numDays <= 0) return;
 
-    if (numDays > 0) {
-      onSubmit({
-        days: numDays,
-        strategy,
-        customDaysOff,
-        holidays,
-      });
-    } else {
-      return;
-    }
+    onSubmitAction({ days: numDays, strategy, customDaysOff, holidays });
   };
 
   const handleCustomDayRemove = (index: number) => {
@@ -145,18 +137,24 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
     }
   };
 
+  const handleHolidayRemove = (index: number) => {
+    dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
+    removeStoredHoliday(index);
+  };
+
   const handleAutoDetectHolidays = async () => {
     try {
       const detectedHolidays = await detectPublicHolidays();
       dispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: detectedHolidays });
-      
+      detectedHolidays.forEach(storeHoliday);
+
       toast.success('Holidays detected', {
         description: `Found ${detectedHolidays.length} public holidays for your location.`,
       });
     } catch (error) {
       console.error('Error detecting holidays:', error);
       toast.error('Error detecting holidays', {
-        description: error instanceof Error ? error.message : "Failed to detect holidays for your location.",
+        description: error instanceof Error ? error.message : 'Failed to detect holidays for your location.',
       });
     }
   };
@@ -242,7 +240,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   Pick Your Perfect Style
                 </h2>
                 <p id="strategy-description" className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  Choose how you&apos;d like to enjoy your time off. Each style is designed to match different preferences.
+                  Choose how you&apos;d like to enjoy your time off. Each style is designed to match different
+                  preferences.
                 </p>
               </header>
               <div
@@ -334,7 +333,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   </Button>
                 </div>
                 <p className="text-[10px] text-gray-600 dark:text-gray-300">
-                  Mark the holidays that apply to you or use auto-detect. We&apos;ll optimize around these to maximize your extended breaks.
+                  Mark the holidays that apply to you or use auto-detect. We&apos;ll optimize around these to maximize
+                  your extended breaks.
                 </p>
               </header>
 
@@ -347,59 +347,16 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 />
 
                 {/* Selected Dates List */}
-                {holidays.length > 0 && (
-                  <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-medium text-gray-900 dark:text-white flex items-center gap-1.5">
-                        Selected Holidays
-                        <span
-                          className="px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/30 text-[10px] text-amber-900 dark:text-amber-100">
-                          {holidays.length}
-                        </span>
-                      </h3>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                        onClick={() => {
-                          dispatch({ type: 'CLEAR_HOLIDAYS' });
-                          clearStoredHolidays();
-                        }}
-                      >
-                        Clear All
-                      </Button>
-                    </div>
-                    <div className="pr-2 -mr-2">
-                      <ul className="grid gap-1.5" aria-label="Selected holidays">
-                        {holidays.map((holiday, index) => (
-                          <li
-                            key={index}
-                            className="group flex items-center justify-between py-2 px-3 bg-white dark:bg-gray-800/60 rounded-md border border-gray-200 dark:border-gray-700/50"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 text-center font-medium text-amber-600 dark:text-amber-400">
-                                {format(parse(holiday.date, 'yyyy-MM-dd', new Date()), 'd')}
-                              </div>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                {format(parse(holiday.date, 'yyyy-MM-dd', new Date()), 'MMMM yyyy')}
-                              </span>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleCustomDayRemove(index)}
-                              className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
+                <DateList
+                  items={holidays}
+                  title="Selected Holidays"
+                  colorScheme="amber"
+                  onRemove={handleHolidayRemove}
+                  onClearAll={() => {
+                    dispatch({ type: 'CLEAR_HOLIDAYS' });
+                    clearStoredHolidays();
+                  }}
+                />
               </div>
             </section>
 
@@ -416,7 +373,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   Add Company Days
                 </h2>
                 <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  Select your company&apos;s special days off (like Summer Fridays or team events). We&apos;ll work these into
+                  Select your company&apos;s special days off (like Summer Fridays or team events). We&apos;ll work
+                  these into
                   your perfect schedule.
                 </p>
               </header>
@@ -430,59 +388,16 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 />
 
                 {/* Selected Custom Days List */}
-                {customDaysOff.length > 0 && (
-                  <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-medium text-gray-900 dark:text-white flex items-center gap-1.5">
-                        Selected Company Days
-                        <span
-                          className="px-1.5 py-0.5 rounded-md bg-violet-50 dark:bg-violet-900/30 text-[10px] text-violet-900 dark:text-violet-100">
-                          {customDaysOff.length}
-                        </span>
-                      </h3>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                        onClick={() => {
-                          dispatch({ type: 'CLEAR_CUSTOM_DAYS' });
-                          clearStoredCustomDays();
-                        }}
-                      >
-                        Clear All
-                      </Button>
-                    </div>
-                    <div className="pr-2 -mr-2">
-                      <ul className="grid gap-1.5" aria-label="Selected custom days">
-                        {customDaysOff.map((day, index) => (
-                          <li
-                            key={index}
-                            className="group flex items-center justify-between py-2 px-3 bg-white dark:bg-gray-800/60 rounded-md border border-gray-200 dark:border-gray-700/50"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 text-center font-medium text-violet-600 dark:text-violet-400">
-                                {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
-                              </div>
-                              <span className="text-sm text-gray-700 dark:text-gray-300">
-                                {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMMM yyyy')}
-                              </span>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleCustomDayRemove(index)}
-                              className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
+                <DateList
+                  items={customDaysOff}
+                  title="Selected Company Days"
+                  colorScheme="violet"
+                  onRemove={handleCustomDayRemove}
+                  onClearAll={() => {
+                    dispatch({ type: 'CLEAR_CUSTOM_DAYS' });
+                    clearStoredCustomDays();
+                  }}
+                />
               </div>
             </section>
 

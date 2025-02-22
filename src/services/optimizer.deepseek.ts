@@ -390,12 +390,6 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
 
   // Mark public holidays using the constant
   const PUBLIC_HOLIDAYS: Holiday[] = [
-    ...OPTIMIZATION_CONSTANTS.PUBLIC_HOLIDAYS
-      .map(h => ({
-        date: parseISO(`${year}-${String(h.month).padStart(2, '0')}-${String(h.day).padStart(2, '0')}`),
-        name: h.name
-      }))
-      .filter(h => isAfter(h.date, startDate) || isSameDay(h.date, startDate)),
     ...holidays
       .map(h => ({ date: parseISO(h.date), name: h.name }))
       .filter(h => isAfter(h.date, startDate) || isSameDay(h.date, startDate)),

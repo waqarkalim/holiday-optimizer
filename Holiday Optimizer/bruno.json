@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Holiday Optimizer",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

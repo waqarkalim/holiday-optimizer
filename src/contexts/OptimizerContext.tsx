@@ -2,11 +2,17 @@ import { createContext, ReactNode, useContext, useReducer } from 'react';
 import { format, isValid, parse } from 'date-fns';
 import { OptimizationStrategy } from '@/types';
 
+interface Holiday {
+  date: string;
+  name: string;
+  alternateNames?: string[];
+}
+
 interface OptimizerState {
   days: string
   strategy: OptimizationStrategy
   customDaysOff: Array<{ date: string, name: string }>
-  holidays: Array<{ date: string, name: string }>
+  holidays: Holiday[]
   selectedDates: Date[]
   errors: {
     days?: string
@@ -126,7 +132,7 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     case 'ADD_HOLIDAY': {
       return {
         ...state,
-        holidays: [...state.holidays, action.payload],
+        holidays: [...state.holidays, { date: action.payload.date, name: action.payload.name }],
         errors: { ...state.errors, holiday: undefined }
       }
     }
@@ -152,7 +158,10 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         return {
           ...state,
           selectedDates: [...state.selectedDates, action.payload],
-          holidays: [...state.holidays, { date: dateStr, name: format(action.payload, 'MMMM d, yyyy') }]
+          holidays: [...state.holidays, { 
+            date: dateStr, 
+            name: format(action.payload, 'MMMM d, yyyy')
+          }]
         };
       }
     }
@@ -173,19 +182,50 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'SET_DETECTED_HOLIDAYS': {
-      // Filter out any holidays that are already in the list
-      const newHolidays = action.payload.filter(
-        newHoliday => !state.holidays.some(
-          existingHoliday => existingHoliday.date === newHoliday.date
-        )
-      );
+      // Create a map to group holidays by date
+      const holidayMap = new Map<string, Holiday>();
+      
+      // Process existing holidays first
+      state.holidays.forEach(holiday => {
+        holidayMap.set(holiday.date, {
+          date: holiday.date,
+          name: holiday.name,
+          alternateNames: holiday.alternateNames || []
+        });
+      });
 
-      // Add new holidays and update selectedDates
-      const updatedHolidays = [...state.holidays, ...newHolidays];
-      const updatedSelectedDates = [
-        ...state.selectedDates,
-        ...newHolidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()))
-      ];
+      // Process new holidays
+      action.payload.forEach(newHoliday => {
+        const existing = holidayMap.get(newHoliday.date);
+        if (!existing) {
+          holidayMap.set(newHoliday.date, {
+            date: newHoliday.date,
+            name: newHoliday.name,
+            alternateNames: []
+          });
+        } else {
+          // Don't add duplicate names
+          const allNames = [existing.name, ...(existing.alternateNames || [])];
+          if (!allNames.includes(newHoliday.name)) {
+            existing.alternateNames = [...(existing.alternateNames || []), existing.name];
+            existing.name = newHoliday.name;
+          }
+        }
+      });
+
+      // Convert map back to array and format names
+      const updatedHolidays = Array.from(holidayMap.values()).map(holiday => ({
+        date: holiday.date,
+        name: holiday.alternateNames?.length 
+          ? `${holiday.name} (+${holiday.alternateNames.length} other names)`
+          : holiday.name,
+        alternateNames: holiday.alternateNames
+      }));
+
+      // Update selectedDates to match the holidays
+      const updatedSelectedDates = updatedHolidays.map(
+        holiday => parse(holiday.date, 'yyyy-MM-dd', new Date())
+      );
 
       return {
         ...state,

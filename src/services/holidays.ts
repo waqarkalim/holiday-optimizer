@@ -1,4 +1,37 @@
-import { format } from 'date-fns';
+interface LocalityInfoItem {
+  name: string;
+  description?: string;
+  isoName?: string;
+  order: number;
+  adminLevel?: number;
+  isoCode?: string;
+  wikidataId?: string;
+  geonameId?: number;
+}
+
+interface LocalityInfo {
+  administrative: LocalityInfoItem[];
+  informative: LocalityInfoItem[];
+}
+
+interface GeoLocationResponse {
+  latitude: number;
+  lookupSource: string;
+  longitude: number;
+  localityLanguageRequested: string;
+  continent: string;
+  continentCode: string;
+  countryName: string;
+  countryCode: string;
+  principalSubdivision: string;
+  principalSubdivisionCode: string;
+  city: string;
+  locality: string;
+  postcode: string;
+  plusCode: string;
+  csdCode: string;
+  localityInfo: LocalityInfo;
+}
 
 interface HolidayResponse {
   date: string;
@@ -17,13 +50,12 @@ export interface DetectedHoliday {
   name: string;
 }
 
-const getCountryFromCoordinates = async (latitude: number, longitude: number): Promise<string> => {
+const getCountryFromCoordinates = async (latitude: number, longitude: number): Promise<GeoLocationResponse> => {
   try {
     const response = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
     );
-    const data = await response.json();
-    return data.countryCode;
+    return await response.json();
   } catch (error) {
     console.error('Error getting country from coordinates:', error);
     throw new Error('Failed to detect country from location');
@@ -42,9 +74,9 @@ export const detectPublicHolidays = async (): Promise<DetectedHoliday[]> => {
     });
 
     // Get country code from coordinates
-    const countryCode = await getCountryFromCoordinates(
+    const { countryCode, principalSubdivisionCode } = await getCountryFromCoordinates(
       position.coords.latitude,
-      position.coords.longitude
+      position.coords.longitude,
     );
 
     // Get current year
@@ -52,7 +84,7 @@ export const detectPublicHolidays = async (): Promise<DetectedHoliday[]> => {
 
     // Fetch holidays from Nager.Date API
     const response = await fetch(
-      `https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`
+      `https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`,
     );
 
     if (!response.ok) {
@@ -61,13 +93,15 @@ export const detectPublicHolidays = async (): Promise<DetectedHoliday[]> => {
 
     const holidays: HolidayResponse[] = await response.json();
 
+    const filteredHolidays = holidays.filter((holiday) => holiday.global || holiday.counties?.includes(principalSubdivisionCode));
+
     // Transform the response to match our app's format
-    return holidays.map(holiday => ({
+    return filteredHolidays.map(holiday => ({
       date: holiday.date,
-      name: holiday.localName || holiday.name
+      name: holiday.localName || holiday.name,
     }));
   } catch (error) {
     console.error('Error detecting public holidays:', error);
     throw error;
   }
-}; 
+};
