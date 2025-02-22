@@ -53,7 +53,7 @@ export function OptimizationStatsComponent({ stats }: { stats: OptimizationStats
               icon={<StarIcon className="w-4 h-4" />}
               value={stats.totalPublicHolidays}
               label="Public Holidays"
-              tooltip="Total number of public holidays in the year"
+              tooltip="Total number of upcoming public holidays in the year"
               colorScheme="amber"
             />
           )}
@@ -71,7 +71,7 @@ export function OptimizationStatsComponent({ stats }: { stats: OptimizationStats
               icon={<ClockIcon className="w-4 h-4" />}
               value={stats.totalCustomDaysOff}
               label="Custom Days Off"
-              tooltip="Total number of custom days off scheduled"
+              tooltip="Total number of upcoming custom days off scheduled"
               colorScheme="emerald"
             />
           )}
