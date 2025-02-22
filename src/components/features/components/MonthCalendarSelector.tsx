@@ -13,12 +13,12 @@ interface MonthCalendarSelectorProps {
 }
 
 export function MonthCalendarSelector({
-                                        selectedDates,
-                                        onDateSelect,
-                                        colorScheme,
-                                        minDate,
-                                        maxDate,
-                                      }: MonthCalendarSelectorProps) {
+  selectedDates,
+  onDateSelect,
+  colorScheme,
+  minDate,
+  maxDate,
+}: MonthCalendarSelectorProps) {
   const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date()));
 
   const handleDayClick: DayClickEventHandler = (day, modifiers) => {
@@ -35,7 +35,7 @@ export function MonthCalendarSelector({
 
   const colorStyles = {
     amber: {
-      selected: 'bg-gradient-to-b from-amber-100 to-amber-50 dark:from-amber-900/60 dark:to-amber-800/40 text-amber-900 dark:text-amber-100 hover:bg-amber-100/90 dark:hover:bg-amber-900/50 shadow-[0_2px_8px_-2px_rgba(251,191,36,0.3)] dark:shadow-[0_2px_8px_-2px_rgba(251,191,36,0.2)]',
+      selected: 'bg-amber-100 text-amber-900 dark:bg-amber-900/60 dark:text-amber-100',
       hover: 'hover:bg-amber-50/80 dark:hover:bg-amber-900/30 hover:text-amber-900 dark:hover:text-amber-100',
       ring: 'focus-visible:ring-amber-500/70 dark:focus-visible:ring-amber-400/70',
       today: 'ring-2 ring-amber-200/70 dark:ring-amber-700/70',
@@ -47,7 +47,7 @@ export function MonthCalendarSelector({
       },
     },
     violet: {
-      selected: 'bg-gradient-to-b from-violet-100 to-violet-50 dark:from-violet-900/60 dark:to-violet-800/40 text-violet-900 dark:text-violet-100 hover:bg-violet-100/90 dark:hover:bg-violet-900/50 shadow-[0_2px_8px_-2px_rgba(139,92,246,0.3)] dark:shadow-[0_2px_8px_-2px_rgba(139,92,246,0.2)]',
+      selected: 'bg-violet-100 text-violet-900 dark:bg-violet-900/60 dark:text-violet-100',
       hover: 'hover:bg-violet-50/80 dark:hover:bg-violet-900/30 hover:text-violet-900 dark:hover:text-violet-100',
       ring: 'focus-visible:ring-violet-500/70 dark:focus-visible:ring-violet-400/70',
       today: 'ring-2 ring-violet-200/70 dark:ring-violet-700/70',
@@ -73,9 +73,9 @@ export function MonthCalendarSelector({
       disabled={isDateDisabled}
       className={cn(
         'w-full select-none rounded-2xl border border-gray-200/60 dark:border-gray-700/30',
-        'bg-gradient-to-b from-white to-gray-50/80 dark:from-gray-800/80 dark:to-gray-800/40',
-        'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_24px_-4px_rgba(0,0,0,0.3)]',
-        'backdrop-blur-sm p-3',
+        'bg-white dark:bg-gray-800/60',
+        'shadow-sm',
+        'p-3',
       )}
       classNames={{
         months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
