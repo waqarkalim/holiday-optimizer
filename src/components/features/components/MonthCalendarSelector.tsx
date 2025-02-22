@@ -1,10 +1,10 @@
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { DayClickEventHandler } from "react-day-picker";
-import { useEffect, useState } from "react";
-import { format, isSameMonth, startOfMonth } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import { DayClickEventHandler } from 'react-day-picker';
+import { useState } from 'react';
+import { format, startOfMonth } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MonthCalendarSelectorProps {
   selectedDates: Date[];

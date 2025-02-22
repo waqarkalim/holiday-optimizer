@@ -1,4 +1,5 @@
 import {
+  differenceInDays,
   eachDayOfInterval,
   endOfYear,
   formatISO,
@@ -10,9 +11,8 @@ import {
   isValid,
   isWeekend,
   parseISO,
-  startOfYear,
   startOfToday,
-  differenceInDays,
+  startOfYear,
 } from 'date-fns';
 import {
   BALANCED_DISTRIBUTION,
@@ -1051,8 +1051,8 @@ function selectCandidates(
 
   // Sort candidates by adjusted score (efficiency * strategy multiplier)
   candidates.sort((a, b) => {
-    const aScore = calculateStrategyScore(a, strategy, allDates, timeContext) * calculateSpacingScore(a, selectedBreaks, allDates, timeContext);
-    const bScore = calculateStrategyScore(b, strategy, allDates, timeContext) * calculateSpacingScore(b, selectedBreaks, allDates, timeContext);
+    const aScore = calculateStrategyScore(a, strategy, allDates) * calculateSpacingScore(a, selectedBreaks, allDates, timeContext);
+    const bScore = calculateStrategyScore(b, strategy, allDates) * calculateSpacingScore(b, selectedBreaks, allDates, timeContext);
     return bScore - aScore;
   });
 
@@ -1108,7 +1108,7 @@ function selectCandidates(
 
   // If we still have remaining CTO days, try to allocate them according to strategy
   if (remainingCTO > 0) {
-    const additionalBreaks = allocateRemainingDays(remainingCTO, usedDays, strategy, allDates, timeContext);
+    const additionalBreaks = allocateRemainingDays(remainingCTO, usedDays, strategy, allDates);
     selectedBreaks.push(...additionalBreaks);
   }
 
@@ -1365,7 +1365,6 @@ function calculateStrategyScore(
   candidate: BreakCandidate,
   strategy: OptimizationStrategy,
   allDates: DayInfo[],
-  timeContext: TimeContext
 ): number {
   let score = candidate.efficiency * EFFICIENCY_SCORING.MAX_MULTIPLIER;
   const length = candidate.length;
@@ -1479,7 +1478,6 @@ function allocateRemainingDays(
   usedDays: Set<number>,
   strategy: OptimizationStrategy,
   allDates: DayInfo[],
-  timeContext: TimeContext
 ): BreakCandidate[] {
   const additionalBreaks: BreakCandidate[] = [];
   let daysToAllocate = remainingDays;
@@ -1917,7 +1915,7 @@ function createMiniBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakCandi
       !day.isPublicHoliday &&
       !day.isCustomDayOff
     )
-    .map(({ day, index }) => ({
+    .map(({ index }) => ({
       index,
       score: calculateMiniBreakStartScore(allDates, index)
     }))

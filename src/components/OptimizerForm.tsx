@@ -5,18 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { CustomDayOff, OptimizationStrategy } from '@/types';
 import { format, parse } from 'date-fns';
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Coffee,
-  Palmtree,
-  Shuffle,
-  Sparkles,
-  Star,
-  Sunrise,
-  X,
-} from 'lucide-react';
+import { Calendar, Coffee, Palmtree, Shuffle, Sparkles, Star, Sunrise, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
@@ -29,16 +18,6 @@ import {
   storeCustomDay,
 } from '@/lib/storage/customDays';
 
-const WEEKDAYS = [
-  { value: '1', label: 'Monday' },
-  { value: '2', label: 'Tuesday' },
-  { value: '3', label: 'Wednesday' },
-  { value: '4', label: 'Thursday' },
-  { value: '5', label: 'Friday' },
-  { value: '6', label: 'Saturday' },
-  { value: '0', label: 'Sunday' },
-] as const;
-
 interface OptimizerFormProps {
   onSubmit: (data: {
     days: number
@@ -48,8 +27,6 @@ interface OptimizerFormProps {
   }) => void;
   isLoading?: boolean;
 }
-
-type CustomDayField = keyof Partial<CustomDayOff>
 
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
@@ -62,16 +39,7 @@ const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
 
 export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProps) {
   const { state, dispatch } = useOptimizer();
-  const {
-    days,
-    strategy,
-    errors,
-    customDaysOff,
-    holidays,
-    selectedDates,
-    currentMonth,
-    currentYear,
-  } = state;
+  const { days, strategy, errors, customDaysOff, holidays } = state;
 
   // Load stored holidays and custom days on mount
   useEffect(() => {
@@ -121,7 +89,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
     } else {
       const customDay = {
         name: format(date, 'MMMM d, yyyy'),
-        date: formattedDate
+        date: formattedDate,
       };
       dispatch({ type: 'ADD_CUSTOM_DAY', payload: customDay });
       storeCustomDay(customDay);
@@ -167,7 +135,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
     } else {
       const holiday = {
         name: format(date, 'MMMM d, yyyy'),
-        date: formattedDate
+        date: formattedDate,
       };
       dispatch({ type: 'ADD_HOLIDAY', payload: holiday });
       storeHoliday(holiday);
@@ -185,7 +153,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               Design Your Dream Year
             </h1>
             <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
-              In just 4 simple steps, we'll help you create the perfect balance of work and life, maximizing every day off.
+              In just 4 simple steps, we&apos;ll help you create the perfect balance of work and life, maximizing every
+              day off.
             </p>
           </header>
 
@@ -196,16 +165,20 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               aria-labelledby="days-heading"
             >
               <header>
-                <h2 id="days-heading" className="text-xs font-medium text-teal-900 dark:text-teal-100 flex items-center gap-1.5">
-                  <span className="flex items-center justify-center w-4 h-4 rounded-full bg-teal-100 dark:bg-teal-900 text-[10px] font-medium text-teal-900 dark:text-teal-100">1</span>
+                <h2 id="days-heading"
+                    className="text-xs font-medium text-teal-900 dark:text-teal-100 flex items-center gap-1.5">
+                  <span
+                    className="flex items-center justify-center w-4 h-4 rounded-full bg-teal-100 dark:bg-teal-900 text-[10px] font-medium text-teal-900 dark:text-teal-100">1</span>
                   Start with Your Days
                 </h2>
                 <p id="days-description" className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  How many paid time off days do you have? We'll optimize your days from today until the end of the year, making every single one count.
+                  How many paid time off days do you have? We&apos;ll optimize your days from today until the end of the
+                  year, making every single one count.
                 </p>
               </header>
               <div>
-                <label htmlFor="days" className="sr-only">Enter number of CTO days available (numeric input field)</label>
+                <label htmlFor="days" className="sr-only">Enter number of CTO days available (numeric input
+                  field)</label>
                 <Input
                   autoFocus
                   id="days"
@@ -243,12 +216,14 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               aria-labelledby="strategy-heading"
             >
               <header>
-                <h2 id="strategy-heading" className="text-xs font-medium text-blue-900 dark:text-blue-100 flex items-center gap-1.5">
-                  <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-900 text-[10px] font-medium text-blue-900 dark:text-blue-100">2</span>
+                <h2 id="strategy-heading"
+                    className="text-xs font-medium text-blue-900 dark:text-blue-100 flex items-center gap-1.5">
+                  <span
+                    className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-900 text-[10px] font-medium text-blue-900 dark:text-blue-100">2</span>
                   Pick Your Perfect Style
                 </h2>
                 <p id="strategy-description" className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  Choose how you'd like to enjoy your time off. Each style is designed to match different preferences.
+                  Choose how you&apos;d like to enjoy your time off. Each style is designed to match different preferences.
                 </p>
               </header>
               <div
@@ -321,12 +296,14 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               aria-labelledby="holidays-heading"
             >
               <header className="mb-4">
-                <h2 id="holidays-heading" className="text-xs font-medium text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900 text-[10px] font-medium text-amber-900 dark:text-amber-100">3</span>
+                <h2 id="holidays-heading"
+                    className="text-xs font-medium text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                  <span
+                    className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900 text-[10px] font-medium text-amber-900 dark:text-amber-100">3</span>
                   Include Public Holidays
                 </h2>
                 <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  Mark the holidays that apply to you. We'll optimize around these to maximize your extended breaks.
+                  Mark the holidays that apply to you. We&apos;ll optimize around these to maximize your extended breaks.
                 </p>
               </header>
 
@@ -344,7 +321,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                     <div className="flex items-center justify-between">
                       <h3 className="text-xs font-medium text-gray-900 dark:text-white flex items-center gap-1.5">
                         Selected Holidays
-                        <span className="px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/30 text-[10px] text-amber-900 dark:text-amber-100">
+                        <span
+                          className="px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-900/30 text-[10px] text-amber-900 dark:text-amber-100">
                           {holidays.length}
                         </span>
                       </h3>
@@ -400,12 +378,15 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               aria-labelledby="custom-days-heading"
             >
               <header className="mb-4">
-                <h2 id="custom-days-heading" className="text-xs font-medium text-violet-900 dark:text-violet-100 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 dark:bg-violet-900 text-[10px] font-medium text-violet-900 dark:text-violet-100">4</span>
+                <h2 id="custom-days-heading"
+                    className="text-xs font-medium text-violet-900 dark:text-violet-100 flex items-center gap-2">
+                  <span
+                    className="flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 dark:bg-violet-900 text-[10px] font-medium text-violet-900 dark:text-violet-100">4</span>
                   Add Company Days
                 </h2>
                 <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  Select your company's special days off (like Summer Fridays or team events). We'll work these into your perfect schedule.
+                  Select your company&apos;s special days off (like Summer Fridays or team events). We&apos;ll work these into
+                  your perfect schedule.
                 </p>
               </header>
 
@@ -423,7 +404,8 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                     <div className="flex items-center justify-between">
                       <h3 className="text-xs font-medium text-gray-900 dark:text-white flex items-center gap-1.5">
                         Selected Company Days
-                        <span className="px-1.5 py-0.5 rounded-md bg-violet-50 dark:bg-violet-900/30 text-[10px] text-violet-900 dark:text-violet-100">
+                        <span
+                          className="px-1.5 py-0.5 rounded-md bg-violet-50 dark:bg-violet-900/30 text-[10px] text-violet-900 dark:text-violet-100">
                           {customDaysOff.length}
                         </span>
                       </h3>
@@ -496,17 +478,17 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               {isLoading ? (
                 <>
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle 
-                      className="opacity-25" 
-                      cx="12" 
-                      cy="12" 
-                      r="10" 
-                      stroke="currentColor" 
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
                       strokeWidth="4"
                     />
-                    <path 
-                      className="opacity-75" 
-                      fill="currentColor" 
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>

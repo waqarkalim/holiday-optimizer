@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useReducer } from 'react';
-import { format, isAfter, isValid, parse } from 'date-fns';
-import { CustomDayOff, OptimizationStrategy } from '@/types';
+import { format, isValid, parse } from 'date-fns';
+import { OptimizationStrategy } from '@/types';
 
 interface OptimizerState {
   days: string
