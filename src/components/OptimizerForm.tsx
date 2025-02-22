@@ -172,45 +172,6 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       dispatch({ type: 'ADD_HOLIDAY', payload: holiday });
       storeHoliday(holiday);
     }
-    // const formattedDate = format(date, 'yyyy-MM-dd');
-    // const isSelected = selectedDates.some(d =>
-    //   format(d, 'yyyy-MM-dd') === formattedDate
-    // );
-    //
-    // if (isSelected) {
-    //   dispatch({
-    //     type: 'REMOVE_HOLIDAY',
-    //     payload: holidays.findIndex(h => h.date === formattedDate)
-    //   });
-    //   removeStoredHoliday(date);
-    // } else {
-    //   dispatch({
-    //     type: 'ADD_HOLIDAY',
-    //     payload: {
-    //       date: formattedDate,
-    //       name: format(date, 'MMMM d, yyyy')
-    //     }
-    //   });
-    //   storeHoliday(date);
-    // }
-  };
-
-  const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      dispatch({ type: 'SET_MONTH', payload: 11 });
-      dispatch({ type: 'SET_YEAR', payload: currentYear - 1 });
-    } else {
-      dispatch({ type: 'SET_MONTH', payload: currentMonth - 1 });
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      dispatch({ type: 'SET_MONTH', payload: 0 });
-      dispatch({ type: 'SET_YEAR', payload: currentYear + 1 });
-    } else {
-      dispatch({ type: 'SET_MONTH', payload: currentMonth + 1 });
-    }
   };
 
   return (
@@ -371,40 +332,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
               <div className="space-y-6">
                 {/* Calendar Selection */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                      {format(new Date(currentYear, currentMonth), 'MMMM yyyy')}
-                    </h3>
-                    <div className="flex gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={handlePrevMonth}
-                        className="h-8 w-8"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleNextMonth}
-                        className="h-8 w-8"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <MonthCalendarSelector
-                    selectedDates={holidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()))}
-                    onDateSelect={handleHolidaySelect}
-                    month={currentMonth}
-                    year={currentYear}
-                  />
-                </div>
+                <MonthCalendarSelector
+                  selectedDates={holidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()))}
+                  onDateSelect={handleHolidaySelect}
+                />
 
                 {/* Selected Dates List */}
                 {holidays.length > 0 && (
@@ -479,40 +410,10 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
 
               <div className="space-y-6">
                 {/* Calendar Selection */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                      {format(new Date(currentYear, currentMonth), 'MMMM yyyy')}
-                    </h3>
-                    <div className="flex gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={handlePrevMonth}
-                        className="h-8 w-8"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleNextMonth}
-                        className="h-8 w-8"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <MonthCalendarSelector
-                    selectedDates={customDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
-                    onDateSelect={handleCustomDaySelect}
-                    month={currentMonth}
-                    year={currentYear}
-                  />
-                </div>
+                <MonthCalendarSelector
+                  selectedDates={customDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
+                  onDateSelect={handleCustomDaySelect}
+                />
 
                 {/* Selected Custom Days List */}
                 {customDaysOff.length > 0 && (

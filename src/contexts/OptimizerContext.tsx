@@ -8,8 +8,6 @@ interface OptimizerState {
   customDaysOff: Array<{ date: string, name: string }>
   holidays: Array<{ date: string, name: string }>
   selectedDates: Date[]
-  currentMonth: number
-  currentYear: number
   errors: {
     days?: string
     customDay?: {
@@ -34,8 +32,6 @@ type OptimizerAction =
   | { type: 'ADD_HOLIDAY'; payload: { date: string, name: string } }
   | { type: 'REMOVE_HOLIDAY'; payload: number }
   | { type: 'TOGGLE_DATE'; payload: Date }
-  | { type: 'SET_MONTH'; payload: number }
-  | { type: 'SET_YEAR'; payload: number }
   | { type: 'CLEAR_HOLIDAYS' }
   | { type: 'CLEAR_CUSTOM_DAYS' }
 
@@ -45,8 +41,6 @@ const initialState: OptimizerState = {
   customDaysOff: [],
   holidays: [],
   selectedDates: [],
-  currentMonth: new Date().getMonth(),
-  currentYear: new Date().getFullYear(),
   errors: {}
 }
 
@@ -160,20 +154,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
           holidays: [...state.holidays, { date: dateStr, name: format(action.payload, 'MMMM d, yyyy') }]
         };
       }
-    }
-
-    case 'SET_MONTH': {
-      return {
-        ...state,
-        currentMonth: action.payload
-      };
-    }
-
-    case 'SET_YEAR': {
-      return {
-        ...state,
-        currentYear: action.payload
-      };
     }
 
     case 'CLEAR_HOLIDAYS': {
