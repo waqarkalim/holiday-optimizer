@@ -10,8 +10,8 @@ export interface OptimizedDay {
     isPartOfBreak: boolean;
     isPublicHoliday: boolean;
     publicHolidayName?: string;
-    isCustomDayOff: boolean;
-    customDayName?: string;
+    isCompanyDayOff: boolean;
+    companyDayName?: string;
 }
 
 export interface Break {
@@ -22,7 +22,7 @@ export interface Break {
     ctoDays: number;
     publicHolidays: number;
     weekends: number;
-    customDaysOff: number;
+    companyDaysOff: number;
 }
 
 export interface OptimizationStats {
@@ -30,7 +30,7 @@ export interface OptimizationStats {
     totalPublicHolidays: number;
     totalNormalWeekends: number;
     totalExtendedWeekends: number;
-    totalCustomDaysOff: number;
+    totalCompanyDaysOff: number;
     totalDaysOff: number;
 }
 
@@ -40,9 +40,9 @@ export interface OptimizationResult {
     stats: OptimizationStats;
 }
 
-export interface CustomDayOff {
+export interface CompanyDayOff {
     date: string;           // Date in 'yyyy-MM-dd' format
-    name: string;          // Description or name of the custom day off
+    name: string;          // Description or name of the company day off
     isRecurring?: boolean; // Whether this applies to all matching weekdays in a date range
     startDate?: string;    // If recurring, the start date of the range
     endDate?: string;      // If recurring, the end date of the range
@@ -54,7 +54,7 @@ export interface OptimizationParams {
     strategy?: OptimizationStrategy;
     year?: number;
     holidays?: Array<{ date: string, name: string }>;
-    customDaysOff?: Array<CustomDayOff>;
+    companyDaysOff?: Array<CompanyDayOff>;
 }
 
 export interface StrategyOption {

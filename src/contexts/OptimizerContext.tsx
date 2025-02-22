@@ -11,12 +11,12 @@ interface Holiday {
 interface OptimizerState {
   days: string
   strategy: OptimizationStrategy
-  customDaysOff: Array<{ date: string, name: string }>
+  companyDaysOff: Array<{ date: string, name: string }>
   holidays: Holiday[]
   selectedDates: Date[]
   errors: {
     days?: string
-    customDay?: {
+    companyDay?: {
       name?: string
       date?: string
     }
@@ -30,28 +30,28 @@ interface OptimizerState {
 type OptimizerAction =
   | { type: 'SET_DAYS'; payload: string }
   | { type: 'SET_STRATEGY'; payload: OptimizationStrategy }
-  | { type: 'SET_CUSTOM_DAYS'; payload: Array<{ date: string, name: string }> }
-  | { type: 'ADD_CUSTOM_DAY'; payload: { date: string, name: string } }
-  | { type: 'REMOVE_CUSTOM_DAY'; payload: number }
+  | { type: 'SET_COMPANY_DAYS'; payload: Array<{ date: string, name: string }> }
+  | { type: 'ADD_COMPANY_DAY'; payload: { date: string, name: string } }
+  | { type: 'REMOVE_COMPANY_DAY'; payload: number }
   | { type: 'SET_ERROR'; payload: { field: string; message: string } }
   | { type: 'CLEAR_ERRORS' }
   | { type: 'ADD_HOLIDAY'; payload: { date: string, name: string } }
   | { type: 'REMOVE_HOLIDAY'; payload: number }
   | { type: 'TOGGLE_DATE'; payload: Date }
   | { type: 'CLEAR_HOLIDAYS' }
-  | { type: 'CLEAR_CUSTOM_DAYS' }
+  | { type: 'CLEAR_COMPANY_DAYS' }
   | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string, name: string }> }
 
 const initialState: OptimizerState = {
   days: "",
   strategy: "balanced",
-  customDaysOff: [],
+  companyDaysOff: [],
   holidays: [],
   selectedDates: [],
   errors: {}
 }
 
-function validateCustomDay(day: { date: string, name: string }): Record<string, string> {
+function validateCompanyDay(day: { date: string, name: string }): Record<string, string> {
   const errors: Record<string, string> = {}
 
   if (!day.name?.trim()) {
@@ -86,29 +86,29 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return { ...state, strategy: action.payload }
     }
 
-    case 'SET_CUSTOM_DAYS': {
-      return { ...state, customDaysOff: action.payload }
+    case 'SET_COMPANY_DAYS': {
+      return { ...state, companyDaysOff: action.payload }
     }
 
-    case 'ADD_CUSTOM_DAY': {
-      const errors = validateCustomDay(action.payload)
+    case 'ADD_COMPANY_DAY': {
+      const errors = validateCompanyDay(action.payload)
       if (Object.keys(errors).length > 0) {
         return {
           ...state,
-          errors: { ...state.errors, customDay: errors }
+          errors: { ...state.errors, companyDay: errors }
         }
       }
       return {
         ...state,
-        customDaysOff: [...state.customDaysOff, action.payload],
-        errors: { ...state.errors, customDay: undefined }
+        companyDaysOff: [...state.companyDaysOff, action.payload],
+        errors: { ...state.errors, companyDay: undefined }
       }
     }
 
-    case 'REMOVE_CUSTOM_DAY': {
+    case 'REMOVE_COMPANY_DAY': {
       return {
         ...state,
-        customDaysOff: state.customDaysOff.filter((_, i) => i !== action.payload)
+        companyDaysOff: state.companyDaysOff.filter((_, i) => i !== action.payload)
       }
     }
 
@@ -174,10 +174,10 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       };
     }
 
-    case 'CLEAR_CUSTOM_DAYS': {
+    case 'CLEAR_COMPANY_DAYS': {
       return {
         ...state,
-        customDaysOff: []
+        companyDaysOff: []
       };
     }
 

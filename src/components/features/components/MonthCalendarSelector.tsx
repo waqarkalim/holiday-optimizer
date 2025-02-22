@@ -139,7 +139,7 @@ export function MonthCalendarSelector({
         classNames={{
           months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
           month: "space-y-4 w-full",
-          caption: "hidden", // Hide the default caption since we have our custom one
+          caption: "hidden", // Hide the default caption since we have our company one
           nav: "hidden", // Hide the default navigation
           table: "w-full border-collapse",
           head_row: "flex w-full",

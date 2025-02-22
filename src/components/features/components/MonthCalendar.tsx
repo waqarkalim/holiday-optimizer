@@ -20,7 +20,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   // Check if any day types exist in the data
   const hasCTODays = days.some(day => day.isCTO)
   const hasPublicHoliday = days.some(day => day.isPublicHoliday)
-  const hasCustomDaysOff = days.some(day => day.isCustomDayOff)
+  const hasCompanyDaysOff = days.some(day => day.isCompanyDayOff)
   const hasExtendedWeekends = days.some(day => day.isPartOfBreak && day.isWeekend)
 
   // Create calendar grid with empty cells for proper alignment
@@ -43,8 +43,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   })
 
   const getDayColor = (day: OptimizedDay) => {
-    // Order of precedence: Custom Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCustomDaysOff && day.isCustomDayOff) return 'bg-emerald-100 dark:bg-emerald-900/50'
+    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
+    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'bg-emerald-100 dark:bg-emerald-900/50'
     if (hasPublicHoliday && day.isPublicHoliday) return 'bg-amber-100 dark:bg-amber-900/50'
     if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'bg-violet-100 dark:bg-violet-900/50'
     if (hasCTODays && day.isCTO) return 'bg-teal-100 dark:bg-teal-900/50'
@@ -52,8 +52,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   }
 
   const getDayTextColor = (day: OptimizedDay) => {
-    // Order of precedence: Custom Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCustomDaysOff && day.isCustomDayOff) return 'text-emerald-900 dark:text-emerald-100'
+    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
+    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'text-emerald-900 dark:text-emerald-100'
     if (hasPublicHoliday && day.isPublicHoliday) return 'text-amber-900 dark:text-amber-100'
     if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'text-violet-900 dark:text-violet-100'
     if (hasCTODays && day.isCTO) return 'text-teal-900 dark:text-teal-100'
@@ -61,8 +61,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   }
 
   const getDayTooltip = (day: OptimizedDay) => {
-    // Order of precedence: Custom Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCustomDaysOff && day.isCustomDayOff) return day.customDayName || 'Custom Day Off'
+    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
+    if (hasCompanyDaysOff && day.isCompanyDayOff) return day.companyDayName || 'Company Day Off'
     if (hasPublicHoliday && day.isPublicHoliday) return day.publicHolidayName || 'Public Holiday'
     if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'Extended Weekend'
     if (hasCTODays && day.isCTO) return 'CTO Day'

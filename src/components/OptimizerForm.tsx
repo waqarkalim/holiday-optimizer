@@ -3,7 +3,7 @@
 import { FormEvent, KeyboardEvent, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { CustomDayOff, OptimizationStrategy } from '@/types';
+import { CompanyDayOff, OptimizationStrategy } from '@/types';
 import { format, parse } from 'date-fns';
 import { Calendar, Coffee, MapPin, Palmtree, Shuffle, Sparkles, Star, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,11 +12,11 @@ import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { MonthCalendarSelector } from './features/components/MonthCalendarSelector';
 import { clearStoredHolidays, getStoredHolidays, removeStoredHoliday, storeHoliday } from '@/lib/storage/holidays';
 import {
-  clearStoredCustomDays,
-  getStoredCustomDays,
-  removeStoredCustomDay,
-  storeCustomDay,
-} from '@/lib/storage/customDays';
+  clearStoredCompanyDays,
+  getStoredCompanyDays,
+  removeStoredCompanyDay,
+  storeCompanyDay,
+} from '@/lib/storage/companyDays';
 import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
 import { DateList } from './features/components/DateList';
@@ -25,7 +25,7 @@ interface OptimizerFormProps {
   onSubmitAction: (data: {
     days: number
     strategy: OptimizationStrategy
-    customDaysOff: CustomDayOff[]
+    companyDaysOff: CompanyDayOff[]
     holidays: Array<{ date: string, name: string }>
   }) => void;
   isLoading?: boolean;
@@ -42,9 +42,9 @@ const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
 
 export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFormProps) {
   const { state, dispatch } = useOptimizer();
-  const { days, strategy, errors, customDaysOff, holidays } = state;
+  const { days, strategy, errors, companyDaysOff, holidays } = state;
 
-  // Load stored holidays and custom days on mount
+  // Load stored holidays and company days on mount
   useEffect(() => {
     // Load public holidays
     const storedHolidays = getStoredHolidays();
@@ -52,10 +52,10 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       dispatch({ type: 'ADD_HOLIDAY', payload: day });
     });
 
-    // Load custom days
-    const storedCustomDays = getStoredCustomDays();
-    storedCustomDays.forEach(day => {
-      dispatch({ type: 'ADD_CUSTOM_DAY', payload: day });
+    // Load company days
+    const storedCompanyDays = getStoredCompanyDays();
+    storedCompanyDays.forEach(day => {
+      dispatch({ type: 'ADD_COMPANY_DAY', payload: day });
     });
   }, []);
 
@@ -65,29 +65,29 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     const numDays = parseInt(days);
     if (numDays <= 0) return;
 
-    onSubmitAction({ days: numDays, strategy, customDaysOff, holidays });
+    onSubmitAction({ days: numDays, strategy, companyDaysOff, holidays });
   };
 
-  const handleCustomDayRemove = (index: number) => {
-    dispatch({ type: 'REMOVE_CUSTOM_DAY', payload: index });
-    removeStoredCustomDay(index);
+  const handleCompanyDayRemove = (index: number) => {
+    dispatch({ type: 'REMOVE_COMPANY_DAY', payload: index });
+    removeStoredCompanyDay(index);
   };
 
-  const handleCustomDaySelect = (date: Date) => {
+  const handleCompanyDaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
-    const isSelected = customDaysOff.some(day => day.date === formattedDate);
+    const isSelected = companyDaysOff.some(day => day.date === formattedDate);
 
     if (isSelected) {
-      const index = customDaysOff.findIndex(day => day.date === formattedDate);
-      dispatch({ type: 'REMOVE_CUSTOM_DAY', payload: index });
-      removeStoredCustomDay(index);
+      const index = companyDaysOff.findIndex(day => day.date === formattedDate);
+      dispatch({ type: 'REMOVE_COMPANY_DAY', payload: index });
+      removeStoredCompanyDay(index);
     } else {
-      const customDay = {
+      const companyDay = {
         name: format(date, 'MMMM d, yyyy'),
         date: formattedDate,
       };
-      dispatch({ type: 'ADD_CUSTOM_DAY', payload: customDay });
-      storeCustomDay(customDay);
+      dispatch({ type: 'ADD_COMPANY_DAY', payload: companyDay });
+      storeCompanyDay(companyDay);
     }
   };
 
@@ -360,13 +360,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               </div>
             </section>
 
-            {/* Step 4: Custom Days Off Section */}
+            {/* Step 4: Company Days Off Section */}
             <section
               className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-violet-900/5 dark:ring-violet-300/10"
-              aria-labelledby="custom-days-heading"
+              aria-labelledby="company-days-heading"
             >
               <header className="mb-4">
-                <h2 id="custom-days-heading"
+                <h2 id="company-days-heading"
                     className="text-xs font-medium text-violet-900 dark:text-violet-100 flex items-center gap-2">
                   <span
                     className="flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 dark:bg-violet-900 text-[10px] font-medium text-violet-900 dark:text-violet-100">4</span>
@@ -382,20 +382,20 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               <div className="space-y-6">
                 {/* Calendar Selection */}
                 <MonthCalendarSelector
-                  selectedDates={customDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
-                  onDateSelect={handleCustomDaySelect}
+                  selectedDates={companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
+                  onDateSelect={handleCompanyDaySelect}
                   colorScheme="violet"
                 />
 
-                {/* Selected Custom Days List */}
+                {/* Selected Company Days List */}
                 <DateList
-                  items={customDaysOff}
+                  items={companyDaysOff}
                   title="Selected Company Days"
                   colorScheme="violet"
-                  onRemove={handleCustomDayRemove}
+                  onRemove={handleCompanyDayRemove}
                   onClearAll={() => {
-                    dispatch({ type: 'CLEAR_CUSTOM_DAYS' });
-                    clearStoredCustomDays();
+                    dispatch({ type: 'CLEAR_COMPANY_DAYS' });
+                    clearStoredCompanyDays();
                   }}
                 />
               </div>

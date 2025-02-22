@@ -44,7 +44,7 @@ export const CalendarView = ({ stats, optimizedDays }: CalendarViewProps) => <mo
     <CalendarLegend
       hasCTODays={stats.totalCTODays > 0}
       hasHolidays={stats.totalPublicHolidays > 0}
-      hasCustomDaysOff={stats.totalCustomDaysOff > 0}
+      hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
       hasExtendedWeekends={stats.totalExtendedWeekends > 0}
     />
 

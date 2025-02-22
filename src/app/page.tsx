@@ -5,19 +5,19 @@ import { optimizeCTODays } from '@/services/optimizer.deepseek';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
-import { CustomDayOff, OptimizationStrategy } from '@/types';
+import { CompanyDayOff, OptimizationStrategy } from '@/types';
 
 interface FormState {
   numberOfDays: number | null
   strategy: OptimizationStrategy
-  customDaysOff: Array<CustomDayOff>
+  companyDaysOff: Array<CompanyDayOff>
   holidays: Array<{ date: string, name: string }>
 }
 
 const DEFAULT_FORM_STATE: FormState = {
   numberOfDays: null,
   strategy: 'balanced',
-  customDaysOff: [],
+  companyDaysOff: [],
   holidays: []
 }
 
@@ -39,7 +39,7 @@ const HomePage = () => {
         numberOfDays: formState.numberOfDays,
         strategy: formState.strategy,
         year: currentYear,
-        customDaysOff: formState.customDaysOff,
+        companyDaysOff: formState.companyDaysOff,
         holidays: formState.holidays
       })
       setShouldScrollToResults(true)
@@ -59,7 +59,7 @@ const HomePage = () => {
     } finally {
       setIsOptimizing(false)
     }
-  }, [currentYear, formState.numberOfDays, formState.customDaysOff, formState.strategy, formState.holidays])
+  }, [currentYear, formState.numberOfDays, formState.companyDaysOff, formState.strategy, formState.holidays])
 
   useEffect(() => {
     if (shouldScrollToResults && resultsRef.current && window.innerWidth < 1024) {
@@ -91,11 +91,11 @@ const HomePage = () => {
               {/* Form Section - Always visible */}
               <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
                 <OptimizerForm
-                  onSubmitAction={({ days, strategy, customDaysOff, holidays }) => {
+                  onSubmitAction={({ days, strategy, companyDaysOff, holidays }) => {
                     setFormState({
                       numberOfDays: days,
                       strategy,
-                      customDaysOff,
+                      companyDaysOff,
                       holidays
                     })
                   }}

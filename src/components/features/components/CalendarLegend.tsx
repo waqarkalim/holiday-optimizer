@@ -16,14 +16,14 @@ function LegendItem({ color, darkColor, label }: LegendItemProps) {
 interface CalendarLegendProps {
   hasCTODays?: boolean
   hasHolidays?: boolean
-  hasCustomDaysOff?: boolean
+  hasCompanyDaysOff?: boolean
   hasExtendedWeekends?: boolean
 }
 
 export function CalendarLegend({ 
   hasCTODays = false,
   hasHolidays = false,
-  hasCustomDaysOff = false,
+  hasCompanyDaysOff = false,
   hasExtendedWeekends = false 
 }: CalendarLegendProps) {
   const legendItems: LegendItemProps[] = [
@@ -37,10 +37,10 @@ export function CalendarLegend({
       darkColor: "bg-amber-900/50",
       label: "Public Holiday"
     },
-    hasCustomDaysOff && {
+    hasCompanyDaysOff && {
       color: "bg-emerald-100",
       darkColor: "bg-emerald-900/50",
-      label: "Custom Day Off"
+      label: "Company Day Off"
     },
     hasExtendedWeekends && {
       color: "bg-violet-100",

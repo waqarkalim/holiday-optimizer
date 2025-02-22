@@ -1,6 +1,6 @@
 import { OptimizationStats } from '@/types';
 import StatCard from '@/components/features/components/StatCard';
-import { CalendarIcon, ClockIcon, StarIcon, SunIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, CheckCircleIcon, ClockIcon, StarIcon, SunIcon } from '@heroicons/react/24/outline';
 
 export function OptimizationStatsComponent({ stats }: { stats: OptimizationStats }) {
   return (
@@ -66,12 +66,12 @@ export function OptimizationStatsComponent({ stats }: { stats: OptimizationStats
               colorScheme="green"
             />
           )}
-          {stats.totalCustomDaysOff > 0 && (
+          {stats.totalCompanyDaysOff > 0 && (
             <StatCard
               icon={<ClockIcon className="w-4 h-4" />}
-              value={stats.totalCustomDaysOff}
-              label="Custom Days Off"
-              tooltip="Total number of upcoming custom days off scheduled"
+              value={stats.totalCompanyDaysOff}
+              label="Company Days Off"
+              tooltip="Total number of upcoming company days off scheduled"
               colorScheme="emerald"
             />
           )}

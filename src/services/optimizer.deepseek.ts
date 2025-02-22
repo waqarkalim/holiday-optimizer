@@ -29,7 +29,7 @@ import {
 } from './optimizer.constants';
 import {
   Break,
-  CustomDayOff,
+  CompanyDayOff,
   OptimizationParams,
   OptimizationResult,
   OptimizationStats,
@@ -76,8 +76,8 @@ interface DayInfo {
   publicHolidayName?: string;
   isCTO: boolean;
   isPartOfBreak: boolean;
-  isCustomDayOff: boolean;
-  customDayName?: string;
+  isCompanyDayOff: boolean;
+  companyDayName?: string;
 }
 
 interface BreakCandidate {
@@ -110,7 +110,7 @@ const STRATEGY_MIN_DAYS: Record<OptimizationStrategy, number> = {
   balanced: BREAK_LENGTHS.LONG_WEEKEND.MIN,
 } as const;
 
-const CUSTOM_DAY_OFF_BONUS = 0.2; // 20% bonus per custom day off utilized
+const COMPANY_DAY_OFF_BONUS = 0.2; // 20% bonus per company day off utilized
 
 function getBreakLength(allDates: DayInfo[], index: number): number {
   let length = 1;
@@ -134,7 +134,7 @@ function getBreakLength(allDates: DayInfo[], index: number): number {
 
 function updateBreakStatus(allDates: DayInfo[], index: number): void {
   const day = allDates[index];
-  if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCustomDayOff) {
+  if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCompanyDayOff) {
     day.isPartOfBreak = false;
 
     // Check if this breaks a continuous break
@@ -156,7 +156,7 @@ function updateBreakStatus(allDates: DayInfo[], index: number): void {
 function validateBreakContinuity(allDates: DayInfo[], start: number, end: number): void {
   for (let i = start; i <= end; i++) {
     const day = allDates[i];
-    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCustomDayOff) {
+    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCompanyDayOff) {
       day.isPartOfBreak = false;
     }
   }
@@ -167,7 +167,7 @@ function findOptimalCTOPositions(allDates: DayInfo[]): number[] {
 
   for (let i = 0; i < allDates.length; i++) {
     const day = allDates[i];
-    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCustomDayOff) {
+    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCompanyDayOff) {
       const score = calculatePositionScore(allDates, i);
       if (score > 0) {
         candidates.push({ index: i, score });
@@ -251,32 +251,32 @@ function fixWeekendPairIntegrity(allDates: DayInfo[], saturdayIndex: number): vo
   }
 }
 
-function expandCustomDaysOff(customDaysOff: Array<CustomDayOff>): Array<{ date: Date, name: string }> {
+function expandCompanyDaysOff(companyDaysOff: Array<CompanyDayOff>): Array<{ date: Date, name: string }> {
   const expandedDays: Array<{ date: Date, name: string }> = [];
 
-  customDaysOff.forEach(customDay => {
-    if (customDay.isRecurring && customDay.startDate && customDay.endDate && customDay.weekday !== undefined) {
+  companyDaysOff.forEach(companyDay => {
+    if (companyDay.isRecurring && companyDay.startDate && companyDay.endDate && companyDay.weekday !== undefined) {
       // For recurring days, find all matching weekdays in the date range
-      const start = parseISO(customDay.startDate);
-      const end = parseISO(customDay.endDate);
+      const start = parseISO(companyDay.startDate);
+      const end = parseISO(companyDay.endDate);
 
       // Get all days in the interval
       const daysInRange = eachDayOfInterval({ start, end });
 
       // Filter for matching weekdays
       daysInRange.forEach(date => {
-        if (getDay(date) === customDay.weekday) {
+        if (getDay(date) === companyDay.weekday) {
           expandedDays.push({
             date,
-            name: customDay.name,
+            name: companyDay.name,
           });
         }
       });
     } else {
       // For non-recurring days, just add the single date
       expandedDays.push({
-        date: parseISO(customDay.date),
-        name: customDay.name,
+        date: parseISO(companyDay.date),
+        name: companyDay.name,
       });
     }
   });
@@ -296,38 +296,38 @@ function validateInputs(params: OptimizationParams): void {
     throw new Error('Year must be between current year and 5 years in the future');
   }
 
-  // Validate custom days off
-  if (params.customDaysOff) {
-    params.customDaysOff.forEach((day, index) => {
+  // Validate company days off
+  if (params.companyDaysOff) {
+    params.companyDaysOff.forEach((day, index) => {
       // Validate date format
       if (!day.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        throw new Error(`Invalid date format for custom day off at index ${index}`);
+        throw new Error(`Invalid date format for company day off at index ${index}`);
       }
 
       // Validate date is valid
       const date = parseISO(day.date);
       if (!isValid(date)) {
-        throw new Error(`Invalid date for custom day off at index ${index}`);
+        throw new Error(`Invalid date for company day off at index ${index}`);
       }
 
       // Validate recurring dates
       if (day.isRecurring) {
         if (!day.startDate || !day.endDate || day.weekday === undefined) {
-          throw new Error(`Missing recurring information for custom day off at index ${index}`);
+          throw new Error(`Missing recurring information for company day off at index ${index}`);
         }
         if (!day.startDate.match(/^\d{4}-\d{2}-\d{2}$/) || !day.endDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          throw new Error(`Invalid date format for recurring custom day off at index ${index}`);
+          throw new Error(`Invalid date format for recurring company day off at index ${index}`);
         }
         const startDate = parseISO(day.startDate);
         const endDate = parseISO(day.endDate);
         if (!isValid(startDate) || !isValid(endDate)) {
-          throw new Error(`Invalid date range for recurring custom day off at index ${index}`);
+          throw new Error(`Invalid date range for recurring company day off at index ${index}`);
         }
         if (isAfter(startDate, endDate)) {
-          throw new Error(`Start date must be before end date for recurring custom day off at index ${index}`);
+          throw new Error(`Start date must be before end date for recurring company day off at index ${index}`);
         }
         if (day.weekday < 0 || day.weekday > 6) {
-          throw new Error(`Invalid weekday for recurring custom day off at index ${index}`);
+          throw new Error(`Invalid weekday for recurring company day off at index ${index}`);
         }
       }
     });
@@ -362,7 +362,7 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
     strategy = 'balanced',
     year = new Date().getFullYear(),
     holidays = [],
-    customDaysOff = [],
+    companyDaysOff = [],
   } = params;
 
   // Use current date as start date if it's current year, otherwise use start of year
@@ -384,8 +384,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
     publicHolidayName: undefined,
     isCTO: false,
     isPartOfBreak: false,
-    isCustomDayOff: false,
-    customDayName: undefined,
+    isCompanyDayOff: false,
+    companyDayName: undefined,
   }));
 
   // Mark public holidays using the constant
@@ -395,22 +395,22 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
       .filter(h => isAfter(h.date, startDate) || isSameDay(h.date, startDate)),
   ];
 
-  // Expand and mark custom days off, filtering for future dates
-  const expandedCustomDays = expandCustomDaysOff(customDaysOff)
+  // Expand and mark company days off, filtering for future dates
+  const expandedCompanyDays = expandCompanyDaysOff(companyDaysOff)
     .filter(d => isAfter(d.date, startDate) || isSameDay(d.date, startDate));
 
   allDates.forEach(day => {
     const publicHoliday = PUBLIC_HOLIDAYS.find(h => isSameDay(h.date, day.date));
-    const customDay = expandedCustomDays.find(d => isSameDay(d.date, day.date));
+    const companyDay = expandedCompanyDays.find(d => isSameDay(d.date, day.date));
 
     if (publicHoliday) {
       day.isPublicHoliday = true;
       day.publicHolidayName = publicHoliday.name;
     }
-    if (customDay) {
-      day.isCustomDayOff = true;
-      day.customDayName = customDay.name;
-      day.isPartOfBreak = true; // Custom days off should be part of breaks by default
+    if (companyDay) {
+      day.isCompanyDayOff = true;
+      day.companyDayName = companyDay.name;
+      day.isPartOfBreak = true; // Company days off should be part of breaks by default
     }
   });
 
@@ -455,8 +455,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
             publicHolidayName: d.publicHolidayName,
             isCTO: d.isCTO,
             isPartOfBreak: d.isPartOfBreak,
-            isCustomDayOff: d.isCustomDayOff,
-            customDayName: d.customDayName,
+            isCompanyDayOff: d.isCompanyDayOff,
+            companyDayName: d.companyDayName,
           }));
           splitDiscontinuousBreak(workingDates, breakPeriod);
 
@@ -472,8 +472,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
               isPartOfBreak: d.isPartOfBreak,
               isPublicHoliday: d.isPublicHoliday,
               publicHolidayName: d.publicHolidayName,
-              isCustomDayOff: d.isCustomDayOff,
-              customDayName: d.customDayName,
+              isCompanyDayOff: d.isCompanyDayOff,
+              companyDayName: d.companyDayName,
             })),
             breaks,
             stats,
@@ -491,8 +491,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
       publicHolidayName: d.publicHolidayName,
       isCTO: d.isCTO,
       isPartOfBreak: d.isPartOfBreak,
-      isCustomDayOff: d.isCustomDayOff,
-      customDayName: d.customDayName,
+      isCompanyDayOff: d.isCompanyDayOff,
+      companyDayName: d.companyDayName,
     }));
 
     for (let i = 0; i < workingDates.length - 1; i++) {
@@ -520,8 +520,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
           isPartOfBreak: d.isPartOfBreak,
           isPublicHoliday: d.isPublicHoliday,
           publicHolidayName: d.publicHolidayName,
-          isCustomDayOff: d.isCustomDayOff,
-          customDayName: d.customDayName,
+          isCompanyDayOff: d.isCompanyDayOff,
+          companyDayName: d.companyDayName,
         })),
         breaks,
         stats,
@@ -546,8 +546,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
         publicHolidayName: d.publicHolidayName,
         isCTO: d.isCTO,
         isPartOfBreak: d.isPartOfBreak,
-        isCustomDayOff: d.isCustomDayOff,
-        customDayName: d.customDayName,
+        isCompanyDayOff: d.isCompanyDayOff,
+        companyDayName: d.companyDayName,
       }));
 
       // Remove CTO days that have the least impact
@@ -565,8 +565,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
           isPartOfBreak: d.isPartOfBreak,
           isPublicHoliday: d.isPublicHoliday,
           publicHolidayName: d.publicHolidayName,
-          isCustomDayOff: d.isCustomDayOff,
-          customDayName: d.customDayName,
+          isCompanyDayOff: d.isCompanyDayOff,
+          companyDayName: d.companyDayName,
         })),
         breaks,
         stats,
@@ -585,8 +585,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
         publicHolidayName: d.publicHolidayName,
         isCTO: d.isCTO,
         isPartOfBreak: d.isPartOfBreak,
-        isCustomDayOff: d.isCustomDayOff,
-        customDayName: d.customDayName,
+        isCompanyDayOff: d.isCompanyDayOff,
+        companyDayName: d.companyDayName,
       }));
 
       // Add CTO days in optimal positions
@@ -604,8 +604,8 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
           isPartOfBreak: d.isPartOfBreak,
           isPublicHoliday: d.isPublicHoliday,
           publicHolidayName: d.publicHolidayName,
-          isCustomDayOff: d.isCustomDayOff,
-          customDayName: d.customDayName,
+          isCompanyDayOff: d.isCompanyDayOff,
+          companyDayName: d.companyDayName,
         })),
         breaks,
         stats,
@@ -651,14 +651,14 @@ function calculateCTODayEffectiveness(allDates: DayInfo[], index: number): numbe
   const breakLength = getBreakLength(allDates, index);
   score += breakLength * SCORING_MULTIPLIERS.BREAK_LENGTH_BONUS;
 
-  // Check if it's adjacent to weekends, holidays, or custom days off
+  // Check if it's adjacent to weekends, holidays, or company days off
   const prevDay = index > 0 ? allDates[index - 1] : null;
   const nextDay = index < allDates.length - 1 ? allDates[index + 1] : null;
 
-  if (prevDay?.isWeekend || prevDay?.isPublicHoliday || prevDay?.isCustomDayOff) {
+  if (prevDay?.isWeekend || prevDay?.isPublicHoliday || prevDay?.isCompanyDayOff) {
     score += SCORING_MULTIPLIERS.ADJACENT_DAY_BONUS;
   }
-  if (nextDay?.isWeekend || nextDay?.isPublicHoliday || nextDay?.isCustomDayOff) {
+  if (nextDay?.isWeekend || nextDay?.isPublicHoliday || nextDay?.isCompanyDayOff) {
     score += SCORING_MULTIPLIERS.ADJACENT_DAY_BONUS;
   }
 
@@ -711,7 +711,7 @@ function findSuboptimalCTOPositions(allDates: DayInfo[], strategy: OptimizationS
     .filter(({ day }) =>
       !day.isWeekend &&
       !day.isPublicHoliday &&
-      !day.isCustomDayOff &&
+      !day.isCompanyDayOff &&
       !day.isCTO,
     )
     .map(({ index }) => ({
@@ -754,11 +754,11 @@ function calculateSuboptimalPositionScore(allDates: DayInfo[], index: number, st
       break;
   }
 
-  // Add bonus for adjacent custom days off
-  if (index > 0 && allDates[index - 1].isCustomDayOff) {
+  // Add bonus for adjacent company days off
+  if (index > 0 && allDates[index - 1].isCompanyDayOff) {
     score *= SCORING_MULTIPLIERS.ADJACENT_BONUS;
   }
-  if (index < allDates.length - 1 && allDates[index + 1].isCustomDayOff) {
+  if (index < allDates.length - 1 && allDates[index + 1].isCompanyDayOff) {
     score *= SCORING_MULTIPLIERS.ADJACENT_BONUS;
   }
 
@@ -804,8 +804,8 @@ function performInitialOptimization(
       isPartOfBreak: d.isPartOfBreak,
       isPublicHoliday: d.isPublicHoliday,
       publicHolidayName: d.publicHolidayName,
-      isCustomDayOff: d.isCustomDayOff,
-      customDayName: d.customDayName,
+      isCompanyDayOff: d.isCompanyDayOff,
+      companyDayName: d.companyDayName,
     })),
     breaks,
     stats,
@@ -818,7 +818,7 @@ function calculateBreaks(allDates: DayInfo[]): Break[] {
   let hasCTOInSequence = false;
 
   allDates.forEach((day, index) => {
-    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCustomDayOff;
+    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCompanyDayOff;
     if (isOffDay) {
       if (!currentBreak) {
         currentBreak = { start: index, end: index };
@@ -850,7 +850,7 @@ function calculateBreaks(allDates: DayInfo[]): Break[] {
     
     const publicHolidays = daysInBreak.filter(d => d.isPublicHoliday).length;
     const weekends = daysInBreak.filter(d => d.isWeekend).length;
-    const customDaysOff = daysInBreak.filter(d => d.isCustomDayOff).length;
+    const companyDaysOff = daysInBreak.filter(d => d.isCompanyDayOff).length;
 
     return {
       startDate: allDates[br.start].dateStr,
@@ -862,14 +862,14 @@ function calculateBreaks(allDates: DayInfo[]): Break[] {
         isPartOfBreak: true,
         isPublicHoliday: d.isPublicHoliday,
         publicHolidayName: d.publicHolidayName,
-        isCustomDayOff: d.isCustomDayOff,
-        customDayName: d.customDayName,
+        isCompanyDayOff: d.isCompanyDayOff,
+        companyDayName: d.companyDayName,
       })),
       totalDays: daysInBreak.length,
       ctoDays,
       publicHolidays,
       weekends,
-      customDaysOff,
+      companyDaysOff,
     };
   }).filter(Boolean) as Break[];  // Filter out any null entries
 }
@@ -883,7 +883,7 @@ function calculateStats(
   let hasCTOInCurrentBreak = false;
 
   allDates.forEach((day, index) => {
-    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCustomDayOff;
+    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCompanyDayOff;
     if (isOffDay) {
       if (!currentBreak) {
         currentBreak = { start: index, end: index };
@@ -913,8 +913,8 @@ function calculateStats(
   // Count all public holidays in the year
   const totalPublicHolidays = allDates.filter(d => d.isPublicHoliday).length;
 
-  // Count all custom days off regardless of breaks
-  const totalCustomDaysOff = allDates.filter(d => d.isCustomDayOff).length;
+  // Count all company days off regardless of breaks
+  const totalCompanyDaysOff = allDates.filter(d => d.isCompanyDayOff).length;
 
   // Count total days off (sum of days in each break)
   const totalDaysOff = breaks.reduce((total, br) => {
@@ -953,7 +953,7 @@ function calculateStats(
     totalPublicHolidays,
     totalNormalWeekends,
     totalExtendedWeekends,
-    totalCustomDaysOff,
+    totalCompanyDaysOff,
     totalDaysOff,
   };
 }
@@ -967,7 +967,7 @@ function generateCandidates(allDates: DayInfo[], offBlocks: BreakPeriod[]): Brea
     // Extend before
     if (block.start > 0) {
       const prevDay = block.start - 1;
-      if (!allDates[prevDay].isWeekend && !allDates[prevDay].isPublicHoliday && !allDates[prevDay].isCustomDayOff) {
+      if (!allDates[prevDay].isWeekend && !allDates[prevDay].isPublicHoliday && !allDates[prevDay].isCompanyDayOff) {
         const ctoDays = 1;
         const totalDays = (block.end - prevDay + 1);
         candidates.push({
@@ -982,7 +982,7 @@ function generateCandidates(allDates: DayInfo[], offBlocks: BreakPeriod[]): Brea
     // Extend after
     if (block.end < allDates.length - 1) {
       const nextDay = block.end + 1;
-      if (!allDates[nextDay].isWeekend && !allDates[nextDay].isPublicHoliday && !allDates[nextDay].isCustomDayOff) {
+      if (!allDates[nextDay].isWeekend && !allDates[nextDay].isPublicHoliday && !allDates[nextDay].isCompanyDayOff) {
         const ctoDays = 1;
         const totalDays = (nextDay - block.start + 1);
         candidates.push({
@@ -1007,7 +1007,7 @@ function generateCandidates(allDates: DayInfo[], offBlocks: BreakPeriod[]): Brea
 
     let isAllWorkdays = true;
     for (let j = gapStart; j <= gapEnd; j++) {
-      if (allDates[j].isWeekend || allDates[j].isPublicHoliday || allDates[j].isCustomDayOff) {
+      if (allDates[j].isWeekend || allDates[j].isPublicHoliday || allDates[j].isCompanyDayOff) {
         isAllWorkdays = false;
         break;
       }
@@ -1055,16 +1055,16 @@ function selectCandidates(
     numberOfDays,
     strategy,
     year: allDates[0].date.getFullYear(),
-    customDaysOff: allDates
-      .filter(d => d.isCustomDayOff)
+    companyDaysOff: allDates
+      .filter(d => d.isCompanyDayOff)
       .map(d => ({
         date: d.dateStr,
-        name: d.customDayName || 'Custom Day Off',
+        name: d.companyDayName || 'Company Day Off',
         isRecurring: false
       }))
   };
   
-  const targetDistribution = calculateTargetDistribution(params.numberOfDays, params.strategy, params.customDaysOff, timeContext);
+  const targetDistribution = calculateTargetDistribution(params.numberOfDays, params.strategy, params.companyDaysOff, timeContext);
   
   const currentDistribution = {
     longWeekends: 0,
@@ -1194,7 +1194,7 @@ function countWorkdaysBetween(allDates: DayInfo[], start: number, end: number): 
   for (let i = start; i <= end; i++) {
     if (!allDates[i].isWeekend && 
         !allDates[i].isPublicHoliday && 
-        !allDates[i].isCustomDayOff &&
+        !allDates[i].isCompanyDayOff &&
         !allDates[i].isCTO) {
       count++;
     }
@@ -1205,13 +1205,13 @@ function countWorkdaysBetween(allDates: DayInfo[], start: number, end: number): 
 function calculateTargetDistribution(
   numberOfDays: number,
   strategy: OptimizationStrategy,
-  customDaysOff: Array<CustomDayOff>,
+  companyDaysOff: Array<CompanyDayOff>,
   timeContext: TimeContext,
 ): BreakDistribution {
   let weights = { ...DISTRIBUTION_WEIGHTS };
   
-  // Analyze custom days off pattern
-  const pattern = analyzeCustomDayOffPattern(customDaysOff);
+  // Analyze company days off pattern
+  const pattern = analyzeCompanyDayOffPattern(companyDaysOff);
   
   // Adjust weights based on remaining time in year
   if (timeContext.isPartialYear) {
@@ -1238,7 +1238,7 @@ function calculateTargetDistribution(
     }
   }
   
-  // Adjust weights based on custom days off pattern
+  // Adjust weights based on company days off pattern
   if (pattern.hasRecurring) {
     const weekdayCount = pattern.weekdayPattern.filter(Boolean).length;
     
@@ -1363,11 +1363,11 @@ function calculateStrategyScore(
   let score = candidate.efficiency * EFFICIENCY_SCORING.MAX_MULTIPLIER;
   const length = candidate.length;
 
-  // Add bonus for utilizing custom days off
-  const customDaysOffUtilized = candidate.days.filter(day => 
-    allDates[day].isCustomDayOff).length;
-  if (customDaysOffUtilized > 0) {
-    score *= (1 + (customDaysOffUtilized * CUSTOM_DAY_OFF_BONUS));
+  // Add bonus for utilizing company days off
+  const companyDaysOffUtilized = candidate.days.filter(day => 
+    allDates[day].isCompanyDayOff).length;
+  if (companyDaysOffUtilized > 0) {
+    score *= (1 + (companyDaysOffUtilized * COMPANY_DAY_OFF_BONUS));
   }
 
   // Base length-based scoring
@@ -1445,7 +1445,7 @@ function calculateStrategyScore(
       break;
   }
 
-  // Apply seasonal weights with custom day off consideration
+  // Apply seasonal weights with company day off consideration
   const month = new Date(allDates[candidate.days[0]].date).getMonth();
   const seasonalWeight = getSeasonalWeight(month);
   score *= seasonalWeight;
@@ -1625,19 +1625,19 @@ function createLongWeekend(usedDays: Set<number>, allDates: DayInfo[]): BreakCan
     if ((dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) && // Monday or Friday
       !allDates[i].isWeekend &&
       !allDates[i].isPublicHoliday &&
-      !allDates[i].isCustomDayOff) {
+      !allDates[i].isCompanyDayOff) {
 
       // Check if this would create a long weekend
       if (dayOfWeek === DAYS.FRIDAY) { // Friday
         if (i + 2 < allDates.length &&
-          (allDates[i + 1].isWeekend || allDates[i + 1].isCustomDayOff) &&
-          (allDates[i + 2].isWeekend || allDates[i + 2].isCustomDayOff)) {
+          (allDates[i + 1].isWeekend || allDates[i + 1].isCompanyDayOff) &&
+          (allDates[i + 2].isWeekend || allDates[i + 2].isCompanyDayOff)) {
           potentialDays.push(i);
         }
       } else { // Monday
         if (i >= 2 &&
-          (allDates[i - 1].isWeekend || allDates[i - 1].isCustomDayOff) &&
-          (allDates[i - 2].isWeekend || allDates[i - 2].isCustomDayOff)) {
+          (allDates[i - 1].isWeekend || allDates[i - 1].isCompanyDayOff) &&
+          (allDates[i - 2].isWeekend || allDates[i - 2].isCompanyDayOff)) {
           potentialDays.push(i);
         }
       }
@@ -1678,7 +1678,7 @@ function createWeekLongBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakC
       if (usedDays.has(currentIndex) ||
         day.isWeekend ||
         day.isPublicHoliday ||
-        day.isCustomDayOff) {
+        day.isCompanyDayOff) {
         isValidSequence = false;
         break;
       }
@@ -1691,7 +1691,7 @@ function createWeekLongBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakC
       while (currentIndex < allDates.length &&
         (allDates[currentIndex].isWeekend ||
          allDates[currentIndex].isPublicHoliday ||
-         allDates[currentIndex].isCustomDayOff)) {
+         allDates[currentIndex].isCompanyDayOff)) {
         currentIndex++;
       }
     }
@@ -1705,7 +1705,7 @@ function createWeekLongBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakC
       while (startIdx > 0 && 
         (allDates[startIdx - 1].isWeekend || 
          allDates[startIdx - 1].isPublicHoliday ||
-         allDates[startIdx - 1].isCustomDayOff)) {
+         allDates[startIdx - 1].isCompanyDayOff)) {
         startIdx--;
         sequenceDays.unshift(startIdx);
       }
@@ -1714,7 +1714,7 @@ function createWeekLongBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakC
       while (endIdx < allDates.length - 1 && 
         (allDates[endIdx + 1].isWeekend ||
          allDates[endIdx + 1].isPublicHoliday ||
-         allDates[endIdx + 1].isCustomDayOff)) {
+         allDates[endIdx + 1].isCompanyDayOff)) {
         endIdx++;
         sequenceDays.push(endIdx);
       }
@@ -1754,7 +1754,7 @@ function createExtendedBreak(usedDays: Set<number>, maxLength: number, allDates:
       sequence.push(currentIndex);
       totalDays++;
 
-      if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff) {
+      if (!day.isWeekend && !day.isPublicHoliday && !day.isCompanyDayOff) {
         ctoDaysUsed++;
       }
 
@@ -1793,7 +1793,7 @@ function createStandaloneDay(usedDays: Set<number>, allDates: DayInfo[]): BreakC
     if (usedDays.has(i)) continue;
 
     const day = allDates[i];
-    if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff) {
+    if (!day.isWeekend && !day.isPublicHoliday && !day.isCompanyDayOff) {
       const dayOfWeek = day.date.getDay();
       let score = 0;
 
@@ -1805,11 +1805,11 @@ function createStandaloneDay(usedDays: Set<number>, allDates: DayInfo[]): BreakC
         score += SCORING_MULTIPLIERS.SECONDARY_POSITION_BONUS;
       }
 
-      // Bonus for adjacent weekends/holidays/custom days off
-      if (i > 0 && (allDates[i - 1].isWeekend || allDates[i - 1].isPublicHoliday || allDates[i - 1].isCustomDayOff)) {
+      // Bonus for adjacent weekends/holidays/company days off
+      if (i > 0 && (allDates[i - 1].isWeekend || allDates[i - 1].isPublicHoliday || allDates[i - 1].isCompanyDayOff)) {
         score += SCORING_MULTIPLIERS.ADJACENT_BONUS;
       }
-      if (i < allDates.length - 1 && (allDates[i + 1].isWeekend || allDates[i + 1].isPublicHoliday || allDates[i + 1].isCustomDayOff)) {
+      if (i < allDates.length - 1 && (allDates[i + 1].isWeekend || allDates[i + 1].isPublicHoliday || allDates[i + 1].isCompanyDayOff)) {
         score += SCORING_MULTIPLIERS.ADJACENT_BONUS;
       }
 
@@ -1839,7 +1839,7 @@ function generateOffBlocks(allDates: DayInfo[]): BreakPeriod[] {
   let currentBlock: BreakPeriod | null = null;
 
   allDates.forEach((day, index) => {
-    if (day.isWeekend || day.isPublicHoliday || day.isCustomDayOff || day.isCTO) {
+    if (day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff || day.isCTO) {
       if (!currentBlock) {
         currentBlock = { start: index, end: index, days: [index] };
       } else {
@@ -1862,7 +1862,7 @@ function applySelectedBreaks(allDates: DayInfo[], selectedBreaks: BreakCandidate
   // First, mark CTO days
   selectedBreaks.forEach(break_ => {
     break_.days.forEach(day => {
-      if (!allDates[day].isWeekend && !allDates[day].isPublicHoliday && !allDates[day].isCustomDayOff) {
+      if (!allDates[day].isWeekend && !allDates[day].isPublicHoliday && !allDates[day].isCompanyDayOff) {
         allDates[day].isCTO = true;
       }
     });
@@ -1874,7 +1874,7 @@ function applySelectedBreaks(allDates: DayInfo[], selectedBreaks: BreakCandidate
 
   for (let i = 0; i < allDates.length; i++) {
     const day = allDates[i];
-    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCustomDayOff;
+    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCompanyDayOff;
 
     if (isOffDay) {
       currentSequence.push(i);
@@ -1907,7 +1907,7 @@ function createMiniBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakCandi
       !usedDays.has(index) &&
       !day.isWeekend &&
       !day.isPublicHoliday &&
-      !day.isCustomDayOff
+      !day.isCompanyDayOff
     )
     .map(({ index }) => ({
       index,
@@ -1931,7 +1931,7 @@ function createMiniBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakCandi
         break;
       }
       
-      if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff) {
+      if (!day.isWeekend && !day.isPublicHoliday && !day.isCompanyDayOff) {
         consecutiveWorkdays++;
         if (consecutiveWorkdays > 3) { // Don't want too many consecutive workdays
           break;
@@ -1974,14 +1974,14 @@ function calculateMiniBreakStartScore(allDates: DayInfo[], index: number): numbe
     score *= POSITION_BONUSES.MONDAY_FRIDAY;
   }
   
-  // Prefer positions near existing custom days off or holidays
+  // Prefer positions near existing company days off or holidays
   const nearbyDays = [-2, -1, 1, 2];
   for (const offset of nearbyDays) {
     const nearbyIndex = index + offset;
     if (nearbyIndex >= 0 && nearbyIndex < allDates.length) {
       const nearbyDay = allDates[nearbyIndex];
-      if (nearbyDay.isCustomDayOff || nearbyDay.isPublicHoliday) {
-        score *= 1.2; // 20% bonus for each nearby holiday/custom day off
+      if (nearbyDay.isCompanyDayOff || nearbyDay.isPublicHoliday) {
+        score *= 1.2; // 20% bonus for each nearby holiday/company day off
       }
     }
   }
@@ -2007,23 +2007,23 @@ function calculateMiniBreakEfficiency(allDates: DayInfo[], sequenceDays: number[
   return efficiency;
 }
 
-interface CustomDayOffPattern {
+interface CompanyDayOffPattern {
   weekdayPattern: boolean[];  // Array of 7 booleans representing weekday patterns
   monthlyPattern: boolean[];  // Array of 12 booleans representing monthly patterns
   hasRecurring: boolean;
 }
 
-function analyzeCustomDayOffPattern(customDaysOff: Array<CustomDayOff>): CustomDayOffPattern {
+function analyzeCompanyDayOffPattern(companyDaysOff: Array<CompanyDayOff>): CompanyDayOffPattern {
   const weekdayPattern = Array(7).fill(false);
   const monthlyPattern = Array(12).fill(false);
   let hasRecurring = false;
 
-  customDaysOff.forEach(customDay => {
-    if (customDay.isRecurring && customDay.weekday !== undefined) {
-      weekdayPattern[customDay.weekday] = true;
+  companyDaysOff.forEach(companyDay => {
+    if (companyDay.isRecurring && companyDay.weekday !== undefined) {
+      weekdayPattern[companyDay.weekday] = true;
       hasRecurring = true;
     } else {
-      const date = parseISO(customDay.date);
+      const date = parseISO(companyDay.date);
       weekdayPattern[date.getDay()] = true;
       monthlyPattern[date.getMonth()] = true;
     }

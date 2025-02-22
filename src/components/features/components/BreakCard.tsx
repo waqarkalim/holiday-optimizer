@@ -123,7 +123,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
             </p>
           </div>
         )}
-        {breakPeriod.customDaysOff > 0 && (
+        {breakPeriod.companyDaysOff > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
               <svg
@@ -135,10 +135,10 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.customDaysOff}</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.companyDaysOff}</span>
             </div>
             <p className="text-[10px] text-gray-500 dark:text-gray-400">
-              {breakPeriod.customDaysOff === 1 ? 'Custom Day Off' : 'Custom Days Off'}
+              {breakPeriod.companyDaysOff === 1 ? 'Company Day Off' : 'Company Days Off'}
             </p>
           </div>
         )}
@@ -178,7 +178,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
                     'h-1.5 flex-1 rounded-sm relative group cursor-help',
                     day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
                       day.isPublicHoliday ? 'bg-amber-500 dark:bg-amber-400' :
-                        day.isCustomDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
+                        day.isCompanyDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
                           day.isWeekend ? 'bg-violet-500 dark:bg-violet-400' :
                             'bg-gray-200 dark:bg-gray-700',
                   )}
@@ -187,7 +187,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
               <TooltipContent>
                 <p className="text-xs">{`${format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d')} - ${day.isCTO ? 'CTO Day' :
                   day.isPublicHoliday ? day.publicHolidayName || 'Holiday' :
-                    day.isCustomDayOff ? day.customDayName || 'Custom Day Off' :
+                    day.isCompanyDayOff ? day.companyDayName || 'Company Day Off' :
                       day.isWeekend ? 'Weekend' : 'Work Day'
                 }`}</p>
               </TooltipContent>
