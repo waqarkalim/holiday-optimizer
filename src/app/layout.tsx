@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -45,6 +46,7 @@ export default function RootLayout({
           <Footer />
         </div>
       </TooltipProvider>
+      <Toaster richColors closeButton position="bottom-right" />
     </ThemeProvider>
     </body>
     </html>

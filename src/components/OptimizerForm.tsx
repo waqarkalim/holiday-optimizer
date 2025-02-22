@@ -17,6 +17,9 @@ import {
   removeStoredCustomDay,
   storeCustomDay,
 } from '@/lib/storage/customDays';
+import { detectPublicHolidays } from '@/services/holidays';
+import { toast } from 'sonner';
+import { MapPin } from 'lucide-react';
 
 interface OptimizerFormProps {
   onSubmit: (data: {
@@ -139,6 +142,22 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
       };
       dispatch({ type: 'ADD_HOLIDAY', payload: holiday });
       storeHoliday(holiday);
+    }
+  };
+
+  const handleAutoDetectHolidays = async () => {
+    try {
+      const detectedHolidays = await detectPublicHolidays();
+      dispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: detectedHolidays });
+      
+      toast.success('Holidays detected', {
+        description: `Found ${detectedHolidays.length} public holidays for your location.`,
+      });
+    } catch (error) {
+      console.error('Error detecting holidays:', error);
+      toast.error('Error detecting holidays', {
+        description: error instanceof Error ? error.message : "Failed to detect holidays for your location.",
+      });
     }
   };
 
@@ -296,14 +315,26 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
               aria-labelledby="holidays-heading"
             >
               <header className="mb-4">
-                <h2 id="holidays-heading"
-                    className="text-xs font-medium text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                  <span
-                    className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900 text-[10px] font-medium text-amber-900 dark:text-amber-100">3</span>
-                  Include Public Holidays
-                </h2>
-                <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  Mark the holidays that apply to you. We&apos;ll optimize around these to maximize your extended breaks.
+                <div className="flex items-center justify-between mb-1">
+                  <h2 id="holidays-heading"
+                      className="text-xs font-medium text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                    <span
+                      className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900 text-[10px] font-medium text-amber-900 dark:text-amber-100">3</span>
+                    Include Public Holidays
+                  </h2>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs gap-1.5 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-900/30"
+                    onClick={handleAutoDetectHolidays}
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    Auto-detect
+                  </Button>
+                </div>
+                <p className="text-[10px] text-gray-600 dark:text-gray-300">
+                  Mark the holidays that apply to you or use auto-detect. We&apos;ll optimize around these to maximize your extended breaks.
                 </p>
               </header>
 

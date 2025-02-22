@@ -34,6 +34,7 @@ type OptimizerAction =
   | { type: 'TOGGLE_DATE'; payload: Date }
   | { type: 'CLEAR_HOLIDAYS' }
   | { type: 'CLEAR_CUSTOM_DAYS' }
+  | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string, name: string }> }
 
 const initialState: OptimizerState = {
   days: "",
@@ -171,8 +172,30 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       };
     }
 
+    case 'SET_DETECTED_HOLIDAYS': {
+      // Filter out any holidays that are already in the list
+      const newHolidays = action.payload.filter(
+        newHoliday => !state.holidays.some(
+          existingHoliday => existingHoliday.date === newHoliday.date
+        )
+      );
+
+      // Add new holidays and update selectedDates
+      const updatedHolidays = [...state.holidays, ...newHolidays];
+      const updatedSelectedDates = [
+        ...state.selectedDates,
+        ...newHolidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()))
+      ];
+
+      return {
+        ...state,
+        holidays: updatedHolidays,
+        selectedDates: updatedSelectedDates
+      };
+    }
+
     default: {
-      return state
+      return state;
     }
   }
 }
