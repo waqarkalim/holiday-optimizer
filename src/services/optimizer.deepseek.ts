@@ -11,6 +11,8 @@ import {
   isWeekend,
   parseISO,
   startOfYear,
+  startOfToday,
+  differenceInDays,
 } from 'date-fns';
 import {
   BALANCED_DISTRIBUTION,
@@ -108,6 +110,8 @@ const STRATEGY_MIN_DAYS: Record<OptimizationStrategy, number> = {
   balanced: BREAK_LENGTHS.LONG_WEEKEND.MIN,
 } as const;
 
+const CUSTOM_DAY_OFF_BONUS = 0.2; // 20% bonus per custom day off utilized
+
 function getBreakLength(allDates: DayInfo[], index: number): number {
   let length = 1;
   let start = index;
@@ -130,7 +134,7 @@ function getBreakLength(allDates: DayInfo[], index: number): number {
 
 function updateBreakStatus(allDates: DayInfo[], index: number): void {
   const day = allDates[index];
-  if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend) {
+  if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCustomDayOff) {
     day.isPartOfBreak = false;
 
     // Check if this breaks a continuous break
@@ -152,7 +156,7 @@ function updateBreakStatus(allDates: DayInfo[], index: number): void {
 function validateBreakContinuity(allDates: DayInfo[], start: number, end: number): void {
   for (let i = start; i <= end; i++) {
     const day = allDates[i];
-    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend) {
+    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCustomDayOff) {
       day.isPartOfBreak = false;
     }
   }
@@ -163,7 +167,7 @@ function findOptimalCTOPositions(allDates: DayInfo[]): number[] {
 
   for (let i = 0; i < allDates.length; i++) {
     const day = allDates[i];
-    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend) {
+    if (!day.isCTO && !day.isPublicHoliday && !day.isWeekend && !day.isCustomDayOff) {
       const score = calculatePositionScore(allDates, i);
       if (score > 0) {
         candidates.push({ index: i, score });
@@ -361,9 +365,17 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
     customDaysOff = [],
   } = params;
 
-  // Preprocess all dates for the year
-  const startDate = startOfYear(new Date(year, 0));
+  // Use current date as start date if it's current year, otherwise use start of year
+  const today = startOfToday();
+  const currentYear = today.getFullYear();
+  const startDate = year === currentYear ? today : startOfYear(new Date(year, 0));
   const endDate = endOfYear(new Date(year, 0));
+  
+  // Calculate remaining days in year
+  const daysRemaining = differenceInDays(endDate, startDate) + 1;
+  const yearProgress = 1 - (daysRemaining / 365);
+
+  // Preprocess all dates for the remaining year
   const allDates: DayInfo[] = eachDayOfInterval({ start: startDate, end: endDate }).map(d => ({
     date: d,
     dateStr: formatISO(d, { representation: 'date' }),
@@ -378,15 +390,20 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
 
   // Mark public holidays using the constant
   const PUBLIC_HOLIDAYS: Holiday[] = [
-    ...OPTIMIZATION_CONSTANTS.PUBLIC_HOLIDAYS.map(h => ({
-      date: parseISO(`${year}-${String(h.month).padStart(2, '0')}-${String(h.day).padStart(2, '0')}`),
-      name: h.name
-    })),
-    ...holidays.map(h => ({ date: parseISO(h.date), name: h.name })),
+    ...OPTIMIZATION_CONSTANTS.PUBLIC_HOLIDAYS
+      .map(h => ({
+        date: parseISO(`${year}-${String(h.month).padStart(2, '0')}-${String(h.day).padStart(2, '0')}`),
+        name: h.name
+      }))
+      .filter(h => isAfter(h.date, startDate) || isSameDay(h.date, startDate)),
+    ...holidays
+      .map(h => ({ date: parseISO(h.date), name: h.name }))
+      .filter(h => isAfter(h.date, startDate) || isSameDay(h.date, startDate)),
   ];
 
-  // Expand and mark custom days off
-  const expandedCustomDays = expandCustomDaysOff(customDaysOff);
+  // Expand and mark custom days off, filtering for future dates
+  const expandedCustomDays = expandCustomDaysOff(customDaysOff)
+    .filter(d => isAfter(d.date, startDate) || isSameDay(d.date, startDate));
 
   allDates.forEach(day => {
     const publicHoliday = PUBLIC_HOLIDAYS.find(h => isSameDay(h.date, day.date));
@@ -403,8 +420,15 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
     }
   });
 
-  // First optimization pass
-  const initialResult = performInitialOptimization(allDates, numberOfDays, strategy);
+  // Pass time remaining info to key functions
+  const timeContext = {
+    daysRemaining,
+    yearProgress,
+    isPartialYear: year === currentYear,
+  };
+
+  // First optimization pass with time context
+  const initialResult = performInitialOptimization(allDates, numberOfDays, strategy, timeContext);
 
   // Validation and correction passes
   let currentResult = initialResult;
@@ -633,7 +657,7 @@ function calculateCTODayEffectiveness(allDates: DayInfo[], index: number): numbe
   const breakLength = getBreakLength(allDates, index);
   score += breakLength * SCORING_MULTIPLIERS.BREAK_LENGTH_BONUS;
 
-  // Check if it's adjacent to weekends or holidays
+  // Check if it's adjacent to weekends, holidays, or custom days off
   const prevDay = index > 0 ? allDates[index - 1] : null;
   const nextDay = index < allDates.length - 1 ? allDates[index + 1] : null;
 
@@ -736,6 +760,14 @@ function calculateSuboptimalPositionScore(allDates: DayInfo[], index: number, st
       break;
   }
 
+  // Add bonus for adjacent custom days off
+  if (index > 0 && allDates[index - 1].isCustomDayOff) {
+    score *= SCORING_MULTIPLIERS.ADJACENT_BONUS;
+  }
+  if (index < allDates.length - 1 && allDates[index + 1].isCustomDayOff) {
+    score *= SCORING_MULTIPLIERS.ADJACENT_BONUS;
+  }
+
   return score;
 }
 
@@ -759,10 +791,11 @@ function performInitialOptimization(
   allDates: DayInfo[],
   numberOfDays: number,
   strategy: OptimizationStrategy,
+  timeContext: TimeContext
 ): OptimizationResult {
   const offBlocks = generateOffBlocks(allDates);
   const candidates = generateCandidates(allDates, offBlocks);
-  const selectedBreaks = selectCandidates(candidates, numberOfDays, strategy, allDates);
+  const selectedBreaks = selectCandidates(candidates, numberOfDays, strategy, allDates, timeContext);
 
   applySelectedBreaks(allDates, selectedBreaks);
 
@@ -788,34 +821,39 @@ function performInitialOptimization(
 function calculateBreaks(allDates: DayInfo[]): Break[] {
   const breaks: BreakPeriod[] = [];
   let currentBreak: BreakPeriod | null = null;
-  let hasCTOInCurrentBreak = false;
+  let hasCTOInSequence = false;
 
   allDates.forEach((day, index) => {
     const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCustomDayOff;
     if (isOffDay) {
       if (!currentBreak) {
         currentBreak = { start: index, end: index };
-        hasCTOInCurrentBreak = day.isCTO;
+        hasCTOInSequence = hasCTOInSequence || day.isCTO;  // Only CTO days count
       } else {
         currentBreak.end = index;
-        hasCTOInCurrentBreak = hasCTOInCurrentBreak || day.isCTO;
+        hasCTOInSequence = hasCTOInSequence || day.isCTO;  // Only CTO days count
       }
     } else {
-      if (currentBreak && hasCTOInCurrentBreak) {
+      if (currentBreak && hasCTOInSequence) {  // Only push if there's at least one CTO day
         breaks.push(currentBreak);
       }
       currentBreak = null;
-      hasCTOInCurrentBreak = false;
+      hasCTOInSequence = false;
     }
   });
 
-  if (currentBreak && hasCTOInCurrentBreak) {
+  // Handle last sequence
+  if (currentBreak && hasCTOInSequence) {  // Only push if there's at least one CTO day
     breaks.push(currentBreak);
   }
 
   return breaks.map(br => {
     const daysInBreak = allDates.slice(br.start, br.end + 1);
     const ctoDays = daysInBreak.filter(d => d.isCTO).length;
+    
+    // Only return if there's at least one CTO day
+    if (ctoDays === 0) return null;
+    
     const publicHolidays = daysInBreak.filter(d => d.isPublicHoliday).length;
     const weekends = daysInBreak.filter(d => d.isWeekend).length;
     const customDaysOff = daysInBreak.filter(d => d.isCustomDayOff).length;
@@ -839,7 +877,7 @@ function calculateBreaks(allDates: DayInfo[]): Break[] {
       weekends,
       customDaysOff,
     };
-  });
+  }).filter(Boolean) as Break[];  // Filter out any null entries
 }
 
 function calculateStats(
@@ -855,13 +893,13 @@ function calculateStats(
     if (isOffDay) {
       if (!currentBreak) {
         currentBreak = { start: index, end: index };
-        hasCTOInCurrentBreak = day.isCTO;
+        hasCTOInCurrentBreak = day.isCTO;  // Only CTO days count
       } else {
         currentBreak.end = index;
-        hasCTOInCurrentBreak = hasCTOInCurrentBreak || day.isCTO;
+        hasCTOInCurrentBreak = hasCTOInCurrentBreak || day.isCTO;  // Only CTO days count
       }
     } else {
-      if (currentBreak && hasCTOInCurrentBreak) {
+      if (currentBreak && hasCTOInCurrentBreak) {  // Only push if there's at least one CTO day
         breaks.push(currentBreak);
       }
       currentBreak = null;
@@ -869,7 +907,7 @@ function calculateStats(
     }
   });
 
-  if (currentBreak && hasCTOInCurrentBreak) {
+  if (currentBreak && hasCTOInCurrentBreak) {  // Only push if there's at least one CTO day
     breaks.push(currentBreak);
   }
 
@@ -1005,6 +1043,7 @@ function selectCandidates(
   numberOfDays: number,
   strategy: OptimizationStrategy = 'balanced',
   allDates: DayInfo[],
+  timeContext: TimeContext
 ): BreakCandidate[] {
   const selectedBreaks: BreakCandidate[] = [];
   let remainingCTO = numberOfDays;
@@ -1012,13 +1051,27 @@ function selectCandidates(
 
   // Sort candidates by adjusted score (efficiency * strategy multiplier)
   candidates.sort((a, b) => {
-    const aScore = calculateStrategyScore(a, strategy) * calculateSpacingScore(a, selectedBreaks, allDates);
-    const bScore = calculateStrategyScore(b, strategy) * calculateSpacingScore(b, selectedBreaks, allDates);
+    const aScore = calculateStrategyScore(a, strategy, allDates, timeContext) * calculateSpacingScore(a, selectedBreaks, allDates, timeContext);
+    const bScore = calculateStrategyScore(b, strategy, allDates, timeContext) * calculateSpacingScore(b, selectedBreaks, allDates, timeContext);
     return bScore - aScore;
   });
 
   // Apply distribution weights based on strategy
-  const targetDistribution = calculateTargetDistribution(numberOfDays, strategy);
+  const params = {
+    numberOfDays,
+    strategy,
+    year: allDates[0].date.getFullYear(),
+    customDaysOff: allDates
+      .filter(d => d.isCustomDayOff)
+      .map(d => ({
+        date: d.dateStr,
+        name: d.customDayName || 'Custom Day Off',
+        isRecurring: false
+      }))
+  };
+  
+  const targetDistribution = calculateTargetDistribution(params.numberOfDays, params.strategy, params.customDaysOff, timeContext);
+  
   const currentDistribution = {
     longWeekends: 0,
     miniBreaks: 0,
@@ -1055,7 +1108,7 @@ function selectCandidates(
 
   // If we still have remaining CTO days, try to allocate them according to strategy
   if (remainingCTO > 0) {
-    const additionalBreaks = allocateRemainingDays(remainingCTO, usedDays, strategy, allDates);
+    const additionalBreaks = allocateRemainingDays(remainingCTO, usedDays, strategy, allDates, timeContext);
     selectedBreaks.push(...additionalBreaks);
   }
 
@@ -1066,6 +1119,7 @@ function calculateSpacingScore(
   candidate: BreakCandidate,
   selectedBreaks: BreakCandidate[],
   allDates: DayInfo[],
+  timeContext: TimeContext
 ): number {
   if (selectedBreaks.length === 0) return 1;
 
@@ -1074,6 +1128,9 @@ function calculateSpacingScore(
   const candidateEnd = Math.max(...candidate.days);
   const breakLength = candidateEnd - candidateStart + 1;
 
+  // Adjust spacing requirements based on remaining time
+  const spacingAdjustmentFactor = Math.max(0.5, timeContext.daysRemaining / 365);
+  
   // Check spacing from other breaks
   for (const existingBreak of selectedBreaks) {
     const existingStart = Math.min(...existingBreak.days);
@@ -1087,38 +1144,52 @@ function calculateSpacingScore(
       Math.max(candidateEnd, existingStart),
     );
 
-    // Apply spacing requirements based on break lengths
+    // Apply adjusted spacing requirements based on break lengths
+    const adjustedSpacing = {
+      EXTENDED_MIN_DAYS: Math.max(10, Math.round(SPACING_REQUIREMENTS.EXTENDED_MIN_DAYS * spacingAdjustmentFactor)),
+      WEEK_LONG_MIN_DAYS: Math.max(5, Math.round(SPACING_REQUIREMENTS.WEEK_LONG_MIN_DAYS * spacingAdjustmentFactor)),
+      MINI_BREAK_MIN_DAYS: Math.max(3, Math.round(SPACING_REQUIREMENTS.MINI_BREAK_MIN_DAYS * spacingAdjustmentFactor)),
+      LONG_WEEKEND_MIN_DAYS: Math.max(2, Math.round(SPACING_REQUIREMENTS.LONG_WEEKEND_MIN_DAYS * spacingAdjustmentFactor)),
+    };
+
     if (breakLength >= BREAK_LENGTHS.EXTENDED.MIN || existingLength >= BREAK_LENGTHS.EXTENDED.MIN) {
-      if (workdaysBetween < SPACING_REQUIREMENTS.EXTENDED_MIN_DAYS) {
+      if (workdaysBetween < adjustedSpacing.EXTENDED_MIN_DAYS) {
         score *= SPACING_REQUIREMENTS.MIN_SCORE_MULTIPLIER.EXTENDED;
       }
     } else if (breakLength >= BREAK_LENGTHS.WEEK_LONG.MIN || existingLength >= BREAK_LENGTHS.WEEK_LONG.MIN) {
-      if (workdaysBetween < SPACING_REQUIREMENTS.WEEK_LONG_MIN_DAYS) {
+      if (workdaysBetween < adjustedSpacing.WEEK_LONG_MIN_DAYS) {
         score *= SPACING_REQUIREMENTS.MIN_SCORE_MULTIPLIER.WEEK_LONG;
       }
     } else if (breakLength >= BREAK_LENGTHS.MINI_BREAK.MIN || existingLength >= BREAK_LENGTHS.MINI_BREAK.MIN) {
-      if (workdaysBetween < SPACING_REQUIREMENTS.MINI_BREAK_MIN_DAYS) {
+      if (workdaysBetween < adjustedSpacing.MINI_BREAK_MIN_DAYS) {
         score *= SPACING_REQUIREMENTS.MIN_SCORE_MULTIPLIER.MINI_BREAK;
       }
     } else {
-      if (workdaysBetween < SPACING_REQUIREMENTS.LONG_WEEKEND_MIN_DAYS) {
+      if (workdaysBetween < adjustedSpacing.LONG_WEEKEND_MIN_DAYS) {
         score *= SPACING_REQUIREMENTS.MIN_SCORE_MULTIPLIER.LONG_WEEKEND;
       }
     }
 
     // Apply penalty for similar break types too close together
-    if (breakLength === existingLength && workdaysBetween < SPACING_REQUIREMENTS.EXTENDED_MIN_DAYS) {
+    if (breakLength === existingLength && workdaysBetween < adjustedSpacing.EXTENDED_MIN_DAYS) {
       score *= SPACING_REQUIREMENTS.SIMILAR_BREAK_PENALTY;
     }
 
-    // Apply bonus for optimal spacing
+    // Apply bonus for optimal spacing based on remaining time
     const optimalSpacing = Math.max(
-      SPACING_REQUIREMENTS.EXTENDED_MIN_DAYS,
-      Math.floor(365 / (selectedBreaks.length + 1))
+      adjustedSpacing.EXTENDED_MIN_DAYS,
+      Math.floor(timeContext.daysRemaining / (selectedBreaks.length + 2))
     );
     if (Math.abs(workdaysBetween - optimalSpacing) <= OPTIMIZATION_CONSTANTS.TOLERANCE_DAYS) {
       score *= SPACING_REQUIREMENTS.OPTIMAL_SPACING_BONUS;
     }
+  }
+
+  // Add urgency bonus for breaks in the near term if we're starting mid-year
+  if (timeContext.isPartialYear && timeContext.yearProgress > 0.5) {
+    const daysFromStart = candidateStart;
+    const urgencyBonus = 1 + (0.2 * (1 - daysFromStart / timeContext.daysRemaining));
+    score *= urgencyBonus;
   }
 
   return score;
@@ -1127,16 +1198,69 @@ function calculateSpacingScore(
 function countWorkdaysBetween(allDates: DayInfo[], start: number, end: number): number {
   let count = 0;
   for (let i = start; i <= end; i++) {
-    if (!allDates[i].isWeekend && !allDates[i].isPublicHoliday && !allDates[i].isCustomDayOff) {
+    if (!allDates[i].isWeekend && 
+        !allDates[i].isPublicHoliday && 
+        !allDates[i].isCustomDayOff &&
+        !allDates[i].isCTO) {
       count++;
     }
   }
   return count;
 }
 
-function calculateTargetDistribution(numberOfDays: number, strategy: OptimizationStrategy): BreakDistribution {
+function calculateTargetDistribution(
+  numberOfDays: number,
+  strategy: OptimizationStrategy,
+  customDaysOff: Array<CustomDayOff>,
+  timeContext: TimeContext,
+): BreakDistribution {
   let weights = { ...DISTRIBUTION_WEIGHTS };
   
+  // Analyze custom days off pattern
+  const pattern = analyzeCustomDayOffPattern(customDaysOff);
+  
+  // Adjust weights based on remaining time in year
+  if (timeContext.isPartialYear) {
+    const timeRemainingFactor = timeContext.daysRemaining / 365;
+    
+    if (timeRemainingFactor < 0.5) {
+      // Less than 6 months remaining - favor shorter breaks
+      weights.EXTENDED_BREAKS *= 0.5;
+      weights.WEEK_LONG_BREAKS *= 0.8;
+      weights.MINI_BREAKS *= 1.3;
+      weights.LONG_WEEKENDS *= 1.4;
+    } else if (timeRemainingFactor < 0.75) {
+      // Less than 9 months remaining - slightly adjust distribution
+      weights.EXTENDED_BREAKS *= 0.8;
+      weights.WEEK_LONG_BREAKS *= 0.9;
+      weights.MINI_BREAKS *= 1.2;
+      weights.LONG_WEEKENDS *= 1.1;
+    }
+    
+    // Additional adjustment for year-end period
+    if (timeContext.yearProgress > 0.8) { // Last ~2 months of the year
+      weights.MINI_BREAKS *= 1.2;
+      weights.LONG_WEEKENDS *= 1.3;
+    }
+  }
+  
+  // Adjust weights based on custom days off pattern
+  if (pattern.hasRecurring) {
+    const weekdayCount = pattern.weekdayPattern.filter(Boolean).length;
+    
+    if (weekdayCount >= 2) {
+      weights.EXTENDED_BREAKS *= 1.5;
+      weights.WEEK_LONG_BREAKS *= 1.3;
+      weights.MINI_BREAKS *= 0.8;
+      weights.LONG_WEEKENDS *= 0.7;
+    } else if (weekdayCount === 1) {
+      weights.MINI_BREAKS *= 1.4;
+      weights.WEEK_LONG_BREAKS *= 1.2;
+      weights.LONG_WEEKENDS *= 0.9;
+    }
+  }
+  
+  // Apply strategy-specific adjustments
   switch (strategy) {
     case 'miniBreaks':
       weights.MINI_BREAKS *= SCORING_MULTIPLIERS.STRONG_PREFERENCE;
@@ -1155,23 +1279,64 @@ function calculateTargetDistribution(numberOfDays: number, strategy: Optimizatio
       weights.EXTENDED_BREAKS *= SCORING_MULTIPLIERS.HEAVY_PENALTY;
       break;
     case 'extendedVacations':
-      weights.EXTENDED_BREAKS *= SCORING_MULTIPLIERS.STRONG_PREFERENCE;
-      weights.LONG_WEEKENDS *= SCORING_MULTIPLIERS.HEAVY_PENALTY;
-      weights.WEEK_LONG_BREAKS *= SCORING_MULTIPLIERS.HEAVY_PENALTY;
+      // Adjust extended vacation preference based on remaining time
+      if (timeContext.isPartialYear && timeContext.daysRemaining < 120) { // Less than ~4 months
+        weights.WEEK_LONG_BREAKS *= SCORING_MULTIPLIERS.MODERATE_PREFERENCE;
+        weights.MINI_BREAKS *= SCORING_MULTIPLIERS.LIGHT_PREFERENCE;
+      } else {
+        weights.EXTENDED_BREAKS *= SCORING_MULTIPLIERS.VERY_STRONG_PREFERENCE;
+        weights.LONG_WEEKENDS *= SCORING_MULTIPLIERS.HEAVY_PENALTY;
+        weights.WEEK_LONG_BREAKS *= SCORING_MULTIPLIERS.HEAVY_PENALTY;
+      }
       break;
     case 'balanced':
-      // Use BALANCED_DISTRIBUTION for balanced strategy
-      weights = {
-        LONG_WEEKENDS: BALANCED_DISTRIBUTION.LONG_WEEKENDS,
-        MINI_BREAKS: BALANCED_DISTRIBUTION.MINI_BREAKS,
-        WEEK_LONG_BREAKS: BALANCED_DISTRIBUTION.WEEK_BREAKS,
-        EXTENDED_BREAKS: BALANCED_DISTRIBUTION.EXTENDED_BREAKS,
-        BALANCED: DISTRIBUTION_WEIGHTS.BALANCED,
-      };
+      if (timeContext.isPartialYear) {
+        // Adjust balanced distribution based on remaining time
+        const timeRemainingFactor = timeContext.daysRemaining / 365;
+        
+        // Calculate adjustment factors
+        const longWeekendAdjust = 1 + (1 - timeRemainingFactor);
+        const miniBreakAdjust = 1 + (1 - timeRemainingFactor) * 0.5;
+        const weekBreakAdjust = timeRemainingFactor;
+        const extendedBreakAdjust = Math.pow(timeRemainingFactor, 2);
+        
+        // Use base weights and apply adjustments through multiplication
+        const totalWeight = (
+          BALANCED_DISTRIBUTION.LONG_WEEKENDS * longWeekendAdjust +
+          BALANCED_DISTRIBUTION.MINI_BREAKS * miniBreakAdjust +
+          BALANCED_DISTRIBUTION.WEEK_BREAKS * weekBreakAdjust +
+          BALANCED_DISTRIBUTION.EXTENDED_BREAKS * extendedBreakAdjust
+        );
+        
+        // Normalize to maintain total distribution
+        weights = {
+          LONG_WEEKENDS: BALANCED_DISTRIBUTION.LONG_WEEKENDS,
+          MINI_BREAKS: BALANCED_DISTRIBUTION.MINI_BREAKS,
+          WEEK_LONG_BREAKS: BALANCED_DISTRIBUTION.WEEK_BREAKS,
+          EXTENDED_BREAKS: BALANCED_DISTRIBUTION.EXTENDED_BREAKS,
+          BALANCED: DISTRIBUTION_WEIGHTS.BALANCED,
+        };
+        
+        // Apply adjustments through the final distribution calculation
+        return {
+          longWeekends: Math.round(numberOfDays * (BALANCED_DISTRIBUTION.LONG_WEEKENDS * longWeekendAdjust / totalWeight)),
+          miniBreaks: Math.round(numberOfDays * (BALANCED_DISTRIBUTION.MINI_BREAKS * miniBreakAdjust / totalWeight)),
+          weekLongBreaks: Math.round(numberOfDays * (BALANCED_DISTRIBUTION.WEEK_BREAKS * weekBreakAdjust / totalWeight)),
+          extendedBreaks: Math.round(numberOfDays * (BALANCED_DISTRIBUTION.EXTENDED_BREAKS * extendedBreakAdjust / totalWeight)),
+        };
+      } else {
+        weights = {
+          LONG_WEEKENDS: BALANCED_DISTRIBUTION.LONG_WEEKENDS,
+          MINI_BREAKS: BALANCED_DISTRIBUTION.MINI_BREAKS,
+          WEEK_LONG_BREAKS: BALANCED_DISTRIBUTION.WEEK_BREAKS,
+          EXTENDED_BREAKS: BALANCED_DISTRIBUTION.EXTENDED_BREAKS,
+          BALANCED: DISTRIBUTION_WEIGHTS.BALANCED,
+        };
+      }
       break;
   }
 
-  // Type-safe weight normalization
+  // Normalize weights and calculate distribution
   const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
   const normalizedWeights = Object.entries(weights).reduce((acc, [key, value]) => {
     if (key !== 'BALANCED') {
@@ -1196,9 +1361,21 @@ function getBreakType(length: number): keyof BreakDistribution {
   return 'longWeekends';
 }
 
-function calculateStrategyScore(candidate: BreakCandidate, strategy: OptimizationStrategy): number {
+function calculateStrategyScore(
+  candidate: BreakCandidate,
+  strategy: OptimizationStrategy,
+  allDates: DayInfo[],
+  timeContext: TimeContext
+): number {
   let score = candidate.efficiency * EFFICIENCY_SCORING.MAX_MULTIPLIER;
   const length = candidate.length;
+
+  // Add bonus for utilizing custom days off
+  const customDaysOffUtilized = candidate.days.filter(day => 
+    allDates[day].isCustomDayOff).length;
+  if (customDaysOffUtilized > 0) {
+    score *= (1 + (customDaysOffUtilized * CUSTOM_DAY_OFF_BONUS));
+  }
 
   // Base length-based scoring
   if (length >= BREAK_LENGTHS.EXTENDED.MIN && length <= BREAK_LENGTHS.EXTENDED.MAX) {
@@ -1263,7 +1440,6 @@ function calculateStrategyScore(candidate: BreakCandidate, strategy: Optimizatio
       }
       break;
     case 'balanced':
-      // Use BALANCED_STRATEGY for balanced strategy
       if (length >= BREAK_LENGTHS.EXTENDED.MIN) {
         score *= BALANCED_STRATEGY.EXTENDED_MULTIPLIER;
       } else if (length >= BREAK_LENGTHS.WEEK_LONG.MIN) {
@@ -1276,21 +1452,26 @@ function calculateStrategyScore(candidate: BreakCandidate, strategy: Optimizatio
       break;
   }
 
-  // Apply seasonal weights
-  const month = new Date(candidate.days[0]).getMonth();
-  if (month >= 5 && month <= 8) { // Summer months (June-September)
-    score *= SEASONAL_WEIGHTS.SUMMER;
-  } else if (month === 11 || month === 0) { // Winter holiday months (December-January)
-    score *= SEASONAL_WEIGHTS.WINTER_HOLIDAY;
-  } else if (month >= 8 && month <= 9) { // Fall months (September-October)
-    score *= SEASONAL_WEIGHTS.FALL;
-  } else if (month >= 2 && month <= 4) { // Spring months (March-May)
-    score *= SEASONAL_WEIGHTS.SPRING;
-  } else {
-    score *= SEASONAL_WEIGHTS.WINTER;
-  }
+  // Apply seasonal weights with custom day off consideration
+  const month = new Date(allDates[candidate.days[0]].date).getMonth();
+  const seasonalWeight = getSeasonalWeight(month);
+  score *= seasonalWeight;
 
   return score;
+}
+
+function getSeasonalWeight(month: number): number {
+  if (month >= 5 && month <= 8) { // Summer months (June-September)
+    return SEASONAL_WEIGHTS.SUMMER;
+  } else if (month === 11 || month === 0) { // Winter holiday months (December-January)
+    return SEASONAL_WEIGHTS.WINTER_HOLIDAY;
+  } else if (month >= 8 && month <= 9) { // Fall months (September-October)
+    return SEASONAL_WEIGHTS.FALL;
+  } else if (month >= 2 && month <= 4) { // Spring months (March-May)
+    return SEASONAL_WEIGHTS.SPRING;
+  } else {
+    return SEASONAL_WEIGHTS.WINTER;
+  }
 }
 
 function allocateRemainingDays(
@@ -1298,6 +1479,7 @@ function allocateRemainingDays(
   usedDays: Set<number>,
   strategy: OptimizationStrategy,
   allDates: DayInfo[],
+  timeContext: TimeContext
 ): BreakCandidate[] {
   const additionalBreaks: BreakCandidate[] = [];
   let daysToAllocate = remainingDays;
@@ -1450,19 +1632,20 @@ function createLongWeekend(usedDays: Set<number>, allDates: DayInfo[]): BreakCan
 
     if ((dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) && // Monday or Friday
       !allDates[i].isWeekend &&
-      !allDates[i].isPublicHoliday) {
+      !allDates[i].isPublicHoliday &&
+      !allDates[i].isCustomDayOff) {
 
       // Check if this would create a long weekend
       if (dayOfWeek === DAYS.FRIDAY) { // Friday
         if (i + 2 < allDates.length &&
-          allDates[i + 1].isWeekend &&
-          allDates[i + 2].isWeekend) {
+          (allDates[i + 1].isWeekend || allDates[i + 1].isCustomDayOff) &&
+          (allDates[i + 2].isWeekend || allDates[i + 2].isCustomDayOff)) {
           potentialDays.push(i);
         }
       } else { // Monday
         if (i >= 2 &&
-          allDates[i - 1].isWeekend &&
-          allDates[i - 2].isWeekend) {
+          (allDates[i - 1].isWeekend || allDates[i - 1].isCustomDayOff) &&
+          (allDates[i - 2].isWeekend || allDates[i - 2].isCustomDayOff)) {
           potentialDays.push(i);
         }
       }
@@ -1502,7 +1685,8 @@ function createWeekLongBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakC
 
       if (usedDays.has(currentIndex) ||
         day.isWeekend ||
-        day.isPublicHoliday) {
+        day.isPublicHoliday ||
+        day.isCustomDayOff) {
         isValidSequence = false;
         break;
       }
@@ -1511,27 +1695,34 @@ function createWeekLongBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakC
       workdayCount++;
       currentIndex++;
 
-      // Skip weekends
+      // Skip weekends and holidays
       while (currentIndex < allDates.length &&
-      (allDates[currentIndex].isWeekend ||
-        allDates[currentIndex].isPublicHoliday)) {
+        (allDates[currentIndex].isWeekend ||
+         allDates[currentIndex].isPublicHoliday ||
+         allDates[currentIndex].isCustomDayOff)) {
         currentIndex++;
       }
     }
 
     if (isValidSequence && workdayCount === 5) {
-      // Include surrounding weekends if available
+      // Include surrounding weekends and holidays if available
       let startIdx = sequenceDays[0];
       let endIdx = sequenceDays[sequenceDays.length - 1];
 
-      // Look for weekend before
-      while (startIdx > 0 && allDates[startIdx - 1].isWeekend) {
+      // Look for weekend/holiday before
+      while (startIdx > 0 && 
+        (allDates[startIdx - 1].isWeekend || 
+         allDates[startIdx - 1].isPublicHoliday ||
+         allDates[startIdx - 1].isCustomDayOff)) {
         startIdx--;
         sequenceDays.unshift(startIdx);
       }
 
-      // Look for weekend after
-      while (endIdx < allDates.length - 1 && allDates[endIdx + 1].isWeekend) {
+      // Look for weekend/holiday after
+      while (endIdx < allDates.length - 1 && 
+        (allDates[endIdx + 1].isWeekend ||
+         allDates[endIdx + 1].isPublicHoliday ||
+         allDates[endIdx + 1].isCustomDayOff)) {
         endIdx++;
         sequenceDays.push(endIdx);
       }
@@ -1571,7 +1762,7 @@ function createExtendedBreak(usedDays: Set<number>, maxLength: number, allDates:
       sequence.push(currentIndex);
       totalDays++;
 
-      if (!day.isWeekend && !day.isPublicHoliday) {
+      if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff) {
         ctoDaysUsed++;
       }
 
@@ -1610,7 +1801,7 @@ function createStandaloneDay(usedDays: Set<number>, allDates: DayInfo[]): BreakC
     if (usedDays.has(i)) continue;
 
     const day = allDates[i];
-    if (!day.isWeekend && !day.isPublicHoliday) {
+    if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff) {
       const dayOfWeek = day.date.getDay();
       let score = 0;
 
@@ -1622,11 +1813,11 @@ function createStandaloneDay(usedDays: Set<number>, allDates: DayInfo[]): BreakC
         score += SCORING_MULTIPLIERS.SECONDARY_POSITION_BONUS;
       }
 
-      // Bonus for adjacent weekends/holidays
-      if (i > 0 && (allDates[i - 1].isWeekend || allDates[i - 1].isPublicHoliday)) {
+      // Bonus for adjacent weekends/holidays/custom days off
+      if (i > 0 && (allDates[i - 1].isWeekend || allDates[i - 1].isPublicHoliday || allDates[i - 1].isCustomDayOff)) {
         score += SCORING_MULTIPLIERS.ADJACENT_BONUS;
       }
-      if (i < allDates.length - 1 && (allDates[i + 1].isWeekend || allDates[i + 1].isPublicHoliday)) {
+      if (i < allDates.length - 1 && (allDates[i + 1].isWeekend || allDates[i + 1].isPublicHoliday || allDates[i + 1].isCustomDayOff)) {
         score += SCORING_MULTIPLIERS.ADJACENT_BONUS;
       }
 
@@ -1656,7 +1847,7 @@ function generateOffBlocks(allDates: DayInfo[]): BreakPeriod[] {
   let currentBlock: BreakPeriod | null = null;
 
   allDates.forEach((day, index) => {
-    if (day.isWeekend || day.isPublicHoliday || day.isCustomDayOff) {
+    if (day.isWeekend || day.isPublicHoliday || day.isCustomDayOff || day.isCTO) {
       if (!currentBlock) {
         currentBlock = { start: index, end: index, days: [index] };
       } else {
@@ -1679,25 +1870,25 @@ function applySelectedBreaks(allDates: DayInfo[], selectedBreaks: BreakCandidate
   // First, mark CTO days
   selectedBreaks.forEach(break_ => {
     break_.days.forEach(day => {
-      if (!allDates[day].isWeekend && !allDates[day].isPublicHoliday) {
+      if (!allDates[day].isWeekend && !allDates[day].isPublicHoliday && !allDates[day].isCustomDayOff) {
         allDates[day].isCTO = true;
       }
     });
   });
 
-  // Then, find and mark connected sequences
+  // Then, find and mark connected sequences that contain at least one CTO day
   let currentSequence: number[] = [];
   let hasCTOInSequence = false;
 
   for (let i = 0; i < allDates.length; i++) {
     const day = allDates[i];
-    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO;
+    const isOffDay = day.isWeekend || day.isPublicHoliday || day.isCTO || day.isCustomDayOff;
 
     if (isOffDay) {
       currentSequence.push(i);
-      hasCTOInSequence = hasCTOInSequence || day.isCTO;
+      hasCTOInSequence = hasCTOInSequence || day.isCTO;  // Only CTO days count
     } else {
-      if (hasCTOInSequence) {
+      if (hasCTOInSequence) {  // Only mark as break if there's at least one CTO day
         // Mark all days in sequence as part of break
         currentSequence.forEach(index => {
           allDates[index].isPartOfBreak = true;
@@ -1709,7 +1900,7 @@ function applySelectedBreaks(allDates: DayInfo[], selectedBreaks: BreakCandidate
   }
 
   // Handle last sequence
-  if (hasCTOInSequence) {
+  if (hasCTOInSequence) {  // Only mark as break if there's at least one CTO day
     currentSequence.forEach(index => {
       allDates[index].isPartOfBreak = true;
     });
@@ -1717,58 +1908,97 @@ function applySelectedBreaks(allDates: DayInfo[], selectedBreaks: BreakCandidate
 }
 
 function createMiniBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakCandidate | null {
-  // Pre-filter potential start days to only consider Mondays and Thursdays
+  // Consider all workdays as potential start days, with preference for Monday/Thursday
   const potentialStartDays = allDates
     .map((day, index) => ({ day, index }))
     .filter(({ day, index }) => 
       !usedDays.has(index) &&
       !day.isWeekend &&
       !day.isPublicHoliday &&
-      !day.isCustomDayOff &&
-      (day.date.getDay() === DAYS.MONDAY || day.date.getDay() === DAYS.THURSDAY)
-    );
-
-  // Sort by position score to try best candidates first
-  potentialStartDays.sort((a, b) => {
-    const scoreA = calculatePositionScore(allDates, a.index);
-    const scoreB = calculatePositionScore(allDates, b.index);
-    return scoreB - scoreA;
-  });
+      !day.isCustomDayOff
+    )
+    .map(({ day, index }) => ({
+      index,
+      score: calculateMiniBreakStartScore(allDates, index)
+    }))
+    .sort((a, b) => b.score - a.score); // Sort by score descending
 
   for (const { index: startIdx } of potentialStartDays) {
     const sequenceDays: number[] = [];
     let workdayCount = 0;
     let currentIdx = startIdx;
+    let consecutiveWorkdays = 0;
     
-    // Fast-forward through the next 4-5 days
-    while (workdayCount < BREAK_LENGTHS.MINI_BREAK.MAX - 1 && currentIdx < allDates.length) {
+    // Try to build a 4-5 day sequence
+    while (currentIdx < allDates.length && 
+           sequenceDays.length < BREAK_LENGTHS.MINI_BREAK.MAX + 2) { // +2 for potential weekends
       const day = allDates[currentIdx];
       
-      if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff && !usedDays.has(currentIdx)) {
-        sequenceDays.push(currentIdx);
-        workdayCount++;
-      } else if (day.isWeekend || day.isPublicHoliday) {
-        sequenceDays.push(currentIdx);
+      // Skip if day is already used
+      if (usedDays.has(currentIdx)) {
+        break;
       }
       
-      currentIdx++;
-    }
-
-    if (workdayCount >= BREAK_LENGTHS.MINI_BREAK.MIN - 1) {
-      // Calculate efficiency with position bonuses
-      const efficiency = calculateMiniBreakEfficiency(allDates, sequenceDays, workdayCount);
+      if (!day.isWeekend && !day.isPublicHoliday && !day.isCustomDayOff) {
+        consecutiveWorkdays++;
+        if (consecutiveWorkdays > 3) { // Don't want too many consecutive workdays
+          break;
+        }
+        workdayCount++;
+      } else {
+        consecutiveWorkdays = 0;
+      }
       
-      return {
-        type: 'standalone',
-        days: sequenceDays,
-        ctoDaysUsed: workdayCount,
-        efficiency,
-        length: sequenceDays.length,
-      };
+      sequenceDays.push(currentIdx);
+      currentIdx++;
+      
+      // Check if we have a valid mini break
+      if (workdayCount >= BREAK_LENGTHS.MINI_BREAK.MIN - 1 && 
+          sequenceDays.length >= BREAK_LENGTHS.MINI_BREAK.MIN) {
+        // Calculate efficiency with position bonuses
+        const efficiency = calculateMiniBreakEfficiency(allDates, sequenceDays, workdayCount);
+        
+        return {
+          type: 'standalone',
+          days: sequenceDays,
+          ctoDaysUsed: workdayCount,
+          efficiency,
+          length: sequenceDays.length,
+        };
+      }
     }
   }
 
   return null;
+}
+
+function calculateMiniBreakStartScore(allDates: DayInfo[], index: number): number {
+  let score = 1;
+  const day = allDates[index];
+  const dayOfWeek = day.date.getDay();
+  
+  // Prefer Mondays and Thursdays
+  if (dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.THURSDAY) {
+    score *= POSITION_BONUSES.MONDAY_FRIDAY;
+  }
+  
+  // Prefer positions near existing custom days off or holidays
+  const nearbyDays = [-2, -1, 1, 2];
+  for (const offset of nearbyDays) {
+    const nearbyIndex = index + offset;
+    if (nearbyIndex >= 0 && nearbyIndex < allDates.length) {
+      const nearbyDay = allDates[nearbyIndex];
+      if (nearbyDay.isCustomDayOff || nearbyDay.isPublicHoliday) {
+        score *= 1.2; // 20% bonus for each nearby holiday/custom day off
+      }
+    }
+  }
+  
+  // Consider seasonal weights
+  const month = day.date.getMonth();
+  score *= getSeasonalWeight(month);
+  
+  return score;
 }
 
 function calculateMiniBreakEfficiency(allDates: DayInfo[], sequenceDays: number[], workdayCount: number): number {
@@ -1783,6 +2013,42 @@ function calculateMiniBreakEfficiency(allDates: DayInfo[], sequenceDays: number[
   }
   
   return efficiency;
+}
+
+interface CustomDayOffPattern {
+  weekdayPattern: boolean[];  // Array of 7 booleans representing weekday patterns
+  monthlyPattern: boolean[];  // Array of 12 booleans representing monthly patterns
+  hasRecurring: boolean;
+}
+
+function analyzeCustomDayOffPattern(customDaysOff: Array<CustomDayOff>): CustomDayOffPattern {
+  const weekdayPattern = Array(7).fill(false);
+  const monthlyPattern = Array(12).fill(false);
+  let hasRecurring = false;
+
+  customDaysOff.forEach(customDay => {
+    if (customDay.isRecurring && customDay.weekday !== undefined) {
+      weekdayPattern[customDay.weekday] = true;
+      hasRecurring = true;
+    } else {
+      const date = parseISO(customDay.date);
+      weekdayPattern[date.getDay()] = true;
+      monthlyPattern[date.getMonth()] = true;
+    }
+  });
+
+  return {
+    weekdayPattern,
+    monthlyPattern,
+    hasRecurring
+  };
+}
+
+// Add TimeContext interface
+interface TimeContext {
+  daysRemaining: number;
+  yearProgress: number;
+  isPartialYear: boolean;
 }
 
 export { optimizeCTODays };
