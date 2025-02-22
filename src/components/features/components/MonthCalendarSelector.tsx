@@ -79,53 +79,12 @@ export function MonthCalendarSelector({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className={cn(
-          "text-sm font-medium",
-          colorStyles[colorScheme].header
-        )}>
-          {format(currentDate, 'MMMM yyyy')}
-        </h3>
-        <div className="flex gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={handlePrevMonth}
-            className={cn(
-              "h-8 w-8",
-              colorStyles[colorScheme].nav.button
-            )}
-          >
-            <ChevronLeft className={cn(
-              "h-4 w-4",
-              colorStyles[colorScheme].nav.icon
-            )} />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={handleNextMonth}
-            className={cn(
-              "h-8 w-8",
-              colorStyles[colorScheme].nav.button
-            )}
-          >
-            <ChevronRight className={cn(
-              "h-4 w-4",
-              colorStyles[colorScheme].nav.icon
-            )} />
-          </Button>
-        </div>
-      </div>
-
       <Calendar
         mode="multiple"
         selected={selectedDates}
         onDayClick={handleDayClick}
         month={currentDate}
+        onMonthChange={setCurrentDate}
         showOutsideDays={true}
         fromDate={minDate}
         toDate={maxDate}
@@ -139,8 +98,18 @@ export function MonthCalendarSelector({
         classNames={{
           months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
           month: "space-y-4 w-full",
-          caption: "hidden", // Hide the default caption since we have our company one
-          nav: "hidden", // Hide the default navigation
+          caption: cn(
+            "flex justify-center pt-1 relative items-center",
+            colorStyles[colorScheme].header
+          ),
+          caption_label: "text-sm font-medium",
+          nav: "space-x-1 flex items-center",
+          nav_button: cn(
+            "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+            colorStyles[colorScheme].nav.button
+          ),
+          nav_button_previous: "absolute left-1",
+          nav_button_next: "absolute right-1",
           table: "w-full border-collapse",
           head_row: "flex w-full",
           head_cell: cn(
@@ -179,6 +148,5 @@ export function MonthCalendarSelector({
           ),
         }}
       />
-    </div>
   );
 } 
