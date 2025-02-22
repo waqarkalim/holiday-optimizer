@@ -201,7 +201,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                   Start with Your Days
                 </h2>
                 <p id="days-description" className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-                  How many paid time off days do you have? We'll make every single one count.
+                  How many paid time off days do you have? We'll optimize your days from today until the end of the year, making every single one count.
                 </p>
               </header>
               <div>

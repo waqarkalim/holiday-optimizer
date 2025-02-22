@@ -79,7 +79,7 @@ const HomePage = () => {
                   Plan Your Time Off
                 </h1>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Optimize your CTO days for maximum time off in {currentYear}
+                  Optimize your CTO days from today until the end of {currentYear}, making every day off count
                 </p>
               </div>
             </div>
