@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useReducer } from 'react';
-import { isAfter, isValid, parse } from 'date-fns';
+import { format, isAfter, isValid, parse } from 'date-fns';
 import { CustomDayOff, OptimizationStrategy } from '@/types';
 
 interface OptimizerState {
@@ -11,6 +11,9 @@ interface OptimizerState {
   holidays: Array<{ date: string, name: string }>
   isAddingHoliday: boolean
   newHoliday: { date: string, name: string }
+  selectedDates: Date[]
+  currentMonth: number
+  currentYear: number
   errors: {
     days?: string
     customDay?: {
@@ -43,6 +46,10 @@ type OptimizerAction =
   | { type: 'SET_IS_ADDING_HOLIDAY'; payload: boolean }
   | { type: 'UPDATE_NEW_HOLIDAY'; payload: Partial<{ date: string, name: string }> }
   | { type: 'RESET_NEW_HOLIDAY' }
+  | { type: 'TOGGLE_DATE'; payload: Date }
+  | { type: 'SET_MONTH'; payload: number }
+  | { type: 'SET_YEAR'; payload: number }
+  | { type: 'CLEAR_HOLIDAYS' }
 
 export const defaultCustomDay: Partial<CustomDayOff> = {
   name: "",
@@ -67,6 +74,9 @@ const initialState: OptimizerState = {
   holidays: [],
   isAddingHoliday: false,
   newHoliday: defaultHoliday,
+  selectedDates: [],
+  currentMonth: new Date().getMonth(),
+  currentYear: new Date().getFullYear(),
   errors: {}
 }
 
@@ -236,6 +246,47 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         newHoliday: defaultHoliday,
         errors: { ...state.errors, holiday: undefined }
       }
+    }
+
+    case 'TOGGLE_DATE': {
+      const dateStr = format(action.payload, 'yyyy-MM-dd');
+      const isSelected = state.selectedDates.some(d => format(d, 'yyyy-MM-dd') === dateStr);
+      
+      if (isSelected) {
+        return {
+          ...state,
+          selectedDates: state.selectedDates.filter(d => format(d, 'yyyy-MM-dd') !== dateStr),
+          holidays: state.holidays.filter(h => h.date !== dateStr)
+        };
+      } else {
+        return {
+          ...state,
+          selectedDates: [...state.selectedDates, action.payload],
+          holidays: [...state.holidays, { date: dateStr, name: format(action.payload, 'MMMM d, yyyy') }]
+        };
+      }
+    }
+
+    case 'SET_MONTH': {
+      return {
+        ...state,
+        currentMonth: action.payload
+      };
+    }
+
+    case 'SET_YEAR': {
+      return {
+        ...state,
+        currentYear: action.payload
+      };
+    }
+
+    case 'CLEAR_HOLIDAYS': {
+      return {
+        ...state,
+        holidays: [],
+        selectedDates: []
+      };
     }
 
     default: {
