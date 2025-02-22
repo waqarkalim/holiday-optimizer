@@ -5,12 +5,8 @@ import { CustomDayOff, OptimizationStrategy } from '@/types';
 interface OptimizerState {
   days: string
   strategy: OptimizationStrategy
-  customDaysOff: CustomDayOff[]
-  isAdding: boolean
-  newCustomDay: Partial<CustomDayOff>
+  customDaysOff: Array<{ date: string, name: string }>
   holidays: Array<{ date: string, name: string }>
-  isAddingHoliday: boolean
-  newHoliday: { date: string, name: string }
   selectedDates: Date[]
   currentMonth: number
   currentYear: number
@@ -19,9 +15,6 @@ interface OptimizerState {
     customDay?: {
       name?: string
       date?: string
-      startDate?: string
-      endDate?: string
-      weekday?: string
     }
     holiday?: {
       name?: string
@@ -33,77 +26,39 @@ interface OptimizerState {
 type OptimizerAction =
   | { type: 'SET_DAYS'; payload: string }
   | { type: 'SET_STRATEGY'; payload: OptimizationStrategy }
-  | { type: 'SET_CUSTOM_DAYS'; payload: CustomDayOff[] }
-  | { type: 'ADD_CUSTOM_DAY'; payload: CustomDayOff }
+  | { type: 'SET_CUSTOM_DAYS'; payload: Array<{ date: string, name: string }> }
+  | { type: 'ADD_CUSTOM_DAY'; payload: { date: string, name: string } }
   | { type: 'REMOVE_CUSTOM_DAY'; payload: number }
-  | { type: 'SET_IS_ADDING'; payload: boolean }
-  | { type: 'UPDATE_NEW_CUSTOM_DAY'; payload: Partial<CustomDayOff> }
-  | { type: 'RESET_NEW_CUSTOM_DAY' }
   | { type: 'SET_ERROR'; payload: { field: string; message: string } }
   | { type: 'CLEAR_ERRORS' }
   | { type: 'ADD_HOLIDAY'; payload: { date: string, name: string } }
   | { type: 'REMOVE_HOLIDAY'; payload: number }
-  | { type: 'SET_IS_ADDING_HOLIDAY'; payload: boolean }
-  | { type: 'UPDATE_NEW_HOLIDAY'; payload: Partial<{ date: string, name: string }> }
-  | { type: 'RESET_NEW_HOLIDAY' }
   | { type: 'TOGGLE_DATE'; payload: Date }
   | { type: 'SET_MONTH'; payload: number }
   | { type: 'SET_YEAR'; payload: number }
   | { type: 'CLEAR_HOLIDAYS' }
-
-export const defaultCustomDay: Partial<CustomDayOff> = {
-  name: "",
-  isRecurring: false,
-  endDate: new Date().toISOString().split('T')[0],
-  startDate: new Date().toISOString().split('T')[0],
-  weekday: 1,
-  date: new Date().toISOString().split('T')[0],
-}
-
-export const defaultHoliday = {
-  name: "",
-  date: new Date().toISOString().split('T')[0],
-}
+  | { type: 'CLEAR_CUSTOM_DAYS' }
 
 const initialState: OptimizerState = {
   days: "",
   strategy: "balanced",
   customDaysOff: [],
-  isAdding: false,
-  newCustomDay: defaultCustomDay,
   holidays: [],
-  isAddingHoliday: false,
-  newHoliday: defaultHoliday,
   selectedDates: [],
   currentMonth: new Date().getMonth(),
   currentYear: new Date().getFullYear(),
   errors: {}
 }
 
-function validateCustomDay(day: Partial<CustomDayOff>): Record<string, string> {
+function validateCustomDay(day: { date: string, name: string }): Record<string, string> {
   const errors: Record<string, string> = {}
 
   if (!day.name?.trim()) {
     errors.name = "Name is required"
   }
 
-  if (day.isRecurring) {
-    if (!day.startDate || !isValid(parse(day.startDate, 'yyyy-MM-dd', new Date()))) {
-      errors.startDate = "Valid start date is required"
-    }
-    if (!day.endDate || !isValid(parse(day.endDate, 'yyyy-MM-dd', new Date()))) {
-      errors.endDate = "Valid end date is required"
-    }
-    if (day.startDate && day.endDate && isAfter(parse(day.startDate, 'yyyy-MM-dd', new Date()), parse(day.endDate, 'yyyy-MM-dd', new Date()))) {
-      errors.endDate = "End date must be after start date"
-    }
-    if (day.weekday === undefined || day.weekday < 0 || day.weekday > 6) {
-      errors.weekday = "Valid weekday is required"
-    }
-  } else {
-    if (!day.date || !isValid(parse(day.date, 'yyyy-MM-dd', new Date()))) {
-      errors.date = "Valid date is required"
-    }
+  if (!day.date || !isValid(parse(day.date, 'yyyy-MM-dd', new Date()))) {
+    errors.date = "Valid date is required"
   }
 
   return errors
@@ -145,8 +100,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         customDaysOff: [...state.customDaysOff, action.payload],
-        isAdding: false,
-        newCustomDay: defaultCustomDay,
         errors: { ...state.errors, customDay: undefined }
       }
     }
@@ -155,37 +108,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         customDaysOff: state.customDaysOff.filter((_, i) => i !== action.payload)
-      }
-    }
-
-    case 'SET_IS_ADDING': {
-      return {
-        ...state,
-        isAdding: action.payload,
-        newCustomDay: action.payload ? defaultCustomDay : state.newCustomDay,
-        errors: { ...state.errors, customDay: undefined }
-      }
-    }
-
-    case 'UPDATE_NEW_CUSTOM_DAY': {
-      const updatedDay = { ...state.newCustomDay, ...action.payload }
-      const validationErrors = validateCustomDay(updatedDay)
-      
-      return {
-        ...state,
-        newCustomDay: updatedDay,
-        errors: {
-          ...state.errors,
-          customDay: Object.keys(validationErrors).length > 0 ? validationErrors : undefined
-        }
-      }
-    }
-
-    case 'RESET_NEW_CUSTOM_DAY': {
-      return {
-        ...state,
-        newCustomDay: defaultCustomDay,
-        errors: { ...state.errors, customDay: undefined }
       }
     }
 
@@ -210,8 +132,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         holidays: [...state.holidays, action.payload],
-        isAddingHoliday: false,
-        newHoliday: defaultHoliday,
         errors: { ...state.errors, holiday: undefined }
       }
     }
@@ -220,31 +140,6 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         holidays: state.holidays.filter((_, i) => i !== action.payload)
-      }
-    }
-
-    case 'SET_IS_ADDING_HOLIDAY': {
-      return {
-        ...state,
-        isAddingHoliday: action.payload,
-        newHoliday: action.payload ? defaultHoliday : state.newHoliday,
-        errors: { ...state.errors, holiday: undefined }
-      }
-    }
-
-    case 'UPDATE_NEW_HOLIDAY': {
-      const updatedHoliday = { ...state.newHoliday, ...action.payload }
-      return {
-        ...state,
-        newHoliday: updatedHoliday,
-      }
-    }
-
-    case 'RESET_NEW_HOLIDAY': {
-      return {
-        ...state,
-        newHoliday: defaultHoliday,
-        errors: { ...state.errors, holiday: undefined }
       }
     }
 
@@ -286,6 +181,13 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         ...state,
         holidays: [],
         selectedDates: []
+      };
+    }
+
+    case 'CLEAR_CUSTOM_DAYS': {
+      return {
+        ...state,
+        customDaysOff: []
       };
     }
 

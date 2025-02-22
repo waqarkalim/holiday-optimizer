@@ -1,47 +1,32 @@
 const STORAGE_KEY = 'holiday-optimizer-selected-dates';
 
 export interface StoredHoliday {
-  date: string; // ISO string
-  type: 'public-holiday';
+  date: string;
+  name: string;
 }
 
-export function getStoredHolidays(): Date[] {
+export function getStoredHolidays(): StoredHoliday[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
 
     const holidays: StoredHoliday[] = JSON.parse(stored);
-    return holidays
-      .filter(holiday => holiday.type === 'public-holiday')
-      .map(holiday => new Date(holiday.date))
-      .filter(date => !isNaN(date.getTime())); // Filter out invalid dates
+    return holidays.filter(day => day.name && day.date);
   } catch (error) {
     console.error('Error reading holidays from storage:', error);
     return [];
   }
 }
 
-export function storeHoliday(date: Date) {
+export function storeHoliday(day: StoredHoliday) {
   try {
-    const currentHolidays = getStoredHolidays();
-    const newHoliday: StoredHoliday = {
-      date: date.toISOString(),
-      type: 'public-holiday'
-    };
+    const currentDays = getStoredHolidays();
 
-    // Check if date already exists
-    const exists = currentHolidays.some(
-      holiday => holiday.toISOString().split('T')[0] === date.toISOString().split('T')[0]
-    );
+    // Check if day already exists
+    const exists = currentDays.some(existingDay => existingDay.date === day.date);
 
     if (!exists) {
-      const storedData = [
-        ...currentHolidays.map(date => ({ 
-          date: date.toISOString(), 
-          type: 'public-holiday' as const 
-        })),
-        newHoliday
-      ];
+      const storedData = [...currentDays, day];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
     }
   } catch (error) {
@@ -49,18 +34,11 @@ export function storeHoliday(date: Date) {
   }
 }
 
-export function removeStoredHoliday(date: Date) {
+export function removeStoredHoliday(index: number) {
   try {
-    const currentHolidays = getStoredHolidays();
-    const updatedHolidays = currentHolidays.filter(
-      holiday => holiday.toISOString().split('T')[0] !== date.toISOString().split('T')[0]
-    );
-
-    const storedData = updatedHolidays.map(date => ({
-      date: date.toISOString(),
-      type: 'public-holiday' as const
-    }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
+    const currentDays = getStoredHolidays();
+    const updatedDays = currentDays.filter((_, i) => i !== index);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedDays));
   } catch (error) {
     console.error('Error removing holiday:', error);
   }
@@ -72,4 +50,4 @@ export function clearStoredHolidays() {
   } catch (error) {
     console.error('Error clearing holidays:', error);
   }
-} 
+}

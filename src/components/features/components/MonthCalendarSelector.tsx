@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { DayClickEventHandler } from "react-day-picker";
 import { useEffect, useState } from "react";
 import { format, isSameMonth, startOfMonth } from "date-fns";
-import { getStoredHolidays, storeHoliday, removeStoredHoliday } from "@/lib/storage/holidays";
 
 interface MonthCalendarSelectorProps {
   selectedDates: Date[];
@@ -23,13 +22,6 @@ export function MonthCalendarSelector({
   maxDate 
 }: MonthCalendarSelectorProps) {
   const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date(initialYear, initialMonth)));
-  const [storedHolidays, setStoredHolidays] = useState<Date[]>([]);
-
-  // Load stored holidays on mount
-  useEffect(() => {
-    const holidays = getStoredHolidays();
-    setStoredHolidays(holidays);
-  }, []);
 
   // Sync with parent component's month/year
   useEffect(() => {
@@ -41,20 +33,6 @@ export function MonthCalendarSelector({
 
   const handleDayClick: DayClickEventHandler = (day, modifiers) => {
     if (modifiers.disabled) return;
-    
-    // Update local storage
-    if (selectedDates.some(date => 
-      date.toISOString().split('T')[0] === day.toISOString().split('T')[0]
-    )) {
-      removeStoredHoliday(day);
-      setStoredHolidays(prev => prev.filter(date => 
-        date.toISOString().split('T')[0] !== day.toISOString().split('T')[0]
-      ));
-    } else {
-      storeHoliday(day);
-      setStoredHolidays(prev => [...prev, day]);
-    }
-
     onDateSelect(day);
   };
 
@@ -65,13 +43,10 @@ export function MonthCalendarSelector({
     return isBeforeMin || isAfterMax;
   };
 
-  // Combine selected dates with stored holidays for display
-  const allSelectedDates = [...selectedDates, ...storedHolidays];
-
   return (
     <Calendar
       mode="multiple"
-      selected={allSelectedDates}
+      selected={selectedDates}
       onDayClick={handleDayClick}
       month={currentDate}
       showOutsideDays={true}
