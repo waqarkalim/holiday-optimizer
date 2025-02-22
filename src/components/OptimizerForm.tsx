@@ -335,6 +335,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 <MonthCalendarSelector
                   selectedDates={holidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()))}
                   onDateSelect={handleHolidaySelect}
+                  colorScheme="amber"
                 />
 
                 {/* Selected Dates List */}
@@ -413,6 +414,7 @@ export function OptimizerForm({ onSubmit, isLoading = false }: OptimizerFormProp
                 <MonthCalendarSelector
                   selectedDates={customDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
                   onDateSelect={handleCustomDaySelect}
+                  colorScheme="violet"
                 />
 
                 {/* Selected Custom Days List */}
