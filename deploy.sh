@@ -5,11 +5,8 @@ set -e
 
 echo "🚀 Starting deployment process..."
 
-# Skip bootstrap in CI since it's already set up manually
-if [[ -z "${GITHUB_ACTIONS}" ]]; then
-  echo "📦 Installing dependencies..."
-  pnpm install
-fi
+echo "📦 Installing dependencies..."
+pnpm install
 
 echo "🧪 Running tests..."
 pnpm test
