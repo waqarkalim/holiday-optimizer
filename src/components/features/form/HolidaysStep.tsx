@@ -5,6 +5,7 @@ import { DateList } from '../components/DateList';
 import { parse } from 'date-fns';
 import { HolidaysStepProps } from './types';
 import { StepHeader } from './components/StepHeader';
+import { FormSection } from './components/FormSection';
 
 export function HolidaysStep({
   holidays,
@@ -14,10 +15,7 @@ export function HolidaysStep({
   onAutoDetect,
 }: HolidaysStepProps) {
   return (
-    <section
-      className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-amber-900/5 dark:ring-amber-300/10"
-      aria-labelledby="holidays-heading"
-    >
+    <FormSection colorScheme="amber" headingId="holidays-heading">
       <StepHeader
         number={3}
         title="Public Holidays"
@@ -60,6 +58,6 @@ export function HolidaysStep({
           />
         </div>
       </div>
-    </section>
+    </FormSection>
   );
 } 

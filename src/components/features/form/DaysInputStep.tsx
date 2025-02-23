@@ -2,13 +2,11 @@ import { Input } from '../../ui/input';
 import { cn } from '@/lib/utils';
 import { DaysInputStepProps } from './types';
 import { StepHeader } from './components/StepHeader';
+import { FormSection } from './components/FormSection';
 
 export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps) {
   return (
-    <section
-      className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-teal-900/5 dark:ring-teal-300/10 space-y-2"
-      aria-labelledby="days-heading"
-    >
+    <FormSection colorScheme="teal" headingId="days-heading">
       <StepHeader
         number={1}
         title="Start with Your Days"
@@ -52,6 +50,6 @@ export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps
           </p>
         )}
       </div>
-    </section>
+    </FormSection>
   );
 } 

@@ -5,6 +5,7 @@ import { OptimizationStrategy } from '@/types';
 import { KeyboardEvent } from 'react';
 import { StrategySelectionStepProps } from './types';
 import { StepHeader } from './components/StepHeader';
+import { FormSection } from './components/FormSection';
 
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
@@ -45,10 +46,7 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
   };
 
   return (
-    <section
-      className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-blue-900/5 dark:ring-blue-300/10 space-y-2"
-      aria-labelledby="strategy-heading"
-    >
+    <FormSection colorScheme="blue" headingId="strategy-heading">
       <StepHeader
         number={2}
         title="Pick Your Perfect Style"
@@ -120,6 +118,6 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
           );
         })}
       </div>
-    </section>
+    </FormSection>
   );
 } 

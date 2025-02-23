@@ -3,6 +3,7 @@ import { DateList } from '../components/DateList';
 import { parse } from 'date-fns';
 import { CompanyDaysStepProps } from './types';
 import { StepHeader } from './components/StepHeader';
+import { FormSection } from './components/FormSection';
 
 export function CompanyDaysStep({
   companyDaysOff,
@@ -11,10 +12,7 @@ export function CompanyDaysStep({
   onClearCompanyDays,
 }: CompanyDaysStepProps) {
   return (
-    <section
-      className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-violet-900/5 dark:ring-violet-300/10"
-      aria-labelledby="company-days-heading"
-    >
+    <FormSection colorScheme="violet" headingId="company-days-heading">
       <StepHeader
         number={4}
         title="Company Days Off"
@@ -42,6 +40,6 @@ export function CompanyDaysStep({
           showName={false}
         />
       </div>
-    </section>
+    </FormSection>
   );
 } 
