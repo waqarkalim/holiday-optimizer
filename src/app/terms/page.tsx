@@ -68,6 +68,7 @@ export default function TermsOfService() {
               <li>Uses your browser&apos;s Geolocation API to detect your location (with permission)</li>
               <li>Uses Nager.Date API for retrieving public holiday information</li>
               <li>Utilizes BigDataCloud API for location and timezone data</li>
+              <li>Uses Umami Analytics for anonymous usage statistics</li>
               <li>May be subject to API rate limits from these service providers</li>
               <li>Processes and stores data in accordance with our Privacy Policy</li>
             </ul>
@@ -78,6 +79,7 @@ export default function TermsOfService() {
               <li><strong>Browser Geolocation:</strong> Requests permission to access your current location</li>
               <li><strong>Nager.Date API:</strong> Provides public holiday data for different countries</li>
               <li><strong>BigDataCloud API:</strong> Provides geolocation and timezone services</li>
+              <li><strong>Umami Analytics:</strong> Privacy-focused analytics for understanding site usage</li>
             </ul>
             <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
               Service availability and functionality depend on these features and third-party providers.

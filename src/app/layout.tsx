@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from 'sonner';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,6 +31,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+    <Script defer src="https://cloud.umami.is/script.js"
+            data-website-id="7b755cde-abc3-42cd-a004-d0f012ec1757" />
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <ThemeProvider
       attribute="class"

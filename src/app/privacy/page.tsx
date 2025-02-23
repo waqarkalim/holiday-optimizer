@@ -77,6 +77,25 @@ export default function PrivacyPolicy() {
 
           <section className="mb-6">
             <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <span className="text-base">📊</span> Analytics
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              We use Umami Analytics, a privacy-focused analytics platform, to understand how our application is used:
+            </p>
+            <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
+              <li>Umami is cookie-free and fully GDPR compliant</li>
+              <li>No personal information is collected</li>
+              <li>Data collected includes: page views, referral sources, and country of origin</li>
+              <li>All data is anonymized and cannot be traced back to individuals</li>
+              <li>The analytics script is lightweight (less than 1KB) and doesn&apos;t impact site performance</li>
+            </ul>
+            <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
+              For more information about Umami&apos;s privacy practices, visit their <a href="https://umami.is/privacy" className="text-blue-500 hover:text-blue-600">Privacy Policy</a>.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
               <span className="text-base">☁️</span> Hosting Infrastructure
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
