@@ -48,14 +48,14 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
       className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-blue-900/5 dark:ring-blue-300/10 space-y-2"
       aria-labelledby="strategy-heading"
     >
-      <header>
+      <header className="mb-3">
         <h2 id="strategy-heading"
             className="text-xs font-medium text-blue-900 dark:text-blue-100 flex items-center gap-1.5">
           <span
             className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-900 text-[10px] font-medium text-blue-900 dark:text-blue-100">2</span>
           Pick Your Perfect Style
         </h2>
-        <p id="strategy-description" className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
+        <p className="text-[10px] leading-relaxed text-gray-600 dark:text-gray-300 mt-1">
           Choose how you&apos;d like to enjoy your time off. Each style is designed to match different
           preferences.
         </p>
@@ -64,7 +64,7 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
         role="radiogroup"
         aria-labelledby="strategy-heading"
         aria-describedby="strategy-description"
-        className="space-y-1.5"
+        className="space-y-2"
         onKeyDown={handleStrategyKeyDown}
       >
         {OPTIMIZATION_STRATEGIES.map((strategyOption, index) => {
@@ -75,7 +75,7 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
             <label
               key={strategyOption.id}
               className={cn(
-                'flex items-center p-2 rounded-lg transition-all duration-200 cursor-pointer',
+                'flex items-start p-2.5 rounded-lg transition-all duration-200 cursor-pointer',
                 'focus-within:ring-2 focus-within:ring-blue-400 dark:focus-within:ring-blue-600',
                 isSelected
                   ? 'bg-blue-50/80 dark:bg-blue-900/30 ring-1 ring-blue-900/10 dark:ring-blue-400/10'
@@ -91,31 +91,33 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
                 tabIndex={isSelected || (index === 0 && !strategy) ? 0 : -1}
                 onChange={() => onStrategyChange(strategyOption.id)}
               />
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex items-start gap-3 w-full">
                 <div className={cn(
-                  'p-1.5 rounded-md',
+                  'p-2 rounded-md mt-0.5',
                   isSelected
                     ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400',
                 )}>
-                  <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  <Icon className="h-4 w-4" aria-hidden="true" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium text-blue-900 dark:text-blue-100">
-                    {strategyOption.label}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                      {strategyOption.label}
+                    </p>
                     {strategyOption.id === 'balanced' && (
                       <span
-                        className="ml-1.5 inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-1.5 py-0.5 text-[10px] font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                        className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-[10px] font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
                         Recommended
                       </span>
                     )}
-                  </p>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-300">
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300 mt-1">
                     {strategyOption.description}
                   </p>
                 </div>
                 {isSelected && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-600 dark:bg-blue-300 flex-shrink-0" />
+                  <div className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-300 flex-shrink-0 mt-1.5" />
                 )}
               </div>
             </label>
