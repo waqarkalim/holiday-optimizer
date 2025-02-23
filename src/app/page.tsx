@@ -6,6 +6,7 @@ import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
 import { CompanyDayOff, OptimizationStrategy } from '@/types';
+import { optimizeDays } from '@/services/optimizer.improved';
 
 interface FormState {
   numberOfDays: number | null
@@ -35,7 +36,7 @@ const HomePage = () => {
 
     try {
       setIsOptimizing(true)
-      const result = optimizeCTODays({
+      const result = optimizeDays({
         numberOfDays: formState.numberOfDays,
         strategy: formState.strategy,
         year: currentYear,
