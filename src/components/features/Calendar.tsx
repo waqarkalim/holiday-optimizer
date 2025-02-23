@@ -13,19 +13,19 @@ const Calendar: React.FC = () => {
 
   const previousMonth = () => {
     const previousMonth = new Date(firstDayCurrentMonth);
-    previousMonth.setMonth(previousMonth.getMonth() - 1);
+    previousMonth.setMonth(previousMonth.getUTCMonth() - 1);
     setFirstDayCurrentMonth(previousMonth);
   };
 
   const nextMonth = () => {
     const nextMonth = new Date(firstDayCurrentMonth);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    nextMonth.setMonth(nextMonth.getUTCMonth() + 1);
     setFirstDayCurrentMonth(nextMonth);
   };
 
   const days = Array.from({ length: 42 }, (_, i) => {
     const date = new Date(firstDayCurrentMonth);
-    date.setDate(i - firstDayCurrentMonth.getDay() + 1);
+    date.setDate(i - firstDayCurrentMonth.getUTCDay() + 1);
     return date;
   });
 

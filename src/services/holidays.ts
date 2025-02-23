@@ -80,7 +80,7 @@ export const detectPublicHolidays = async (): Promise<DetectedHoliday[]> => {
     );
 
     // Get current year
-    const year = new Date().getFullYear();
+    const year = new Date().getUTCFullYear();
 
     // Fetch holidays from Nager.Date API
     const response = await fetch(

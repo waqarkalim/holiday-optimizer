@@ -182,7 +182,7 @@ function findOptimalCTOPositions(allDates: DayInfo[]): number[] {
 
 function calculatePositionScore(allDates: DayInfo[], index: number): number {
   const day = allDates[index];
-  const dayOfWeek = day.date.getDay();
+  const dayOfWeek = day.date.getUTCDay();
   let score = 1;
 
   // Prefer Mondays and Thursdays for optimal mini break positioning
@@ -191,7 +191,7 @@ function calculatePositionScore(allDates: DayInfo[], index: number): number {
   }
 
   // Consider seasonal weights
-  const month = day.date.getMonth();
+  const month = day.date.getUTCMonth();
   if (month >= MONTHS.JUNE && month <= MONTHS.AUGUST) {
     score *= SEASONAL_WEIGHTS.SUMMER;
   } else if (month === MONTHS.DECEMBER || month === MONTHS.JANUARY) {
@@ -291,7 +291,7 @@ function validateInputs(params: OptimizationParams): void {
   }
 
   // Validate year
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getUTCFullYear();
   if (params.year && (params.year < currentYear || params.year > currentYear + 5)) {
     throw new Error('Year must be between current year and 5 years in the future');
   }
@@ -360,14 +360,14 @@ function optimizeCTODays(params: OptimizationParams): OptimizationResult {
   const {
     numberOfDays,
     strategy = 'balanced',
-    year = new Date().getFullYear(),
+    year = new Date().getUTCFullYear(),
     holidays = [],
     companyDaysOff = [],
   } = params;
 
   // Use current date as start date if it's current year, otherwise use start of year
   const today = startOfToday();
-  const currentYear = today.getFullYear();
+  const currentYear = today.getUTCFullYear();
   const startDate = year === currentYear ? today : startOfYear(new Date(year, 0));
   const endDate = endOfYear(new Date(year, 0));
   
@@ -663,13 +663,13 @@ function calculateCTODayEffectiveness(allDates: DayInfo[], index: number): numbe
   }
 
   // Check if it's on a Monday or Friday
-  const dayOfWeek = day.date.getDay();
+  const dayOfWeek = day.date.getUTCDay();
   if (dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) {
     score += SCORING_MULTIPLIERS.OPTIMAL_DAY_BONUS;
   }
 
   // Consider seasonal weights
-  const month = day.date.getMonth();
+  const month = day.date.getUTCMonth();
   if (month >= MONTHS.JUNE && month <= MONTHS.AUGUST) score *= SEASONAL_WEIGHTS.SUMMER;
   else if (month === MONTHS.DECEMBER || month === MONTHS.JANUARY) score *= SEASONAL_WEIGHTS.WINTER_HOLIDAY;
 
@@ -725,7 +725,7 @@ function findSuboptimalCTOPositions(allDates: DayInfo[], strategy: OptimizationS
 function calculateSuboptimalPositionScore(allDates: DayInfo[], index: number, strategy: OptimizationStrategy): number {
   let score = OPTIMIZATION_CONSTANTS.EFFICIENCY_CALCULATION.DEFAULT_EFFICIENCY;
   const day = allDates[index];
-  const dayOfWeek = day.date.getDay();
+  const dayOfWeek = day.date.getUTCDay();
 
   switch (strategy) {
     case 'miniBreaks':
@@ -1054,7 +1054,7 @@ function selectCandidates(
   const params = {
     numberOfDays,
     strategy,
-    year: allDates[0].date.getFullYear(),
+    year: allDates[0].date.getUTCFullYear(),
     companyDaysOff: allDates
       .filter(d => d.isCompanyDayOff)
       .map(d => ({
@@ -1446,7 +1446,7 @@ function calculateStrategyScore(
   }
 
   // Apply seasonal weights with company day off consideration
-  const month = new Date(allDates[candidate.days[0]].date).getMonth();
+  const month = new Date(allDates[candidate.days[0]].date).getUTCMonth();
   const seasonalWeight = getSeasonalWeight(month);
   score *= seasonalWeight;
 
@@ -1620,7 +1620,7 @@ function createLongWeekend(usedDays: Set<number>, allDates: DayInfo[]): BreakCan
     if (usedDays.has(i)) continue;
 
     const date = allDates[i].date;
-    const dayOfWeek = date.getDay();
+    const dayOfWeek = date.getUTCDay();
 
     if ((dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.FRIDAY) && // Monday or Friday
       !allDates[i].isWeekend &&
@@ -1648,7 +1648,7 @@ function createLongWeekend(usedDays: Set<number>, allDates: DayInfo[]): BreakCan
 
   // Choose the best position (prefer earlier dates)
   const selectedDay = potentialDays[0];
-  const dayOfWeek = allDates[selectedDay].date.getDay();
+  const dayOfWeek = allDates[selectedDay].date.getUTCDay();
 
   return {
     type: 'extension',
@@ -1794,7 +1794,7 @@ function createStandaloneDay(usedDays: Set<number>, allDates: DayInfo[]): BreakC
 
     const day = allDates[i];
     if (!day.isWeekend && !day.isPublicHoliday && !day.isCompanyDayOff) {
-      const dayOfWeek = day.date.getDay();
+      const dayOfWeek = day.date.getUTCDay();
       let score = 0;
 
       // Score based on position
@@ -1967,7 +1967,7 @@ function createMiniBreak(usedDays: Set<number>, allDates: DayInfo[]): BreakCandi
 function calculateMiniBreakStartScore(allDates: DayInfo[], index: number): number {
   let score = 1;
   const day = allDates[index];
-  const dayOfWeek = day.date.getDay();
+  const dayOfWeek = day.date.getUTCDay();
   
   // Prefer Mondays and Thursdays
   if (dayOfWeek === DAYS.MONDAY || dayOfWeek === DAYS.THURSDAY) {
@@ -1987,7 +1987,7 @@ function calculateMiniBreakStartScore(allDates: DayInfo[], index: number): numbe
   }
   
   // Consider seasonal weights
-  const month = day.date.getMonth();
+  const month = day.date.getUTCMonth();
   score *= getSeasonalWeight(month);
   
   return score;
@@ -1997,8 +1997,8 @@ function calculateMiniBreakEfficiency(allDates: DayInfo[], sequenceDays: number[
   let efficiency = sequenceDays.length / workdayCount;
   
   // Apply position bonuses
-  const startDayOfWeek = allDates[sequenceDays[0]].date.getDay();
-  const endDayOfWeek = allDates[sequenceDays[sequenceDays.length - 1]].date.getDay();
+  const startDayOfWeek = allDates[sequenceDays[0]].date.getUTCDay();
+  const endDayOfWeek = allDates[sequenceDays[sequenceDays.length - 1]].date.getUTCDay();
   
   if (startDayOfWeek === DAYS.MONDAY || endDayOfWeek === DAYS.FRIDAY) {
     efficiency *= POSITION_BONUSES.MONDAY_FRIDAY;
@@ -2024,8 +2024,8 @@ function analyzeCompanyDayOffPattern(companyDaysOff: Array<CompanyDayOff>): Comp
       hasRecurring = true;
     } else {
       const date = parseISO(companyDay.date);
-      weekdayPattern[date.getDay()] = true;
-      monthlyPattern[date.getMonth()] = true;
+      weekdayPattern[date.getUTCDay()] = true;
+      monthlyPattern[date.getUTCMonth()] = true;
     }
   });
 

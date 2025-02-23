@@ -17,7 +17,7 @@ export const Logo = () =>
           {PROJECT_NAME}
         </h2>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Maximize your time off in {new Date().getFullYear()}
+          Maximize your time off in {new Date().getUTCFullYear()}
         </p>
       </div>
     </div>

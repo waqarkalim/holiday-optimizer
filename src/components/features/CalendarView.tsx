@@ -53,7 +53,7 @@ export const CalendarView = ({ stats, optimizedDays }: CalendarViewProps) => <mo
         <MonthCalendar
           key={index}
           month={index}
-          year={(new Date()).getFullYear()}
+          year={(new Date()).getUTCFullYear()}
           days={optimizedDays}
         />
       ))}

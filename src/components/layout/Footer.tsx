@@ -73,7 +73,7 @@ const Footer = () => (
         {/* Bottom Bar */}
         <div className="pt-4 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} {PROJECT_NAME}. All rights reserved.
+            &copy; {new Date().getUTCFullYear()} {PROJECT_NAME}. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 mt-3 sm:mt-0">
             <Link

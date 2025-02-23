@@ -22,7 +22,7 @@ const DEFAULT_FORM_STATE: FormState = {
 }
 
 const HomePage = () => {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getUTCFullYear()
   const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false)
