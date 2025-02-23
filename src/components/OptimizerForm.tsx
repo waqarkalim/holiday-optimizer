@@ -105,11 +105,29 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
   const handleAutoDetectHolidays = async () => {
     try {
       const detectedHolidays = await detectPublicHolidays();
-      dispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: detectedHolidays });
-      detectedHolidays.forEach(storeHoliday);
+      
+      // Create a map of existing holidays that weren't detected
+      const existingHolidayMap = new Map(
+        holidays
+          .filter(h => !detectedHolidays.some(dh => dh.date === h.date))
+          .map(h => [h.date, h])
+      );
+
+      // Combine detected holidays with existing non-detected holidays
+      const combinedHolidays = [
+        ...detectedHolidays, // Put detected holidays first (with official names)
+        ...Array.from(existingHolidayMap.values()) // Keep custom holidays that weren't detected
+      ];
+
+      // Update both state and storage
+      dispatch({ type: 'SET_HOLIDAYS', payload: combinedHolidays });
+      
+      // Clear existing storage and store the combined holidays
+      clearStoredHolidays();
+      combinedHolidays.forEach(storeHoliday);
 
       toast.success('Holidays detected', {
-        description: `Found ${detectedHolidays.length} public holidays for your location.`,
+        description: `Found ${detectedHolidays.length} public holidays for your location. Any custom holidays have been preserved.`,
       });
     } catch (error) {
       console.error('Error detecting holidays:', error);
