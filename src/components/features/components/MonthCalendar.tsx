@@ -1,4 +1,4 @@
-import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOfMonth } from 'date-fns';
+import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOfMonth, isPast, startOfDay, isToday } from 'date-fns';
 import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
@@ -43,6 +43,18 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   })
 
   const getDayColor = (day: OptimizedDay) => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date())
+    
+    // If it's today, return a special background
+    if (isToday(date)) {
+      return 'bg-blue-50 dark:bg-blue-900/30'
+    }
+    
+    // If the date is in the past, return a muted background
+    if (isPast(startOfDay(date))) {
+      return 'bg-gray-100 dark:bg-gray-800/30'
+    }
+    
     // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
     if (hasCompanyDaysOff && day.isCompanyDayOff) return 'bg-emerald-100 dark:bg-emerald-900/50'
     if (hasPublicHoliday && day.isPublicHoliday) return 'bg-amber-100 dark:bg-amber-900/50'
@@ -52,6 +64,18 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   }
 
   const getDayTextColor = (day: OptimizedDay) => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date())
+    
+    // If it's today, return a special text color
+    if (isToday(date)) {
+      return 'text-blue-600 dark:text-blue-300 font-bold'
+    }
+    
+    // If the date is in the past, return a muted text color
+    if (isPast(startOfDay(date))) {
+      return 'text-gray-400 dark:text-gray-500'
+    }
+    
     // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
     if (hasCompanyDaysOff && day.isCompanyDayOff) return 'text-emerald-900 dark:text-emerald-100'
     if (hasPublicHoliday && day.isPublicHoliday) return 'text-amber-900 dark:text-amber-100'
@@ -61,6 +85,18 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   }
 
   const getDayTooltip = (day: OptimizedDay) => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date())
+    
+    // If it's today, show "Today"
+    if (isToday(date)) {
+      return 'Today'
+    }
+    
+    // If the date is in the past, return an explanation
+    if (isPast(startOfDay(date))) {
+      return 'Past dates are not considered in the optimization'
+    }
+    
     // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
     if (hasCompanyDaysOff && day.isCompanyDayOff) return day.companyDayName || 'Company Day Off'
     if (hasPublicHoliday && day.isPublicHoliday) return day.publicHolidayName || 'Public Holiday'
@@ -102,7 +138,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                   <div 
                     className={clsx(
                       'absolute inset-0.5 rounded-md',
-                      getDayColor(day)
+                      getDayColor(day),
+                      isToday(parse(day.date, 'yyyy-MM-dd', new Date())) && 'ring-2 ring-blue-400 dark:ring-blue-500 shadow-sm'
                     )}
                   />
                   <Tooltip>
