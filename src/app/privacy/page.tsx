@@ -69,8 +69,8 @@ export default function PrivacyPolicy() {
             </ul>
             <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
               For more information about these services&apos; privacy policies, you can visit their respective websites:
-              <a href="https://www.bigdatacloud.com/privacy" className="text-blue-500 hover:text-blue-600 ml-1">BigDataCloud Privacy Policy</a>,
-              <a href="https://date.nager.at/imprint" className="text-blue-500 hover:text-blue-600 ml-1">Nager.Date Imprint</a>, and
+              <a href="https://www.bigdatacloud.com/privacy-and-cookie-policy" className="text-blue-500 hover:text-blue-600 ml-1">BigDataCloud Privacy Policy</a>,
+              <a href="https://date.nager.at/Legal/Privacy" className="text-blue-500 hover:text-blue-600 ml-1">Nager.Date Imprint</a>, and
               <a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API#privacy" className="text-blue-500 hover:text-blue-600 ml-1">MDN Geolocation Privacy</a>.
             </p>
           </section>
