@@ -1,5 +1,6 @@
 import { StrategyOption } from '@/types';
 import { BREAK_LENGTHS } from './services/optimizer.constants';
+import { isProd } from '@/lib/utils';
 
 export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   {
@@ -160,4 +161,6 @@ export const MONTHS = [
 
 export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
-export const PROJECT_NAME = 'Holiday Planner'
+export const PROJECT_NAME = 'Holiday Planner';
+
+export const UMAMI_WEBSITE_ID = isProd() ? '7b755cde-abc3-42cd-a004-d0f012ec1757' : '89a9e611-e052-4f9a-aaea-754e67065d3f';

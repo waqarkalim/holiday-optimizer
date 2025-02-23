@@ -8,7 +8,7 @@ import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from 'sonner';
 import Script from 'next/script';
-import { isProd } from '@/lib/utils';
+import { UMAMI_WEBSITE_ID } from '@/constants';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,12 +28,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-    {isProd() && (
-      <Script defer src="https://cloud.umami.is/script.js" data-website-id="7b755cde-abc3-42cd-a004-d0f012ec1757" />
-    )}
-    {!isProd() && (
-      <Script defer src="https://cloud.umami.is/script.js" data-website-id="89a9e611-e052-4f9a-aaea-754e67065d3f" />
-    )}
+    <Script defer src="https://cloud.umami.is/script.js" data-website-id={UMAMI_WEBSITE_ID} />
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <ThemeProvider
       attribute="class"
