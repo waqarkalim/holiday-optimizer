@@ -4,6 +4,7 @@ import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { OptimizationStrategy } from '@/types';
 import { KeyboardEvent } from 'react';
 import { StrategySelectionStepProps } from './types';
+import { StepHeader } from './components/StepHeader';
 
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
@@ -48,18 +49,13 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
       className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-blue-900/5 dark:ring-blue-300/10 space-y-2"
       aria-labelledby="strategy-heading"
     >
-      <header className="mb-3">
-        <h2 id="strategy-heading"
-            className="text-xs font-medium text-blue-900 dark:text-blue-100 flex items-center gap-1.5">
-          <span
-            className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-900 text-[10px] font-medium text-blue-900 dark:text-blue-100">2</span>
-          Pick Your Perfect Style
-        </h2>
-        <p className="text-[10px] leading-relaxed text-gray-600 dark:text-gray-300 mt-1">
-          Choose how you&apos;d like to enjoy your time off. Each style is designed to match different
-          preferences.
-        </p>
-      </header>
+      <StepHeader
+        number={2}
+        title="Pick Your Perfect Style"
+        description="Choose how you'd like to enjoy your time off. Each style is designed to match different preferences."
+        colorScheme="blue"
+        id="strategy-heading"
+      />
       <div
         role="radiogroup"
         aria-labelledby="strategy-heading"

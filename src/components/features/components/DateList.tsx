@@ -17,6 +17,7 @@ interface DateListProps {
   colorScheme: 'amber' | 'violet';
   onRemove: (index: number) => void;
   onClearAll: () => void;
+  showName?: boolean;
 }
 
 const colorStyles = {

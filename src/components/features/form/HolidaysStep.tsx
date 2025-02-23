@@ -4,6 +4,7 @@ import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
 import { DateList } from '../components/DateList';
 import { parse } from 'date-fns';
 import { HolidaysStepProps } from './types';
+import { StepHeader } from './components/StepHeader';
 
 export function HolidaysStep({
   holidays,
@@ -16,21 +17,14 @@ export function HolidaysStep({
     <section
       className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-amber-900/5 dark:ring-amber-300/10"
       aria-labelledby="holidays-heading"
-      tabIndex={0}
     >
-      <header className="mb-4">
-        <h2 id="holidays-heading"
-            className="text-xs font-medium text-amber-900 dark:text-amber-100 flex items-center gap-2">
-          <span
-            className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900 text-[10px] font-medium text-amber-900 dark:text-amber-100"
-            aria-hidden="true"
-          >3</span>
-          Public Holidays
-        </h2>
-        <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-          Find holidays in your area instantly, or pick specific dates from the calendar.
-        </p>
-      </header>
+      <StepHeader
+        number={3}
+        title="Public Holidays"
+        description="Find holidays in your area instantly, or pick specific dates from the calendar."
+        colorScheme="amber"
+        id="holidays-heading"
+      />
 
       <div className="space-y-2" role="group" aria-labelledby="holidays-heading">
         <Button

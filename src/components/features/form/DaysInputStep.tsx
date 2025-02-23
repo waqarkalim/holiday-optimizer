@@ -1,6 +1,7 @@
 import { Input } from '../../ui/input';
 import { cn } from '@/lib/utils';
 import { DaysInputStepProps } from './types';
+import { StepHeader } from './components/StepHeader';
 
 export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps) {
   return (
@@ -8,18 +9,13 @@ export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps
       className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-teal-900/5 dark:ring-teal-300/10 space-y-2"
       aria-labelledby="days-heading"
     >
-      <header className="mb-3">
-        <h2 id="days-heading"
-            className="text-sm font-semibold text-teal-900 dark:text-teal-100 flex items-center gap-2">
-          <span
-            className="flex items-center justify-center w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900 text-xs font-medium text-teal-900 dark:text-teal-100">1</span>
-          Start with Your Days
-        </h2>
-        <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300 mt-1.5">
-          How many paid time off days do you have? We&apos;ll optimize your days from today until the end of the
-          year, making every single one count.
-        </p>
-      </header>
+      <StepHeader
+        number={1}
+        title="Start with Your Days"
+        description="How many paid time off days do you have? We'll optimize your days from today until the end of the year, making every single one count."
+        colorScheme="teal"
+        id="days-heading"
+      />
       <div className="pt-1">
         <label htmlFor="days" className="sr-only">Enter number of CTO days available (numeric input field)</label>
         <Input
