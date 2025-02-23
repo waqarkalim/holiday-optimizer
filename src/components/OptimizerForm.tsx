@@ -7,13 +7,20 @@ import { format } from 'date-fns';
 import { Calendar, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOptimizer } from '@/contexts/OptimizerContext';
-import { clearStoredHolidays, getStoredHolidays, removeStoredHoliday, storeHoliday } from '@/lib/storage/holidays';
 import {
   clearStoredCompanyDays,
   getStoredCompanyDays,
   removeStoredCompanyDay,
   storeCompanyDay,
+  updateStoredCompanyDay,
 } from '@/lib/storage/companyDays';
+import {
+  clearStoredHolidays,
+  getStoredHolidays,
+  removeStoredHoliday,
+  storeHoliday,
+  updateStoredHoliday,
+} from '@/lib/storage/holidays';
 import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
 import { DaysInputStep } from './features/form/DaysInputStep';
@@ -66,7 +73,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     if (isSelected) {
       const index = companyDaysOff.findIndex(day => day.date === formattedDate);
       dispatch({ type: 'REMOVE_COMPANY_DAY', payload: index });
-      removeStoredCompanyDay(index);
+      removeStoredCompanyDay(formattedDate);
     } else {
       const companyDay = {
         name: format(date, 'MMMM d, yyyy'),
@@ -84,7 +91,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     if (isSelected) {
       const index = holidays.findIndex(day => day.date === formattedDate);
       dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
-      removeStoredHoliday(index);
+      removeStoredHoliday(formattedDate);
     } else {
       const holiday = {
         name: format(date, 'MMMM d, yyyy'),
@@ -110,6 +117,24 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
         description: error instanceof Error ? error.message : 'Failed to detect holidays for your location.',
       });
     }
+  };
+
+  const handleHolidayNameUpdate = (index: number, newName: string, date: string) => {
+    const updatedHolidays = holidays.map(holiday => 
+      holiday.date === date ? { ...holiday, name: newName } : holiday
+    );
+    
+    dispatch({ type: 'SET_HOLIDAYS', payload: updatedHolidays });
+    updateStoredHoliday(date, newName);
+  };
+
+  const handleCompanyDayNameUpdate = (index: number, newName: string, date: string) => {
+    const updatedCompanyDays = companyDaysOff.map(day => 
+      day.date === date ? { ...day, name: newName } : day
+    );
+    
+    dispatch({ type: 'SET_COMPANY_DAYS', payload: updatedCompanyDays });
+    updateStoredCompanyDay(date, newName);
   };
 
   return (
@@ -145,13 +170,14 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               onHolidaySelect={handleHolidaySelect}
               onHolidayRemove={(index) => {
                 dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
-                removeStoredHoliday(index);
+                removeStoredHoliday(holidays[index].date);
               }}
               onClearHolidays={() => {
                 dispatch({ type: 'CLEAR_HOLIDAYS' });
                 clearStoredHolidays();
               }}
               onAutoDetect={handleAutoDetectHolidays}
+              onHolidayNameUpdate={(index, newName) => handleHolidayNameUpdate(index, newName, holidays[index].date)}
             />
 
             <CompanyDaysStep
@@ -159,12 +185,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               onCompanyDaySelect={handleCompanyDaySelect}
               onCompanyDayRemove={(index) => {
                 dispatch({ type: 'REMOVE_COMPANY_DAY', payload: index });
-                removeStoredCompanyDay(index);
+                removeStoredCompanyDay(companyDaysOff[index].date);
               }}
               onClearCompanyDays={() => {
                 dispatch({ type: 'CLEAR_COMPANY_DAYS' });
                 clearStoredCompanyDays();
               }}
+              onCompanyDayNameUpdate={(index, newName) => handleCompanyDayNameUpdate(index, newName, companyDaysOff[index].date)}
             />
           </div>
         </div>

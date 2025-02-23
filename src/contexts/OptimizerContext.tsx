@@ -41,6 +41,7 @@ type OptimizerAction =
   | { type: 'CLEAR_HOLIDAYS' }
   | { type: 'CLEAR_COMPANY_DAYS' }
   | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string, name: string }> }
+  | { type: 'SET_HOLIDAYS'; payload: Array<{ date: string, name: string }> }
 
 const initialState: OptimizerState = {
   days: "",
@@ -231,6 +232,13 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         ...state,
         holidays: updatedHolidays,
         selectedDates: updatedSelectedDates
+      };
+    }
+
+    case 'SET_HOLIDAYS': {
+      return {
+        ...state,
+        holidays: action.payload
       };
     }
 

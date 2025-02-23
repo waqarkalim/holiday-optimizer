@@ -27,6 +27,7 @@ export interface HolidaysStepProps extends FormStepProps {
   onHolidayRemove: (index: number) => void;
   onClearHolidays: () => void;
   onAutoDetect: () => void;
+  onHolidayNameUpdate: (index: number, newName: string) => void;
 }
 
 export interface CompanyDaysStepProps extends FormStepProps {
@@ -34,4 +35,5 @@ export interface CompanyDaysStepProps extends FormStepProps {
   onCompanyDaySelect: (date: Date) => void;
   onCompanyDayRemove: (index: number) => void;
   onClearCompanyDays: () => void;
+  onCompanyDayNameUpdate: (index: number, newName: string) => void;
 } 

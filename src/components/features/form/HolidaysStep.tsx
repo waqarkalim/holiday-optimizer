@@ -13,13 +13,14 @@ export function HolidaysStep({
   onHolidayRemove,
   onClearHolidays,
   onAutoDetect,
+  onHolidayNameUpdate,
 }: HolidaysStepProps) {
   return (
     <FormSection colorScheme="amber" headingId="holidays-heading">
       <StepHeader
         number={3}
         title="Public Holidays"
-        description="Find holidays in your area instantly, or pick specific dates from the calendar."
+        description="Find holidays in your area instantly, or pick specific dates from the calendar. Click the pencil icon to customize holiday names."
         colorScheme="amber"
         id="holidays-heading"
       />
@@ -55,6 +56,7 @@ export function HolidaysStep({
             colorScheme="amber"
             onRemove={onHolidayRemove}
             onClearAll={onClearHolidays}
+            onUpdateName={onHolidayNameUpdate}
           />
         </div>
       </div>

@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { parse, format } from 'date-fns';
-import { X, Calendar, Trash2 } from 'lucide-react';
+import { X, Calendar, Trash2, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DateItem {
@@ -18,6 +19,7 @@ interface DateListProps {
   onRemove: (index: number) => void;
   onClearAll: () => void;
   showName?: boolean;
+  onUpdateName?: (index: number, newName: string) => void;
 }
 
 const colorStyles = {
@@ -32,6 +34,7 @@ const colorStyles = {
     focus: 'focus:ring-amber-400/30 dark:focus:ring-amber-300/30',
     divider: 'border-amber-200/30 dark:border-amber-800/30',
     highlight: 'bg-amber-100/50 dark:bg-amber-900/40',
+    input: 'border-amber-200 dark:border-amber-800 focus:border-amber-400 dark:focus:border-amber-600',
   },
   violet: {
     container: 'bg-gradient-to-br from-violet-50/80 to-violet-100/30 dark:from-violet-900/20 dark:to-violet-900/10',
@@ -44,27 +47,74 @@ const colorStyles = {
     focus: 'focus:ring-violet-400/30 dark:focus:ring-violet-300/30',
     divider: 'border-violet-200/30 dark:border-violet-800/30',
     highlight: 'bg-violet-100/50 dark:bg-violet-900/40',
+    input: 'border-violet-200 dark:border-violet-800 focus:border-violet-400 dark:focus:border-violet-600',
   },
 } as const;
 
-export function DateList({ items, title, colorScheme, onRemove, onClearAll }: DateListProps) {
-  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
+export function DateList({ items, title, colorScheme, onRemove, onClearAll, showName = true, onUpdateName }: DateListProps) {
+  const [editingDate, setEditingDate] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState("");
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>, index: number, date: string) => {
     switch (e.key) {
       case 'Delete':
-      case 'Backspace':
-        e.preventDefault();
-        onRemove(index);
+      case 'Backspace': {
+        if (editingDate === null) {
+          e.preventDefault();
+          onRemove(index);
+        }
         break;
-      case 'ArrowUp':
+      }
+      case 'ArrowUp': {
         e.preventDefault();
-        const prevButton = document.querySelector(`[data-index="${index - 1}"]`) as HTMLButtonElement;
-        prevButton?.focus();
+        if (editingDate === null) {
+          const prevButton = document.querySelector(`[data-index="${index - 1}"]`) as HTMLButtonElement;
+          prevButton?.focus();
+        }
         break;
-      case 'ArrowDown':
+      }
+      case 'ArrowDown': {
         e.preventDefault();
-        const nextButton = document.querySelector(`[data-index="${index + 1}"]`) as HTMLButtonElement;
-        nextButton?.focus();
+        if (editingDate === null) {
+          const nextButton = document.querySelector(`[data-index="${index + 1}"]`) as HTMLButtonElement;
+          nextButton?.focus();
+        }
         break;
+      }
+      case 'Enter': {
+        if (editingDate !== null && onUpdateName) {
+          e.preventDefault();
+          const index = items.findIndex(item => item.date === editingDate);
+          if (index !== -1) {
+            onUpdateName(index, editingValue.trim());
+          }
+          setEditingDate(null);
+        }
+        break;
+      }
+      case 'Escape': {
+        if (editingDate !== null) {
+          e.preventDefault();
+          setEditingDate(null);
+        }
+        break;
+      }
+    }
+  };
+
+  const startEditing = (date: string, currentName: string) => {
+    if (!onUpdateName) return;
+    setEditingValue(currentName);
+    setEditingDate(date);
+  };
+
+  const handleBlur = () => {
+    if (editingDate !== null && onUpdateName) {
+      const index = items.findIndex(item => item.date === editingDate);
+      if (index !== -1) {
+        onUpdateName(index, editingValue.trim());
+      }
+      setEditingDate(null);
     }
   };
 
@@ -174,25 +224,67 @@ export function DateList({ items, title, colorScheme, onRemove, onClearAll }: Da
               >
                 <div className="flex items-center gap-3 px-3 py-2">
                   <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      'text-sm font-medium',
-                      colorStyles[colorScheme].text
-                    )}>
-                      {item.name}
-                    </p>
-                    <time 
-                      dateTime={item.date}
-                      className={cn('text-[11px] block mt-0.5', colorStyles[colorScheme].muted)}
-                    >
-                      {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, MMMM d, yyyy')}
-                    </time>
+                    {editingDate === item.date ? (
+                      <Input
+                        autoFocus
+                        value={editingValue}
+                        onChange={(e) => setEditingValue(e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(e, index, item.date)}
+                        onBlur={handleBlur}
+                        className={cn(
+                          'h-7 text-sm font-medium',
+                          'bg-white dark:bg-gray-900',
+                          colorStyles[colorScheme].input,
+                          colorStyles[colorScheme].text,
+                        )}
+                        aria-label={`Edit name for ${format(parse(item.date, 'yyyy-MM-dd', new Date()), 'MMMM d, yyyy')}`}
+                      />
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <p className={cn(
+                            'text-sm font-medium',
+                            colorStyles[colorScheme].text
+                          )}>
+                            {item.name}
+                          </p>
+                          {onUpdateName && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startEditing(item.date, item.name)}
+                              className={cn(
+                                'h-6 w-6 p-0',
+                                'opacity-0 group-hover/item:opacity-100',
+                                'transition-all duration-200',
+                                colorStyles[colorScheme].hover,
+                                'hover:scale-110 active:scale-95',
+                              )}
+                              aria-label={`Edit name for ${item.name}`}
+                            >
+                              <Pencil className={cn(
+                                'h-3 w-3',
+                                colorStyles[colorScheme].accent
+                              )} />
+                            </Button>
+                          )}
+                        </div>
+                        <time 
+                          dateTime={item.date}
+                          className={cn('text-[11px] block mt-0.5', colorStyles[colorScheme].muted)}
+                        >
+                          {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, MMMM d, yyyy')}
+                        </time>
+                      </>
+                    )}
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => onRemove(index)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index, item.date)}
                     className={cn(
                       'h-7 w-7 p-0',
                       'opacity-0 group-hover/item:opacity-100',

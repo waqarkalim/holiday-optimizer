@@ -10,13 +10,14 @@ export function CompanyDaysStep({
   onCompanyDaySelect,
   onCompanyDayRemove,
   onClearCompanyDays,
+  onCompanyDayNameUpdate,
 }: CompanyDaysStepProps) {
   return (
     <FormSection colorScheme="violet" headingId="company-days-heading">
       <StepHeader
         number={4}
         title="Company Days Off"
-        description="Select your company's special days off (like Summer Fridays or team events). We'll work these into your perfect schedule."
+        description="Select your company's special days off (like Summer Fridays or team events). Click the pencil icon to customize event names."
         colorScheme="violet"
         id="company-days-heading"
       />
@@ -37,7 +38,7 @@ export function CompanyDaysStep({
           colorScheme="violet"
           onRemove={onCompanyDayRemove}
           onClearAll={onClearCompanyDays}
-          showName={false}
+          onUpdateName={onCompanyDayNameUpdate}
         />
       </div>
     </FormSection>
