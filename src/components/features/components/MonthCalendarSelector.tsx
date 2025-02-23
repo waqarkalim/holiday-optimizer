@@ -2,7 +2,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { DayClickEventHandler } from 'react-day-picker';
 import { useState } from 'react';
-import { startOfMonth, format } from 'date-fns';
+import { startOfMonth } from 'date-fns';
 
 interface MonthCalendarSelectorProps {
   selectedDates: Date[];
@@ -62,7 +62,6 @@ export function MonthCalendarSelector({
     },
   };
 
-  const currentMonthLabel = format(currentDate, 'MMMM yyyy');
   const calendarType = colorScheme === 'amber' ? 'holidays' : 'company days';
 
   return (

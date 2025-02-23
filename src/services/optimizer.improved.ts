@@ -1,11 +1,10 @@
 import {
+  Break,
   OptimizationParams,
   OptimizationResult,
-  OptimizedDay,
-  Break,
   OptimizationStats,
   OptimizationStrategy,
-  CompanyDayOff,
+  OptimizedDay,
 } from '@/types';
 
 /* -----------------------------
@@ -18,12 +17,6 @@ const formatDate = (date: Date): string => {
   const mo = String(date.getMonth() + 1).padStart(2, '0');
   const dy = String(date.getDate()).padStart(2, '0');
   return `${yr}-${mo}-${dy}`;
-};
-
-// Parse a YYYY-MM-DD formatted string into a Date object.
-const parseDate = (dateStr: string): Date => {
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day);
 };
 
 // Add a specified number of days to a Date object.
@@ -217,7 +210,7 @@ const pruneCandidateSegments = (
   availableCTO: number
 ): CandidateSegment[] => {
   // Filter out segments that exceed available CTO days.
-  let filtered = segments.filter(seg => seg.ctoUsed <= availableCTO);
+  const filtered = segments.filter(seg => seg.ctoUsed <= availableCTO);
   const grouped = new Map<number, CandidateSegment[]>();
   for (const seg of filtered) {
     const group = grouped.get(seg.startIdx) || [];
@@ -352,7 +345,6 @@ const forceExtendSegments = (
 const addForcedSegments = (
   calendar: OptimizedDay[],
   remainingCTO: number,
-  existingBreaks: Break[]
 ): Break[] => {
   const forcedBreaks: Break[] = [];
   const totalDays = calendar.length;
@@ -447,7 +439,7 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
   while (remainingCTO > 0 && remainingCTO < prevRemainingCTO) {
     prevRemainingCTO = remainingCTO;
     remainingCTO = forceExtendSegments(calendar, breaks, remainingCTO);
-    const forcedBreaks = addForcedSegments(calendar, remainingCTO, breaks);
+    const forcedBreaks = addForcedSegments(calendar, remainingCTO);
     forcedBreaks.forEach(brk => breaks.push(brk));
     usedCTO = breaks.reduce((acc, br) => acc + br.ctoDays, 0);
     remainingCTO = availableCTO - usedCTO;

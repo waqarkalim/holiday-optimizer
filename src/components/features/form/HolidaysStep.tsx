@@ -1,4 +1,4 @@
-import { MapPin, Calendar } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
 import { DateList } from '../components/DateList';

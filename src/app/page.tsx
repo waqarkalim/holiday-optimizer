@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { optimizeCTODays } from '@/services/optimizer.deepseek';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
-import { CompanyDayOff, OptimizationStrategy, OptimizedDay, OptimizationStats, OptimizationResult } from '@/types';
-import { optimizeDays, optimizeDaysAsync } from '@/services/optimizer.improved';
+import { CompanyDayOff, OptimizationResult, OptimizationStrategy } from '@/types';
+import { optimizeDaysAsync } from '@/services/optimizer.improved';
 
 interface FormState {
   numberOfDays: number | null
@@ -15,16 +14,8 @@ interface FormState {
   holidays: Array<{ date: string, name: string }>
 }
 
-const DEFAULT_FORM_STATE: FormState = {
-  numberOfDays: null,
-  strategy: 'balanced',
-  companyDaysOff: [],
-  holidays: []
-}
-
 const HomePage = () => {
   const currentYear = new Date().getUTCFullYear();
-  const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
@@ -93,7 +84,6 @@ const HomePage = () => {
                     companyDaysOff,
                     holidays
                   };
-                  setFormState(newFormState);
                   handleOptimize(newFormState);
                 }}
                 isLoading={isOptimizing}
