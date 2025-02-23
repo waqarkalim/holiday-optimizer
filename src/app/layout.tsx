@@ -8,7 +8,6 @@ import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from 'sonner';
 import Script from 'next/script';
-import { isProd } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,21 +24,16 @@ export const viewport: Viewport = {
   userScalable: true,
 };
 
-export default function RootLayout({
-                                     children,
-                                   }: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {isProd() && (
-        <Script 
-          defer 
-          src="https://cloud.umami.is/script.js"
-          data-website-id="7b755cde-abc3-42cd-a004-d0f012ec1757" 
-        />
-      )}
-      <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
+    <Script
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="7b755cde-abc3-42cd-a004-d0f012ec1757"
+      data-domain="ctoplanner.com"
+    />
+    <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <ThemeProvider
       attribute="class"
       defaultTheme="system"
