@@ -183,12 +183,14 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               'disabled:opacity-50 disabled:cursor-not-allowed',
               'focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-violet-300 focus:ring-offset-2',
             )}
+            tabIndex={0}
+            role="button"
             aria-label={isLoading ? 'Creating your personalized schedule...' : 'Create My Perfect Schedule'}
           >
             <span className="flex items-center justify-center gap-2">
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                     <circle
                       className="opacity-25"
                       cx="12"

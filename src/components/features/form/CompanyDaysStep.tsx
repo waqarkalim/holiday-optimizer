@@ -13,12 +13,15 @@ export function CompanyDaysStep({
     <section
       className="bg-white/90 dark:bg-gray-800/60 rounded-lg p-2.5 ring-1 ring-violet-900/5 dark:ring-violet-300/10"
       aria-labelledby="company-days-heading"
+      tabIndex={0}
     >
       <header className="mb-4">
         <h2 id="company-days-heading"
             className="text-xs font-medium text-violet-900 dark:text-violet-100 flex items-center gap-2">
           <span
-            className="flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 dark:bg-violet-900 text-[10px] font-medium text-violet-900 dark:text-violet-100">4</span>
+            className="flex items-center justify-center w-4 h-4 rounded-full bg-violet-100 dark:bg-violet-900 text-[10px] font-medium text-violet-900 dark:text-violet-100"
+            aria-hidden="true"
+          >4</span>
           Add Company Days
         </h2>
         <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
@@ -27,9 +30,10 @@ export function CompanyDaysStep({
         </p>
       </header>
 
-      <div className="space-y-6">
+      <div className="space-y-6" role="group" aria-labelledby="company-days-heading">
         {/* Calendar Selection */}
         <MonthCalendarSelector
+          id="company-days-calendar"
           selectedDates={companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
           onDateSelect={onCompanyDaySelect}
           colorScheme="violet"
