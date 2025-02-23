@@ -29,11 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
     {isProd() && (
-      <Script
-        defer
-        src="https://cloud.umami.is/script.js"
-        data-website-id="7b755cde-abc3-42cd-a004-d0f012ec1757"
-      />
+      <Script defer src="https://cloud.umami.is/script.js" data-website-id="7b755cde-abc3-42cd-a004-d0f012ec1757" />
+    )}
+    {!isProd() && (
+      <Script defer src="https://cloud.umami.is/script.js" data-website-id="89a9e611-e052-4f9a-aaea-754e67065d3f" />
     )}
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <ThemeProvider
