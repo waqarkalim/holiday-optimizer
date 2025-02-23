@@ -469,3 +469,16 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
     stats,
   };
 };
+
+/**
+ * Wrap the synchronous optimizeDays function to make it asynchronous.
+ */
+export const optimizeDaysAsync = (params: OptimizationParams): Promise<OptimizationResult> => {
+  return new Promise((resolve) => {
+    // Using setTimeout to yield execution and allow a loading spinner to render.
+    setTimeout(() => {
+      const result = optimizeDays(params);
+      resolve(result);
+    }, 0);
+  });
+};

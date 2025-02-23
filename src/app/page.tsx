@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { optimizeCTODays } from '@/services/optimizer.deepseek';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
 import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
-import { CompanyDayOff, OptimizationStrategy } from '@/types';
-import { optimizeDays } from '@/services/optimizer.improved';
+import { CompanyDayOff, OptimizationStrategy, OptimizedDay, OptimizationStats, OptimizationResult } from '@/types';
+import { optimizeDays, optimizeDaysAsync } from '@/services/optimizer.improved';
 
 interface FormState {
   numberOfDays: number | null
@@ -23,103 +23,113 @@ const DEFAULT_FORM_STATE: FormState = {
 }
 
 const HomePage = () => {
-  const currentYear = new Date().getUTCFullYear()
-  const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE)
-  const [isOptimizing, setIsOptimizing] = useState(false)
-  const [shouldScrollToResults, setShouldScrollToResults] = useState(false)
-  const resultsRef = useRef<HTMLDivElement>(null)
+  const currentYear = new Date().getUTCFullYear();
+  const [formState, setFormState] = useState<FormState>(DEFAULT_FORM_STATE);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
+  const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
-  const { optimizedDays, breaks, stats } = useMemo(() => {
-    if (formState.numberOfDays === null) {
-      return { optimizedDays: null, breaks: [], stats: null, error: null }
-    }
+  const handleOptimize = async (data: FormState) => {
+    if (data.numberOfDays === null) return;
 
     try {
-      setIsOptimizing(true)
-      const result = optimizeDays({
-        numberOfDays: formState.numberOfDays,
-        strategy: formState.strategy,
+      setIsOptimizing(true);
+      const result = await optimizeDaysAsync({
+        numberOfDays: data.numberOfDays,
+        strategy: data.strategy,
         year: currentYear,
-        companyDaysOff: formState.companyDaysOff,
-        holidays: formState.holidays
-      })
-      setShouldScrollToResults(true)
-      return {
-        optimizedDays: result.days,
+        companyDaysOff: data.companyDaysOff,
+        holidays: data.holidays
+      });
+      setOptimizationResult({
+        days: result.days,
         breaks: result.breaks,
-        stats: result.stats,
-        error: null
-      }
+        stats: result.stats
+      });
+      setShouldScrollToResults(true);
     } catch (e) {
-      return {
-        optimizedDays: null,
-        breaks: [],
-        stats: null,
-        error: e instanceof Error ? e.message : 'An error occurred'
-      }
+      console.error('Optimization error:', e);
+      setOptimizationResult(null);
     } finally {
-      setIsOptimizing(false)
+      setIsOptimizing(false);
     }
-  }, [currentYear, formState.numberOfDays, formState.companyDaysOff, formState.strategy, formState.holidays])
+  };
 
   useEffect(() => {
     if (shouldScrollToResults && resultsRef.current && window.innerWidth < 1024) {
       resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setShouldScrollToResults(false);
     }
-  }, [shouldScrollToResults, optimizedDays]);
+  }, [shouldScrollToResults, optimizationResult]);
 
   return (
-      <OptimizerProvider>
-        <div className="flex-grow">
-          {/* Title Section */}
-          <div className="bg-gray-50/90 dark:bg-gray-900 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-              <div className="text-center">
-                <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-                  Plan Your Time Off
-                </h1>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Optimize your CTO days from today until the end of {currentYear}, making every day off count
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="w-full max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
-            <div className={`grid gap-6 ${optimizedDays ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
-              {/* Form Section - Always visible */}
-              <div className={`${optimizedDays ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
-                <OptimizerForm
-                  onSubmitAction={({ days, strategy, companyDaysOff, holidays }) => {
-                    setFormState({
-                      numberOfDays: days,
-                      strategy,
-                      companyDaysOff,
-                      holidays
-                    })
-                  }}
-                  isLoading={isOptimizing}
-                />
-              </div>
-
-              {/* Results Section - Appears when there are results */}
-              {optimizedDays && optimizedDays.length > 0 && (
-                <div className="space-y-4 min-w-0 max-w-4xl w-full">
-                  <ResultsDisplay
-                    ref={resultsRef}
-                    optimizedDays={optimizedDays}
-                    breaks={breaks}
-                    stats={stats}
-                  />
-                </div>
-              )}
+    <OptimizerProvider>
+      <div className="flex-grow">
+        {/* Title Section */}
+        <div className="bg-gray-50/90 dark:bg-gray-900 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                Plan Your Time Off
+              </h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Optimize your CTO days from today until the end of {currentYear}, making every day off count
+              </p>
             </div>
           </div>
         </div>
-      </OptimizerProvider>
-  )
-}
 
-export default HomePage
+        {/* Main Content Area */}
+        <div className="w-full max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
+          <div className={`grid gap-6 ${isOptimizing || optimizationResult ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
+            {/* Form Section - Always visible */}
+            <div className={`${isOptimizing || optimizationResult ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
+              <OptimizerForm
+                onSubmitAction={({ days, strategy, companyDaysOff, holidays }) => {
+                  const newFormState = {
+                    numberOfDays: days,
+                    strategy,
+                    companyDaysOff,
+                    holidays
+                  };
+                  setFormState(newFormState);
+                  handleOptimize(newFormState);
+                }}
+                isLoading={isOptimizing}
+              />
+            </div>
+
+            {/* Results Section with Loading State */}
+            {(isOptimizing || (optimizationResult && optimizationResult.days.length > 0)) && (
+              <div className="space-y-4 min-w-0 max-w-4xl w-full">
+                {isOptimizing ? (
+                  <div className="bg-white/90 dark:bg-gray-800/60 rounded-xl p-8 ring-1 ring-blue-900/5 dark:ring-blue-400/5 flex flex-col items-center justify-center min-h-[300px] space-y-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-violet-200 dark:border-violet-700 border-t-violet-500 dark:border-t-violet-400"></div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm font-medium text-violet-900 dark:text-violet-100">
+                        Creating Your Perfect Schedule
+                      </p>
+                      <p className="text-xs text-violet-600/70 dark:text-violet-300/70">
+                        Optimizing your time off for maximum enjoyment...
+                      </p>
+                    </div>
+                  </div>
+                ) : optimizationResult && (
+                  <ResultsDisplay
+                    ref={resultsRef}
+                    optimizedDays={optimizationResult.days}
+                    breaks={optimizationResult.breaks}
+                    stats={optimizationResult.stats}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </OptimizerProvider>
+  );
+};
+
+export default HomePage;
