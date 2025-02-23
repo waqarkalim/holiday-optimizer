@@ -25,10 +25,10 @@ export function HolidaysStep({
             className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900 text-[10px] font-medium text-amber-900 dark:text-amber-100"
             aria-hidden="true"
           >3</span>
-          Add Public Holidays
+          Public Holidays
         </h2>
         <p className="text-[10px] text-gray-600 dark:text-gray-300 mt-0.5">
-          Select public holidays for your region. You can auto-detect them or add them manually.
+          Find holidays in your area instantly, or pick specific dates from the calendar.
         </p>
       </header>
 
@@ -41,10 +41,10 @@ export function HolidaysStep({
           className="w-full bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2"
           tabIndex={0}
           role="button"
-          aria-label="Auto-detect public holidays for your region"
+          aria-label="Find public holidays in your location"
         >
-          <Calendar className="h-3.5 w-3.5 mr-2 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-          Auto-detect Holidays
+          <MapPin className="h-3.5 w-3.5 mr-2 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+          Find Local Holidays
         </Button>
 
         <div className="space-y-6">
