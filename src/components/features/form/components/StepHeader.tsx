@@ -43,7 +43,7 @@ export function StepHeader({ number, title, description, colorScheme, id }: Step
         <span
           className={cn(
             'flex items-center justify-center w-4 h-4 rounded-full',
-            'text-[10px] font-medium',
+            'text-xs font-medium',
             colorStyles[colorScheme].bg,
             colorStyles[colorScheme].text
           )}
@@ -55,7 +55,7 @@ export function StepHeader({ number, title, description, colorScheme, id }: Step
       </h2>
       <p 
         id={descriptionId}
-        className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300 mt-1"
+        className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 mt-1"
       >
         {description}
       </p>

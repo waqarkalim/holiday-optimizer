@@ -104,7 +104,7 @@ const StatCard: FC<StatCardProps> = (props) => {
               )}
             >
               {isIncrease ? '↑' : '↓'} {Math.abs(changeAmount)}
-              <span className="text-[10px] ml-0.5">
+              <span className="text-xs ml-0.5">
                 ({changePercentage > 0 ? '+' : ''}{changePercentage.toFixed(1)}%)
               </span>
             </span>

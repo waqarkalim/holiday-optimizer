@@ -32,7 +32,7 @@ export function ListHeader({
             >
               {title}
             </h3>
-            <p className={cn('text-[10px]', colorStyles[colorScheme].muted)}>
+            <p className={cn('text-xs', colorStyles[colorScheme].muted)}>
               {itemCount} date{itemCount === 1 ? '' : 's'} selected
             </p>
           </div>
@@ -57,7 +57,7 @@ export function ListHeader({
           aria-label={`Clear all ${title.toLowerCase()}`}
         >
           <Trash2 className={cn('h-3.5 w-3.5', 'transition-colors duration-200', colorStyles[colorScheme].accent)} />
-          <span className={cn('text-[11px] font-medium', colorStyles[colorScheme].text)}>
+          <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
             Clear All
           </span>
         </Button>
@@ -99,7 +99,7 @@ export function ListHeader({
               'opacity-50 group-hover:opacity-100 transition-opacity',
               selectedDates.length === 0 && 'opacity-40 group-hover:opacity-40',
             )} />
-            <span className={cn('text-[11px] font-medium', colorStyles[colorScheme].text)}>
+            <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
               {selectedDates.length > 0 ? `Rename ${selectedDates.length}` : 'Rename Selected'}
             </span>
           </Button>
@@ -129,14 +129,14 @@ export function ListHeader({
               {groupedDates.every(g => collapsedGroups.includes(g.name)) ? (
                 <>
                   <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
-                  <span className={cn('text-[11px] font-medium', colorStyles[colorScheme].text)}>
+                  <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
                     Expand All
                   </span>
                 </>
               ) : (
                 <>
                   <ChevronUp className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
-                  <span className={cn('text-[11px] font-medium', colorStyles[colorScheme].text)}>
+                  <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
                     Collapse All
                   </span>
                 </>

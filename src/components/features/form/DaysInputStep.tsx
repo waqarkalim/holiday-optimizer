@@ -47,7 +47,7 @@ export function DaysInputStep() {
           aria-errormessage={errors ? 'days-error' : undefined}
         />
         {errors && (
-          <p id="days-error" role="alert" className="text-[11px] font-medium text-red-500 dark:text-red-400 mt-1.5">
+          <p id="days-error" role="alert" className="text-xs font-medium text-red-500 dark:text-red-400 mt-1.5">
             {errors}
           </p>
         )}

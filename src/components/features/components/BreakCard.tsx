@@ -66,7 +66,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
               </svg>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.ctoDays}</span>
             </div>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">CTO Days</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">CTO Days</p>
           </div>
         )}
         {breakPeriod.publicHolidays > 0 && (
@@ -83,7 +83,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
               </svg>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.publicHolidays}</span>
             </div>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {breakPeriod.publicHolidays === 1 ? 'Public Holiday' : 'Public Holidays'}
             </p>
           </div>
@@ -102,7 +102,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
               </svg>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.companyDaysOff}</span>
             </div>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {breakPeriod.companyDaysOff === 1 ? 'Company Day Off' : 'Company Days Off'}
             </p>
           </div>
@@ -121,7 +121,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
               </svg>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.weekends}</span>
             </div>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">Weekends</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Weekends</p>
           </div>
         )}
       </div>

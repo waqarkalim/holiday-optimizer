@@ -68,7 +68,7 @@ export function BreakTypeLegend() {
                 <h3 className={`text-xs font-medium leading-none mb-0.5 ${type.color}`}>
                   {type.name}
                 </h3>
-                <p className={`text-[10px] leading-tight ${type.color} opacity-90`}>
+                <p className={`text-xs leading-tight ${type.color} opacity-90`}>
                   {type.description}
                 </p>
               </div>

@@ -103,12 +103,12 @@ export function StrategySelectionStep() {
                     </p>
                     {strategyOption.id === 'balanced' && (
                       <span
-                        className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-[10px] font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                        className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
                         Recommended
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300 mt-1">
+                  <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 mt-1">
                     {strategyOption.description}
                   </p>
                 </div>

@@ -163,7 +163,7 @@ export function MonthCalendarSelector({
           table: 'w-full border-collapse space-y-1',
           head_row: 'flex w-full border-b border-gray-200 dark:border-gray-700',
           head_cell: cn(
-            'flex-1 pb-2 text-center text-[10px] font-medium tracking-widest uppercase',
+            'flex-1 pb-2 text-center text-xs font-medium tracking-widest uppercase',
             'text-gray-600 dark:text-gray-400',
             '[&:first-child]:text-red-600/90 dark:[&:first-child]:text-red-400',
             'select-none transition-colors duration-200'

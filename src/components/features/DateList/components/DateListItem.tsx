@@ -154,7 +154,7 @@ export function DateListItem({
                 dateTime={item.date}
                 className={cn(
                   'block',
-                  isGrouped ? 'text-sm' : 'text-[11px] mt-0.5',
+                  isGrouped ? 'text-sm' : 'text-xs mt-0.5',
                   isGrouped ? colorStyles[colorScheme].text : colorStyles[colorScheme].muted
                 )}
               >

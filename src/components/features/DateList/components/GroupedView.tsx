@@ -94,7 +94,7 @@ export function GroupedView({
                   </span>
                   {someSelected && (
                     <span className={cn(
-                      'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                      'text-xs font-medium px-1.5 py-0.5 rounded-full',
                       colorStyles[colorScheme].highlight,
                       colorStyles[colorScheme].text,
                     )}>
@@ -102,7 +102,7 @@ export function GroupedView({
                     </span>
                   )}
                 </div>
-                <div className={cn('text-[11px] mt-0.5', colorStyles[colorScheme].muted)}>
+                <div className={cn('text-xs mt-0.5', colorStyles[colorScheme].muted)}>
                   {dates.length} date{dates.length > 1 ? 's' : ''} • {format(parse(dates[0].date, 'yyyy-MM-dd', new Date()), 'MMM d')}
                   {dates.length > 1 && ` - ${format(parse(dates[dates.length - 1].date, 'yyyy-MM-dd', new Date()), 'MMM d')}`}
                 </div>
