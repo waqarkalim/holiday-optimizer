@@ -50,7 +50,6 @@ export interface ListHeaderProps {
   colorScheme: 'amber' | 'violet';
   showBulkManagement: boolean;
   isBulkMode: boolean;
-  setIsBulkMode: (value: boolean) => void;
   selectedDates: string[];
   onBulkRename: () => void;
   onClearAll: () => void;

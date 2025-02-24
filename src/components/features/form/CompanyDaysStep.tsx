@@ -55,7 +55,6 @@ export function CompanyDaysStep() {
           }}
           showBulkManagement={true}
           isBulkMode={true}
-          setIsBulkMode={null}
         />
       </div>
     </FormSection>

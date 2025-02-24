@@ -10,7 +10,6 @@ export function ListHeader({
   colorScheme,
   showBulkManagement,
   isBulkMode,
-  setIsBulkMode,
   selectedDates,
   onBulkRename,
   onClearAll,

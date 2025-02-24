@@ -1,4 +1,4 @@
-import { createContext, KeyboardEvent as ReactKeyboardEvent, useCallback, useState } from 'react';
+import { createContext, KeyboardEvent as ReactKeyboardEvent, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DateListProps } from './types';
@@ -24,15 +24,8 @@ export function DateList({
   onUpdateName,
   onBulkRename,
   showBulkManagement = false,
-  isBulkMode: propIsBulkMode,
-  setIsBulkMode: propSetIsBulkMode,
+  isBulkMode = false,
 }: DateListProps) {
-  const [localIsBulkMode, setLocalIsBulkMode] = useState(false);
-  
-  // Use provided bulk mode state if available, otherwise use local state
-  const isBulkMode = propIsBulkMode ?? localIsBulkMode;
-  const setIsBulkMode = propSetIsBulkMode ?? setLocalIsBulkMode;
-  
   const groupedDates = useDateGrouping(items, showBulkManagement, isBulkMode);
   const { collapsedGroups, setCollapsedGroups } = useGroupCollapse(groupedDates, showBulkManagement, isBulkMode);
   const {
@@ -108,8 +101,8 @@ export function DateList({
     const groupDates = groupedDates.find(g => g.name === name)?.dates || [];
     const dates = groupDates.map(d => d.date);
     const allSelected = dates.every(date => selectedDates.includes(date));
-    setSelectedDates(prev => 
-      allSelected 
+    setSelectedDates(prev =>
+      allSelected
         ? prev.filter(d => !dates.includes(d))
         : [...new Set([...prev, ...dates])]
     );
@@ -147,7 +140,6 @@ export function DateList({
           colorScheme={colorScheme}
           showBulkManagement={showBulkManagement}
           isBulkMode={isBulkMode}
-          setIsBulkMode={setIsBulkMode}
           selectedDates={selectedDates}
           onBulkRename={() => handleBulkRename(items)}
           onClearAll={onClearAll}
