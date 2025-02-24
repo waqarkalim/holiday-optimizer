@@ -12,12 +12,18 @@ export function CompanyDaysStep({
   onClearCompanyDays,
   onCompanyDayNameUpdate,
 }: CompanyDaysStepProps) {
+  const handleBulkRename = (indices: number[], newName: string) => {
+    indices.forEach(index => {
+      onCompanyDayNameUpdate(index, newName);
+    });
+  };
+
   return (
     <FormSection colorScheme="violet" headingId="company-days-heading">
       <StepHeader
         number={4}
         title="Company Days Off"
-        description="Select your company's special days off (like Summer Fridays or team events). Click the pencil icon to customize event names."
+        description="Select your company's special days off (like Summer Fridays or team events). Select multiple dates to rename them together."
         colorScheme="violet"
         id="company-days-heading"
       />
@@ -39,6 +45,8 @@ export function CompanyDaysStep({
           onRemove={onCompanyDayRemove}
           onClearAll={onClearCompanyDays}
           onUpdateName={onCompanyDayNameUpdate}
+          onBulkRename={handleBulkRename}
+          showBulkManagement={true}
         />
       </div>
     </FormSection>

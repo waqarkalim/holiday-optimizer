@@ -15,12 +15,18 @@ export function HolidaysStep({
   onAutoDetect,
   onHolidayNameUpdate,
 }: HolidaysStepProps) {
+  const handleBulkRename = (indices: number[], newName: string) => {
+    indices.forEach(index => {
+      onHolidayNameUpdate(index, newName);
+    });
+  };
+
   return (
     <FormSection colorScheme="amber" headingId="holidays-heading">
       <StepHeader
         number={3}
         title="Public Holidays"
-        description="Find holidays in your area instantly, or pick specific dates from the calendar. Click the pencil icon to customize holiday names."
+        description="Find holidays in your area instantly, or pick specific dates from the calendar. Select multiple dates to rename them together."
         colorScheme="amber"
         id="holidays-heading"
       />
@@ -57,6 +63,8 @@ export function HolidaysStep({
             onRemove={onHolidayRemove}
             onClearAll={onClearHolidays}
             onUpdateName={onHolidayNameUpdate}
+            onBulkRename={handleBulkRename}
+            showBulkManagement={false}
           />
         </div>
       </div>
