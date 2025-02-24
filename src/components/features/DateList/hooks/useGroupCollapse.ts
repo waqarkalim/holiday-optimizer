@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { GroupedDates } from '../types';
 
 export function useGroupCollapse(groupedDates: GroupedDates[], showBulkManagement: boolean, isBulkMode: boolean) {
+  // Initialize with only custom-named groups collapsed
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>(() => 
-    showBulkManagement ? groupedDates.map(group => group.name) : []
+    groupedDates
+      .filter(group => !group.isDefaultNamed) // Only collapse custom-named groups
+      .map(group => group.name)
   );
 
   useEffect(() => {
@@ -12,13 +15,14 @@ export function useGroupCollapse(groupedDates: GroupedDates[], showBulkManagemen
       return;
     }
 
-    if (!isBulkMode) {
-      const allNames = groupedDates.map(group => group.name);
-      setCollapsedGroups(prev => {
-        const existingCollapsed = prev.filter(name => allNames.includes(name));
-        const newNames = allNames.filter(name => !prev.includes(name));
-        return [...existingCollapsed, ...newNames];
-      });
+    // When bulk mode is enabled, maintain the same collapsed state:
+    // - Month groups (isDefaultNamed: true) stay expanded
+    // - Custom-named groups stay collapsed
+    if (isBulkMode) {
+      const customNamedGroups = groupedDates
+        .filter(group => !group.isDefaultNamed)
+        .map(group => group.name);
+      setCollapsedGroups(customNamedGroups);
     }
   }, [showBulkManagement, groupedDates, isBulkMode]);
 
