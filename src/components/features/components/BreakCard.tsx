@@ -2,41 +2,11 @@ import { format, parse } from 'date-fns';
 import clsx from 'clsx';
 import { BREAK_LENGTHS } from '@/services/optimizer.constants';
 import { Break } from '@/types';
-import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface BreakCardProps {
   breakPeriod: Break;
 }
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3 },
-  },
-};
-
-const timelineVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const dayVariants = {
-  hidden: { opacity: 0, scaleY: 0 },
-  visible: {
-    opacity: 1,
-    scaleY: 1,
-    transition: { duration: 0.2 },
-  },
-};
 
 export function BreakCard({ breakPeriod }: BreakCardProps) {
   const startDate = parse(breakPeriod.startDate, 'yyyy-MM-dd', new Date());
@@ -63,12 +33,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
   };
 
   return (
-    <motion.div
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4 hover:shadow-lg transition-shadow duration-300"
-    >
+    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
       <div className="flex items-start justify-between">
         <div className="space-y-0.5">
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 leading-none">
@@ -161,19 +126,12 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         )}
       </div>
 
-      <motion.div
-        variants={timelineVariants}
-        initial="hidden"
-        animate="visible"
-        className="mt-3"
-      >
+      <div className="mt-3">
         <div className="flex space-x-0.5">
           {breakPeriod.days.map((day) => (
             <Tooltip key={day.date}>
               <TooltipTrigger asChild>
-                <motion.div
-                  key={day.date}
-                  variants={dayVariants}
+                <div
                   className={clsx(
                     'h-1.5 flex-1 rounded-sm relative group cursor-help',
                     day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
@@ -194,7 +152,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
             </Tooltip>
           ))}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 } 

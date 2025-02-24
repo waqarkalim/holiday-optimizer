@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { CalendarDays, CalendarRange, Palmtree, Sunrise } from 'lucide-react';
 import { BREAK_LENGTHS } from '@/services/optimizer.constants';
 
@@ -49,36 +48,14 @@ const breakTypes = [
   },
 ];
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
-};
-
 export function BreakTypeLegend() {
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
       {breakTypes.map((type) => {
         const Icon = type.icon;
         return (
-          <motion.div
+          <div
             key={type.name}
-            variants={item}
-            whileHover={{ scale: 1.02 }}
             className={`relative overflow-hidden rounded-lg ${type.bgColor} border ${type.borderColor} shadow-sm`}
             role="article"
             aria-label={type.ariaLabel}
@@ -96,9 +73,9 @@ export function BreakTypeLegend() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
         );
       })}
-    </motion.div>
+    </div>
   );
 } 
