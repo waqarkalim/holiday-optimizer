@@ -455,24 +455,24 @@ export function DateList({
               colorStyles[colorScheme].active,
               'hover:border-opacity-100',
               'group',
-          )}
-          tabIndex={0}
-          aria-label={`Clear all ${title.toLowerCase()}`}
-        >
+            )}
+            tabIndex={0}
+            aria-label={`Clear all ${title.toLowerCase()}`}
+          >
             <Trash2
               className={cn(
-                'h-3.5 w-3.5 transition-colors duration-200',
+                'h-3.5 w-3.5',
+                'transition-colors duration-200',
                 colorStyles[colorScheme].accent,
-                'group-hover:text-red-500 dark:group-hover:text-red-400',
               )}
             />
             <span className={cn(
               'text-[11px] font-medium',
               colorStyles[colorScheme].text,
             )}>
-          Clear All
+              Clear All
             </span>
-        </Button>
+          </Button>
         </div>
       </header>
 
