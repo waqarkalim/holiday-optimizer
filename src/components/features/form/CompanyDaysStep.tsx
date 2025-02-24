@@ -24,7 +24,7 @@ export function CompanyDaysStep() {
       <StepHeader
         number={4}
         title="Company Days Off"
-        description="Select your company's special days off (like Summer Fridays or team events). Select multiple dates to rename them together."
+        description="Select your company's special days off (like Summer Fridays or team events). Group and rename multiple dates together for easier management."
         colorScheme="violet"
         id="company-days-heading"
       />
@@ -54,6 +54,8 @@ export function CompanyDaysStep() {
             });
           }}
           showBulkManagement={true}
+          isBulkMode={true}
+          setIsBulkMode={null}
         />
       </div>
     </FormSection>

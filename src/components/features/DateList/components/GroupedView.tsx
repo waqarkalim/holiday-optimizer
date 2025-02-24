@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, parse } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 import { GroupedViewProps } from '../types';
 import { colorStyles } from '../constants/styles';
 import { ANIMATION_CONFIG, CHECKBOX_ANIMATION } from '../constants/animations';
@@ -26,35 +27,58 @@ export function GroupedView({
   editingValue,
   setEditingValue,
 }: GroupedViewProps) {
+  // Create refs for all groups at the top level
+  const checkboxRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  // Handle indeterminate state for all checkboxes
+  useEffect(() => {
+    groupedDates.forEach(({ name, dates }) => {
+      const ref = checkboxRefs.current[name];
+      if (ref) {
+        const allSelected = dates.every(d => selectedDates.includes(d.date));
+        const someSelected = dates.some(d => selectedDates.includes(d.date));
+        ref.indeterminate = someSelected && !allSelected;
+      }
+    });
+  }, [groupedDates, selectedDates]);
+
   return (
     <>
-      {groupedDates.map(({ name, dates, isDefaultNamed }) => (
-        <motion.li
-          key={name + (isDefaultNamed ? '-month' : '-name')}
-          {...ANIMATION_CONFIG}
-          className={colorStyles[colorScheme].hover}
-        >
-          <motion.div
-            className={cn(
-              'flex items-center justify-between px-3 py-2',
-              'cursor-pointer select-none',
-              colorStyles[colorScheme].hover,
-            )}
-            onClick={() => handleSelectGroup(name)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleSelectGroup(name);
-              }
-            }}
+      {groupedDates.map(({ name, dates, isDefaultNamed }) => {
+        const isCollapsed = collapsedGroups.includes(name);
+        const allSelected = dates.every(d => selectedDates.includes(d.date));
+        const someSelected = dates.some(d => selectedDates.includes(d.date));
+        const selectedCount = dates.filter(d => selectedDates.includes(d.date)).length;
+
+        return (
+          <motion.li
+            key={name + (isDefaultNamed ? '-month' : '-name')}
+            {...ANIMATION_CONFIG}
+            className={colorStyles[colorScheme].hover}
           >
-            <div className="flex items-center gap-2">
+            <motion.div
+              className={cn(
+                'flex items-center gap-3 px-3 py-2',
+                'cursor-pointer select-none',
+                colorStyles[colorScheme].hover,
+              )}
+              onClick={() => handleSelectGroup(name)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSelectGroup(name);
+                }
+              }}
+            >
               <motion.input
                 {...CHECKBOX_ANIMATION}
+                ref={ref => {
+                  checkboxRefs.current[name] = ref;
+                }}
                 type="checkbox"
-                checked={dates.every(d => selectedDates.includes(d.date))}
+                checked={allSelected}
                 onChange={() => handleSelectGroup(name)}
                 className={cn(
                   'h-3.5 w-3.5 rounded',
@@ -62,64 +86,80 @@ export function GroupedView({
                   'border-gray-300 dark:border-gray-600',
                 )}
               />
-              <div>
-                <span className={cn('text-sm font-medium', colorStyles[colorScheme].text)}>
-                  {isDefaultNamed ? `Dates in ${name}` : name}
-                </span>
-                <div className={cn('text-[11px]', colorStyles[colorScheme].muted)}>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className={cn('text-sm font-medium', colorStyles[colorScheme].text)}>
+                    {isDefaultNamed ? `Dates in ${name}` : name}
+                  </span>
+                  {someSelected && (
+                    <span className={cn(
+                      'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                      colorStyles[colorScheme].highlight,
+                      colorStyles[colorScheme].text,
+                    )}>
+                      {selectedCount} selected
+                    </span>
+                  )}
+                </div>
+                <div className={cn('text-[11px] mt-0.5', colorStyles[colorScheme].muted)}>
                   {dates.length} date{dates.length > 1 ? 's' : ''} • {format(parse(dates[0].date, 'yyyy-MM-dd', new Date()), 'MMM d')}
                   {dates.length > 1 && ` - ${format(parse(dates[dates.length - 1].date, 'yyyy-MM-dd', new Date()), 'MMM d')}`}
                 </div>
               </div>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleGroupCollapse(name);
-              }}
-              className={cn('h-6 w-6 p-0', colorStyles[colorScheme].hover)}
-            >
-              {collapsedGroups.includes(name) ? (
-                <ChevronDown className={cn('h-4 w-4', colorStyles[colorScheme].accent)} />
-              ) : (
-                <ChevronUp className={cn('h-4 w-4', colorStyles[colorScheme].accent)} />
-              )}
-            </Button>
-          </motion.div>
 
-          <AnimatePresence initial={false}>
-            {!collapsedGroups.includes(name) && (
-              <motion.div
-                {...ANIMATION_CONFIG}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleGroupCollapse(name);
+                }}
+                className={cn(
+                  'h-6 w-6 p-0',
+                  colorStyles[colorScheme].hover,
+                )}
               >
-                {dates.map((item) => (
-                  <DateListItem
-                    key={item.date}
-                    item={item}
-                    showBulkManagement={true}
-                    selectedDates={selectedDates}
-                    setSelectedDates={setSelectedDates}
-                    editingDate={editingDate}
-                    setEditingDate={setEditingDate}
-                    editingValue={editingValue}
-                    onUpdateName={onUpdateName}
-                    onRemove={onRemove}
-                    colorScheme={colorScheme}
-                    handleKeyDown={handleKeyDown}
-                    startEditing={startEditing}
-                    handleBlur={handleBlur}
-                    setEditingValue={setEditingValue}
-                    isGrouped={!isDefaultNamed}
-                  />
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.li>
-      ))}
+                {isCollapsed ? (
+                  <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                ) : (
+                  <ChevronUp className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                )}
+              </Button>
+            </motion.div>
+
+            <AnimatePresence initial={false}>
+              {!isCollapsed && (
+                <motion.div
+                  {...ANIMATION_CONFIG}
+                >
+                  {dates.map((item) => (
+                    <DateListItem
+                      key={item.date}
+                      item={item}
+                      showBulkManagement={true}
+                      selectedDates={selectedDates}
+                      setSelectedDates={setSelectedDates}
+                      editingDate={editingDate}
+                      setEditingDate={setEditingDate}
+                      editingValue={editingValue}
+                      onUpdateName={onUpdateName}
+                      onRemove={onRemove}
+                      colorScheme={colorScheme}
+                      handleKeyDown={handleKeyDown}
+                      startEditing={startEditing}
+                      handleBlur={handleBlur}
+                      setEditingValue={setEditingValue}
+                      isGrouped={!isDefaultNamed}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.li>
+        );
+      })}
     </>
   );
 } 

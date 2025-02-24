@@ -22,6 +22,8 @@ export interface DateListProps {
   onUpdateName?: (date: string, newName: string) => void;
   onBulkRename?: (dates: string[], newName: string) => void;
   showBulkManagement?: boolean;
+  isBulkMode?: boolean;
+  setIsBulkMode?: ((value: boolean) => void) | null;
 }
 
 export interface DateListItemProps {

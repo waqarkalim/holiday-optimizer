@@ -24,8 +24,14 @@ export function DateList({
   onUpdateName,
   onBulkRename,
   showBulkManagement = false,
+  isBulkMode: propIsBulkMode,
+  setIsBulkMode: propSetIsBulkMode,
 }: DateListProps) {
-  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [localIsBulkMode, setLocalIsBulkMode] = useState(false);
+  
+  // Use provided bulk mode state if available, otherwise use local state
+  const isBulkMode = propIsBulkMode ?? localIsBulkMode;
+  const setIsBulkMode = propSetIsBulkMode ?? setLocalIsBulkMode;
   
   const groupedDates = useDateGrouping(items, showBulkManagement, isBulkMode);
   const { collapsedGroups, setCollapsedGroups } = useGroupCollapse(groupedDates, showBulkManagement, isBulkMode);
