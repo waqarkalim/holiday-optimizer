@@ -1,17 +1,15 @@
 import { useEffect } from 'react';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import {
-  clearStoredCompanyDays,
   getStoredCompanyDays,
-  removeStoredCompanyDay,
   storeCompanyDay,
+  removeStoredCompanyDay,
   updateStoredCompanyDay,
 } from '@/lib/storage/companyDays';
 import {
-  clearStoredHolidays,
   getStoredHolidays,
-  removeStoredHoliday,
   storeHoliday,
+  removeStoredHoliday,
   updateStoredHoliday,
 } from '@/lib/storage/holidays';
 
@@ -22,26 +20,58 @@ export function useLocalStorage() {
   useEffect(() => {
     // Load public holidays
     const storedHolidays = getStoredHolidays();
-    storedHolidays.forEach(day => {
-      dispatch({ type: 'ADD_HOLIDAY', payload: day });
-    });
+    if (storedHolidays.length > 0) {
+      storedHolidays.forEach(day => {
+        dispatch({ type: 'ADD_HOLIDAY', payload: day });
+      });
+    }
 
     // Load company days
     const storedCompanyDays = getStoredCompanyDays();
-    storedCompanyDays.forEach(day => {
-      dispatch({ type: 'ADD_COMPANY_DAY', payload: day });
-    });
-  }, [dispatch]);
+    if (storedCompanyDays.length > 0) {
+      storedCompanyDays.forEach(day => {
+        dispatch({ type: 'ADD_COMPANY_DAY', payload: day });
+      });
+    }
+  }, []); // Only run on mount
 
-  // Sync holidays to local storage
+  // Sync individual holiday changes
   useEffect(() => {
-    clearStoredHolidays();
-    state.holidays.forEach(storeHoliday);
+    const storedHolidays = getStoredHolidays();
+    
+    // Find holidays to add or update
+    state.holidays.forEach(holiday => {
+      const stored = storedHolidays.find(h => h.date === holiday.date);
+      if (!stored || stored.name !== holiday.name) {
+        storeHoliday(holiday);
+      }
+    });
+
+    // Find holidays to remove
+    storedHolidays.forEach(stored => {
+      if (!state.holidays.some(h => h.date === stored.date)) {
+        removeStoredHoliday(stored.date);
+      }
+    });
   }, [state.holidays]);
 
-  // Sync company days to local storage
+  // Sync individual company day changes
   useEffect(() => {
-    clearStoredCompanyDays();
-    state.companyDaysOff.forEach(storeCompanyDay);
+    const storedCompanyDays = getStoredCompanyDays();
+    
+    // Find company days to add or update
+    state.companyDaysOff.forEach(day => {
+      const stored = storedCompanyDays.find(d => d.date === day.date);
+      if (!stored || stored.name !== day.name) {
+        storeCompanyDay(day);
+      }
+    });
+
+    // Find company days to remove
+    storedCompanyDays.forEach(stored => {
+      if (!state.companyDaysOff.some(d => d.date === stored.date)) {
+        removeStoredCompanyDay(stored.date);
+      }
+    });
   }, [state.companyDaysOff]);
 } 

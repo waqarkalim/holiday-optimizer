@@ -72,7 +72,60 @@ export function DateList({
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  const [collapsedMonths, setCollapsedMonths] = useState<string[]>([]);
+  
+  // Group dates by month (only used when showBulkManagement is true)
+  const groupedDates: GroupedDates[] = showBulkManagement 
+    ? items.reduce((groups: GroupedDates[], item) => {
+        const date = parse(item.date, 'yyyy-MM-dd', new Date());
+        const monthKey = format(date, 'MMMM yyyy');
+        
+        const existingGroup = groups.find(g => g.month === monthKey);
+        if (existingGroup) {
+          existingGroup.dates.push(item);
+        } else {
+          groups.push({ month: monthKey, dates: [item] });
+        }
+        
+        return groups;
+      }, [])
+    : [];
+
+  // Initialize with all months collapsed except current month
+  const [collapsedMonths, setCollapsedMonths] = useState<string[]>(() => {
+    if (!showBulkManagement) return [];
+    const currentMonth = format(new Date(), 'MMMM yyyy');
+    return groupedDates
+      .map(group => group.month)
+      .filter(month => month !== currentMonth);
+  });
+
+  // Get a stable reference to the month keys for dependency tracking
+  const monthKeys = groupedDates.map(group => group.month).join(',');
+
+  // Update collapsed months when grouped dates change
+  useEffect(() => {
+    if (!showBulkManagement) {
+      setCollapsedMonths([]);
+      return;
+    }
+
+    const currentMonth = format(new Date(), 'MMMM yyyy');
+    const allMonths = groupedDates.map(group => group.month);
+    
+    setCollapsedMonths(prev => {
+      // Keep previous collapsed state for existing months
+      const existingCollapsed = prev.filter(month => allMonths.includes(month));
+      // Add new months as collapsed (except current month)
+      const newMonths = allMonths.filter(month => 
+        !prev.includes(month) && month !== currentMonth
+      );
+      
+      const updated = [...existingCollapsed, ...newMonths];
+      // Only return new array if it's different
+      return prev.length === updated.length && 
+        prev.every(month => updated.includes(month)) ? prev : updated;
+    });
+  }, [showBulkManagement, monthKeys]); // Only depend on showBulkManagement and monthKeys
 
   // Clear selection when bulk management is disabled or when items change
   useEffect(() => {
@@ -87,23 +140,6 @@ export function DateList({
     parse(a.date, 'yyyy-MM-dd', new Date()).getTime() - 
     parse(b.date, 'yyyy-MM-dd', new Date()).getTime()
   );
-
-  // Group dates by month (only used when showBulkManagement is true)
-  const groupedDates: GroupedDates[] = showBulkManagement 
-    ? sortedItems.reduce((groups: GroupedDates[], item) => {
-        const date = parse(item.date, 'yyyy-MM-dd', new Date());
-        const monthKey = format(date, 'MMMM yyyy');
-        
-        const existingGroup = groups.find(g => g.month === monthKey);
-        if (existingGroup) {
-          existingGroup.dates.push(item);
-        } else {
-          groups.push({ month: monthKey, dates: [item] });
-        }
-        
-        return groups;
-      }, [])
-    : [];
 
   const handleSelectMonth = (month: string) => {
     if (!showBulkManagement) return;
