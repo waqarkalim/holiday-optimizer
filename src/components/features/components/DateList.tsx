@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { parse, format, isSameMonth } from 'date-fns';
-import { X, Calendar, Trash2, Pencil, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { format, parse } from 'date-fns';
+import { Calendar, Check, ChevronDown, ChevronUp, Pencil, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { KeyboardEvent, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { KeyboardEvent, useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface DateItem {
   date: string;
@@ -58,36 +58,37 @@ const colorStyles = {
   },
 } as const;
 
-export function DateList({ 
-  items, 
-  title, 
-  colorScheme, 
-  onRemove, 
-  onClearAll, 
-  showName = true, 
-  onUpdateName,
-  onBulkRename,
-  showBulkManagement = false
-}: DateListProps) {
+export function DateList({
+                           items,
+                           title,
+                           colorScheme,
+                           onRemove,
+                           onClearAll,
+                           showName = true,
+                           onUpdateName,
+                           onBulkRename,
+                           showBulkManagement = false,
+                         }: DateListProps) {
   const [editingDate, setEditingDate] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState("");
+  const [editingValue, setEditingValue] = useState('');
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  
+  const [isBulkMode, setIsBulkMode] = useState(false);
+
   // Group dates by month (only used when showBulkManagement is true)
-  const groupedDates: GroupedDates[] = showBulkManagement 
+  const groupedDates: GroupedDates[] = showBulkManagement && isBulkMode
     ? items.reduce((groups: GroupedDates[], item) => {
-        const date = parse(item.date, 'yyyy-MM-dd', new Date());
-        const monthKey = format(date, 'MMMM yyyy');
-        
-        const existingGroup = groups.find(g => g.month === monthKey);
-        if (existingGroup) {
-          existingGroup.dates.push(item);
-        } else {
-          groups.push({ month: monthKey, dates: [item] });
-        }
-        
-        return groups;
-      }, [])
+      const date = parse(item.date, 'yyyy-MM-dd', new Date());
+      const monthKey = format(date, 'MMMM yyyy');
+
+      const existingGroup = groups.find(g => g.month === monthKey);
+      if (existingGroup) {
+        existingGroup.dates.push(item);
+      } else {
+        groups.push({ month: monthKey, dates: [item] });
+      }
+
+      return groups;
+    }, [])
     : [];
 
   // Initialize with all months collapsed except current month
@@ -102,6 +103,17 @@ export function DateList({
   // Get a stable reference to the month keys for dependency tracking
   const monthKeys = groupedDates.map(group => group.month).join(',');
 
+  // Clear selection and expand all months when bulk mode is disabled
+  useEffect(() => {
+    if (!isBulkMode) {
+      setSelectedDates([]);
+      setEditingDate(null);
+    } else {
+      // When entering bulk mode, expand all months
+      setCollapsedMonths([]);
+    }
+  }, [isBulkMode]);
+
   // Update collapsed months when grouped dates change
   useEffect(() => {
     if (!showBulkManagement) {
@@ -109,36 +121,31 @@ export function DateList({
       return;
     }
 
-    const currentMonth = format(new Date(), 'MMMM yyyy');
-    const allMonths = groupedDates.map(group => group.month);
-    
-    setCollapsedMonths(prev => {
-      // Keep previous collapsed state for existing months
-      const existingCollapsed = prev.filter(month => allMonths.includes(month));
-      // Add new months as collapsed (except current month)
-      const newMonths = allMonths.filter(month => 
-        !prev.includes(month) && month !== currentMonth
-      );
-      
-      const updated = [...existingCollapsed, ...newMonths];
-      // Only return new array if it's different
-      return prev.length === updated.length && 
-        prev.every(month => updated.includes(month)) ? prev : updated;
-    });
-  }, [showBulkManagement, monthKeys]); // Only depend on showBulkManagement and monthKeys
+    // Only update collapsed months if not in bulk mode
+    if (!isBulkMode) {
+      const currentMonth = format(new Date(), 'MMMM yyyy');
+      const allMonths = groupedDates.map(group => group.month);
 
-  // Clear selection when bulk management is disabled or when items change
-  useEffect(() => {
-    if (!showBulkManagement || items.length === 0) {
-      setSelectedDates([]);
-      setEditingDate(null);
+      setCollapsedMonths(prev => {
+        // Keep previous collapsed state for existing months
+        const existingCollapsed = prev.filter(month => allMonths.includes(month));
+        // Add new months as collapsed (except current month)
+        const newMonths = allMonths.filter(month =>
+          !prev.includes(month) && month !== currentMonth,
+        );
+
+        const updated = [...existingCollapsed, ...newMonths];
+        // Only return new array if it's different
+        return prev.length === updated.length &&
+        prev.every(month => updated.includes(month)) ? prev : updated;
+      });
     }
-  }, [showBulkManagement, items.length]);
+  }, [showBulkManagement, monthKeys, isBulkMode]); // Added isBulkMode to dependencies
 
   // Sort all items by date
-  const sortedItems = [...items].sort((a, b) => 
-    parse(a.date, 'yyyy-MM-dd', new Date()).getTime() - 
-    parse(b.date, 'yyyy-MM-dd', new Date()).getTime()
+  const sortedItems = [...items].sort((a, b) =>
+    parse(a.date, 'yyyy-MM-dd', new Date()).getTime() -
+    parse(b.date, 'yyyy-MM-dd', new Date()).getTime(),
   );
 
   const handleSelectMonth = (month: string) => {
@@ -146,7 +153,7 @@ export function DateList({
 
     const monthDates = groupedDates.find(g => g.month === month)?.dates || [];
     const dates = monthDates.map(d => d.date);
-    
+
     // If all dates in month are selected, unselect them
     const allSelected = dates.every(date => selectedDates.includes(date));
     if (allSelected) {
@@ -161,7 +168,7 @@ export function DateList({
 
   const handleBulkRename = () => {
     if (!onBulkRename || selectedDates.length === 0) return;
-    
+
     // Get the most common name from selected items
     const selectedItems = items.filter(item => selectedDates.includes(item.date));
     const names = selectedItems.map(item => item.name);
@@ -169,10 +176,10 @@ export function DateList({
       acc[name] = (acc[name] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    
+
     const commonName = Object.entries(nameCount)
       .reduce((a, b) => (a[1] > b[1] ? a : b))[0];
-    
+
     setEditingValue(commonName);
     setEditingDate('bulk');
   };
@@ -197,10 +204,10 @@ export function DateList({
   };
 
   const toggleMonthCollapse = (month: string) => {
-    setCollapsedMonths(prev => 
-      prev.includes(month) 
+    setCollapsedMonths(prev =>
+      prev.includes(month)
         ? prev.filter(m => m !== month)
-        : [...prev, month]
+        : [...prev, month],
     );
   };
 
@@ -281,7 +288,7 @@ export function DateList({
         'shadow-sm hover:shadow-md',
         'transition-all duration-300 ease-in-out',
         colorStyles[colorScheme].container,
-        colorStyles[colorScheme].border
+        colorStyles[colorScheme].border,
       )}
       aria-labelledby={`${title.toLowerCase()}-list-heading`}
     >
@@ -289,15 +296,15 @@ export function DateList({
         <div className="flex items-center gap-2.5">
           <div className={cn(
             'p-1.5 rounded-lg',
-            colorStyles[colorScheme].highlight
+            colorStyles[colorScheme].highlight,
           )}>
-            <Calendar 
-              className={cn('h-4 w-4', colorStyles[colorScheme].accent)} 
-              aria-hidden="true" 
+            <Calendar
+              className={cn('h-4 w-4', colorStyles[colorScheme].accent)}
+              aria-hidden="true"
             />
           </div>
           <div>
-            <h3 
+            <h3
               id={`${title.toLowerCase()}-list-heading`}
               className={cn('text-sm font-medium leading-none mb-1', colorStyles[colorScheme].text)}
             >
@@ -309,7 +316,70 @@ export function DateList({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {showBulkManagement && selectedDates.length > 0 && (
+          {showBulkManagement && (
+            <>
+              {isBulkMode && groupedDates.length > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const allCollapsed = groupedDates.every(g => collapsedMonths.includes(g.month));
+                    setCollapsedMonths(allCollapsed ? [] : groupedDates.map(g => g.month));
+                  }}
+                  className={cn(
+                    'h-7 w-7 p-0',
+                    colorStyles[colorScheme].hover,
+                    'group',
+                  )}
+                  tabIndex={0}
+                  aria-label={groupedDates.every(g => collapsedMonths.includes(g.month))
+                    ? 'Expand all months'
+                    : 'Collapse all months'
+                  }
+                >
+                  {groupedDates.every(g => collapsedMonths.includes(g.month)) ? (
+                    <ChevronDown className={cn(
+                      'h-3.5 w-3.5',
+                      colorStyles[colorScheme].accent,
+                    )} />
+                  ) : (
+                    <ChevronUp className={cn(
+                      'h-3.5 w-3.5',
+                      colorStyles[colorScheme].accent,
+                    )} />
+                  )}
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsBulkMode(!isBulkMode)}
+                className={cn(
+                  'h-7 px-2.5 gap-1.5',
+                  'border transition-all duration-200',
+                  colorStyles[colorScheme].border,
+                  isBulkMode && colorStyles[colorScheme].highlight,
+                  !isBulkMode && colorStyles[colorScheme].hover,
+                  colorStyles[colorScheme].active,
+                  'hover:border-opacity-100',
+                  'group',
+                )}
+                tabIndex={0}
+                aria-label={`${isBulkMode ? 'Exit bulk edit mode' : 'Enter bulk edit mode'}`}
+                aria-pressed={isBulkMode}
+              >
+                <span className={cn(
+                  'text-[11px] font-medium',
+                  colorStyles[colorScheme].text,
+                )}>
+                  Bulk Edit
+                </span>
+              </Button>
+            </>
+          )}
+          {showBulkManagement && isBulkMode && selectedDates.length > 0 && (
             <Button
               type="button"
               variant="outline"
@@ -322,20 +392,20 @@ export function DateList({
                 colorStyles[colorScheme].hover,
                 colorStyles[colorScheme].active,
                 'hover:border-opacity-100',
-                'group'
+                'group',
               )}
               tabIndex={0}
               aria-label={`Rename ${selectedDates.length} selected dates`}
             >
-              <Pencil 
+              <Pencil
                 className={cn(
                   'h-3.5 w-3.5',
-                  colorStyles[colorScheme].accent
-                )} 
+                  colorStyles[colorScheme].accent,
+                )}
               />
               <span className={cn(
                 'text-[11px] font-medium',
-                colorStyles[colorScheme].text
+                colorStyles[colorScheme].text,
               )}>
                 Rename {selectedDates.length}
               </span>
@@ -353,21 +423,21 @@ export function DateList({
               colorStyles[colorScheme].hover,
               colorStyles[colorScheme].active,
               'hover:border-opacity-100',
-              'group'
+              'group',
             )}
             tabIndex={0}
             aria-label={`Clear all ${title.toLowerCase()}`}
           >
-            <Trash2 
+            <Trash2
               className={cn(
                 'h-3.5 w-3.5 transition-colors duration-200',
                 colorStyles[colorScheme].accent,
-                'group-hover:text-red-500 dark:group-hover:text-red-400'
-              )} 
+                'group-hover:text-red-500 dark:group-hover:text-red-400',
+              )}
             />
             <span className={cn(
               'text-[11px] font-medium',
-              colorStyles[colorScheme].text
+              colorStyles[colorScheme].text,
             )}>
               Clear All
             </span>
@@ -375,7 +445,7 @@ export function DateList({
         </div>
       </header>
 
-      {showBulkManagement && editingDate === 'bulk' ? (
+      {showBulkManagement && isBulkMode && editingDate === 'bulk' ? (
         <div className="mb-4 flex items-center gap-2">
           <Input
             autoFocus
@@ -404,14 +474,14 @@ export function DateList({
                 colorStyles[colorScheme].border,
                 colorStyles[colorScheme].hover,
                 'hover:bg-red-100/70 dark:hover:bg-red-900/30',
-                'group'
+                'group',
               )}
               aria-label="Cancel rename"
             >
               <X className={cn(
                 'h-4 w-4',
                 colorStyles[colorScheme].accent,
-                'group-hover:text-red-500 dark:group-hover:text-red-400'
+                'group-hover:text-red-500 dark:group-hover:text-red-400',
               )} />
             </Button>
             <Button
@@ -424,14 +494,14 @@ export function DateList({
                 colorStyles[colorScheme].border,
                 colorStyles[colorScheme].hover,
                 'hover:bg-green-100/70 dark:hover:bg-green-900/30',
-                'group'
+                'group',
               )}
               aria-label="Confirm rename"
             >
               <Check className={cn(
                 'h-4 w-4',
                 colorStyles[colorScheme].accent,
-                'group-hover:text-green-500 dark:group-hover:text-green-400'
+                'group-hover:text-green-500 dark:group-hover:text-green-400',
               )} />
             </Button>
           </div>
@@ -441,29 +511,29 @@ export function DateList({
       <div className={cn(
         'rounded-lg border',
         colorStyles[colorScheme].border,
-        'overflow-hidden'
+        'overflow-hidden',
       )}>
-        <ul 
+        <ul
           className={cn(
             'divide-y',
-            colorStyles[colorScheme].divider
+            colorStyles[colorScheme].divider,
           )}
           role="list"
           aria-label={`List of ${title.toLowerCase()}`}
         >
           <AnimatePresence initial={false} mode="popLayout">
-            {showBulkManagement ? (
-              // Grouped view for bulk management
+            {items.length > 0 && (showBulkManagement && isBulkMode ? (
+              // Grouped view
               groupedDates.map(({ month, dates }) => (
                 <motion.li
                   key={month}
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
+                  animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
                   className={colorStyles[colorScheme].hover}
                 >
-                  <div 
+                  <motion.div
                     className={cn(
                       'flex items-center justify-between px-3 py-2',
                       'cursor-pointer select-none',
@@ -480,7 +550,11 @@ export function DateList({
                     }}
                   >
                     <div className="flex items-center gap-2">
-                      <input
+                      <motion.input
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
                         type="checkbox"
                         checked={dates.every(d => selectedDates.includes(d.date))}
                         onChange={() => handleSelectMonth(month)}
@@ -492,13 +566,13 @@ export function DateList({
                       />
                       <span className={cn(
                         'text-sm font-medium',
-                        colorStyles[colorScheme].text
+                        colorStyles[colorScheme].text,
                       )}>
                         {month}
                       </span>
                       <span className={cn(
                         'text-[11px]',
-                        colorStyles[colorScheme].muted
+                        colorStyles[colorScheme].muted,
                       )}>
                         ({dates.length})
                       </span>
@@ -522,13 +596,13 @@ export function DateList({
                         <ChevronUp className={cn('h-4 w-4', colorStyles[colorScheme].accent)} />
                       )}
                     </Button>
-                  </div>
-                  
+                  </motion.div>
+
                   <AnimatePresence initial={false}>
                     {!collapsedMonths.includes(month) && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
+                        animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
                       >
@@ -536,7 +610,7 @@ export function DateList({
                           <DateListItem
                             key={item.date}
                             item={item}
-                            showBulkManagement={showBulkManagement}
+                            showBulkManagement={true}
                             selectedDates={selectedDates}
                             setSelectedDates={setSelectedDates}
                             editingDate={editingDate}
@@ -557,18 +631,18 @@ export function DateList({
                 </motion.li>
               ))
             ) : (
-              // Flat list for non-bulk management
+              // Flat list
               sortedItems.map((item) => (
                 <motion.li
                   key={item.date}
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
+                  animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
                 >
                   <DateListItem
                     item={item}
-                    showBulkManagement={showBulkManagement}
+                    showBulkManagement={showBulkManagement && isBulkMode}
                     selectedDates={selectedDates}
                     setSelectedDates={setSelectedDates}
                     editingDate={editingDate}
@@ -584,7 +658,7 @@ export function DateList({
                   />
                 </motion.li>
               ))
-            )}
+            ))}
           </AnimatePresence>
         </ul>
       </div>
@@ -611,49 +685,56 @@ interface DateListItemProps {
 }
 
 function DateListItem({
-  item,
-  showBulkManagement,
-  selectedDates,
-  setSelectedDates,
-  editingDate,
-  setEditingDate,
-  editingValue,
-  onUpdateName,
-  onRemove,
-  colorScheme,
-  handleKeyDown,
-  startEditing,
-  handleBlur,
-  setEditingValue,
-}: DateListItemProps) {
+                        item,
+                        showBulkManagement,
+                        selectedDates,
+                        setSelectedDates,
+                        editingDate,
+                        setEditingDate,
+                        editingValue,
+                        onUpdateName,
+                        onRemove,
+                        colorScheme,
+                        handleKeyDown,
+                        startEditing,
+                        handleBlur,
+                        setEditingValue,
+                      }: DateListItemProps) {
   return (
-    <div 
+    <div
       className={cn(
         'group/item relative',
         'border-t',
         colorStyles[colorScheme].divider,
         colorStyles[colorScheme].hover,
-        'transition-colors duration-200'
+        'transition-colors duration-200',
       )}
     >
       <div className="flex items-center gap-3 px-3 py-2">
         {showBulkManagement && (
-          <input
-            type="checkbox"
-            checked={selectedDates.includes(item.date)}
-            onChange={() => {
-              setSelectedDates(prev => 
-                prev.includes(item.date)
-                  ? prev.filter(d => d !== item.date)
-                  : [...prev, item.date]
-              );
-            }}
-            className={cn(
-              'h-3.5 w-3.5 rounded',
-              `text-${colorScheme}-600 dark:text-${colorScheme}-400`,
-              'border-gray-300 dark:border-gray-600',
-            )}
-          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, width: 0 }}
+            animate={{ opacity: 1, scale: 1, width: 'auto' }}
+            exit={{ opacity: 0, scale: 0.8, width: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedDates.includes(item.date)}
+              onChange={() => {
+                setSelectedDates(prev =>
+                  prev.includes(item.date)
+                    ? prev.filter(d => d !== item.date)
+                    : [...prev, item.date],
+                );
+              }}
+              className={cn(
+                'h-3.5 w-3.5 rounded',
+                `text-${colorScheme}-600 dark:text-${colorScheme}-400`,
+                'border-gray-300 dark:border-gray-600',
+              )}
+            />
+          </motion.div>
         )}
         <div className="flex-1 min-w-0">
           {editingDate === item.date ? (
@@ -682,14 +763,14 @@ function DateListItem({
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
                     'hover:bg-red-100/70 dark:hover:bg-red-900/30',
-                    'group'
+                    'group',
                   )}
                   aria-label="Cancel edit"
                 >
                   <X className={cn(
                     'h-3.5 w-3.5',
                     colorStyles[colorScheme].accent,
-                    'group-hover:text-red-500 dark:group-hover:text-red-400'
+                    'group-hover:text-red-500 dark:group-hover:text-red-400',
                   )} />
                 </Button>
                 <Button
@@ -701,14 +782,14 @@ function DateListItem({
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
                     'hover:bg-green-100/70 dark:hover:bg-green-900/30',
-                    'group'
+                    'group',
                   )}
                   aria-label="Confirm edit"
                 >
                   <Check className={cn(
                     'h-3.5 w-3.5',
                     colorStyles[colorScheme].accent,
-                    'group-hover:text-green-500 dark:group-hover:text-green-400'
+                    'group-hover:text-green-500 dark:group-hover:text-green-400',
                   )} />
                 </Button>
               </div>
@@ -718,7 +799,7 @@ function DateListItem({
               <div className="flex items-center gap-2">
                 <p className={cn(
                   'text-sm font-medium',
-                  colorStyles[colorScheme].text
+                  colorStyles[colorScheme].text,
                 )}>
                   {item.name}
                 </p>
@@ -739,12 +820,12 @@ function DateListItem({
                   >
                     <Pencil className={cn(
                       'h-3 w-3',
-                      colorStyles[colorScheme].accent
+                      colorStyles[colorScheme].accent,
                     )} />
                   </Button>
                 )}
               </div>
-              <time 
+              <time
                 dateTime={item.date}
                 className={cn('text-[11px] block mt-0.5', colorStyles[colorScheme].muted)}
               >
@@ -766,7 +847,7 @@ function DateListItem({
             'hover:scale-110 active:scale-95',
             colorStyles[colorScheme].hover,
             'hover:bg-red-100/70 dark:hover:bg-red-900/30',
-            'group/button'
+            'group/button',
           )}
           tabIndex={0}
           aria-label={`Remove ${item.name}`}
@@ -776,7 +857,7 @@ function DateListItem({
             'h-3.5 w-3.5',
             colorStyles[colorScheme].accent,
             'group-hover/button:text-red-500 dark:group-hover/button:text-red-400',
-            'transition-colors duration-200'
+            'transition-colors duration-200',
           )} />
         </Button>
       </div>
