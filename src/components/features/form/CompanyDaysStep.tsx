@@ -1,18 +1,12 @@
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
-import { DateList } from '../components/DateList';
-import { parse, format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useCompanyDays } from '@/hooks/useOptimizer';
+import { DateList } from '@/components/features/DateList';
 
 export function CompanyDaysStep() {
-  const { 
-    companyDaysOff, 
-    errors, 
-    addCompanyDay, 
-    removeCompanyDay, 
-    clearCompanyDays 
-  } = useCompanyDays();
+  const { companyDaysOff, addCompanyDay, removeCompanyDay, clearCompanyDays } = useCompanyDays();
 
   const handleCompanyDaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');

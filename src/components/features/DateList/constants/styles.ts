@@ -1,0 +1,28 @@
+export const colorStyles = {
+  amber: {
+    container: 'bg-gradient-to-br from-amber-50/80 to-amber-100/30 dark:from-amber-900/20 dark:to-amber-900/10',
+    border: 'border-amber-200/60 dark:border-amber-800/60',
+    text: 'text-amber-900 dark:text-amber-100',
+    muted: 'text-amber-600/70 dark:text-amber-400/70',
+    accent: 'text-amber-600 dark:text-amber-400',
+    hover: 'hover:bg-amber-100/70 dark:hover:bg-amber-900/50',
+    active: 'active:bg-amber-200/70 dark:active:bg-amber-900/70',
+    focus: 'focus:ring-amber-400/30 dark:focus:ring-amber-300/30',
+    divider: 'border-amber-200/30 dark:border-amber-800/30',
+    highlight: 'bg-amber-100/50 dark:bg-amber-900/40',
+    input: 'border-amber-200 dark:border-amber-800 focus:border-amber-400 dark:focus:border-amber-600',
+  },
+  violet: {
+    container: 'bg-gradient-to-br from-violet-50/80 to-violet-100/30 dark:from-violet-900/20 dark:to-violet-900/10',
+    border: 'border-violet-200/60 dark:border-violet-800/60',
+    text: 'text-violet-900 dark:text-violet-100',
+    muted: 'text-violet-600/70 dark:text-violet-400/70',
+    accent: 'text-violet-600 dark:text-violet-400',
+    hover: 'hover:bg-violet-100/70 dark:hover:bg-violet-900/50',
+    active: 'active:bg-violet-200/70 dark:active:bg-violet-900/70',
+    focus: 'focus:ring-violet-400/30 dark:focus:ring-violet-300/30',
+    divider: 'border-violet-200/30 dark:border-violet-800/30',
+    highlight: 'bg-violet-100/50 dark:bg-violet-900/40',
+    input: 'border-violet-200 dark:border-violet-800 focus:border-violet-400 dark:focus:border-violet-600',
+  },
+} as const; 

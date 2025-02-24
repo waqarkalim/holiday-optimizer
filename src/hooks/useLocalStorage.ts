@@ -1,17 +1,7 @@
 import { useEffect } from 'react';
 import { useOptimizer } from '@/contexts/OptimizerContext';
-import {
-  getStoredCompanyDays,
-  storeCompanyDay,
-  removeStoredCompanyDay,
-  updateStoredCompanyDay,
-} from '@/lib/storage/companyDays';
-import {
-  getStoredHolidays,
-  storeHoliday,
-  removeStoredHoliday,
-  updateStoredHoliday,
-} from '@/lib/storage/holidays';
+import { getStoredCompanyDays, removeStoredCompanyDay, storeCompanyDay } from '@/lib/storage/companyDays';
+import { getStoredHolidays, removeStoredHoliday, storeHoliday } from '@/lib/storage/holidays';
 
 export function useLocalStorage() {
   const { state, dispatch } = useOptimizer();
@@ -38,7 +28,7 @@ export function useLocalStorage() {
   // Sync individual holiday changes
   useEffect(() => {
     const storedHolidays = getStoredHolidays();
-    
+
     // Find holidays to add or update
     state.holidays.forEach(holiday => {
       const stored = storedHolidays.find(h => h.date === holiday.date);
@@ -58,7 +48,7 @@ export function useLocalStorage() {
   // Sync individual company day changes
   useEffect(() => {
     const storedCompanyDays = getStoredCompanyDays();
-    
+
     // Find company days to add or update
     state.companyDaysOff.forEach(day => {
       const stored = storedCompanyDays.find(d => d.date === day.date);

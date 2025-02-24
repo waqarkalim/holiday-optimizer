@@ -1,8 +1,8 @@
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
-import { DateList } from '../components/DateList';
-import { parse, format } from 'date-fns';
+import { DateList } from '@/components/features/DateList';
+import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useHolidays } from '@/hooks/useOptimizer';
@@ -10,14 +10,7 @@ import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
 
 export function HolidaysStep() {
-  const { 
-    holidays, 
-    errors, 
-    addHoliday, 
-    removeHoliday, 
-    clearHolidays, 
-    setDetectedHolidays 
-  } = useHolidays();
+  const { holidays, addHoliday, removeHoliday, clearHolidays, setDetectedHolidays } = useHolidays();
 
   const handleHolidaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -43,15 +36,6 @@ export function HolidaysStep() {
         description: error instanceof Error ? error.message : 'Failed to detect holidays for your location.',
       });
     }
-  };
-
-  const handleBulkRename = (dates: string[], newName: string) => {
-    dates.forEach(date => {
-      const index = holidays.findIndex(h => h.date === date);
-      if (index !== -1) {
-        addHoliday(date, newName);
-      }
-    });
   };
 
   return (
