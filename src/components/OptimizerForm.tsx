@@ -10,11 +10,12 @@ import { StrategySelectionStep } from './features/form/StrategySelectionStep';
 import { HolidaysStep } from './features/form/HolidaysStep';
 import { CompanyDaysStep } from './features/form/CompanyDaysStep';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { OptimizationStrategy } from '@/types';
 
 interface OptimizerFormProps {
   onSubmitAction: (data: {
     days: number;
-    strategy: string;
+    strategy: OptimizationStrategy;
     companyDaysOff: Array<{ date: string; name: string }>;
     holidays: Array<{ date: string; name: string }>;
   }) => void;

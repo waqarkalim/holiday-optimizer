@@ -23,7 +23,7 @@ export function useLocalStorage() {
         dispatch({ type: 'ADD_COMPANY_DAY', payload: day });
       });
     }
-  }, []); // Only run on mount
+  }, [dispatch]); // Only run on mount
 
   // Sync individual holiday changes
   useEffect(() => {
