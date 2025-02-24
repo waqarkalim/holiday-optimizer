@@ -83,7 +83,7 @@ export function ListHeader({
               ],
               'hover:border-opacity-100',
               'group',
-              'flex-1 sm:flex-none',
+              'flex-1',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               'disabled:hover:bg-transparent',
             )}
@@ -115,7 +115,7 @@ export function ListHeader({
                 setCollapsedGroups(allCollapsed ? [] : groupedDates.map(g => g.name));
               }}
               className={cn(
-                'h-7 w-7 p-0',
+                'h-7 px-2.5 gap-1.5',
                 colorStyles[colorScheme].hover,
                 'group',
                 'hidden sm:flex', // Hide on mobile to save space
@@ -127,9 +127,19 @@ export function ListHeader({
               }
             >
               {groupedDates.every(g => collapsedGroups.includes(g.name)) ? (
-                <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                <>
+                  <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                  <span className={cn('text-[11px] font-medium', colorStyles[colorScheme].text)}>
+                    Expand All
+                  </span>
+                </>
               ) : (
-                <ChevronUp className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                <>
+                  <ChevronUp className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                  <span className={cn('text-[11px] font-medium', colorStyles[colorScheme].text)}>
+                    Collapse All
+                  </span>
+                </>
               )}
             </Button>
           )}
