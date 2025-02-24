@@ -13,8 +13,9 @@ interface DateItem {
 }
 
 interface GroupedDates {
-  month: string;
+  name: string;
   dates: DateItem[];
+  isDefaultNamed?: boolean;
 }
 
 interface DateListProps {
@@ -74,73 +75,103 @@ export function DateList({
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
 
-  // Group dates by month (only used when showBulkManagement is true)
+  // Group dates by name or month (only used when showBulkManagement is true)
   const groupedDates: GroupedDates[] = showBulkManagement && isBulkMode
     ? items.reduce((groups: GroupedDates[], item) => {
-      const date = parse(item.date, 'yyyy-MM-dd', new Date());
-      const monthKey = format(date, 'MMMM yyyy');
-
-      const existingGroup = groups.find(g => g.month === monthKey);
-      if (existingGroup) {
-        existingGroup.dates.push(item);
+      // Check if the item has a default name (matches its date format)
+      const itemDate = parse(item.date, 'yyyy-MM-dd', new Date());
+      const isDefaultNamed = item.name === format(itemDate, 'MMMM d, yyyy');
+      
+      if (isDefaultNamed) {
+        // Group by month if using default name
+        const monthKey = format(itemDate, 'MMMM yyyy');
+        const existingGroup = groups.find(g => g.name === monthKey && g.isDefaultNamed);
+        
+        if (existingGroup) {
+          existingGroup.dates.push(item);
+        } else {
+          groups.push({ 
+            name: monthKey, 
+            dates: [item],
+            isDefaultNamed: true 
+          });
+        }
       } else {
-        groups.push({ month: monthKey, dates: [item] });
+        // Group by custom name
+        const existingGroup = groups.find(g => g.name === item.name && !g.isDefaultNamed);
+        
+        if (existingGroup) {
+          existingGroup.dates.push(item);
+        } else {
+          groups.push({ 
+            name: item.name, 
+            dates: [item],
+            isDefaultNamed: false 
+          });
+        }
       }
-
       return groups;
     }, [])
+    .map(group => ({
+      ...group,
+      dates: group.dates.sort((a, b) => 
+        parse(a.date, 'yyyy-MM-dd', new Date()).getTime() -
+        parse(b.date, 'yyyy-MM-dd', new Date()).getTime()
+      )
+    }))
+    .sort((a, b) => {
+      // Sort custom named groups first, then by size
+      if (a.isDefaultNamed !== b.isDefaultNamed) {
+        return a.isDefaultNamed ? 1 : -1;
+      }
+      return b.dates.length - a.dates.length;
+    })
     : [];
 
-  // Initialize with all months collapsed except current month
-  const [collapsedMonths, setCollapsedMonths] = useState<string[]>(() => {
+  // Initialize with all groups collapsed
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>(() => {
     if (!showBulkManagement) return [];
-    const currentMonth = format(new Date(), 'MMMM yyyy');
-    return groupedDates
-      .map(group => group.month)
-      .filter(month => month !== currentMonth);
+    return groupedDates.map(group => group.name);
   });
 
-  // Get a stable reference to the month keys for dependency tracking
-  const monthKeys = groupedDates.map(group => group.month).join(',');
+  // Get a stable reference to the group names for dependency tracking
+  const groupNames = groupedDates.map(group => group.name).join(',');
 
-  // Clear selection and expand all months when bulk mode is disabled
+  // Clear selection and expand all groups when bulk mode is disabled
   useEffect(() => {
     if (!isBulkMode) {
       setSelectedDates([]);
       setEditingDate(null);
     } else {
-      // When entering bulk mode, expand all months
-      setCollapsedMonths([]);
+      // When entering bulk mode, expand all groups
+      setCollapsedGroups([]);
     }
   }, [isBulkMode]);
 
-  // Update collapsed months when grouped dates change
+  // Update collapsed groups when grouped dates change
   useEffect(() => {
     if (!showBulkManagement) {
-      setCollapsedMonths([]);
+      setCollapsedGroups([]);
       return;
     }
 
-    // Only update collapsed months if not in bulk mode
+    // Only update collapsed groups if not in bulk mode
     if (!isBulkMode) {
-      const currentMonth = format(new Date(), 'MMMM yyyy');
-      const allMonths = groupedDates.map(group => group.month);
-
-      setCollapsedMonths(prev => {
-        // Keep previous collapsed state for existing months
-        const existingCollapsed = prev.filter(month => allMonths.includes(month));
-        // Add new months as collapsed (except current month)
-        const newMonths = allMonths.filter(month =>
-          !prev.includes(month) && month !== currentMonth,
-        );
-
-        const updated = [...existingCollapsed, ...newMonths];
+      const allNames = groupedDates.map(group => group.name);
+      
+      setCollapsedGroups(prev => {
+        // Keep previous collapsed state for existing groups
+        const existingCollapsed = prev.filter(name => allNames.includes(name));
+        // Add new groups as collapsed
+        const newNames = allNames.filter(name => !prev.includes(name));
+        
+        const updated = [...existingCollapsed, ...newNames];
         // Only return new array if it's different
         return prev.length === updated.length &&
-        prev.every(month => updated.includes(month)) ? prev : updated;
+          prev.every(name => updated.includes(name)) ? prev : updated;
       });
     }
-  }, [showBulkManagement, monthKeys, isBulkMode]); // Added isBulkMode to dependencies
+  }, [showBulkManagement, groupNames, isBulkMode]);
 
   // Sort all items by date
   const sortedItems = [...items].sort((a, b) =>
@@ -148,13 +179,13 @@ export function DateList({
     parse(b.date, 'yyyy-MM-dd', new Date()).getTime(),
   );
 
-  const handleSelectMonth = (month: string) => {
+  const handleSelectGroup = (name: string) => {
     if (!showBulkManagement) return;
 
-    const monthDates = groupedDates.find(g => g.month === month)?.dates || [];
-    const dates = monthDates.map(d => d.date);
+    const groupDates = groupedDates.find(g => g.name === name)?.dates || [];
+    const dates = groupDates.map(d => d.date);
 
-    // If all dates in month are selected, unselect them
+    // If all dates in group are selected, unselect them
     const allSelected = dates.every(date => selectedDates.includes(date));
     if (allSelected) {
       setSelectedDates(prev => prev.filter(d => !dates.includes(d)));
@@ -203,11 +234,11 @@ export function DateList({
     onClearAll();
   };
 
-  const toggleMonthCollapse = (month: string) => {
-    setCollapsedMonths(prev =>
-      prev.includes(month)
-        ? prev.filter(m => m !== month)
-        : [...prev, month],
+  const toggleGroupCollapse = (name: string) => {
+    setCollapsedGroups(prev =>
+      prev.includes(name)
+        ? prev.filter(n => n !== name)
+        : [...prev, name]
     );
   };
 
@@ -219,7 +250,7 @@ export function DateList({
       case 'Delete':
       case 'Backspace': {
         if (editingDate === null) {
-          e.preventDefault();
+        e.preventDefault();
           handleItemRemove(date);
         }
         break;
@@ -228,7 +259,7 @@ export function DateList({
         e.preventDefault();
         if (editingDate === null) {
           const prevButton = document.querySelector(`[data-date="${sortedItems[index - 1]?.date}"]`) as HTMLButtonElement;
-          prevButton?.focus();
+        prevButton?.focus();
         }
         break;
       }
@@ -236,7 +267,7 @@ export function DateList({
         e.preventDefault();
         if (editingDate === null) {
           const nextButton = document.querySelector(`[data-date="${sortedItems[index + 1]?.date}"]`) as HTMLButtonElement;
-          nextButton?.focus();
+        nextButton?.focus();
         }
         break;
       }
@@ -304,12 +335,12 @@ export function DateList({
             />
           </div>
           <div>
-            <h3
-              id={`${title.toLowerCase()}-list-heading`}
+        <h3 
+          id={`${title.toLowerCase()}-list-heading`}
               className={cn('text-sm font-medium leading-none mb-1', colorStyles[colorScheme].text)}
-            >
-              {title}
-            </h3>
+        >
+          {title}
+        </h3>
             <p className={cn('text-[10px]', colorStyles[colorScheme].muted)}>
               {items.length} date{items.length === 1 ? '' : 's'} selected
             </p>
@@ -319,34 +350,34 @@ export function DateList({
           {showBulkManagement && (
             <>
               {isBulkMode && groupedDates.length > 1 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
                   onClick={() => {
-                    const allCollapsed = groupedDates.every(g => collapsedMonths.includes(g.month));
-                    setCollapsedMonths(allCollapsed ? [] : groupedDates.map(g => g.month));
+                    const allCollapsed = groupedDates.every(g => collapsedGroups.includes(g.name));
+                    setCollapsedGroups(allCollapsed ? [] : groupedDates.map(g => g.name));
                   }}
                   className={cn(
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
-                    'group',
+                    'group'
                   )}
                   tabIndex={0}
-                  aria-label={groupedDates.every(g => collapsedMonths.includes(g.month))
-                    ? 'Expand all months'
-                    : 'Collapse all months'
+                  aria-label={groupedDates.every(g => collapsedGroups.includes(g.name))
+                    ? "Expand all groups"
+                    : "Collapse all groups"
                   }
                 >
-                  {groupedDates.every(g => collapsedMonths.includes(g.month)) ? (
+                  {groupedDates.every(g => collapsedGroups.includes(g.name)) ? (
                     <ChevronDown className={cn(
                       'h-3.5 w-3.5',
-                      colorStyles[colorScheme].accent,
+                      colorStyles[colorScheme].accent
                     )} />
                   ) : (
                     <ChevronUp className={cn(
                       'h-3.5 w-3.5',
-                      colorStyles[colorScheme].accent,
+                      colorStyles[colorScheme].accent
                     )} />
                   )}
                 </Button>
@@ -398,7 +429,7 @@ export function DateList({
               aria-label={`Rename ${selectedDates.length} selected dates`}
             >
               <Pencil
-                className={cn(
+          className={cn(
                   'h-3.5 w-3.5',
                   colorStyles[colorScheme].accent,
                 )}
@@ -424,10 +455,10 @@ export function DateList({
               colorStyles[colorScheme].active,
               'hover:border-opacity-100',
               'group',
-            )}
-            tabIndex={0}
-            aria-label={`Clear all ${title.toLowerCase()}`}
-          >
+          )}
+          tabIndex={0}
+          aria-label={`Clear all ${title.toLowerCase()}`}
+        >
             <Trash2
               className={cn(
                 'h-3.5 w-3.5 transition-colors duration-200',
@@ -439,9 +470,9 @@ export function DateList({
               'text-[11px] font-medium',
               colorStyles[colorScheme].text,
             )}>
-              Clear All
+          Clear All
             </span>
-          </Button>
+        </Button>
         </div>
       </header>
 
@@ -518,17 +549,17 @@ export function DateList({
             'divide-y',
             colorStyles[colorScheme].divider,
           )}
-          role="list"
-          aria-label={`List of ${title.toLowerCase()}`}
-        >
+        role="list"
+        aria-label={`List of ${title.toLowerCase()}`}
+      >
           <AnimatePresence initial={false} mode="popLayout">
             {items.length > 0 && (showBulkManagement && isBulkMode ? (
               // Grouped view
-              groupedDates.map(({ month, dates }) => (
+              groupedDates.map(({ name, dates, isDefaultNamed }) => (
                 <motion.li
-                  key={month}
+                  key={name + (isDefaultNamed ? '-month' : '-name')}
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
+                  animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
                   className={colorStyles[colorScheme].hover}
@@ -539,13 +570,13 @@ export function DateList({
                       'cursor-pointer select-none',
                       colorStyles[colorScheme].hover,
                     )}
-                    onClick={() => handleSelectMonth(month)}
+                    onClick={() => handleSelectGroup(name)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        handleSelectMonth(month);
+                        handleSelectGroup(name);
                       }
                     }}
                   >
@@ -557,25 +588,28 @@ export function DateList({
                         transition={{ duration: 0.2 }}
                         type="checkbox"
                         checked={dates.every(d => selectedDates.includes(d.date))}
-                        onChange={() => handleSelectMonth(month)}
+                        onChange={() => handleSelectGroup(name)}
                         className={cn(
                           'h-3.5 w-3.5 rounded',
                           `text-${colorScheme}-600 dark:text-${colorScheme}-400`,
                           'border-gray-300 dark:border-gray-600',
                         )}
                       />
-                      <span className={cn(
-                        'text-sm font-medium',
-                        colorStyles[colorScheme].text,
-                      )}>
-                        {month}
-                      </span>
-                      <span className={cn(
-                        'text-[11px]',
-                        colorStyles[colorScheme].muted,
-                      )}>
-                        ({dates.length})
-                      </span>
+                      <div>
+                        <span className={cn(
+                          'text-sm font-medium',
+                          colorStyles[colorScheme].text,
+                        )}>
+                          {isDefaultNamed ? `Dates in ${name}` : name}
+                        </span>
+                        <div className={cn(
+                          'text-[11px]',
+                          colorStyles[colorScheme].muted,
+                        )}>
+                          {dates.length} date{dates.length > 1 ? 's' : ''} • {format(parse(dates[0].date, 'yyyy-MM-dd', new Date()), 'MMM d')}
+                          {dates.length > 1 && ` - ${format(parse(dates[dates.length - 1].date, 'yyyy-MM-dd', new Date()), 'MMM d')}`}
+                        </div>
+                      </div>
                     </div>
                     <Button
                       type="button"
@@ -583,14 +617,14 @@ export function DateList({
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleMonthCollapse(month);
+                        toggleGroupCollapse(name);
                       }}
                       className={cn(
                         'h-6 w-6 p-0',
                         colorStyles[colorScheme].hover,
                       )}
                     >
-                      {collapsedMonths.includes(month) ? (
+                      {collapsedGroups.includes(name) ? (
                         <ChevronDown className={cn('h-4 w-4', colorStyles[colorScheme].accent)} />
                       ) : (
                         <ChevronUp className={cn('h-4 w-4', colorStyles[colorScheme].accent)} />
@@ -599,10 +633,10 @@ export function DateList({
                   </motion.div>
 
                   <AnimatePresence initial={false}>
-                    {!collapsedMonths.includes(month) && (
+                    {!collapsedGroups.includes(name) && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.2 }}
                       >
@@ -623,6 +657,7 @@ export function DateList({
                             startEditing={startEditing}
                             handleBlur={handleBlur}
                             setEditingValue={setEditingValue}
+                            isGrouped={!isDefaultNamed}
                           />
                         ))}
                       </motion.div>
@@ -634,7 +669,7 @@ export function DateList({
               // Flat list
               sortedItems.map((item) => (
                 <motion.li
-                  key={item.date}
+            key={item.date}
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -682,6 +717,7 @@ interface DateListItemProps {
   startEditing: (date: string, currentName: string) => void;
   handleBlur: () => void;
   setEditingValue: (value: string) => void;
+  isGrouped?: boolean;
 }
 
 function DateListItem({
@@ -699,6 +735,7 @@ function DateListItem({
                         startEditing,
                         handleBlur,
                         setEditingValue,
+                        isGrouped = false,
                       }: DateListItemProps) {
   return (
     <div
@@ -708,6 +745,7 @@ function DateListItem({
         colorStyles[colorScheme].divider,
         colorStyles[colorScheme].hover,
         'transition-colors duration-200',
+        showBulkManagement && 'pl-8',
       )}
     >
       <div className="flex items-center gap-3 px-3 py-2">
@@ -797,13 +835,15 @@ function DateListItem({
           ) : (
             <>
               <div className="flex items-center gap-2">
-                <p className={cn(
-                  'text-sm font-medium',
-                  colorStyles[colorScheme].text,
-                )}>
-                  {item.name}
-                </p>
-                {onUpdateName && (
+                {!isGrouped && (
+                  <p className={cn(
+                    'text-sm font-medium',
+                    colorStyles[colorScheme].text,
+                  )}>
+                    {item.name}
+                  </p>
+                )}
+                {onUpdateName && !isGrouped && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -825,22 +865,28 @@ function DateListItem({
                   </Button>
                 )}
               </div>
-              <time
-                dateTime={item.date}
-                className={cn('text-[11px] block mt-0.5', colorStyles[colorScheme].muted)}
+            <time 
+              dateTime={item.date}
+                className={cn(
+                  'block',
+                  isGrouped ? 'text-sm' : 'text-[11px] mt-0.5',
+                  isGrouped ? colorStyles[colorScheme].text : colorStyles[colorScheme].muted
+                )}
               >
-                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, MMMM d, yyyy')}
-              </time>
+                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 
+                  isGrouped ? 'EEEE, MMMM d, yyyy' : 'EEEE, MMMM d, yyyy'
+                )}
+            </time>
             </>
           )}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
           onClick={() => onRemove(item.date)}
           onKeyDown={(e) => handleKeyDown(e, item.date)}
-          className={cn(
+              className={cn(
             'h-7 w-7 p-0',
             'opacity-0 group-hover/item:opacity-100',
             'transition-all duration-200',
@@ -848,9 +894,9 @@ function DateListItem({
             colorStyles[colorScheme].hover,
             'hover:bg-red-100/70 dark:hover:bg-red-900/30',
             'group/button',
-          )}
-          tabIndex={0}
-          aria-label={`Remove ${item.name}`}
+              )}
+              tabIndex={0}
+              aria-label={`Remove ${item.name}`}
           data-date={item.date}
         >
           <X className={cn(
@@ -859,7 +905,7 @@ function DateListItem({
             'group-hover/button:text-red-500 dark:group-hover/button:text-red-400',
             'transition-colors duration-200',
           )} />
-        </Button>
+            </Button>
       </div>
     </div>
   );
