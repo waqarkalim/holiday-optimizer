@@ -21,11 +21,11 @@ interface DateListProps {
   items: DateItem[];
   title: string;
   colorScheme: 'amber' | 'violet';
-  onRemove: (index: number) => void;
+  onRemove: (date: string) => void;
   onClearAll: () => void;
   showName?: boolean;
-  onUpdateName?: (index: number, newName: string) => void;
-  onBulkRename?: (indices: number[], newName: string) => void;
+  onUpdateName?: (date: string, newName: string) => void;
+  onBulkRename?: (dates: string[], newName: string) => void;
   showBulkManagement?: boolean;
 }
 
@@ -143,13 +143,7 @@ export function DateList({
 
   const handleBulkRenameConfirm = () => {
     if (!onBulkRename || selectedDates.length === 0) return;
-    
-    // Map dates back to original indices
-    const indices = selectedDates
-      .map(date => items.findIndex(item => item.date === date))
-      .filter(i => i !== -1);
-    
-    onBulkRename(indices, editingValue.trim());
+    onBulkRename(selectedDates, editingValue.trim());
     setEditingDate(null);
     setSelectedDates([]);
   };
@@ -157,10 +151,7 @@ export function DateList({
   const handleItemRemove = (date: string) => {
     // Remove the date from selected dates if it exists
     setSelectedDates(prev => prev.filter(d => d !== date));
-    const index = items.findIndex(item => item.date === date);
-    if (index !== -1) {
-      onRemove(index);
-    }
+    onRemove(date);
   };
 
   const handleClearAll = () => {
@@ -210,7 +201,7 @@ export function DateList({
         if (editingDate !== null && onUpdateName) {
           e.preventDefault();
           if (index !== -1) {
-            onUpdateName(index, editingValue.trim());
+            onUpdateName(date, editingValue.trim());
           }
           setEditingDate(null);
         }
@@ -236,7 +227,7 @@ export function DateList({
     if (editingDate !== null && onUpdateName) {
       const index = items.findIndex(item => item.date === editingDate);
       if (index !== -1) {
-        onUpdateName(index, editingValue.trim());
+        onUpdateName(editingDate, editingValue.trim());
       }
       setEditingDate(null);
     }
@@ -574,7 +565,7 @@ interface DateListItemProps {
   editingDate: string | null;
   setEditingDate: (date: string | null) => void;
   editingValue: string;
-  onUpdateName?: (index: number, newName: string) => void;
+  onUpdateName?: (date: string, newName: string) => void;
   onRemove: (date: string) => void;
   colorScheme: 'amber' | 'violet';
   handleKeyDown: (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>, date: string) => void;

@@ -1,10 +1,12 @@
 import { Input } from '../../ui/input';
 import { cn } from '@/lib/utils';
-import { DaysInputStepProps } from './types';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
+import { useDaysInput } from '@/hooks/useOptimizer';
 
-export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps) {
+export function DaysInputStep() {
+  const { days, errors, setDays } = useDaysInput();
+
   return (
     <FormSection colorScheme="teal" headingId="days-heading">
       <StepHeader
@@ -27,7 +29,7 @@ export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps
           min={1}
           max={365}
           value={days}
-          onChange={(e) => onDaysChange(e.target.value)}
+          onChange={(e) => setDays(e.target.value)}
           className={cn(
             'max-w-[160px] h-9',
             'bg-white dark:bg-gray-900',
@@ -36,17 +38,17 @@ export function DaysInputStep({ days, onDaysChange, errors }: DaysInputStepProps
             'text-sm font-medium text-teal-900 dark:text-teal-100',
             'placeholder:text-teal-400 dark:placeholder:text-teal-500',
             'transition-colors duration-200',
-            errors?.days && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
+            errors && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
           )}
           placeholder="Enter days"
           required
           aria-describedby="days-description days-error"
-          aria-invalid={!!errors?.days}
-          aria-errormessage={errors?.days ? 'days-error' : undefined}
+          aria-invalid={!!errors}
+          aria-errormessage={errors ? 'days-error' : undefined}
         />
-        {errors?.days && (
+        {errors && (
           <p id="days-error" role="alert" className="text-[11px] font-medium text-red-500 dark:text-red-400 mt-1.5">
-            {errors.days}
+            {errors}
           </p>
         )}
       </div>

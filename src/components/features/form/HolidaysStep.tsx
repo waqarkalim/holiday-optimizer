@@ -2,22 +2,55 @@ import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
 import { DateList } from '../components/DateList';
-import { parse } from 'date-fns';
-import { HolidaysStepProps } from './types';
+import { parse, format } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
+import { useHolidays } from '@/hooks/useOptimizer';
+import { detectPublicHolidays } from '@/services/holidays';
+import { toast } from 'sonner';
 
-export function HolidaysStep({
-  holidays,
-  onHolidaySelect,
-  onHolidayRemove,
-  onClearHolidays,
-  onAutoDetect,
-  onHolidayNameUpdate,
-}: HolidaysStepProps) {
-  const handleBulkRename = (indices: number[], newName: string) => {
-    indices.forEach(index => {
-      onHolidayNameUpdate(index, newName);
+export function HolidaysStep() {
+  const { 
+    holidays, 
+    errors, 
+    addHoliday, 
+    removeHoliday, 
+    clearHolidays, 
+    setDetectedHolidays 
+  } = useHolidays();
+
+  const handleHolidaySelect = (date: Date) => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const isSelected = holidays.some(day => day.date === formattedDate);
+
+    if (isSelected) {
+      removeHoliday(formattedDate);
+    } else {
+      addHoliday(formattedDate, format(date, 'MMMM d, yyyy'));
+    }
+  };
+
+  const handleAutoDetect = async () => {
+    try {
+      const detectedHolidays = await detectPublicHolidays();
+      setDetectedHolidays(detectedHolidays);
+      toast.success('Holidays detected', {
+        description: `Found ${detectedHolidays.length} public holidays for your location. Any custom holidays have been preserved.`,
+      });
+    } catch (error) {
+      console.error('Error detecting holidays:', error);
+      toast.error('Error detecting holidays', {
+        description: error instanceof Error ? error.message : 'Failed to detect holidays for your location.',
+      });
+    }
+  };
+
+  const handleBulkRename = (dates: string[], newName: string) => {
+    dates.forEach(date => {
+      const index = holidays.findIndex(h => h.date === date);
+      if (index !== -1) {
+        addHoliday(date, newName);
+      }
     });
   };
 
@@ -33,7 +66,7 @@ export function HolidaysStep({
 
       <div className="space-y-2" role="group" aria-labelledby="holidays-heading">
         <Button
-          onClick={onAutoDetect}
+          onClick={handleAutoDetect}
           variant="outline"
           size="sm"
           type="button"
@@ -51,7 +84,7 @@ export function HolidaysStep({
           <MonthCalendarSelector
             id="holidays-calendar"
             selectedDates={holidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()))}
-            onDateSelect={onHolidaySelect}
+            onDateSelect={handleHolidaySelect}
             colorScheme="amber"
           />
 
@@ -60,10 +93,16 @@ export function HolidaysStep({
             items={holidays}
             title="Selected Holidays"
             colorScheme="amber"
-            onRemove={onHolidayRemove}
-            onClearAll={onClearHolidays}
-            onUpdateName={onHolidayNameUpdate}
-            onBulkRename={handleBulkRename}
+            onRemove={(date: string) => removeHoliday(date)}
+            onClearAll={clearHolidays}
+            onUpdateName={(date: string, newName: string) => {
+              addHoliday(date, newName);
+            }}
+            onBulkRename={(dates: string[], newName: string) => {
+              dates.forEach(date => {
+                addHoliday(date, newName);
+              });
+            }}
             showBulkManagement={false}
           />
         </div>

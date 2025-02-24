@@ -32,11 +32,11 @@ type OptimizerAction =
   | { type: 'SET_STRATEGY'; payload: OptimizationStrategy }
   | { type: 'SET_COMPANY_DAYS'; payload: Array<{ date: string, name: string }> }
   | { type: 'ADD_COMPANY_DAY'; payload: { date: string, name: string } }
-  | { type: 'REMOVE_COMPANY_DAY'; payload: number }
+  | { type: 'REMOVE_COMPANY_DAY'; payload: string }
   | { type: 'SET_ERROR'; payload: { field: string; message: string } }
   | { type: 'CLEAR_ERRORS' }
   | { type: 'ADD_HOLIDAY'; payload: { date: string, name: string } }
-  | { type: 'REMOVE_HOLIDAY'; payload: number }
+  | { type: 'REMOVE_HOLIDAY'; payload: string }
   | { type: 'TOGGLE_DATE'; payload: Date }
   | { type: 'CLEAR_HOLIDAYS' }
   | { type: 'CLEAR_COMPANY_DAYS' }
@@ -99,9 +99,21 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
           errors: { ...state.errors, companyDay: errors }
         }
       }
+
+      const existingIndex = state.companyDaysOff.findIndex(day => day.date === action.payload.date);
+      const updatedCompanyDays = [...state.companyDaysOff];
+
+      if (existingIndex !== -1) {
+        // Update existing company day
+        updatedCompanyDays[existingIndex] = action.payload;
+      } else {
+        // Add new company day
+        updatedCompanyDays.push(action.payload);
+      }
+
       return {
         ...state,
-        companyDaysOff: [...state.companyDaysOff, action.payload],
+        companyDaysOff: updatedCompanyDays,
         errors: { ...state.errors, companyDay: undefined }
       }
     }
@@ -109,7 +121,7 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     case 'REMOVE_COMPANY_DAY': {
       return {
         ...state,
-        companyDaysOff: state.companyDaysOff.filter((_, i) => i !== action.payload)
+        companyDaysOff: state.companyDaysOff.filter(day => day.date !== action.payload)
       }
     }
 
@@ -131,9 +143,20 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'ADD_HOLIDAY': {
+      const existingIndex = state.holidays.findIndex(day => day.date === action.payload.date);
+      const updatedHolidays = [...state.holidays];
+
+      if (existingIndex !== -1) {
+        // Update existing holiday
+        updatedHolidays[existingIndex] = action.payload;
+      } else {
+        // Add new holiday
+        updatedHolidays.push(action.payload);
+      }
+
       return {
         ...state,
-        holidays: [...state.holidays, { date: action.payload.date, name: action.payload.name }],
+        holidays: updatedHolidays,
         errors: { ...state.errors, holiday: undefined }
       }
     }
@@ -141,7 +164,7 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     case 'REMOVE_HOLIDAY': {
       return {
         ...state,
-        holidays: state.holidays.filter((_, i) => i !== action.payload)
+        holidays: state.holidays.filter(day => day.date !== action.payload)
       }
     }
 

@@ -1,61 +1,32 @@
 'use client';
 
-import { FormEvent, useEffect } from 'react';
+import { FormEvent } from 'react';
 import { Button } from './ui/button';
-import { CompanyDayOff, OptimizationStrategy } from '@/types';
-import { format } from 'date-fns';
 import { Calendar, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOptimizer } from '@/contexts/OptimizerContext';
-import {
-  clearStoredCompanyDays,
-  getStoredCompanyDays,
-  removeStoredCompanyDay,
-  storeCompanyDay,
-  updateStoredCompanyDay,
-} from '@/lib/storage/companyDays';
-import {
-  clearStoredHolidays,
-  getStoredHolidays,
-  removeStoredHoliday,
-  storeHoliday,
-  updateStoredHoliday,
-} from '@/lib/storage/holidays';
-import { detectPublicHolidays } from '@/services/holidays';
-import { toast } from 'sonner';
 import { DaysInputStep } from './features/form/DaysInputStep';
 import { StrategySelectionStep } from './features/form/StrategySelectionStep';
 import { HolidaysStep } from './features/form/HolidaysStep';
 import { CompanyDaysStep } from './features/form/CompanyDaysStep';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 interface OptimizerFormProps {
   onSubmitAction: (data: {
-    days: number
-    strategy: OptimizationStrategy
-    companyDaysOff: CompanyDayOff[]
-    holidays: Array<{ date: string, name: string }>
+    days: number;
+    strategy: string;
+    companyDaysOff: Array<{ date: string; name: string }>;
+    holidays: Array<{ date: string; name: string }>;
   }) => void;
   isLoading?: boolean;
 }
 
 export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFormProps) {
-  const { state, dispatch } = useOptimizer();
-  const { days, strategy, errors, companyDaysOff, holidays } = state;
+  const { state } = useOptimizer();
+  const { days, strategy, companyDaysOff, holidays } = state;
 
-  // Load stored holidays and company days on mount
-  useEffect(() => {
-    // Load public holidays
-    const storedHolidays = getStoredHolidays();
-    storedHolidays.forEach(day => {
-      dispatch({ type: 'ADD_HOLIDAY', payload: day });
-    });
-
-    // Load company days
-    const storedCompanyDays = getStoredCompanyDays();
-    storedCompanyDays.forEach(day => {
-      dispatch({ type: 'ADD_COMPANY_DAY', payload: day });
-    });
-  }, []);
+  // Initialize local storage sync
+  useLocalStorage();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,98 +37,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     onSubmitAction({ days: numDays, strategy, companyDaysOff, holidays });
   };
 
-  const handleCompanyDaySelect = (date: Date) => {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    const isSelected = companyDaysOff.some(day => day.date === formattedDate);
-
-    if (isSelected) {
-      const index = companyDaysOff.findIndex(day => day.date === formattedDate);
-      dispatch({ type: 'REMOVE_COMPANY_DAY', payload: index });
-      removeStoredCompanyDay(formattedDate);
-    } else {
-      const companyDay = {
-        name: format(date, 'MMMM d, yyyy'),
-        date: formattedDate,
-      };
-      dispatch({ type: 'ADD_COMPANY_DAY', payload: companyDay });
-      storeCompanyDay(companyDay);
-    }
-  };
-
-  const handleHolidaySelect = (date: Date) => {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    const isSelected = holidays.some(day => day.date === formattedDate);
-
-    if (isSelected) {
-      const index = holidays.findIndex(day => day.date === formattedDate);
-      dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
-      removeStoredHoliday(formattedDate);
-    } else {
-      const holiday = {
-        name: format(date, 'MMMM d, yyyy'),
-        date: formattedDate,
-      };
-      dispatch({ type: 'ADD_HOLIDAY', payload: holiday });
-      storeHoliday(holiday);
-    }
-  };
-
-  const handleAutoDetectHolidays = async () => {
-    try {
-      const detectedHolidays = await detectPublicHolidays();
-      
-      // Create a map of existing holidays that weren't detected
-      const existingHolidayMap = new Map(
-        holidays
-          .filter(h => !detectedHolidays.some(dh => dh.date === h.date))
-          .map(h => [h.date, h])
-      );
-
-      // Combine detected holidays with existing non-detected holidays
-      const combinedHolidays = [
-        ...detectedHolidays, // Put detected holidays first (with official names)
-        ...Array.from(existingHolidayMap.values()) // Keep custom holidays that weren't detected
-      ];
-
-      // Update both state and storage
-      dispatch({ type: 'SET_HOLIDAYS', payload: combinedHolidays });
-      
-      // Clear existing storage and store the combined holidays
-      clearStoredHolidays();
-      combinedHolidays.forEach(storeHoliday);
-
-      toast.success('Holidays detected', {
-        description: `Found ${detectedHolidays.length} public holidays for your location. Any custom holidays have been preserved.`,
-      });
-    } catch (error) {
-      console.error('Error detecting holidays:', error);
-      toast.error('Error detecting holidays', {
-        description: error instanceof Error ? error.message : 'Failed to detect holidays for your location.',
-      });
-    }
-  };
-
-  const handleHolidayNameUpdate = (index: number, newName: string, date: string) => {
-    const updatedHolidays = holidays.map(holiday => 
-      holiday.date === date ? { ...holiday, name: newName } : holiday
-    );
-    
-    dispatch({ type: 'SET_HOLIDAYS', payload: updatedHolidays });
-    updateStoredHoliday(date, newName);
-  };
-
-  const handleCompanyDayNameUpdate = (index: number, newName: string, date: string) => {
-    const updatedCompanyDays = companyDaysOff.map(day => 
-      day.date === date ? { ...day, name: newName } : day
-    );
-    
-    dispatch({ type: 'SET_COMPANY_DAYS', payload: updatedCompanyDays });
-    updateStoredCompanyDay(date, newName);
-  };
-
   return (
-    <main
-      className="bg-teal-50/30 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 shadow-sm">
+    <main className="bg-teal-50/30 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-4" aria-label="Time off optimizer">
         <div className="space-y-3">
           <header>
@@ -172,45 +53,10 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
           </header>
 
           <div className="space-y-3">
-            <DaysInputStep
-              days={days}
-              onDaysChange={(value) => dispatch({ type: 'SET_DAYS', payload: value })}
-              errors={errors}
-            />
-
-            <StrategySelectionStep
-              strategy={strategy}
-              onStrategyChange={(value) => dispatch({ type: 'SET_STRATEGY', payload: value })}
-            />
-
-            <HolidaysStep
-              holidays={holidays}
-              onHolidaySelect={handleHolidaySelect}
-              onHolidayRemove={(index) => {
-                dispatch({ type: 'REMOVE_HOLIDAY', payload: index });
-                removeStoredHoliday(holidays[index].date);
-              }}
-              onClearHolidays={() => {
-                dispatch({ type: 'CLEAR_HOLIDAYS' });
-                clearStoredHolidays();
-              }}
-              onAutoDetect={handleAutoDetectHolidays}
-              onHolidayNameUpdate={(index, newName) => handleHolidayNameUpdate(index, newName, holidays[index].date)}
-            />
-
-            <CompanyDaysStep
-              companyDaysOff={companyDaysOff}
-              onCompanyDaySelect={handleCompanyDaySelect}
-              onCompanyDayRemove={(index) => {
-                dispatch({ type: 'REMOVE_COMPANY_DAY', payload: index });
-                removeStoredCompanyDay(companyDaysOff[index].date);
-              }}
-              onClearCompanyDays={() => {
-                dispatch({ type: 'CLEAR_COMPANY_DAYS' });
-                clearStoredCompanyDays();
-              }}
-              onCompanyDayNameUpdate={(index, newName) => handleCompanyDayNameUpdate(index, newName, companyDaysOff[index].date)}
-            />
+            <DaysInputStep />
+            <StrategySelectionStep />
+            <HolidaysStep />
+            <CompanyDaysStep />
           </div>
         </div>
 

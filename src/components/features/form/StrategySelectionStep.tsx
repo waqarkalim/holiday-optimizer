@@ -3,9 +3,9 @@ import { cn } from '@/lib/utils';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { OptimizationStrategy } from '@/types';
 import { KeyboardEvent } from 'react';
-import { StrategySelectionStepProps } from './types';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
+import { useStrategySelection } from '@/hooks/useOptimizer';
 
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
@@ -16,7 +16,9 @@ const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
   extendedVacations: Palmtree,
 };
 
-export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySelectionStepProps) {
+export function StrategySelectionStep() {
+  const { strategy, setStrategy } = useStrategySelection();
+
   const handleStrategyKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy);
     const lastIndex = OPTIMIZATION_STRATEGIES.length - 1;
@@ -27,7 +29,7 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
         e.preventDefault();
         const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
         const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex];
-        onStrategyChange(prevStrategy.id);
+        setStrategy(prevStrategy.id);
         const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`);
         radioInput?.focus();
         break;
@@ -37,7 +39,7 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
         e.preventDefault();
         const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
         const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex];
-        onStrategyChange(nextStrategy.id);
+        setStrategy(nextStrategy.id);
         const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`);
         radioInput?.focus();
         break;
@@ -83,7 +85,7 @@ export function StrategySelectionStep({ strategy, onStrategyChange }: StrategySe
                 checked={isSelected}
                 className="sr-only"
                 tabIndex={isSelected || (index === 0 && !strategy) ? 0 : -1}
-                onChange={() => onStrategyChange(strategyOption.id)}
+                onChange={() => setStrategy(strategyOption.id)}
               />
               <div className="flex items-start gap-3 w-full">
                 <div className={cn(

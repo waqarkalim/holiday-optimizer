@@ -1,21 +1,28 @@
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
 import { DateList } from '../components/DateList';
-import { parse } from 'date-fns';
-import { CompanyDaysStepProps } from './types';
+import { parse, format } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
+import { useCompanyDays } from '@/hooks/useOptimizer';
 
-export function CompanyDaysStep({
-  companyDaysOff,
-  onCompanyDaySelect,
-  onCompanyDayRemove,
-  onClearCompanyDays,
-  onCompanyDayNameUpdate,
-}: CompanyDaysStepProps) {
-  const handleBulkRename = (indices: number[], newName: string) => {
-    indices.forEach(index => {
-      onCompanyDayNameUpdate(index, newName);
-    });
+export function CompanyDaysStep() {
+  const { 
+    companyDaysOff, 
+    errors, 
+    addCompanyDay, 
+    removeCompanyDay, 
+    clearCompanyDays 
+  } = useCompanyDays();
+
+  const handleCompanyDaySelect = (date: Date) => {
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    const isSelected = companyDaysOff.some(day => day.date === formattedDate);
+
+    if (isSelected) {
+      removeCompanyDay(formattedDate);
+    } else {
+      addCompanyDay(formattedDate, format(date, 'MMMM d, yyyy'));
+    }
   };
 
   return (
@@ -33,7 +40,7 @@ export function CompanyDaysStep({
         <MonthCalendarSelector
           id="company-days-calendar"
           selectedDates={companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
-          onDateSelect={onCompanyDaySelect}
+          onDateSelect={handleCompanyDaySelect}
           colorScheme="violet"
         />
 
@@ -42,10 +49,16 @@ export function CompanyDaysStep({
           items={companyDaysOff}
           title="Selected Company Days"
           colorScheme="violet"
-          onRemove={onCompanyDayRemove}
-          onClearAll={onClearCompanyDays}
-          onUpdateName={onCompanyDayNameUpdate}
-          onBulkRename={handleBulkRename}
+          onRemove={(date: string) => removeCompanyDay(date)}
+          onClearAll={clearCompanyDays}
+          onUpdateName={(date: string, newName: string) => {
+            addCompanyDay(date, newName);
+          }}
+          onBulkRename={(dates: string[], newName: string) => {
+            dates.forEach(date => {
+              addCompanyDay(date, newName);
+            });
+          }}
           showBulkManagement={true}
         />
       </div>
