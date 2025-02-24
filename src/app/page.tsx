@@ -6,6 +6,10 @@ import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
 import { CompanyDayOff, OptimizationResult, OptimizationStrategy } from '@/types';
 import { optimizeDaysAsync } from '@/services/optimizer.improved';
+import { PageLayout, PageHeader, PageTitle, PageDescription, PageContent } from '@/components/layout/PageLayout';
+import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface FormState {
   numberOfDays: number | null
@@ -56,26 +60,26 @@ const HomePage = () => {
 
   return (
     <OptimizerProvider>
-      <div className="flex-grow">
-        {/* Title Section */}
-        <div className="bg-gray-50/90 dark:bg-gray-900 border-b border-gray-200/60 dark:border-gray-700/30 py-6">
-          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="text-center">
-              <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-                Plan Your Time Off
-              </h1>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Optimize your CTO days from today until the end of {currentYear}, making every day off count
-              </p>
-            </div>
-          </div>
-        </div>
+      <PageLayout>
+        <PageHeader>
+          <PageTitle>Plan Your Time Off</PageTitle>
+          <PageDescription>
+            Optimize your CTO days from today until the end of {currentYear}, making every day off count
+          </PageDescription>
+        </PageHeader>
 
-        {/* Main Content Area */}
-        <div className="w-full max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12 py-6">
-          <div className={`grid gap-6 ${isOptimizing || optimizationResult ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''} mx-auto max-w-[1400px]`}>
+        <PageContent>
+          <div className={cn(
+            "grid gap-6 mx-auto max-w-[1400px]",
+            isOptimizing || optimizationResult ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''
+          )}>
             {/* Form Section - Always visible */}
-            <div className={`${isOptimizing || optimizationResult ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' : 'max-w-xl mx-auto w-full'} space-y-4`}>
+            <div className={cn(
+              "space-y-4",
+              isOptimizing || optimizationResult 
+                ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' 
+                : 'max-w-xl mx-auto w-full'
+            )}>
               <OptimizerForm
                 onSubmitAction={({ days, strategy, companyDaysOff, holidays }) => {
                   const newFormState = {
@@ -94,17 +98,13 @@ const HomePage = () => {
             {(isOptimizing || (optimizationResult && optimizationResult.days.length > 0)) && (
               <div className="space-y-4 min-w-0 max-w-4xl w-full">
                 {isOptimizing ? (
-                  <div className="bg-white/90 dark:bg-gray-800/60 rounded-xl p-8 ring-1 ring-blue-900/5 dark:ring-blue-400/5 flex flex-col items-center justify-center min-h-[300px] space-y-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-violet-200 dark:border-violet-700 border-t-violet-500 dark:border-t-violet-400"></div>
-                    <div className="text-center space-y-1">
-                      <p className="text-sm font-medium text-violet-900 dark:text-violet-100">
-                        Creating Your Perfect Schedule
-                      </p>
-                      <p className="text-xs text-violet-600/70 dark:text-violet-300/70">
-                        Optimizing your time off for maximum enjoyment...
-                      </p>
-                    </div>
-                  </div>
+                  <Card variant="neutral" className="p-8 flex flex-col items-center justify-center min-h-[300px]">
+                    <LoadingSpinner 
+                      variant="primary"
+                      label="Creating Your Perfect Schedule"
+                      description="Optimizing your time off for maximum enjoyment..."
+                    />
+                  </Card>
                 ) : optimizationResult && (
                   <ResultsDisplay
                     ref={resultsRef}
@@ -116,8 +116,8 @@ const HomePage = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </PageContent>
+      </PageLayout>
     </OptimizerProvider>
   );
 };

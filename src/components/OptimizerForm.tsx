@@ -11,6 +11,7 @@ import { HolidaysStep } from './features/form/HolidaysStep';
 import { CompanyDaysStep } from './features/form/CompanyDaysStep';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { OptimizationStrategy } from '@/types';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 
 interface OptimizerFormProps {
   onSubmitAction: (data: {
@@ -39,42 +40,31 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
   };
 
   return (
-    <main className="bg-teal-50/30 dark:bg-gray-800/60 rounded-lg p-3 ring-1 ring-teal-900/5 dark:ring-teal-300/10 shadow-sm">
+    <Card variant="primary">
       <form onSubmit={handleSubmit} className="space-y-4" aria-label="Time off optimizer">
-        <div className="space-y-3">
-          <header>
-            <h1 className="text-base font-semibold text-teal-900 dark:text-teal-100 flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-300" aria-hidden="true" />
-              Design Your Dream Year
-            </h1>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
-              In just 4 simple steps, we&apos;ll help you create the perfect balance of work and life, maximizing every
-              day off.
-            </p>
-          </header>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5 text-teal-900 dark:text-teal-100">
+            <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-300" aria-hidden="true" />
+            Design Your Dream Year
+          </CardTitle>
+          <CardDescription>
+            In just 4 simple steps, we&apos;ll help you create the perfect balance of work and life, maximizing every
+            day off.
+          </CardDescription>
+        </CardHeader>
 
-          <div className="space-y-3">
-            <DaysInputStep />
-            <StrategySelectionStep />
-            <HolidaysStep />
-            <CompanyDaysStep />
-          </div>
-        </div>
+        <CardContent className="space-y-3">
+          <DaysInputStep />
+          <StrategySelectionStep />
+          <HolidaysStep />
+          <CompanyDaysStep />
+        </CardContent>
 
-        <footer className="mt-6">
+        <CardFooter className="flex justify-end">
           <Button
             type="submit"
+            variant="primary-action"
             disabled={isLoading || !days || parseInt(days) <= 0}
-            className={cn(
-              'w-full',
-              'bg-violet-500 hover:bg-violet-600 dark:bg-violet-400 dark:hover:bg-violet-500',
-              'text-white dark:text-gray-900',
-              'h-10 rounded-lg',
-              'transition-colors',
-              'shadow-sm',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              'focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-violet-300 focus:ring-offset-2',
-            )}
             tabIndex={0}
             role="button"
             aria-label={isLoading ? 'Creating your personalized schedule...' : 'Create My Perfect Schedule'}
@@ -107,8 +97,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               )}
             </span>
           </Button>
-        </footer>
+        </CardFooter>
       </form>
-    </main>
+    </Card>
   );
 } 
