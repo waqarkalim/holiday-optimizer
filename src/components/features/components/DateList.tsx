@@ -884,27 +884,39 @@ function DateListItem({
               type="button"
               variant="ghost"
               size="sm"
-          onClick={() => onRemove(item.date)}
-          onKeyDown={(e) => handleKeyDown(e, item.date)}
+              onClick={() => onRemove(item.date)}
+              onKeyDown={(e) => handleKeyDown(e, item.date)}
               className={cn(
-            'h-7 w-7 p-0',
-            'opacity-0 group-hover/item:opacity-100',
-            'transition-all duration-200',
-            'hover:scale-110 active:scale-95',
-            colorStyles[colorScheme].hover,
-            'hover:bg-red-100/70 dark:hover:bg-red-900/30',
-            'group/button',
+                'h-7 w-7 p-0',
+                'opacity-0 group-hover/item:opacity-100',
+                'transition-all duration-200',
+                'hover:scale-110 active:scale-95',
+                colorScheme === 'amber' ? [
+                  'hover:bg-amber-100/70 dark:hover:bg-amber-900/30',
+                  'hover:text-amber-600 dark:hover:text-amber-400',
+                ] : [
+                  'hover:bg-violet-100/70 dark:hover:bg-violet-900/30',
+                  'hover:text-violet-600 dark:hover:text-violet-400',
+                ],
+                'group/button',
               )}
               tabIndex={0}
               aria-label={`Remove ${item.name}`}
-          data-date={item.date}
-        >
-          <X className={cn(
-            'h-3.5 w-3.5',
-            colorStyles[colorScheme].accent,
-            'group-hover/button:text-red-500 dark:group-hover/button:text-red-400',
-            'transition-colors duration-200',
-          )} />
+              data-date={item.date}
+            >
+              <X 
+                className={cn(
+                  'h-3.5 w-3.5',
+                  'transition-colors duration-200',
+                  colorScheme === 'amber' ? [
+                    'text-amber-500/60 dark:text-amber-400/60',
+                    'group-hover/button:text-amber-600 dark:group-hover/button:text-amber-400',
+                  ] : [
+                    'text-violet-500/60 dark:text-violet-400/60',
+                    'group-hover/button:text-violet-600 dark:group-hover/button:text-violet-400',
+                  ],
+                )} 
+              />
             </Button>
       </div>
     </div>
