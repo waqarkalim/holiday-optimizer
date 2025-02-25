@@ -20,43 +20,43 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
         {/* Total Days Off */}
         <StatCard
-          icon={<CalendarDays className="h-4 w-4" />}
+          icon={<CalendarDays className="h-5 w-5" />}
           value={stats.totalDaysOff}
           label="Total Days Off"
           tooltip="Total number of days off including weekends, holidays, and CTO days"
-          colorScheme="purple"
+          colorScheme="blue"
         />
 
-        {/* CTO Days - using green to match our day type colors */}
+        {/* CTO Days */}
         <StatCard
-          icon={<Calendar className="h-4 w-4" />}
+          icon={<Calendar className="h-5 w-5" />}
           value={stats.totalCTODays}
           label="CTO Days"
           tooltip="Number of CTO days used in the optimization"
           colorScheme="green"
         />
 
-        {/* Public Holidays - using amber to match our day type colors */}
+        {/* Public Holidays */}
         <StatCard
-          icon={<Sun className="h-4 w-4" />}
+          icon={<Sun className="h-5 w-5" />}
           value={stats.totalPublicHolidays}
           label="Public Holidays"
           tooltip="Number of public holidays in the selected year"
           colorScheme="amber"
         />
 
-        {/* Extended Weekends - using teal to match our day type colors */}
+        {/* Extended Weekends */}
         <StatCard
-          icon={<Umbrella className="h-4 w-4" />}
+          icon={<Umbrella className="h-5 w-5" />}
           value={stats.totalExtendedWeekends}
           label="Extended Weekends"
           tooltip="Number of weekends that are part of a longer break"
           colorScheme="teal"
         />
 
-        {/* Company Days Off - using violet to match our day type colors */}
+        {/* Company Days Off */}
         <StatCard
-          icon={<Building2 className="h-4 w-4" />}
+          icon={<Building2 className="h-5 w-5" />}
           value={stats.totalCompanyDaysOff}
           label="Company Days Off"
           tooltip="Number of company-wide days off (e.g., Christmas closure)"

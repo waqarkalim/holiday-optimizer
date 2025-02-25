@@ -58,7 +58,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     icon: {
       bg: 'bg-blue-100 dark:bg-blue-900/50',
       text: 'text-blue-600 dark:text-blue-300',
-      ring: 'ring-blue-400/20 dark:ring-blue-300/20',
+      ring: 'ring-blue-900/5 dark:ring-blue-300/10',
     },
     tooltip: {
       icon: 'text-blue-500/70 dark:text-blue-300/70',
@@ -74,14 +74,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-blue-100 dark:bg-blue-900/50',
       text: 'text-blue-600 dark:text-blue-300',
-      ring: 'ring-blue-400 dark:ring-blue-500',
+      ring: 'ring-blue-900/5 dark:ring-blue-300/10',
     },
   },
   green: {
     icon: {
       bg: 'bg-green-100 dark:bg-green-900/50',
       text: 'text-green-600 dark:text-green-300',
-      ring: 'ring-green-400/20 dark:ring-green-300/20',
+      ring: 'ring-green-900/5 dark:ring-green-300/10',
     },
     tooltip: {
       icon: 'text-green-500/70 dark:text-green-300/70',
@@ -97,14 +97,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-green-100 dark:bg-green-900/50',
       text: 'text-green-600 dark:text-green-300',
-      ring: 'ring-green-400 dark:ring-green-500',
+      ring: 'ring-green-900/5 dark:ring-green-300/10',
     },
   },
   amber: {
     icon: {
       bg: 'bg-amber-100 dark:bg-amber-900/50',
       text: 'text-amber-600 dark:text-amber-300',
-      ring: 'ring-amber-400/20 dark:ring-amber-300/20',
+      ring: 'ring-amber-900/5 dark:ring-amber-300/10',
     },
     tooltip: {
       icon: 'text-amber-500/70 dark:text-amber-300/70',
@@ -120,14 +120,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-amber-100 dark:bg-amber-900/50',
       text: 'text-amber-600 dark:text-amber-300',
-      ring: 'ring-amber-400 dark:ring-amber-500',
+      ring: 'ring-amber-900/5 dark:ring-amber-300/10',
     },
   },
   emerald: {
     icon: {
       bg: 'bg-emerald-100 dark:bg-emerald-900/50',
       text: 'text-emerald-600 dark:text-emerald-300',
-      ring: 'ring-emerald-400/20 dark:ring-emerald-300/20',
+      ring: 'ring-emerald-900/5 dark:ring-emerald-300/10',
     },
     tooltip: {
       icon: 'text-emerald-500/70 dark:text-emerald-300/70',
@@ -143,14 +143,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-emerald-100 dark:bg-emerald-900/50',
       text: 'text-emerald-600 dark:text-emerald-300',
-      ring: 'ring-emerald-400 dark:ring-emerald-500',
+      ring: 'ring-emerald-900/5 dark:ring-emerald-300/10',
     },
   },
   purple: {
     icon: {
       bg: 'bg-purple-100 dark:bg-purple-900/50',
       text: 'text-purple-600 dark:text-purple-300',
-      ring: 'ring-purple-400/20 dark:ring-purple-300/20',
+      ring: 'ring-purple-900/5 dark:ring-purple-300/10',
     },
     tooltip: {
       icon: 'text-purple-500/70 dark:text-purple-300/70',
@@ -166,14 +166,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-purple-100 dark:bg-purple-900/50',
       text: 'text-purple-600 dark:text-purple-300',
-      ring: 'ring-purple-400 dark:ring-purple-500',
+      ring: 'ring-purple-900/5 dark:ring-purple-300/10',
     },
   },
   pink: {
     icon: {
       bg: 'bg-pink-100 dark:bg-pink-900/50',
       text: 'text-pink-600 dark:text-pink-300',
-      ring: 'ring-pink-400/20 dark:ring-pink-300/20',
+      ring: 'ring-pink-900/5 dark:ring-pink-300/10',
     },
     tooltip: {
       icon: 'text-pink-500/70 dark:text-pink-300/70',
@@ -189,14 +189,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-pink-100 dark:bg-pink-900/50',
       text: 'text-pink-600 dark:text-pink-300',
-      ring: 'ring-pink-400 dark:ring-pink-500',
+      ring: 'ring-pink-900/5 dark:ring-pink-300/10',
     },
   },
   violet: {
     icon: {
       bg: 'bg-violet-100 dark:bg-violet-900/50',
       text: 'text-violet-600 dark:text-violet-300',
-      ring: 'ring-violet-400/20 dark:ring-violet-300/20',
+      ring: 'ring-violet-900/5 dark:ring-violet-300/10',
     },
     tooltip: {
       icon: 'text-violet-500/70 dark:text-violet-300/70',
@@ -212,14 +212,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-violet-100 dark:bg-violet-900/50',
       text: 'text-violet-600 dark:text-violet-300',
-      ring: 'ring-violet-400 dark:ring-violet-500',
+      ring: 'ring-violet-900/5 dark:ring-violet-300/10',
     },
   },
   teal: {
     icon: {
       bg: 'bg-teal-100 dark:bg-teal-900/50',
       text: 'text-teal-600 dark:text-teal-300',
-      ring: 'ring-teal-400/20 dark:ring-teal-300/20',
+      ring: 'ring-teal-900/5 dark:ring-teal-300/10',
     },
     tooltip: {
       icon: 'text-teal-500/70 dark:text-teal-300/70',
@@ -235,14 +235,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-teal-100 dark:bg-teal-900/50',
       text: 'text-teal-600 dark:text-teal-300',
-      ring: 'ring-teal-400 dark:ring-teal-500',
+      ring: 'ring-teal-900/5 dark:ring-teal-300/10',
     },
   },
   gray: {
     icon: {
       bg: 'bg-gray-100 dark:bg-gray-900/50',
       text: 'text-gray-600 dark:text-gray-300',
-      ring: 'ring-gray-400/20 dark:ring-gray-300/20',
+      ring: 'ring-gray-900/5 dark:ring-gray-300/10',
     },
     tooltip: {
       icon: 'text-gray-500/70 dark:text-gray-300/70',
@@ -250,6 +250,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     },
     card: {
       hover: 'hover:bg-gray-50/50 dark:hover:bg-gray-900/30',
+      ring: 'ring-gray-900/5 dark:ring-gray-300/10',
     },
     value: {
       text: 'text-gray-900 dark:text-gray-50',
@@ -257,14 +258,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-gray-100 dark:bg-gray-900/50',
       text: 'text-gray-600 dark:text-gray-300',
-      ring: 'ring-gray-400 dark:ring-gray-500',
+      ring: 'ring-gray-900/5 dark:ring-gray-300/10',
     },
   },
   neutral: {
     icon: {
       bg: 'bg-gray-100 dark:bg-gray-900/50',
       text: 'text-gray-600 dark:text-gray-300',
-      ring: 'ring-gray-400/20 dark:ring-gray-300/20',
+      ring: 'ring-neutral-900/5 dark:ring-neutral-300/10',
     },
     tooltip: {
       icon: 'text-gray-500/70 dark:text-gray-300/70',
@@ -272,6 +273,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     },
     card: {
       hover: 'hover:bg-gray-50/50 dark:hover:bg-gray-900/30',
+      ring: 'ring-neutral-900/5 dark:ring-neutral-300/10',
     },
     value: {
       text: 'text-gray-900 dark:text-gray-50',  
@@ -279,7 +281,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-gray-100 dark:bg-gray-900/50',
       text: 'text-gray-600 dark:text-gray-300',
-      ring: 'ring-gray-400 dark:ring-gray-500',
+      ring: 'ring-neutral-900/5 dark:ring-neutral-300/10',
     },
   },
   transparent: {
@@ -294,6 +296,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     },
     card: {
       hover: 'hover:bg-transparent',
+      ring: 'ring-transparent',
     },
     value: {
       text: 'text-transparent',
@@ -310,7 +313,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     icon: {
       bg: 'bg-slate-100 dark:bg-slate-900/50',
       text: 'text-slate-600 dark:text-slate-300',
-      ring: 'ring-slate-400/20 dark:ring-slate-300/20',
+      ring: 'ring-slate-900/5 dark:ring-slate-300/10',
     },
     tooltip: {
       icon: 'text-slate-500/70 dark:text-slate-300/70',
@@ -326,14 +329,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-slate-100 dark:bg-slate-900/50',
       text: 'text-slate-600 dark:text-slate-300',
-      ring: 'ring-slate-400 dark:ring-slate-500',
+      ring: 'ring-slate-900/5 dark:ring-slate-300/10',
     },
   },
   zinc: {
     icon: {
       bg: 'bg-zinc-100 dark:bg-zinc-900/50',
       text: 'text-zinc-600 dark:text-zinc-300',
-      ring: 'ring-zinc-400/20 dark:ring-zinc-300/20',
+      ring: 'ring-zinc-900/5 dark:ring-zinc-300/10',
     },
     tooltip: {
       icon: 'text-zinc-500/70 dark:text-zinc-300/70',
@@ -349,14 +352,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-zinc-100 dark:bg-zinc-900/50',
       text: 'text-zinc-600 dark:text-zinc-300',
-      ring: 'ring-zinc-400 dark:ring-zinc-500',
+      ring: 'ring-zinc-900/5 dark:ring-zinc-300/10',
     },
   },
   stone: {
     icon: {
       bg: 'bg-stone-100 dark:bg-stone-900/50',
       text: 'text-stone-600 dark:text-stone-300',
-      ring: 'ring-stone-400/20 dark:ring-stone-300/20',
+      ring: 'ring-stone-900/5 dark:ring-stone-300/10',
     },
     tooltip: {
       icon: 'text-stone-500/70 dark:text-stone-300/70',
@@ -372,14 +375,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-stone-100 dark:bg-stone-900/50',
       text: 'text-stone-600 dark:text-stone-300',
-      ring: 'ring-stone-400 dark:ring-stone-500',
+      ring: 'ring-stone-900/5 dark:ring-stone-300/10',
     },
   },
   red: {
     icon: {
       bg: 'bg-red-100 dark:bg-red-900/50',
       text: 'text-red-600 dark:text-red-300',
-      ring: 'ring-red-400/20 dark:ring-red-300/20',
+      ring: 'ring-red-900/5 dark:ring-red-300/10',
     },
     tooltip: {
       icon: 'text-red-500/70 dark:text-red-300/70',
@@ -395,14 +398,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-red-100 dark:bg-red-900/50',
       text: 'text-red-600 dark:text-red-300',
-      ring: 'ring-red-400 dark:ring-red-500',
+      ring: 'ring-red-900/5 dark:ring-red-300/10',
     },
   },
   orange: {
     icon: {
       bg: 'bg-orange-100 dark:bg-orange-900/50',
       text: 'text-orange-600 dark:text-orange-300',
-      ring: 'ring-orange-400/20 dark:ring-orange-300/20',
+      ring: 'ring-orange-900/5 dark:ring-orange-300/10',
     },
     tooltip: {
       icon: 'text-orange-500/70 dark:text-orange-300/70',
@@ -418,14 +421,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-orange-100 dark:bg-orange-900/50',
       text: 'text-orange-600 dark:text-orange-300',
-      ring: 'ring-orange-400 dark:ring-orange-500',
+      ring: 'ring-orange-900/5 dark:ring-orange-300/10',
     },
   },
   yellow: {
     icon: {
       bg: 'bg-yellow-100 dark:bg-yellow-900/50',
       text: 'text-yellow-600 dark:text-yellow-300',
-      ring: 'ring-yellow-400/20 dark:ring-yellow-300/20',
+      ring: 'ring-yellow-900/5 dark:ring-yellow-300/10',
     },
     tooltip: {
       icon: 'text-yellow-500/70 dark:text-yellow-300/70',
@@ -441,14 +444,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-yellow-100 dark:bg-yellow-900/50',
       text: 'text-yellow-600 dark:text-yellow-300',
-      ring: 'ring-yellow-400 dark:ring-yellow-500',
+      ring: 'ring-yellow-900/5 dark:ring-yellow-300/10',
     },
   },
   lime: {
     icon: {
       bg: 'bg-lime-100 dark:bg-lime-900/50',
       text: 'text-lime-600 dark:text-lime-300',
-      ring: 'ring-lime-400/20 dark:ring-lime-300/20',
+      ring: 'ring-lime-900/5 dark:ring-lime-300/10',
     },
     tooltip: {
       icon: 'text-lime-500/70 dark:text-lime-300/70',
@@ -464,14 +467,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-lime-100 dark:bg-lime-900/50',
       text: 'text-lime-600 dark:text-lime-300',
-      ring: 'ring-lime-400 dark:ring-lime-500',
+      ring: 'ring-lime-900/5 dark:ring-lime-300/10',
     },
   },
   indigo: {
     icon: {
       bg: 'bg-indigo-100 dark:bg-indigo-900/50',
       text: 'text-indigo-600 dark:text-indigo-300',
-      ring: 'ring-indigo-400/20 dark:ring-indigo-300/20',
+      ring: 'ring-indigo-900/5 dark:ring-indigo-300/10',
     },
     tooltip: {
       icon: 'text-indigo-500/70 dark:text-indigo-300/70',
@@ -487,14 +490,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-indigo-100 dark:bg-indigo-900/50',
       text: 'text-indigo-600 dark:text-indigo-300',
-      ring: 'ring-indigo-400 dark:ring-indigo-500',
+      ring: 'ring-indigo-900/5 dark:ring-indigo-300/10',
     },
   },
   sky: {
     icon: {
       bg: 'bg-sky-100 dark:bg-sky-900/50',
       text: 'text-sky-600 dark:text-sky-300',
-      ring: 'ring-sky-400/20 dark:ring-sky-300/20',
+      ring: 'ring-sky-900/5 dark:ring-sky-300/10',
     },
     tooltip: {
       icon: 'text-sky-500/70 dark:text-sky-300/70',
@@ -510,14 +513,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-sky-100 dark:bg-sky-900/50',
       text: 'text-sky-600 dark:text-sky-300',
-      ring: 'ring-sky-400 dark:ring-sky-500',
+      ring: 'ring-sky-900/5 dark:ring-sky-300/10',
     },
   },
   cyan: {
     icon: {
       bg: 'bg-cyan-100 dark:bg-cyan-900/50',
       text: 'text-cyan-600 dark:text-cyan-300',
-      ring: 'ring-cyan-400/20 dark:ring-cyan-300/20',
+      ring: 'ring-cyan-900/5 dark:ring-cyan-300/10',
     },
     tooltip: {
       icon: 'text-cyan-500/70 dark:text-cyan-300/70',
@@ -533,14 +536,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-cyan-100 dark:bg-cyan-900/50',
       text: 'text-cyan-600 dark:text-cyan-300',
-      ring: 'ring-cyan-400 dark:ring-cyan-500',
+      ring: 'ring-cyan-900/5 dark:ring-cyan-300/10',
     },
   },
   fuchsia: {
     icon: {
       bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/50',
       text: 'text-fuchsia-600 dark:text-fuchsia-300',
-      ring: 'ring-fuchsia-400/20 dark:ring-fuchsia-300/20',
+      ring: 'ring-fuchsia-900/5 dark:ring-fuchsia-300/10',
     },
     tooltip: {
       icon: 'text-fuchsia-500/70 dark:text-fuchsia-300/70',
@@ -556,14 +559,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/50',
       text: 'text-fuchsia-600 dark:text-fuchsia-300',
-      ring: 'ring-fuchsia-400 dark:ring-fuchsia-500',
+      ring: 'ring-fuchsia-900/5 dark:ring-fuchsia-300/10',
     },
   },
   rose: {
     icon: {
       bg: 'bg-rose-100 dark:bg-rose-900/50',
       text: 'text-rose-600 dark:text-rose-300',
-      ring: 'ring-rose-400/20 dark:ring-rose-300/20',
+      ring: 'ring-rose-900/5 dark:ring-rose-300/10',
     },
     tooltip: {
       icon: 'text-rose-500/70 dark:text-rose-300/70',
@@ -579,7 +582,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-rose-100 dark:bg-rose-900/50',
       text: 'text-rose-600 dark:text-rose-300',
-      ring: 'ring-rose-400 dark:ring-rose-500',
+      ring: 'ring-rose-900/5 dark:ring-rose-300/10',
     },
   },
   // Basic colors
@@ -587,7 +590,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     icon: {
       bg: 'bg-black/5 dark:bg-white/10',
       text: 'text-black dark:text-white',
-      ring: 'ring-black/10 dark:ring-white/20',
+      ring: 'ring-black/5 dark:ring-white/10',
     },
     tooltip: {
       icon: 'text-black/70 dark:text-white/70',
@@ -603,7 +606,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-black/10 dark:bg-white/10',
       text: 'text-black dark:text-white',
-      ring: 'ring-black dark:ring-white',
+      ring: 'ring-black/5 dark:ring-white/10',
     },
   },
   white: {
@@ -634,7 +637,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     icon: {
       bg: 'bg-current bg-opacity-10',
       text: 'text-current',
-      ring: 'ring-current ring-opacity-20',
+      ring: 'ring-current/5',
     },
     tooltip: {
       icon: 'text-current text-opacity-70',
@@ -642,7 +645,7 @@ export const COLOR_SCHEMES: ColorSchemes = {
     },
     card: {
       hover: 'hover:bg-current hover:bg-opacity-5',
-      ring: 'ring-current ring-opacity-10',
+      ring: 'ring-current/5',
     },
     value: {
       text: 'text-current',
@@ -650,14 +653,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-current bg-opacity-10',
       text: 'text-current',
-      ring: 'ring-current',
+      ring: 'ring-current/5',
     },
   },
   today: {
     icon: {
       bg: 'bg-blue-100 dark:bg-blue-900/50',
       text: 'text-blue-600 dark:text-blue-300',
-      ring: 'ring-blue-400/20 dark:ring-blue-300/20',
+      ring: 'ring-blue-900/5 dark:ring-blue-300/10',
     },
     tooltip: {
       icon: 'text-blue-500/70 dark:text-blue-300/70',
@@ -673,14 +676,14 @@ export const COLOR_SCHEMES: ColorSchemes = {
     calendar: {
       bg: 'bg-blue-50 dark:bg-blue-900/30',
       text: 'text-blue-600 dark:text-blue-300 font-bold',
-      ring: 'ring-blue-400 dark:ring-blue-500',
+      ring: 'ring-blue-900/5 dark:ring-blue-300/10',
     },
   },
   past: {
     icon: {
       bg: 'bg-gray-100 dark:bg-gray-900/50',
       text: 'text-gray-400 dark:text-gray-500',
-      ring: 'ring-gray-400/20 dark:ring-gray-300/20',
+      ring: 'ring-gray-900/5 dark:ring-gray-300/10',
     },
     tooltip: {
       icon: 'text-gray-400/70 dark:text-gray-500/70',

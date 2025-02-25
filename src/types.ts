@@ -76,7 +76,7 @@ type SpecialColor = 'black' | 'white' | 'transparent' | 'current';
 type AppSpecificColorScheme = 'today' | 'past';
 
 // Type definitions for the structure of color scheme elements
-interface TailwindColorStyles {
+export interface TailwindColorStyles {
   bg: string;    // Background color classes (e.g., "bg-blue-100 dark:bg-blue-900/50")
   text: string;  // Text color classes (e.g., "text-blue-600 dark:text-blue-300")
   ring: string;  // Ring/outline classes (e.g., "ring-blue-400/20 dark:ring-blue-300/20")
