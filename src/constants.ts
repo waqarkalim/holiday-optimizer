@@ -24,6 +24,7 @@ export const BREAK_LENGTHS = {
     MAX: 15,
   },
 } as const;
+
 export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   {
     id: 'balanced',
@@ -69,8 +70,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-blue-900 dark:text-blue-50',
-      increase: 'text-blue-600',
-      decrease: 'text-blue-500',
+    },
+    calendar: {
+      bg: 'bg-blue-100 dark:bg-blue-900/50',
+      text: 'text-blue-600 dark:text-blue-300',
+      ring: 'ring-blue-400 dark:ring-blue-500',
     },
   },
   green: {
@@ -89,8 +93,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-green-900 dark:text-green-50',
-      increase: 'text-green-600',
-      decrease: 'text-green-500',
+    },
+    calendar: {
+      bg: 'bg-green-100 dark:bg-green-900/50',
+      text: 'text-green-600 dark:text-green-300',
+      ring: 'ring-green-400 dark:ring-green-500',
     },
   },
   amber: {
@@ -109,8 +116,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-amber-900 dark:text-amber-50',
-      increase: 'text-amber-600',
-      decrease: 'text-amber-500',
+    },
+    calendar: {
+      bg: 'bg-amber-100 dark:bg-amber-900/50',
+      text: 'text-amber-600 dark:text-amber-300',
+      ring: 'ring-amber-400 dark:ring-amber-500',
     },
   },
   emerald: {
@@ -129,8 +139,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-emerald-900 dark:text-emerald-50',
-      increase: 'text-emerald-600',
-      decrease: 'text-emerald-500',
+    },
+    calendar: {
+      bg: 'bg-emerald-100 dark:bg-emerald-900/50',
+      text: 'text-emerald-600 dark:text-emerald-300',
+      ring: 'ring-emerald-400 dark:ring-emerald-500',
     },
   },
   purple: {
@@ -149,8 +162,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-purple-900 dark:text-purple-50',
-      increase: 'text-purple-600',
-      decrease: 'text-purple-500',
+    },
+    calendar: {
+      bg: 'bg-purple-100 dark:bg-purple-900/50',
+      text: 'text-purple-600 dark:text-purple-300',
+      ring: 'ring-purple-400 dark:ring-purple-500',
     },
   },
   pink: {
@@ -169,8 +185,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-pink-900 dark:text-pink-50',
-      increase: 'text-pink-600',
-      decrease: 'text-pink-500',
+    },
+    calendar: {
+      bg: 'bg-pink-100 dark:bg-pink-900/50',
+      text: 'text-pink-600 dark:text-pink-300',
+      ring: 'ring-pink-400 dark:ring-pink-500',
     },
   },
   violet: {
@@ -189,8 +208,11 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-violet-900 dark:text-violet-50',
-      increase: 'text-violet-600',
-      decrease: 'text-violet-500',
+    },
+    calendar: {
+      bg: 'bg-violet-100 dark:bg-violet-900/50',
+      text: 'text-violet-600 dark:text-violet-300',
+      ring: 'ring-violet-400 dark:ring-violet-500',
     },
   },
   teal: {
@@ -209,84 +231,79 @@ export const COLOR_SCHEMES = {
     },
     value: {
       text: 'text-teal-900 dark:text-teal-50',
-      increase: 'text-teal-600',
-      decrease: 'text-teal-500',
+    },
+    calendar: {
+      bg: 'bg-teal-100 dark:bg-teal-900/50',
+      text: 'text-teal-600 dark:text-teal-300',
+      ring: 'ring-teal-400 dark:ring-teal-500',
     },
   },
-};
-
-// Centralized color definitions for day types
-export const DAY_TYPE_COLORS = {
-  cto: {
-    light: {
-      bg: 'bg-green-100',
-      text: 'text-gray-500',
-      icon: 'text-green-500',
-      border: 'border-green-200',
+  gray: {
+    icon: {
+      bg: 'bg-gray-100 dark:bg-gray-900/50',
+      text: 'text-gray-600 dark:text-gray-300',
+      ring: 'ring-gray-400/20 dark:ring-gray-300/20',
     },
-    dark: {
-      bg: 'dark:bg-green-900/50',
-      text: 'dark:text-gray-400',
-      icon: 'dark:text-green-400',
-      border: 'dark:border-green-700',
-    }
+    tooltip: {
+      icon: 'text-gray-500/70 dark:text-gray-300/70',
+      bg: 'bg-gray-50 dark:bg-gray-900/90',
+    },
+    card: {
+      hover: 'hover:bg-gray-50/50 dark:hover:bg-gray-900/30',
+    },
+    value: {
+      text: 'text-gray-900 dark:text-gray-50',
+    },
+    calendar: {
+      bg: 'bg-gray-100 dark:bg-gray-900/50',
+      text: 'text-gray-600 dark:text-gray-300',
+      ring: 'ring-gray-400 dark:ring-gray-500',
+    },
   },
-  publicHoliday: {
-    light: {
-      bg: 'bg-amber-100',
-      text: 'text-gray-500',
-      icon: 'text-amber-500',
-      border: 'border-amber-200',
+  neutral: {
+    icon: {
+      bg: 'bg-gray-100 dark:bg-gray-900/50',
+      text: 'text-gray-600 dark:text-gray-300',
+      ring: 'ring-gray-400/20 dark:ring-gray-300/20',
     },
-    dark: {
-      bg: 'dark:bg-amber-900/50',
-      text: 'dark:text-gray-400',
-      icon: 'dark:text-amber-400',
-      border: 'dark:border-amber-700',
-    }
+    tooltip: {
+      icon: 'text-gray-500/70 dark:text-gray-300/70',
+      bg: 'bg-gray-50 dark:bg-gray-900/90',
+    },
+    card: {
+      hover: 'hover:bg-gray-50/50 dark:hover:bg-gray-900/30',
+    },
+    value: {
+      text: 'text-gray-900 dark:text-gray-50',  
+    },
+    calendar: {
+      bg: 'bg-gray-100 dark:bg-gray-900/50',
+      text: 'text-gray-600 dark:text-gray-300',
+      ring: 'ring-gray-400 dark:ring-gray-500',
+    },
   },
-  companyDayOff: {
-    light: {
-      bg: 'bg-violet-100',
-      text: 'text-gray-500',
-      icon: 'text-violet-500',
-      border: 'border-violet-200',
+  transparent: {
+    icon: {
+      bg: 'bg-transparent',
+      text: 'text-transparent',
+      ring: 'ring-transparent',
     },
-    dark: {
-      bg: 'dark:bg-violet-900/50',
-      text: 'dark:text-gray-400',
-      icon: 'dark:text-violet-400',
-      border: 'dark:border-violet-700',
-    }
+    tooltip: {
+      icon: 'text-transparent',
+      bg: 'bg-transparent',
+    },
+    card: {
+      hover: 'hover:bg-transparent',
+    },
+    value: {
+      text: 'text-transparent',
+    },
+    calendar: {
+      bg: 'bg-transparent',
+      text: 'text-transparent',
+      ring: 'ring-transparent',
+    },
   },
-  weekend: {
-    light: {
-      bg: 'bg-teal-100',
-      text: 'text-gray-500',
-      icon: 'text-teal-500',
-      border: 'border-teal-200',
-    },
-    dark: {
-      bg: 'dark:bg-teal-900/50',
-      text: 'dark:text-gray-400',
-      icon: 'dark:text-teal-400',
-      border: 'dark:border-teal-700',
-    }
-  },
-  default: {
-    light: {
-      bg: 'bg-gray-0',
-      text: 'text-gray-500',
-      icon: 'text-gray-500',
-      border: 'border-gray-200',
-    },
-    dark: {
-      bg: 'dark:bg-gray-900',
-      text: 'dark:text-gray-400',
-      icon: 'dark:text-gray-400',
-      border: 'dark:border-gray-700',
-    }
-  }
 };
 
 export const MONTHS = [

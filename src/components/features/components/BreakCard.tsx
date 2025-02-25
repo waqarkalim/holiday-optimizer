@@ -7,9 +7,9 @@
 import { format, parse } from 'date-fns';
 import { Break } from '@/types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { BREAK_LENGTHS } from '@/constants';
+import { BREAK_LENGTHS, COLOR_SCHEMES } from '@/constants';
 import { Calendar, Clock, Sparkles, Star } from 'lucide-react';
-import { cn, DayType } from '@/lib/utils';
+import { cn, DayType, dayTypeToColorScheme } from '@/lib/utils';
 import { ReactNode } from 'react';
 
 interface BreakCardProps {
@@ -98,13 +98,18 @@ interface DayCountsGridProps {
   breakPeriod: Break;
 }
 
+const iconSize = 'h-3.5 w-3.5';
+
 const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
   <div className="mt-3 grid grid-cols-4 gap-2">
     {/* CTO Days count */}
     {breakPeriod.ctoDays > 0 && (
       <DayCount
         count={breakPeriod.ctoDays}
-        icon={<Calendar className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />}
+        icon={<Calendar className={cn(
+          iconSize,
+          COLOR_SCHEMES[dayTypeToColorScheme.cto].icon.text
+        )} />}
         label="CTO Days"
       />
     )}
@@ -113,7 +118,10 @@ const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
     {breakPeriod.publicHolidays > 0 && (
       <DayCount
         count={breakPeriod.publicHolidays}
-        icon={<Star className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />}
+        icon={<Star className={cn(
+          iconSize,
+          COLOR_SCHEMES[dayTypeToColorScheme.publicHoliday].icon.text
+        )} />}
         label={breakPeriod.publicHolidays === 1 ? 'Public Holiday' : 'Public Holidays'}
       />
     )}
@@ -122,7 +130,10 @@ const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
     {breakPeriod.companyDaysOff > 0 && (
       <DayCount
         count={breakPeriod.companyDaysOff}
-        icon={<Sparkles className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />}
+        icon={<Sparkles className={cn(
+          iconSize,
+          COLOR_SCHEMES[dayTypeToColorScheme.companyDayOff].icon.text
+        )} />}
         label={breakPeriod.companyDaysOff === 1 ? 'Company Day Off' : 'Company Days Off'}
       />
     )}
@@ -131,7 +142,10 @@ const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
     {breakPeriod.weekends > 0 && (
       <DayCount
         count={breakPeriod.weekends}
-        icon={<Clock className="h-3.5 w-3.5 text-teal-500 dark:text-teal-400" />}
+        icon={<Clock className={cn(
+          iconSize,
+          COLOR_SCHEMES[dayTypeToColorScheme.weekend].icon.text
+        )} />}
         label="Weekends"
       />
     )}
@@ -152,11 +166,15 @@ const DayVisualization = ({ days }: DayVisualizationProps) => {
   return (
     <div className="mt-3">
       {/* Container for day bars with bottom alignment */}
-      <div className="flex space-x-0.5 items-end h-2">
+      <div className="flex space-x-0.5 items-end h-3">
         {days.map((day) => {
           const dayType = getDayType(day);
+          const colorScheme = dayTypeToColorScheme[dayType];
           const formattedDate = format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d');
           const description = getDayDescription(day);
+
+          // Determine height based on day type for visual hierarchy
+          const heightClass = 'h-1.5';
 
           return (
             <Tooltip key={day.date}>
@@ -165,13 +183,9 @@ const DayVisualization = ({ days }: DayVisualizationProps) => {
                 <div
                   className={cn(
                     'flex-1 rounded-sm relative group cursor-help',
-                    // Color mapping based on day type
-                    dayType === 'cto' ? 'bg-green-100 dark:bg-green-900/50' :
-                      dayType === 'publicHoliday' ? 'bg-amber-100 dark:bg-amber-900/50' :
-                        dayType === 'companyDayOff' ? 'bg-violet-100 dark:bg-violet-900/50' :
-                          dayType === 'weekend' ? 'bg-teal-100 dark:bg-teal-900/50' :
-                            'bg-gray-100 dark:bg-gray-800/50',
-                    'h-1.5', // Consistent height for all day bars
+                    // Color mapping based on color scheme
+                    COLOR_SCHEMES[colorScheme].calendar.bg,
+                    heightClass,
                     'border border-transparent hover:border-gray-200 dark:hover:border-gray-700',
                     'transition-all duration-150 hover:shadow-sm',
                   )}

@@ -1,17 +1,19 @@
-import { cn } from '@/lib/utils';
-import { getDayTypeClasses } from '@/lib/utils';
+import { cn, dayTypeToColorScheme, DayType } from '@/lib/utils';
+import { COLOR_SCHEMES } from '@/constants';
 
 interface LegendItemProps {
-  dayType: 'cto' | 'publicHoliday' | 'companyDayOff' | 'weekend' | 'default';
+  dayType: DayType;
   label: string;
 }
 
 function LegendItem({ dayType, label }: LegendItemProps) {
+  const colorScheme = dayTypeToColorScheme[dayType];
+  
   return (
     <div className="flex items-center space-x-1.5">
       <div className={cn(
         "w-4 h-4 rounded-md border",
-        getDayTypeClasses(dayType, 'bg'),
+        COLOR_SCHEMES[colorScheme].calendar.bg,
         "border-gray-200 dark:border-gray-700"
       )} />
       <span className="text-xs text-gray-700 dark:text-gray-300">{label}</span>

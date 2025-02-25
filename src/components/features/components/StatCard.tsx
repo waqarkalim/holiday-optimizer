@@ -116,19 +116,22 @@ const ValueDisplay = ({ value, colorScheme }: ValueDisplayProps) => {
  *
  * Main component that assembles all the sub-components
  */
-const StatCard = ({
-  value,
-  label,
-  tooltip,
-  colorScheme = 'blue',
+const StatCard = ({ 
+  value, 
+  label, 
+  tooltip, 
+  colorScheme = 'blue', 
   icon,
 }: StatCardProps) => {
+  // Define card background and ring styles directly since they're not in COLOR_SCHEMES.card.bg
+  const cardBgClass = `bg-${colorScheme}-50/30 dark:bg-gray-800/60`;
+  
   return (
     <article
       className={cn(
         'w-full',
-        `bg-${colorScheme}-50/30 dark:bg-gray-800/60`,
-        `ring-${colorScheme}-900/5 dark:ring-${colorScheme}-300/10`,
+        cardBgClass,
+        COLOR_SCHEMES[colorScheme].card.ring,
         'rounded-lg p-3',
         'ring-1 shadow-sm',
         'transition-all duration-200',
@@ -143,11 +146,14 @@ const StatCard = ({
 
       {/* Content */}
       <div className="space-y-1">
-        <p className="text-xs font-medium text-gray-600 dark:text-gray-300">
+        <p className={cn(
+          "text-xs font-medium",
+          COLOR_SCHEMES[colorScheme].icon.text,
+        )}>
           {label}
         </p>
-        <ValueDisplay
-          value={value}
+        <ValueDisplay 
+          value={value} 
           colorScheme={colorScheme}
         />
       </div>

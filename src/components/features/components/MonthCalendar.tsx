@@ -1,7 +1,8 @@
 import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOfMonth, isPast, startOfDay, isToday } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
-import { cn, getDayTypeClasses, DayType } from '@/lib/utils';
+import { cn, DayType, dayTypeToColorScheme } from '@/lib/utils';
+import { COLOR_SCHEMES } from '@/constants';
 
 interface MonthCalendarProps {
   month: number
@@ -44,8 +45,6 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
 
   // Helper function to determine day type
   const getDayType = (day: OptimizedDay): DayType => {
-    const date = parse(day.date, 'yyyy-MM-dd', new Date())
-    
     // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
     if (hasCompanyDaysOff && day.isCompanyDayOff) return 'companyDayOff'
     if (hasPublicHoliday && day.isPublicHoliday) return 'publicHoliday'
@@ -68,7 +67,9 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     }
     
     // Use the centralized color system
-    return getDayTypeClasses(getDayType(day), 'bg')
+    const dayType = getDayType(day)
+    const colorScheme = dayTypeToColorScheme[dayType]
+    return COLOR_SCHEMES[colorScheme].calendar.bg
   }
 
   const getDayTextColor = (day: OptimizedDay) => {
@@ -85,7 +86,9 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     }
     
     // Use the centralized color system
-    return getDayTypeClasses(getDayType(day), 'text')
+    const dayType = getDayType(day)
+    const colorScheme = dayTypeToColorScheme[dayType]
+    return COLOR_SCHEMES[colorScheme].calendar.text
   }
 
   const getDayTooltip = (day: OptimizedDay) => {
@@ -165,7 +168,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                   {hasPublicHoliday && day.isPublicHoliday && (
                     <div className={cn(
                       "absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full",
-                      getDayTypeClasses('publicHoliday', 'text')
+                      COLOR_SCHEMES[dayTypeToColorScheme.publicHoliday].calendar.text
                     )} />
                   )}
                 </>
