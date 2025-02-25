@@ -1,7 +1,8 @@
 import { FC } from 'react';
 import { OptimizationStats } from '@/types';
 import StatCard from './components/StatCard';
-import { Building2, Calendar, CalendarDays, Sun, Umbrella } from 'lucide-react';
+import { Building2, Calendar, CalendarDays, Sun, Umbrella, BarChart2 } from 'lucide-react';
+import { SectionCard } from '@/components/ui/section-card';
 
 interface OptimizationStatsComponentProps {
   stats: OptimizationStats;
@@ -9,14 +10,10 @@ interface OptimizationStatsComponentProps {
 
 const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats }) => {
   return (
-    <div
-      className="w-full space-y-4 bg-gray-50/30 dark:bg-gray-900/10 p-4 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Optimization Stats
-        </h2>
-      </div>
-
+    <SectionCard
+      title="Optimization Stats"
+      icon={<BarChart2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
         {/* Total Days Off */}
         <StatCard
@@ -63,7 +60,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           colorScheme="violet"
         />
       </div>
-    </div>
+    </SectionCard>
   );
 };
 
