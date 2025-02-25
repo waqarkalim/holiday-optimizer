@@ -1,119 +1,192 @@
-import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOfMonth, isPast, startOfDay, isToday } from 'date-fns';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  format,
+  getDay,
+  getMonth,
+  isPast,
+  isToday,
+  parse,
+  startOfDay,
+  startOfMonth,
+} from 'date-fns';
+import { Tooltip, TooltipTrigger, StatTooltipContent } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
 import { cn, DayType, dayTypeToColorScheme } from '@/lib/utils';
-import { COLOR_SCHEMES } from '@/constants';
+import { COLOR_SCHEMES, WEEKDAYS } from '@/constants';
 
 interface MonthCalendarProps {
-  month: number
-  year: number
-  days: OptimizedDay[]
+  month: number;
+  year: number;
+  days: OptimizedDay[];
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
+interface CalendarDayProps {
+  day: OptimizedDay;
+  dayInfo: ReturnType<(day: OptimizedDay) => {
+    date: Date;
+    dayType: 'default' | 'companyDayOff' | 'weekend' | 'cto' | 'publicHoliday';
+    tooltipText: string;
+    bgClass: string;
+    textClass: string;
+    isCurrentDay: boolean
+  }>;
+  hasPublicHoliday: boolean;
+}
 
+/**
+ * Renders a single calendar day with appropriate styling and tooltip
+ */
+const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
+  const { date, tooltipText, bgClass, textClass, isCurrentDay } = dayInfo;
+  // Determine color scheme for the tooltip
+  const dayType = day.isCTO ? 'cto' 
+    : day.isPublicHoliday ? 'publicHoliday'
+    : day.isCompanyDayOff ? 'companyDayOff'
+    : day.isWeekend ? 'weekend'
+    : 'default';
+  const colorScheme = isCurrentDay ? 'today' 
+    : isPast(startOfDay(date)) && !isCurrentDay ? 'past' 
+    : dayTypeToColorScheme[dayType];
+
+  return (
+    <>
+      <div
+        className={cn(
+          'absolute inset-0.5 rounded-md',
+          bgClass,
+          isCurrentDay && 'ring-2 ring-blue-400 dark:ring-blue-500 shadow-sm',
+        )}
+      />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={cn(
+            'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
+            textClass,
+          )}>
+            {format(date, 'd')}
+          </div>
+        </TooltipTrigger>
+        {tooltipText && (
+          <StatTooltipContent colorScheme={colorScheme}>
+            <p className="text-xs">{tooltipText}</p>
+          </StatTooltipContent>
+        )}
+      </Tooltip>
+
+      {/* Holiday Indicator Dot */}
+      {hasPublicHoliday && day.isPublicHoliday && (
+        <div className={cn(
+          'absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full',
+          COLOR_SCHEMES[dayTypeToColorScheme.publicHoliday].calendar.text,
+        )} />
+      )}
+    </>
+  );
+};
+
+
+// Determine styling based on day state
+const getDayStyles = (isCurrentDay: boolean, isPastDay: boolean, dayType: DayType) => {
+  const colorKey = isCurrentDay ? 'today' : isPastDay ? 'past' : dayTypeToColorScheme[dayType];
+  return {
+    bgClass: COLOR_SCHEMES[colorKey].calendar.bg,
+    textClass: cn(
+      isCurrentDay && 'font-bold',
+      COLOR_SCHEMES[colorKey].calendar.text,
+    ),
+  };
+};
+
+/**
+ * MonthCalendar Component
+ *
+ * Renders a monthly calendar view with color-coded days based on their types
+ * (CTO days, public holidays, company days off, etc.)
+ */
 export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
-  const firstDay = startOfMonth(new Date(year, month))
-  const lastDay = endOfMonth(firstDay)
-  const daysInMonth = eachDayOfInterval({ start: firstDay, end: lastDay })
-  const startingDayIndex = getDay(firstDay)
+  // Initialize calendar dates
+  const firstDay = startOfMonth(new Date(year, month));
+  const lastDay = endOfMonth(firstDay);
+  const daysInMonth = eachDayOfInterval({ start: firstDay, end: lastDay });
+  const startingDayIndex = getDay(firstDay);
 
   // Check if any day types exist in the data
-  const hasCTODays = days.some(day => day.isCTO)
-  const hasPublicHoliday = days.some(day => day.isPublicHoliday)
-  const hasCompanyDaysOff = days.some(day => day.isCompanyDayOff)
-  const hasExtendedWeekends = days.some(day => day.isPartOfBreak && day.isWeekend)
+  const dayTypeFlags = {
+    hasCTODays: days.some(day => day.isCTO),
+    hasPublicHoliday: days.some(day => day.isPublicHoliday),
+    hasCompanyDaysOff: days.some(day => day.isCompanyDayOff),
+    hasExtendedWeekends: days.some(day => day.isPartOfBreak && day.isWeekend),
+  };
+
+  // Get holidays for the current month
+  const holidays = days.filter(day => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date());
+    return day.isPublicHoliday && getMonth(date) === month;
+  });
 
   // Create calendar grid with empty cells for proper alignment
-  const calendarDays = Array(35).fill(null)
+  const calendarDays = Array(35).fill(null);
   daysInMonth.forEach((date, index) => {
-    const dateStr = format(date, 'yyyy-MM-dd')
-    const day = days.find(d => d.date === dateStr)
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const day = days.find(d => d.date === dateStr);
     calendarDays[startingDayIndex + index] = day || {
       date: dateStr,
       isWeekend: getDay(date) === 0 || getDay(date) === 6,
       isCTO: false,
-      isPartOfBreak: false
-    }
-  })
+      isPartOfBreak: false,
+    };
+  });
 
-  // Get holidays for the current month
-  const holidays = days.filter(day => {
-    const date = parse(day.date, 'yyyy-MM-dd', new Date())
-    return day.isPublicHoliday && getMonth(date) === month
-  })
+  /**
+   * Helper function to process all day-related information in one pass
+   */
+  const getDayInfo = (day: OptimizedDay) => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date());
+    const isCurrentDay = isToday(date);
+    const isPastDay = isPast(startOfDay(date)) && !isCurrentDay;
 
-  // Helper function to determine day type
-  const getDayType = (day: OptimizedDay): DayType => {
-    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'companyDayOff'
-    if (hasPublicHoliday && day.isPublicHoliday) return 'publicHoliday'
-    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'weekend'
-    if (hasCTODays && day.isCTO) return 'cto'
-    return 'default'
-  }
+    // Determine day type with order of precedence
+    let dayType: DayType = 'default';
+    let tooltipText = '';
 
-  const getDayColor = (day: OptimizedDay) => {
-    const date = parse(day.date, 'yyyy-MM-dd', new Date())
-    
-    // If it's today, return a special background
-    if (isToday(date)) {
-      return 'bg-blue-50 dark:bg-blue-900/30'
+    if (isPastDay) {
+      tooltipText = 'Past dates are not considered in the optimization';
+    } else if (isCurrentDay) {
+      tooltipText = 'Today';
+    } else {
+      // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
+      if (dayTypeFlags.hasCompanyDaysOff && day.isCompanyDayOff) {
+        dayType = 'companyDayOff';
+        tooltipText = day.companyDayName || 'Company Day Off';
+      } else if (dayTypeFlags.hasPublicHoliday && day.isPublicHoliday) {
+        dayType = 'publicHoliday';
+        tooltipText = day.publicHolidayName || 'Public Holiday';
+      } else if (dayTypeFlags.hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) {
+        dayType = 'weekend';
+        tooltipText = 'Extended Weekend';
+      } else if (dayTypeFlags.hasCTODays && day.isCTO) {
+        dayType = 'cto';
+        tooltipText = 'CTO Day';
+      }
     }
-    
-    // If the date is in the past, return a muted background
-    if (isPast(startOfDay(date))) {
-      return 'bg-gray-100 dark:bg-gray-800/30'
-    }
-    
-    // Use the centralized color system
-    const dayType = getDayType(day)
-    const colorScheme = dayTypeToColorScheme[dayType]
-    return COLOR_SCHEMES[colorScheme].calendar.bg
-  }
 
-  const getDayTextColor = (day: OptimizedDay) => {
-    const date = parse(day.date, 'yyyy-MM-dd', new Date())
-    
-    // If it's today, return a special text color
-    if (isToday(date)) {
-      return 'text-blue-600 dark:text-blue-300 font-bold'
-    }
-    
-    // If the date is in the past, return a muted text color
-    if (isPast(startOfDay(date))) {
-      return 'text-gray-400 dark:text-gray-500'
-    }
-    
-    // Use the centralized color system
-    const dayType = getDayType(day)
-    const colorScheme = dayTypeToColorScheme[dayType]
-    return COLOR_SCHEMES[colorScheme].calendar.text
-  }
+    const { bgClass, textClass } = getDayStyles(isCurrentDay, isPastDay, dayType);
 
-  const getDayTooltip = (day: OptimizedDay) => {
-    const date = parse(day.date, 'yyyy-MM-dd', new Date())
-    
-    // If it's today, show "Today"
-    if (isToday(date)) {
-      return 'Today'
-    }
-    
-    // If the date is in the past, return an explanation
-    if (isPast(startOfDay(date))) {
-      return 'Past dates are not considered in the optimization'
-    }
-    
-    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCompanyDaysOff && day.isCompanyDayOff) return day.companyDayName || 'Company Day Off'
-    if (hasPublicHoliday && day.isPublicHoliday) return day.publicHolidayName || 'Public Holiday'
-    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'Extended Weekend'
-    if (hasCTODays && day.isCTO) return 'CTO Day'
-    return ''
-  }
+    return {
+      date,
+      dayType,
+      tooltipText,
+      bgClass,
+      textClass,
+      isCurrentDay,
+    };
+  };
 
   return (
-    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
+    <div
+      className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
+      {/* Calendar Header */}
       <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
         <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 leading-none">
           {format(firstDay, 'MMMM yyyy')}
@@ -124,59 +197,33 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
           )}
         </div>
       </div>
+
+      {/* Calendar Grid */}
       <div className="p-2">
         <div className="grid grid-cols-7 gap-0.5">
+          {/* Weekday Headers */}
           {WEEKDAYS.map(day => (
             <div key={day} className="text-center text-xs font-medium text-gray-600 dark:text-gray-400 py-1">
               {day}
             </div>
           ))}
+
+          {/* Calendar Days */}
           {calendarDays.map((day, index) => (
             <div
               key={index}
               className={cn(
                 'aspect-square p-1 text-xs relative',
                 !day && 'bg-gray-50 dark:bg-gray-800/30',
-                day?.isPartOfBreak && 'font-semibold'
+                day?.isPartOfBreak && 'font-semibold',
               )}
             >
-              {day && (
-                <>
-                  <div 
-                    className={cn(
-                      'absolute inset-0.5 rounded-md',
-                      getDayColor(day),
-                      isToday(parse(day.date, 'yyyy-MM-dd', new Date())) && 'ring-2 ring-blue-400 dark:ring-blue-500 shadow-sm'
-                    )}
-                  />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className={cn(
-                        'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
-                        getDayTextColor(day)
-                      )}>
-                        {format(parse(day.date, 'yyyy-MM-dd', new Date()), 'd')}
-                      </div>
-                    </TooltipTrigger>
-                    {getDayTooltip(day) && (
-                      <TooltipContent>
-                        <p className="text-xs">{getDayTooltip(day)}</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                  {/* Holiday Indicator Dot */}
-                  {hasPublicHoliday && day.isPublicHoliday && (
-                    <div className={cn(
-                      "absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full",
-                      COLOR_SCHEMES[dayTypeToColorScheme.publicHoliday].calendar.text
-                    )} />
-                  )}
-                </>
-              )}
+              {day &&
+                <CalendarDay day={day} dayInfo={getDayInfo(day)} hasPublicHoliday={dayTypeFlags.hasPublicHoliday} />}
             </div>
           ))}
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

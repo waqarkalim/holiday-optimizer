@@ -6,7 +6,7 @@
  */
 import { format, parse } from 'date-fns';
 import { Break } from '@/types';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, StatTooltipContent } from '@/components/ui/tooltip';
 import { BREAK_LENGTHS, COLOR_SCHEMES } from '@/constants';
 import { Calendar, Clock, Sparkles, Star } from 'lucide-react';
 import { cn, DayType, dayTypeToColorScheme } from '@/lib/utils';
@@ -110,7 +110,7 @@ const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
           iconSize,
           COLOR_SCHEMES[dayTypeToColorScheme.cto].icon.text
         )} />}
-        label="CTO Days"
+        label={breakPeriod.ctoDays === 1 ? 'CTO Day' : 'CTO Days'}
       />
     )}
 
@@ -146,7 +146,7 @@ const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
           iconSize,
           COLOR_SCHEMES[dayTypeToColorScheme.weekend].icon.text
         )} />}
-        label="Weekends"
+        label={breakPeriod.weekends === 1 ? 'Weekend' : 'Weekends'}
       />
     )}
   </div>
@@ -192,9 +192,9 @@ const DayVisualization = ({ days }: DayVisualizationProps) => {
                 />
               </TooltipTrigger>
               {/* Tooltip showing date and day type */}
-              <TooltipContent>
+              <StatTooltipContent colorScheme={colorScheme}>
                 <p className="text-xs">{`${formattedDate} - ${description}`}</p>
-              </TooltipContent>
+              </StatTooltipContent>
             </Tooltip>
           );
         })}

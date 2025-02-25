@@ -3,7 +3,6 @@
 import { FormEvent } from 'react';
 import { Button } from './ui/button';
 import { Calendar, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { DaysInputStep } from './features/form/DaysInputStep';
 import { StrategySelectionStep } from './features/form/StrategySelectionStep';

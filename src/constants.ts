@@ -1,4 +1,4 @@
-import { StrategyOption } from '@/types';
+import { ColorSchemes, StrategyOption } from '@/types';
 import { isProd } from '@/lib/utils';
 
 // Constants for break lengths and scoring
@@ -53,7 +53,7 @@ export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   },
 ];
 
-export const COLOR_SCHEMES = {
+export const COLOR_SCHEMES: ColorSchemes = {
   blue: {
     icon: {
       bg: 'bg-blue-100 dark:bg-blue-900/50',
@@ -302,6 +302,401 @@ export const COLOR_SCHEMES = {
       bg: 'bg-transparent',
       text: 'text-transparent',
       ring: 'ring-transparent',
+    },
+  },
+
+  // New color schemes from Tailwind CSS
+  slate: {
+    icon: {
+      bg: 'bg-slate-100 dark:bg-slate-900/50',
+      text: 'text-slate-600 dark:text-slate-300',
+      ring: 'ring-slate-400/20 dark:ring-slate-300/20',
+    },
+    tooltip: {
+      icon: 'text-slate-500/70 dark:text-slate-300/70',
+      bg: 'bg-slate-50 dark:bg-slate-900/90',
+    },
+    card: {
+      hover: 'hover:bg-slate-50/50 dark:hover:bg-slate-900/30',
+      ring: 'ring-slate-900/5 dark:ring-slate-300/10',
+    },
+    value: {
+      text: 'text-slate-900 dark:text-slate-50',
+    },
+    calendar: {
+      bg: 'bg-slate-100 dark:bg-slate-900/50',
+      text: 'text-slate-600 dark:text-slate-300',
+      ring: 'ring-slate-400 dark:ring-slate-500',
+    },
+  },
+  zinc: {
+    icon: {
+      bg: 'bg-zinc-100 dark:bg-zinc-900/50',
+      text: 'text-zinc-600 dark:text-zinc-300',
+      ring: 'ring-zinc-400/20 dark:ring-zinc-300/20',
+    },
+    tooltip: {
+      icon: 'text-zinc-500/70 dark:text-zinc-300/70',
+      bg: 'bg-zinc-50 dark:bg-zinc-900/90',
+    },
+    card: {
+      hover: 'hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30',
+      ring: 'ring-zinc-900/5 dark:ring-zinc-300/10',
+    },
+    value: {
+      text: 'text-zinc-900 dark:text-zinc-50',
+    },
+    calendar: {
+      bg: 'bg-zinc-100 dark:bg-zinc-900/50',
+      text: 'text-zinc-600 dark:text-zinc-300',
+      ring: 'ring-zinc-400 dark:ring-zinc-500',
+    },
+  },
+  stone: {
+    icon: {
+      bg: 'bg-stone-100 dark:bg-stone-900/50',
+      text: 'text-stone-600 dark:text-stone-300',
+      ring: 'ring-stone-400/20 dark:ring-stone-300/20',
+    },
+    tooltip: {
+      icon: 'text-stone-500/70 dark:text-stone-300/70',
+      bg: 'bg-stone-50 dark:bg-stone-900/90',
+    },
+    card: {
+      hover: 'hover:bg-stone-50/50 dark:hover:bg-stone-900/30',
+      ring: 'ring-stone-900/5 dark:ring-stone-300/10',
+    },
+    value: {
+      text: 'text-stone-900 dark:text-stone-50',
+    },
+    calendar: {
+      bg: 'bg-stone-100 dark:bg-stone-900/50',
+      text: 'text-stone-600 dark:text-stone-300',
+      ring: 'ring-stone-400 dark:ring-stone-500',
+    },
+  },
+  red: {
+    icon: {
+      bg: 'bg-red-100 dark:bg-red-900/50',
+      text: 'text-red-600 dark:text-red-300',
+      ring: 'ring-red-400/20 dark:ring-red-300/20',
+    },
+    tooltip: {
+      icon: 'text-red-500/70 dark:text-red-300/70',
+      bg: 'bg-red-50 dark:bg-red-900/90',
+    },
+    card: {
+      hover: 'hover:bg-red-50/50 dark:hover:bg-red-900/30',
+      ring: 'ring-red-900/5 dark:ring-red-300/10',
+    },
+    value: {
+      text: 'text-red-900 dark:text-red-50',
+    },
+    calendar: {
+      bg: 'bg-red-100 dark:bg-red-900/50',
+      text: 'text-red-600 dark:text-red-300',
+      ring: 'ring-red-400 dark:ring-red-500',
+    },
+  },
+  orange: {
+    icon: {
+      bg: 'bg-orange-100 dark:bg-orange-900/50',
+      text: 'text-orange-600 dark:text-orange-300',
+      ring: 'ring-orange-400/20 dark:ring-orange-300/20',
+    },
+    tooltip: {
+      icon: 'text-orange-500/70 dark:text-orange-300/70',
+      bg: 'bg-orange-50 dark:bg-orange-900/90',
+    },
+    card: {
+      hover: 'hover:bg-orange-50/50 dark:hover:bg-orange-900/30',
+      ring: 'ring-orange-900/5 dark:ring-orange-300/10',
+    },
+    value: {
+      text: 'text-orange-900 dark:text-orange-50',
+    },
+    calendar: {
+      bg: 'bg-orange-100 dark:bg-orange-900/50',
+      text: 'text-orange-600 dark:text-orange-300',
+      ring: 'ring-orange-400 dark:ring-orange-500',
+    },
+  },
+  yellow: {
+    icon: {
+      bg: 'bg-yellow-100 dark:bg-yellow-900/50',
+      text: 'text-yellow-600 dark:text-yellow-300',
+      ring: 'ring-yellow-400/20 dark:ring-yellow-300/20',
+    },
+    tooltip: {
+      icon: 'text-yellow-500/70 dark:text-yellow-300/70',
+      bg: 'bg-yellow-50 dark:bg-yellow-900/90',
+    },
+    card: {
+      hover: 'hover:bg-yellow-50/50 dark:hover:bg-yellow-900/30',
+      ring: 'ring-yellow-900/5 dark:ring-yellow-300/10',
+    },
+    value: {
+      text: 'text-yellow-900 dark:text-yellow-50',
+    },
+    calendar: {
+      bg: 'bg-yellow-100 dark:bg-yellow-900/50',
+      text: 'text-yellow-600 dark:text-yellow-300',
+      ring: 'ring-yellow-400 dark:ring-yellow-500',
+    },
+  },
+  lime: {
+    icon: {
+      bg: 'bg-lime-100 dark:bg-lime-900/50',
+      text: 'text-lime-600 dark:text-lime-300',
+      ring: 'ring-lime-400/20 dark:ring-lime-300/20',
+    },
+    tooltip: {
+      icon: 'text-lime-500/70 dark:text-lime-300/70',
+      bg: 'bg-lime-50 dark:bg-lime-900/90',
+    },
+    card: {
+      hover: 'hover:bg-lime-50/50 dark:hover:bg-lime-900/30',
+      ring: 'ring-lime-900/5 dark:ring-lime-300/10',
+    },
+    value: {
+      text: 'text-lime-900 dark:text-lime-50',
+    },
+    calendar: {
+      bg: 'bg-lime-100 dark:bg-lime-900/50',
+      text: 'text-lime-600 dark:text-lime-300',
+      ring: 'ring-lime-400 dark:ring-lime-500',
+    },
+  },
+  indigo: {
+    icon: {
+      bg: 'bg-indigo-100 dark:bg-indigo-900/50',
+      text: 'text-indigo-600 dark:text-indigo-300',
+      ring: 'ring-indigo-400/20 dark:ring-indigo-300/20',
+    },
+    tooltip: {
+      icon: 'text-indigo-500/70 dark:text-indigo-300/70',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/90',
+    },
+    card: {
+      hover: 'hover:bg-indigo-50/50 dark:hover:bg-indigo-900/30',
+      ring: 'ring-indigo-900/5 dark:ring-indigo-300/10',
+    },
+    value: {
+      text: 'text-indigo-900 dark:text-indigo-50',
+    },
+    calendar: {
+      bg: 'bg-indigo-100 dark:bg-indigo-900/50',
+      text: 'text-indigo-600 dark:text-indigo-300',
+      ring: 'ring-indigo-400 dark:ring-indigo-500',
+    },
+  },
+  sky: {
+    icon: {
+      bg: 'bg-sky-100 dark:bg-sky-900/50',
+      text: 'text-sky-600 dark:text-sky-300',
+      ring: 'ring-sky-400/20 dark:ring-sky-300/20',
+    },
+    tooltip: {
+      icon: 'text-sky-500/70 dark:text-sky-300/70',
+      bg: 'bg-sky-50 dark:bg-sky-900/90',
+    },
+    card: {
+      hover: 'hover:bg-sky-50/50 dark:hover:bg-sky-900/30',
+      ring: 'ring-sky-900/5 dark:ring-sky-300/10',
+    },
+    value: {
+      text: 'text-sky-900 dark:text-sky-50',
+    },
+    calendar: {
+      bg: 'bg-sky-100 dark:bg-sky-900/50',
+      text: 'text-sky-600 dark:text-sky-300',
+      ring: 'ring-sky-400 dark:ring-sky-500',
+    },
+  },
+  cyan: {
+    icon: {
+      bg: 'bg-cyan-100 dark:bg-cyan-900/50',
+      text: 'text-cyan-600 dark:text-cyan-300',
+      ring: 'ring-cyan-400/20 dark:ring-cyan-300/20',
+    },
+    tooltip: {
+      icon: 'text-cyan-500/70 dark:text-cyan-300/70',
+      bg: 'bg-cyan-50 dark:bg-cyan-900/90',
+    },
+    card: {
+      hover: 'hover:bg-cyan-50/50 dark:hover:bg-cyan-900/30',
+      ring: 'ring-cyan-900/5 dark:ring-cyan-300/10',
+    },
+    value: {
+      text: 'text-cyan-900 dark:text-cyan-50',
+    },
+    calendar: {
+      bg: 'bg-cyan-100 dark:bg-cyan-900/50',
+      text: 'text-cyan-600 dark:text-cyan-300',
+      ring: 'ring-cyan-400 dark:ring-cyan-500',
+    },
+  },
+  fuchsia: {
+    icon: {
+      bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/50',
+      text: 'text-fuchsia-600 dark:text-fuchsia-300',
+      ring: 'ring-fuchsia-400/20 dark:ring-fuchsia-300/20',
+    },
+    tooltip: {
+      icon: 'text-fuchsia-500/70 dark:text-fuchsia-300/70',
+      bg: 'bg-fuchsia-50 dark:bg-fuchsia-900/90',
+    },
+    card: {
+      hover: 'hover:bg-fuchsia-50/50 dark:hover:bg-fuchsia-900/30',
+      ring: 'ring-fuchsia-900/5 dark:ring-fuchsia-300/10',
+    },
+    value: {
+      text: 'text-fuchsia-900 dark:text-fuchsia-50',
+    },
+    calendar: {
+      bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/50',
+      text: 'text-fuchsia-600 dark:text-fuchsia-300',
+      ring: 'ring-fuchsia-400 dark:ring-fuchsia-500',
+    },
+  },
+  rose: {
+    icon: {
+      bg: 'bg-rose-100 dark:bg-rose-900/50',
+      text: 'text-rose-600 dark:text-rose-300',
+      ring: 'ring-rose-400/20 dark:ring-rose-300/20',
+    },
+    tooltip: {
+      icon: 'text-rose-500/70 dark:text-rose-300/70',
+      bg: 'bg-rose-50 dark:bg-rose-900/90',
+    },
+    card: {
+      hover: 'hover:bg-rose-50/50 dark:hover:bg-rose-900/30',
+      ring: 'ring-rose-900/5 dark:ring-rose-300/10',
+    },
+    value: {
+      text: 'text-rose-900 dark:text-rose-50',
+    },
+    calendar: {
+      bg: 'bg-rose-100 dark:bg-rose-900/50',
+      text: 'text-rose-600 dark:text-rose-300',
+      ring: 'ring-rose-400 dark:ring-rose-500',
+    },
+  },
+  // Basic colors
+  black: {
+    icon: {
+      bg: 'bg-black/5 dark:bg-white/10',
+      text: 'text-black dark:text-white',
+      ring: 'ring-black/10 dark:ring-white/20',
+    },
+    tooltip: {
+      icon: 'text-black/70 dark:text-white/70',
+      bg: 'bg-black/5 dark:bg-white/5',
+    },
+    card: {
+      hover: 'hover:bg-black/5 dark:hover:bg-white/5',
+      ring: 'ring-black/5 dark:ring-white/10',
+    },
+    value: {
+      text: 'text-black dark:text-white',
+    },
+    calendar: {
+      bg: 'bg-black/10 dark:bg-white/10',
+      text: 'text-black dark:text-white',
+      ring: 'ring-black dark:ring-white',
+    },
+  },
+  white: {
+    icon: {
+      bg: 'bg-white dark:bg-black',
+      text: 'text-gray-800 dark:text-gray-200',
+      ring: 'ring-gray-200 dark:ring-gray-700',
+    },
+    tooltip: {
+      icon: 'text-gray-600 dark:text-gray-300',
+      bg: 'bg-white dark:bg-black',
+    },
+    card: {
+      hover: 'hover:bg-gray-50 dark:hover:bg-gray-900',
+      ring: 'ring-gray-200 dark:ring-gray-700',
+    },
+    value: {
+      text: 'text-gray-800 dark:text-gray-200',
+    },
+    calendar: {
+      bg: 'bg-white dark:bg-black',
+      text: 'text-gray-800 dark:text-gray-200',
+      ring: 'ring-gray-200 dark:ring-gray-700',
+    },
+  },
+  // Special colors
+  current: {
+    icon: {
+      bg: 'bg-current bg-opacity-10',
+      text: 'text-current',
+      ring: 'ring-current ring-opacity-20',
+    },
+    tooltip: {
+      icon: 'text-current text-opacity-70',
+      bg: 'bg-current bg-opacity-5',
+    },
+    card: {
+      hover: 'hover:bg-current hover:bg-opacity-5',
+      ring: 'ring-current ring-opacity-10',
+    },
+    value: {
+      text: 'text-current',
+    },
+    calendar: {
+      bg: 'bg-current bg-opacity-10',
+      text: 'text-current',
+      ring: 'ring-current',
+    },
+  },
+  today: {
+    icon: {
+      bg: 'bg-blue-100 dark:bg-blue-900/50',
+      text: 'text-blue-600 dark:text-blue-300',
+      ring: 'ring-blue-400/20 dark:ring-blue-300/20',
+    },
+    tooltip: {
+      icon: 'text-blue-500/70 dark:text-blue-300/70',
+      bg: 'bg-blue-50 dark:bg-blue-900/90',
+    },
+    card: {
+      hover: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/30',
+      ring: 'ring-blue-900/5 dark:ring-blue-300/10',
+    },
+    value: {
+      text: 'text-blue-900 dark:text-blue-50',
+    },
+    calendar: {
+      bg: 'bg-blue-50 dark:bg-blue-900/30',
+      text: 'text-blue-600 dark:text-blue-300 font-bold',
+      ring: 'ring-blue-400 dark:ring-blue-500',
+    },
+  },
+  past: {
+    icon: {
+      bg: 'bg-gray-100 dark:bg-gray-900/50',
+      text: 'text-gray-400 dark:text-gray-500',
+      ring: 'ring-gray-400/20 dark:ring-gray-300/20',
+    },
+    tooltip: {
+      icon: 'text-gray-400/70 dark:text-gray-500/70',
+      bg: 'bg-gray-50 dark:bg-gray-900/90',
+    },
+    card: {
+      hover: 'hover:bg-gray-50/50 dark:hover:bg-gray-900/30',
+      ring: 'ring-gray-900/5 dark:ring-gray-300/10',
+    },
+    value: {
+      text: 'text-gray-400 dark:text-gray-500',
+    },
+    calendar: {
+      bg: 'bg-gray-100 dark:bg-gray-800/30',
+      text: 'text-gray-400 dark:text-gray-500',
+      ring: 'ring-gray-300 dark:ring-gray-600',
     },
   },
 };

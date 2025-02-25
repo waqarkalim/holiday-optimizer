@@ -6,17 +6,41 @@
  */
 import { ReactNode } from 'react';
 import { COLOR_SCHEMES } from '@/constants';
-import { ColorScheme } from '@/types';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { PossibleColors } from '@/types';
+import { Tooltip, TooltipTrigger, StatTooltipContent } from '@/components/ui/tooltip';
 import { a11y, cn } from '@/lib/utils';
 
 export interface StatCardProps {
   value: number;
   label: string;
   tooltip?: string;
-  colorScheme?: ColorScheme;
+  colorScheme?: PossibleColors;
   icon?: ReactNode;
 }
+
+/**
+ * Helper function to ensure dynamic color classes are applied correctly 
+ * by using a lookup approach that forces Tailwind to recognize the classes
+ */
+const getColorClasses = (colorScheme: PossibleColors, type: 'bg' | 'text' | 'ring') => {
+  const colorMap = {
+    // Explicitly define classes for colors that might be purged
+    orange: {
+      bg: 'bg-orange-100 dark:bg-orange-900/50',
+      text: 'text-orange-600 dark:text-orange-300',
+      ring: 'ring-orange-400/20 dark:ring-orange-300/20',
+    },
+    indigo: {
+      bg: 'bg-indigo-100 dark:bg-indigo-900/50',
+      text: 'text-indigo-600 dark:text-indigo-300',
+      ring: 'ring-indigo-400/20 dark:ring-indigo-300/20',
+    },
+  };
+  
+  // Return from explicit map if available, otherwise use COLOR_SCHEMES
+  return colorMap[colorScheme as keyof typeof colorMap]?.[type] || 
+         COLOR_SCHEMES[colorScheme].icon[type === 'bg' ? 'bg' : type === 'text' ? 'text' : 'ring'];
+};
 
 /**
  * InfoIcon Component
@@ -26,9 +50,10 @@ export interface StatCardProps {
 interface InfoIconProps {
   tooltip: string;
   label: string;
+  colorScheme: PossibleColors;
 }
 
-const InfoIcon = ({ tooltip, label }: InfoIconProps) => (
+const InfoIcon = ({ tooltip, label, colorScheme }: InfoIconProps) => (
   <Tooltip>
     <TooltipTrigger asChild>
       <button
@@ -41,7 +66,10 @@ const InfoIcon = ({ tooltip, label }: InfoIconProps) => (
         aria-label={`Show information about ${label}`}
       >
         <svg
-          className="h-4 w-4 text-gray-500/70 dark:text-gray-400/70"
+          className={cn(
+            "h-4 w-4",
+            COLOR_SCHEMES[colorScheme].tooltip.icon
+          )}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -56,9 +84,9 @@ const InfoIcon = ({ tooltip, label }: InfoIconProps) => (
         </svg>
       </button>
     </TooltipTrigger>
-    <TooltipContent>
+    <StatTooltipContent colorScheme={colorScheme}>
       <p className="text-xs">{tooltip}</p>
-    </TooltipContent>
+    </StatTooltipContent>
   </Tooltip>
 );
 
@@ -69,7 +97,7 @@ const InfoIcon = ({ tooltip, label }: InfoIconProps) => (
  */
 interface IconContainerProps {
   icon: ReactNode;
-  colorScheme: ColorScheme;
+  colorScheme: PossibleColors;
 }
 
 const IconContainer = ({ icon, colorScheme }: IconContainerProps) => (
@@ -77,9 +105,9 @@ const IconContainer = ({ icon, colorScheme }: IconContainerProps) => (
     className={cn(
       'h-8 w-8 rounded-lg flex items-center justify-center',
       'ring-1',
-      COLOR_SCHEMES[colorScheme].icon.bg,
-      COLOR_SCHEMES[colorScheme].icon.text,
-      COLOR_SCHEMES[colorScheme].icon.ring,
+      getColorClasses(colorScheme, 'bg'),
+      getColorClasses(colorScheme, 'text'),
+      getColorClasses(colorScheme, 'ring'),
     )}
     role="img"
     aria-hidden="true"
@@ -95,7 +123,7 @@ const IconContainer = ({ icon, colorScheme }: IconContainerProps) => (
  */
 interface ValueDisplayProps {
   value: number;
-  colorScheme: ColorScheme;
+  colorScheme: PossibleColors;
 }
 
 const ValueDisplay = ({ value, colorScheme }: ValueDisplayProps) => {
@@ -103,7 +131,7 @@ const ValueDisplay = ({ value, colorScheme }: ValueDisplayProps) => {
     <div className="flex items-baseline gap-2">
       <p className={cn(
         'text-2xl font-bold tracking-tight leading-none',
-        COLOR_SCHEMES[colorScheme].value.text,
+        getColorClasses(colorScheme, 'text'),
       )}>
         {value}
       </p>
@@ -123,8 +151,22 @@ const StatCard = ({
   colorScheme = 'blue', 
   icon,
 }: StatCardProps) => {
-  // Define card background and ring styles directly since they're not in COLOR_SCHEMES.card.bg
-  const cardBgClass = `bg-${colorScheme}-50/30 dark:bg-gray-800/60`;
+  // Define card background by directly referencing the styles to ensure Tailwind preserves them
+  const getCardBgClass = () => {
+    switch (colorScheme) {
+      case 'orange': return 'bg-orange-50/30 dark:bg-gray-800/60';
+      case 'indigo': return 'bg-indigo-50/30 dark:bg-gray-800/60';
+      case 'red': return 'bg-red-50/30 dark:bg-gray-800/60';
+      case 'amber': return 'bg-amber-50/30 dark:bg-gray-800/60';
+      case 'green': return 'bg-green-50/30 dark:bg-gray-800/60';
+      case 'blue': return 'bg-blue-50/30 dark:bg-gray-800/60';
+      case 'violet': return 'bg-violet-50/30 dark:bg-gray-800/60';
+      // Add other colors as needed
+      default: return `bg-${colorScheme}-50/30 dark:bg-gray-800/60`;
+    }
+  };
+  
+  const cardBgClass = getCardBgClass();
   
   return (
     <article
@@ -141,14 +183,14 @@ const StatCard = ({
       {/* Header with icon and tooltip */}
       <div className="flex items-center justify-between mb-2.5">
         {icon && <IconContainer icon={icon} colorScheme={colorScheme} />}
-        {tooltip && <InfoIcon tooltip={tooltip} label={label} />}
+        {tooltip && <InfoIcon tooltip={tooltip} label={label} colorScheme={colorScheme} />}
       </div>
 
       {/* Content */}
       <div className="space-y-1">
         <p className={cn(
           "text-xs font-medium",
-          COLOR_SCHEMES[colorScheme].icon.text,
+          getColorClasses(colorScheme, 'text'),
         )}>
           {label}
         </p>

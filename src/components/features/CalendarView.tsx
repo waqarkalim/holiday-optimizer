@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { CalendarLegend } from '@/components/features/components/CalendarLegend';
 import { MONTHS } from '@/constants';
 import { MonthCalendar } from '@/components/features/components/MonthCalendar';
-import { cn } from '@/lib/utils';
 import { Calendar } from 'lucide-react';
 
 const item = {
