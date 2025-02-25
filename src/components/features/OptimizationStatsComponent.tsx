@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { OptimizationStats } from '@/types';
 import StatCard from './components/StatCard';
-import { Calendar, CalendarDays, Building2, Sun, Umbrella } from 'lucide-react';
+import { Building2, Calendar, CalendarDays, Sun, Umbrella } from 'lucide-react';
 
 interface OptimizationStatsComponentProps {
   stats: OptimizationStats;
@@ -25,7 +25,6 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           label="Total Days Off"
           tooltip="Total number of days off including weekends, holidays, and CTO days"
           colorScheme="purple"
-          previousValue={previousStats?.totalDaysOff}
         />
         
         {/* CTO Days - using green to match our day type colors */}
@@ -35,7 +34,6 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           label="CTO Days"
           tooltip="Number of CTO days used in the optimization"
           colorScheme="green"
-          previousValue={previousStats?.totalCTODays}
         />
         
         {/* Public Holidays - using amber to match our day type colors */}
@@ -45,7 +43,6 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           label="Public Holidays"
           tooltip="Number of public holidays in the selected year"
           colorScheme="amber"
-          previousValue={previousStats?.totalPublicHolidays}
         />
         
         {/* Extended Weekends - using teal to match our day type colors */}
@@ -55,7 +52,6 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           label="Extended Weekends"
           tooltip="Number of weekends that are part of a longer break"
           colorScheme="teal"
-          previousValue={previousStats?.totalExtendedWeekends}
         />
         
         {/* Company Days Off - using violet to match our day type colors */}
@@ -65,7 +61,6 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           label="Company Days Off"
           tooltip="Number of company-wide days off (e.g., Christmas closure)"
           colorScheme="violet"
-          previousValue={previousStats?.totalCompanyDaysOff}
         />
       </div>
     </div>
