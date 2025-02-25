@@ -12,6 +12,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
   return (
     <SectionCard
       title="Optimization Stats"
+      subtitle="A breakdown of your optimized time off throughout the year"
       icon={<BarChart2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">

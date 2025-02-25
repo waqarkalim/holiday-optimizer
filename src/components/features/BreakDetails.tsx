@@ -1,14 +1,8 @@
 import { Break } from '@/types';
-import { motion } from 'framer-motion';
 import { BreakCard } from '@/components/features/components/BreakCard';
 import { BreakTypeLegend } from '@/components/features/components/BreakTypeLegend';
 import { Info } from 'lucide-react';
 import { SectionCard } from '@/components/ui/section-card';
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
-};
 
 interface BreakDetailsProps {
   breaks: Break[];
