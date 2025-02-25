@@ -34,20 +34,39 @@ interface CalendarDayProps {
   hasPublicHoliday: boolean;
 }
 
+const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean) => {
+  // Determine color scheme based on day state
+  if (isCurrentDay) {
+    return 'today';
+  }
+  
+  if (isPast(startOfDay(date)) && !isCurrentDay) {
+    return 'past';
+  }
+  
+  // Determine day type based on properties
+  let dayType: DayType = 'default';
+  
+  if (day.isCTO) {
+    dayType = 'cto';
+  } else if (day.isPublicHoliday) {
+    dayType = 'publicHoliday';
+  } else if (day.isCompanyDayOff) {
+    dayType = 'companyDayOff';
+  } else if (day.isWeekend) {
+    dayType = 'weekend';
+  }
+  
+  return dayTypeToColorScheme[dayType];
+};
+
 /**
  * Renders a single calendar day with appropriate styling and tooltip
  */
 const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
   const { date, tooltipText, bgClass, textClass, isCurrentDay } = dayInfo;
-  // Determine color scheme for the tooltip
-  const dayType = day.isCTO ? 'cto' 
-    : day.isPublicHoliday ? 'publicHoliday'
-    : day.isCompanyDayOff ? 'companyDayOff'
-    : day.isWeekend ? 'weekend'
-    : 'default';
-  const colorScheme = isCurrentDay ? 'today' 
-    : isPast(startOfDay(date)) && !isCurrentDay ? 'past' 
-    : dayTypeToColorScheme[dayType];
+  
+  const colorScheme = getDayColorScheme(day, date, isCurrentDay);
 
   return (
     <>
@@ -63,6 +82,7 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
           <div className={cn(
             'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
             textClass,
+            tooltipText ? 'cursor-pointer' : '',
           )}>
             {format(date, 'd')}
           </div>
