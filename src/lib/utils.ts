@@ -16,7 +16,7 @@ export const dayTypeToColorScheme: Record<DayType, PossibleColors> = {
   cto: 'gray',
   publicHoliday: 'amber',
   companyDayOff: 'violet',
-  weekend: 'green',
+  weekend: 'orange',
   default: 'transparent'
 };
 

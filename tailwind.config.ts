@@ -37,6 +37,11 @@ const config = {
       ].join('\n'),
     },
   ],
+  safelist: [
+    {
+      pattern: /([a-zA-Z]+)-./
+    }
+  ],
   theme: {
     extend: {
       colors: {

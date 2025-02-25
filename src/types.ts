@@ -92,16 +92,11 @@ interface CardStyles {
   ring?: string; // Optional ring/outline classes
 }
 
-interface ValueStyles {
-  text: string;  // Text color classes
-}
-
 // The complete structure of a color scheme definition
 interface ColorSchemeDefinition {
   icon: TailwindColorStyles;
   tooltip: TooltipStyles;
   card: CardStyles;
-  value: ValueStyles;
   calendar: TailwindColorStyles;
 }
 
