@@ -27,8 +27,7 @@ const colorSchemeToDayType: Record<ColorScheme, DayType> = {
 
 const StatCard: FC<StatCardProps> = (props) => {
   const colorScheme = props.colorScheme === undefined ? 'blue' : props.colorScheme;
-  const colors = COLOR_SCHEMES[colorScheme];
-  
+
   // Get the corresponding day type for this color scheme
   const dayType = colorSchemeToDayType[colorScheme];
 
@@ -43,16 +42,16 @@ const StatCard: FC<StatCardProps> = (props) => {
     return {
       card: `bg-${colorScheme}-50/30 dark:bg-gray-800/60 ring-${colorScheme}-900/5 dark:ring-${colorScheme}-300/10`,
       icon: cn(
-        "bg-" + DAY_TYPE_COLORS[dayType].light.bg.substring(3),
-        "dark:bg-" + DAY_TYPE_COLORS[dayType].dark.bg.substring(8),
-        "text-" + DAY_TYPE_COLORS[dayType].light.text.substring(5),
-        "dark:text-" + DAY_TYPE_COLORS[dayType].dark.text.substring(10),
+        DAY_TYPE_COLORS[dayType].light.bg,
+        DAY_TYPE_COLORS[dayType].dark.bg,
+        DAY_TYPE_COLORS[dayType].light.text,
+        DAY_TYPE_COLORS[dayType].dark.text,
         `ring-${colorScheme}-400/20 dark:ring-${colorScheme}-300/20`
       ),
       value: `text-${colorScheme}-900 dark:text-${colorScheme}-50`
     };
   };
-  
+
   const customColors = getCardClasses();
 
   return (
@@ -101,11 +100,11 @@ const StatCard: FC<StatCardProps> = (props) => {
                   stroke="currentColor"
                   aria-hidden="true"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
               </button>
@@ -133,8 +132,8 @@ const StatCard: FC<StatCardProps> = (props) => {
             <span
               className={cn(
                 'text-xs font-medium',
-                isIncrease 
-                  ? 'text-green-600 dark:text-green-400' 
+                isIncrease
+                  ? 'text-green-600 dark:text-green-400'
                   : 'text-red-600 dark:text-red-400'
               )}
             >

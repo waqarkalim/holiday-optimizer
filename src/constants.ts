@@ -225,10 +225,10 @@ export const DAY_TYPE_COLORS = {
       border: 'border-green-200',
     },
     dark: {
-      bg: 'bg-green-900/50',
-      text: 'text-gray-400',
-      icon: 'text-green-400',
-      border: 'border-green-700',
+      bg: 'dark:bg-green-900/50',
+      text: 'dark:text-gray-400',
+      icon: 'dark:text-green-400',
+      border: 'dark:border-green-700',
     }
   },
   publicHoliday: {
@@ -239,10 +239,10 @@ export const DAY_TYPE_COLORS = {
       border: 'border-amber-200',
     },
     dark: {
-      bg: 'bg-amber-900/50',
-      text: 'text-gray-400',
-      icon: 'text-amber-400',
-      border: 'border-amber-700',
+      bg: 'dark:bg-amber-900/50',
+      text: 'dark:text-gray-400',
+      icon: 'dark:text-amber-400',
+      border: 'dark:border-amber-700',
     }
   },
   companyDayOff: {
@@ -253,10 +253,10 @@ export const DAY_TYPE_COLORS = {
       border: 'border-violet-200',
     },
     dark: {
-      bg: 'bg-violet-900/50',
-      text: 'text-gray-400',
-      icon: 'text-violet-400',
-      border: 'border-violet-700',
+      bg: 'dark:bg-violet-900/50',
+      text: 'dark:text-gray-400',
+      icon: 'dark:text-violet-400',
+      border: 'dark:border-violet-700',
     }
   },
   weekend: {
@@ -267,10 +267,10 @@ export const DAY_TYPE_COLORS = {
       border: 'border-teal-200',
     },
     dark: {
-      bg: 'bg-teal-900/50',
-      text: 'text-gray-400',
-      icon: 'text-teal-400',
-      border: 'border-teal-700',
+      bg: 'dark:bg-teal-900/50',
+      text: 'dark:text-gray-400',
+      icon: 'dark:text-teal-400',
+      border: 'dark:border-teal-700',
     }
   },
   default: {
@@ -281,10 +281,10 @@ export const DAY_TYPE_COLORS = {
       border: 'border-gray-200',
     },
     dark: {
-      bg: 'bg-gray-900',
-      text: 'text-gray-400',
-      icon: 'text-gray-400',
-      border: 'border-gray-700',
+      bg: 'dark:bg-gray-900',
+      text: 'dark:text-gray-400',
+      icon: 'dark:text-gray-400',
+      border: 'dark:border-gray-700',
     }
   }
 };
