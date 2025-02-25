@@ -1,11 +1,35 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { DAY_TYPE_COLORS } from "@/constants"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 export const isProd = () => process.env.NODE_ENV === 'production';
+
+// Utility function to get day type colors
+export type DayType = 'cto' | 'publicHoliday' | 'companyDayOff' | 'weekend' | 'default';
+export type ColorType = 'bg' | 'text' | 'icon' | 'border';
+
+export const getDayTypeColor = (
+  dayType: DayType, 
+  colorType: ColorType, 
+  isDark: boolean = false
+): string => {
+  const mode = isDark ? 'dark' : 'light';
+  return DAY_TYPE_COLORS[dayType][mode][colorType];
+};
+
+// Function to get both light and dark mode colors for a day type
+export const getDayTypeClasses = (
+  dayType: DayType, 
+  colorType: ColorType
+): string => {
+  const lightClass = DAY_TYPE_COLORS[dayType].light[colorType];
+  const darkClass = DAY_TYPE_COLORS[dayType].dark[colorType];
+  return `${lightClass} dark:${darkClass}`;
+};
 
 // Custom utility functions for common Tailwind patterns
 export const cardStyles = (variant?: 'primary' | 'secondary' | 'neutral') => {

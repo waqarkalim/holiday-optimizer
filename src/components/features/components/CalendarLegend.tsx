@@ -1,18 +1,17 @@
 import { cn } from '@/lib/utils';
+import { getDayTypeClasses } from '@/lib/utils';
 
 interface LegendItemProps {
-  color: string
-  darkColor: string
-  label: string
+  dayType: 'cto' | 'publicHoliday' | 'companyDayOff' | 'weekend' | 'default';
+  label: string;
 }
 
-function LegendItem({ color, darkColor, label }: LegendItemProps) {
+function LegendItem({ dayType, label }: LegendItemProps) {
   return (
     <div className="flex items-center space-x-1.5">
       <div className={cn(
         "w-4 h-4 rounded-md border",
-        color,
-        `dark:${darkColor}`,
+        getDayTypeClasses(dayType, 'bg'),
         "border-gray-200 dark:border-gray-700"
       )} />
       <span className="text-xs text-gray-700 dark:text-gray-300">{label}</span>
@@ -35,23 +34,19 @@ export function CalendarLegend({
 }: CalendarLegendProps) {
   const legendItems: LegendItemProps[] = [
     hasCTODays && {
-      color: "bg-green-100",
-      darkColor: "bg-green-900/50",
+      dayType: 'cto',
       label: "CTO Day"
     },
     hasHolidays && {
-      color: "bg-amber-100",
-      darkColor: "bg-amber-900/50",
+      dayType: 'publicHoliday',
       label: "Public Holiday"
     },
     hasCompanyDaysOff && {
-      color: "bg-violet-100",
-      darkColor: "bg-violet-900/50",
+      dayType: 'companyDayOff',
       label: "Company Day Off"
     },
     hasExtendedWeekends && {
-      color: "bg-teal-100",
-      darkColor: "bg-teal-900/50",
+      dayType: 'weekend',
       label: "Extended Weekend"
     }
   ].filter((item): item is LegendItemProps => Boolean(item))
@@ -69,8 +64,7 @@ export function CalendarLegend({
         {legendItems.map((item) => (
           <LegendItem
             key={item.label}
-            color={item.color}
-            darkColor={item.darkColor}
+            dayType={item.dayType}
             label={item.label}
           />
         ))}

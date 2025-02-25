@@ -3,7 +3,7 @@ import { Break } from '@/types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { BREAK_LENGTHS } from '@/constants';
 import { Calendar, Star, Sparkles, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getDayTypeClasses, DayType } from '@/lib/utils';
 
 interface BreakCardProps {
   breakPeriod: Break;
@@ -33,21 +33,13 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
     return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300';
   };
 
-  // Helper function to get day color classes
-  const getDayColorClasses = (day: Break['days'][0]) => {
-    if (day.isCTO) {
-      return 'bg-green-100 dark:bg-green-900/50';
-    }
-    if (day.isPublicHoliday) {
-      return 'bg-amber-100 dark:bg-amber-900/50';
-    }
-    if (day.isCompanyDayOff) {
-      return 'bg-violet-100 dark:bg-violet-900/50';
-    }
-    if (day.isWeekend) {
-      return 'bg-teal-100 dark:bg-teal-900/50';
-    }
-    return 'bg-gray-200 dark:bg-gray-700';
+  // Helper function to get day type
+  const getDayType = (day: Break['days'][0]): DayType => {
+    if (day.isCTO) return 'cto';
+    if (day.isPublicHoliday) return 'publicHoliday';
+    if (day.isCompanyDayOff) return 'companyDayOff';
+    if (day.isWeekend) return 'weekend';
+    return 'default';
   };
 
   return (
@@ -73,7 +65,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.ctoDays > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <Calendar className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
+              <Calendar className={cn(getDayTypeClasses('cto', 'icon'), 'h-3.5 w-3.5')} />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.ctoDays}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">CTO Days</p>
@@ -82,7 +74,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.publicHolidays > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <Star className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
+              <Star className={cn(getDayTypeClasses('publicHoliday', 'icon'), 'h-3.5 w-3.5')} />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.publicHolidays}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -93,7 +85,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.companyDaysOff > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <Sparkles className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
+              <Sparkles className={cn(getDayTypeClasses('companyDayOff', 'icon'), 'h-3.5 w-3.5')} />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.companyDaysOff}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -104,7 +96,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.weekends > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <Clock className="h-3.5 w-3.5 text-teal-500 dark:text-teal-400" />
+              <Clock className={cn(getDayTypeClasses('weekend', 'icon'), 'h-3.5 w-3.5')} />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.weekends}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Weekends</p>
@@ -120,7 +112,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
                 <div
                   className={cn(
                     'h-1.5 flex-1 rounded-sm relative group cursor-help',
-                    getDayColorClasses(day)
+                    getDayTypeClasses(getDayType(day), 'bg')
                   )}
                 />
               </TooltipTrigger>

@@ -1,8 +1,7 @@
 import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOfMonth, isPast, startOfDay, isToday } from 'date-fns';
-import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
-import { cn } from '@/lib/utils';
+import { cn, getDayTypeClasses, DayType } from '@/lib/utils';
 
 interface MonthCalendarProps {
   month: number
@@ -43,6 +42,18 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     return day.isPublicHoliday && getMonth(date) === month
   })
 
+  // Helper function to determine day type
+  const getDayType = (day: OptimizedDay): DayType => {
+    const date = parse(day.date, 'yyyy-MM-dd', new Date())
+    
+    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
+    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'companyDayOff'
+    if (hasPublicHoliday && day.isPublicHoliday) return 'publicHoliday'
+    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'weekend'
+    if (hasCTODays && day.isCTO) return 'cto'
+    return 'default'
+  }
+
   const getDayColor = (day: OptimizedDay) => {
     const date = parse(day.date, 'yyyy-MM-dd', new Date())
     
@@ -56,12 +67,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       return 'bg-gray-100 dark:bg-gray-800/30'
     }
     
-    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'bg-violet-100 dark:bg-violet-900/50'
-    if (hasPublicHoliday && day.isPublicHoliday) return 'bg-amber-100 dark:bg-amber-900/50'
-    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'bg-teal-100 dark:bg-teal-900/50'
-    if (hasCTODays && day.isCTO) return 'bg-green-100 dark:bg-green-900/50'
-    return 'bg-white dark:bg-gray-800/60'
+    // Use the centralized color system
+    return getDayTypeClasses(getDayType(day), 'bg')
   }
 
   const getDayTextColor = (day: OptimizedDay) => {
@@ -77,12 +84,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       return 'text-gray-400 dark:text-gray-500'
     }
     
-    // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'text-violet-900 dark:text-violet-100'
-    if (hasPublicHoliday && day.isPublicHoliday) return 'text-amber-900 dark:text-amber-100'
-    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'text-teal-900 dark:text-teal-100'
-    if (hasCTODays && day.isCTO) return 'text-green-900 dark:text-green-100'
-    return 'text-gray-900 dark:text-gray-100'
+    // Use the centralized color system
+    return getDayTypeClasses(getDayType(day), 'text')
   }
 
   const getDayTooltip = (day: OptimizedDay) => {
@@ -160,7 +163,10 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                   </Tooltip>
                   {/* Holiday Indicator Dot */}
                   {hasPublicHoliday && day.isPublicHoliday && (
-                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+                    <div className={cn(
+                      "absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full",
+                      getDayTypeClasses('publicHoliday', 'text')
+                    )} />
                   )}
                 </>
               )}

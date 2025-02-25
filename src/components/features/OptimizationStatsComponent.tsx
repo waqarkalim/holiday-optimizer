@@ -28,7 +28,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           previousValue={previousStats?.totalDaysOff}
         />
         
-        {/* CTO Days */}
+        {/* CTO Days - using green to match our day type colors */}
         <StatCard
           icon={<Calendar className="h-4 w-4" />}
           value={stats.totalCTODays}
@@ -38,7 +38,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           previousValue={previousStats?.totalCTODays}
         />
         
-        {/* Public Holidays */}
+        {/* Public Holidays - using amber to match our day type colors */}
         <StatCard
           icon={<Sun className="h-4 w-4" />}
           value={stats.totalPublicHolidays}
@@ -48,7 +48,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           previousValue={previousStats?.totalPublicHolidays}
         />
         
-        {/* Extended Weekends */}
+        {/* Extended Weekends - using teal to match our day type colors */}
         <StatCard
           icon={<Umbrella className="h-4 w-4" />}
           value={stats.totalExtendedWeekends}
@@ -58,7 +58,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           previousValue={previousStats?.totalExtendedWeekends}
         />
         
-        {/* Company Days Off */}
+        {/* Company Days Off - using violet to match our day type colors */}
         <StatCard
           icon={<Building2 className="h-4 w-4" />}
           value={stats.totalCompanyDaysOff}

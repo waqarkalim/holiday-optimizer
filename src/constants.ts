@@ -215,6 +215,80 @@ export const COLOR_SCHEMES = {
   },
 };
 
+// Centralized color definitions for day types
+export const DAY_TYPE_COLORS = {
+  cto: {
+    light: {
+      bg: 'bg-green-100',
+      text: 'text-gray-500',
+      icon: 'text-green-500',
+      border: 'border-green-200',
+    },
+    dark: {
+      bg: 'bg-green-900/50',
+      text: 'text-gray-400',
+      icon: 'text-green-400',
+      border: 'border-green-700',
+    }
+  },
+  publicHoliday: {
+    light: {
+      bg: 'bg-amber-100',
+      text: 'text-gray-500',
+      icon: 'text-amber-500',
+      border: 'border-amber-200',
+    },
+    dark: {
+      bg: 'bg-amber-900/50',
+      text: 'text-gray-400',
+      icon: 'text-amber-400',
+      border: 'border-amber-700',
+    }
+  },
+  companyDayOff: {
+    light: {
+      bg: 'bg-violet-100',
+      text: 'text-gray-500',
+      icon: 'text-violet-500',
+      border: 'border-violet-200',
+    },
+    dark: {
+      bg: 'bg-violet-900/50',
+      text: 'text-gray-400',
+      icon: 'text-violet-400',
+      border: 'border-violet-700',
+    }
+  },
+  weekend: {
+    light: {
+      bg: 'bg-teal-100',
+      text: 'text-gray-500',
+      icon: 'text-teal-500',
+      border: 'border-teal-200',
+    },
+    dark: {
+      bg: 'bg-teal-900/50',
+      text: 'text-gray-400',
+      icon: 'text-teal-400',
+      border: 'border-teal-700',
+    }
+  },
+  default: {
+    light: {
+      bg: 'bg-gray-0',
+      text: 'text-gray-500',
+      icon: 'text-gray-500',
+      border: 'border-gray-200',
+    },
+    dark: {
+      bg: 'bg-gray-900',
+      text: 'text-gray-400',
+      icon: 'text-gray-400',
+      border: 'border-gray-700',
+    }
+  }
+};
+
 export const MONTHS = [
   'January', 'February', 'March', 'April',
   'May', 'June', 'July', 'August',
