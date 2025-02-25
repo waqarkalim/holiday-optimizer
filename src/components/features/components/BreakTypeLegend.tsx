@@ -1,5 +1,6 @@
 import { CalendarDays, CalendarRange, Palmtree, Sunrise } from 'lucide-react';
-import { BREAK_LENGTHS } from '@/services/optimizer.constants';
+
+import { BREAK_LENGTHS } from '@/constants';
 
 const breakTypes = [
   {

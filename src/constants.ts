@@ -1,7 +1,29 @@
 import { StrategyOption } from '@/types';
-import { BREAK_LENGTHS } from './services/optimizer.constants';
 import { isProd } from '@/lib/utils';
 
+// Constants for break lengths and scoring
+export const BREAK_LENGTHS = {
+  // Long weekends: 3-4 days (e.g., Friday-Monday)
+  LONG_WEEKEND: {
+    MIN: 3,
+    MAX: 4,  // Reduced from 5 to ensure true "long weekend" feel
+  },
+  // Mini breaks: 5-6 days (perfect for short trips)
+  MINI_BREAK: {
+    MIN: 5,
+    MAX: 6,
+  },
+  // Week-long breaks: 7-9 days (full week plus weekends)
+  WEEK_LONG: {
+    MIN: 7,
+    MAX: 9,
+  },
+  // Extended breaks: 10-15 days (two weeks including weekends)
+  EXTENDED: {
+    MIN: 10,
+    MAX: 15,
+  },
+} as const;
 export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   {
     id: 'balanced',
@@ -149,6 +171,46 @@ export const COLOR_SCHEMES = {
       text: 'text-pink-900 dark:text-pink-50',
       increase: 'text-pink-600',
       decrease: 'text-pink-500',
+    },
+  },
+  violet: {
+    icon: {
+      bg: 'bg-violet-100 dark:bg-violet-900/50',
+      text: 'text-violet-600 dark:text-violet-300',
+      ring: 'ring-violet-400/20 dark:ring-violet-300/20',
+    },
+    tooltip: {
+      icon: 'text-violet-500/70 dark:text-violet-300/70',
+      bg: 'bg-violet-50 dark:bg-violet-900/90',
+    },
+    card: {
+      hover: 'hover:bg-violet-50/50 dark:hover:bg-violet-900/30',
+      ring: 'ring-violet-900/5 dark:ring-violet-300/10',
+    },
+    value: {
+      text: 'text-violet-900 dark:text-violet-50',
+      increase: 'text-violet-600',
+      decrease: 'text-violet-500',
+    },
+  },
+  teal: {
+    icon: {
+      bg: 'bg-teal-100 dark:bg-teal-900/50',
+      text: 'text-teal-600 dark:text-teal-300',
+      ring: 'ring-teal-400/20 dark:ring-teal-300/20',
+    },
+    tooltip: {
+      icon: 'text-teal-500/70 dark:text-teal-300/70',
+      bg: 'bg-teal-50 dark:bg-teal-900/90',
+    },
+    card: {
+      hover: 'hover:bg-teal-50/50 dark:hover:bg-teal-900/30',
+      ring: 'ring-teal-900/5 dark:ring-teal-300/10',
+    },
+    value: {
+      text: 'text-teal-900 dark:text-teal-50',
+      increase: 'text-teal-600',
+      decrease: 'text-teal-500',
     },
   },
 };

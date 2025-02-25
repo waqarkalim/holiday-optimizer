@@ -1,82 +1,75 @@
+import { FC } from 'react';
 import { OptimizationStats } from '@/types';
-import StatCard from '@/components/features/components/StatCard';
-import { CalendarIcon, CheckCircleIcon, ClockIcon, StarIcon, SunIcon } from '@heroicons/react/24/outline';
+import StatCard from './components/StatCard';
+import { Calendar, CalendarDays, Building2, Sun, Umbrella } from 'lucide-react';
 
-export function OptimizationStatsComponent({ stats }: { stats: OptimizationStats }) {
+interface OptimizationStatsComponentProps {
+  stats: OptimizationStats;
+  previousStats?: OptimizationStats;
+}
+
+const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats, previousStats }) => {
   return (
-    <div className="relative overflow-hidden rounded-xl">
-      {/* Glass effect background */}
-      <div className="absolute inset-0 rounded-xl">
-        <div className="absolute inset-0 bg-teal-50/30 dark:bg-teal-950/10 rounded-xl" />
-        <div className="absolute inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-xl" />
+    <div className="w-full space-y-4 bg-gray-50/30 dark:bg-gray-900/10 p-4 rounded-lg ring-1 ring-gray-200 dark:ring-gray-700">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Optimization Stats
+        </h2>
       </div>
-
-      {/* Content */}
-      <div className="relative p-4 ring-1 ring-teal-900/5 dark:ring-teal-300/5 rounded-xl">
-        {/* Header */}
-        <header className="flex items-center gap-2 mb-4">
-          <div className="p-1.5 bg-teal-100 dark:bg-teal-900/50 rounded-lg">
-            <CheckCircleIcon className="h-4 w-4 text-teal-600 dark:text-teal-300" />
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-teal-900 dark:text-teal-100 leading-none mb-0.5">
-              Optimization Results
-            </h3>
-            <p className="text-xs text-teal-600/70 dark:text-teal-300/70">
-              Your optimized time off schedule for maximum enjoyment
-            </p>
-          </div>
-        </header>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-          {stats.totalDaysOff > 0 && (
-            <StatCard
-              icon={<ClockIcon className="w-4 h-4" />}
-              value={stats.totalDaysOff}
-              label="Total Days Off"
-              tooltip="Total number of days off including weekends and holidays"
-              colorScheme="purple"
-            />
-          )}
-          {stats.totalCTODays > 0 && (
-            <StatCard
-              icon={<CalendarIcon className="w-4 h-4" />}
-              value={stats.totalCTODays}
-              label="CTO Days"
-              tooltip="Total number of CTO days used"
-              colorScheme="blue"
-            />
-          )}
-          {stats.totalPublicHolidays > 0 && (
-            <StatCard
-              icon={<StarIcon className="w-4 h-4" />}
-              value={stats.totalPublicHolidays}
-              label="Public Holidays"
-              tooltip="Total number of upcoming public holidays in the year"
-              colorScheme="amber"
-            />
-          )}
-          {stats.totalExtendedWeekends > 0 && (
-            <StatCard
-              icon={<SunIcon className="w-4 h-4" />}
-              value={stats.totalExtendedWeekends}
-              label="Extended Weekends"
-              tooltip="Number of weekends that are part of longer breaks"
-              colorScheme="green"
-            />
-          )}
-          {stats.totalCompanyDaysOff > 0 && (
-            <StatCard
-              icon={<ClockIcon className="w-4 h-4" />}
-              value={stats.totalCompanyDaysOff}
-              label="Company Days Off"
-              tooltip="Total number of upcoming company days off scheduled"
-              colorScheme="emerald"
-            />
-          )}
-        </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        {/* Total Days Off */}
+        <StatCard
+          icon={<CalendarDays className="h-4 w-4" />}
+          value={stats.totalDaysOff}
+          label="Total Days Off"
+          tooltip="Total number of days off including weekends, holidays, and CTO days"
+          colorScheme="purple"
+          previousValue={previousStats?.totalDaysOff}
+        />
+        
+        {/* CTO Days */}
+        <StatCard
+          icon={<Calendar className="h-4 w-4" />}
+          value={stats.totalCTODays}
+          label="CTO Days"
+          tooltip="Number of CTO days used in the optimization"
+          colorScheme="green"
+          previousValue={previousStats?.totalCTODays}
+        />
+        
+        {/* Public Holidays */}
+        <StatCard
+          icon={<Sun className="h-4 w-4" />}
+          value={stats.totalPublicHolidays}
+          label="Public Holidays"
+          tooltip="Number of public holidays in the selected year"
+          colorScheme="amber"
+          previousValue={previousStats?.totalPublicHolidays}
+        />
+        
+        {/* Extended Weekends */}
+        <StatCard
+          icon={<Umbrella className="h-4 w-4" />}
+          value={stats.totalExtendedWeekends}
+          label="Extended Weekends"
+          tooltip="Number of weekends that are part of a longer break"
+          colorScheme="teal"
+          previousValue={previousStats?.totalExtendedWeekends}
+        />
+        
+        {/* Company Days Off */}
+        <StatCard
+          icon={<Building2 className="h-4 w-4" />}
+          value={stats.totalCompanyDaysOff}
+          label="Company Days Off"
+          tooltip="Number of company-wide days off (e.g., Christmas closure)"
+          colorScheme="violet"
+          previousValue={previousStats?.totalCompanyDaysOff}
+        />
       </div>
     </div>
   );
-}
+};
+
+export default OptimizationStatsComponent;

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Break, OptimizationStats, OptimizedDay } from '@/types';
-import { OptimizationStatsComponent } from '@/components/features/OptimizationStatsComponent';
+import OptimizationStatsComponent from '@/components/features/OptimizationStatsComponent';
 import { BreakDetails } from '@/components/features/BreakDetails';
 import { CalendarView } from '@/components/features/CalendarView';
 import { forwardRef } from 'react';

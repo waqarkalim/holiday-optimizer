@@ -1,8 +1,9 @@
 import { format, parse } from 'date-fns';
-import clsx from 'clsx';
-import { BREAK_LENGTHS } from '@/services/optimizer.constants';
 import { Break } from '@/types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { BREAK_LENGTHS } from '@/constants';
+import { Calendar, Star, Sparkles, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface BreakCardProps {
   breakPeriod: Break;
@@ -32,6 +33,23 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
     return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300';
   };
 
+  // Helper function to get day color classes
+  const getDayColorClasses = (day: Break['days'][0]) => {
+    if (day.isCTO) {
+      return 'bg-green-100 dark:bg-green-900/50';
+    }
+    if (day.isPublicHoliday) {
+      return 'bg-amber-100 dark:bg-amber-900/50';
+    }
+    if (day.isCompanyDayOff) {
+      return 'bg-violet-100 dark:bg-violet-900/50';
+    }
+    if (day.isWeekend) {
+      return 'bg-teal-100 dark:bg-teal-900/50';
+    }
+    return 'bg-gray-200 dark:bg-gray-700';
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
       <div className="flex items-start justify-between">
@@ -43,7 +61,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
             {breakPeriod.totalDays} day{breakPeriod.totalDays !== 1 ? 's' : ''} off
           </p>
         </div>
-        <div className={clsx(
+        <div className={cn(
           'px-2 py-1 rounded-lg text-xs font-medium',
           getBreakStyles(breakPeriod.totalDays),
         )}>
@@ -55,15 +73,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.ctoDays > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <svg
-                className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <Calendar className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.ctoDays}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">CTO Days</p>
@@ -72,15 +82,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.publicHolidays > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <svg
-                className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
+              <Star className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.publicHolidays}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -91,15 +93,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.companyDaysOff > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <svg
-                className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
+              <Sparkles className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.companyDaysOff}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -110,15 +104,7 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
         {breakPeriod.weekends > 0 && (
           <div className="space-y-0.5">
             <div className="flex items-center space-x-1">
-              <svg
-                className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <Clock className="h-3.5 w-3.5 text-teal-500 dark:text-teal-400" />
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{breakPeriod.weekends}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Weekends</p>
@@ -132,13 +118,9 @@ export function BreakCard({ breakPeriod }: BreakCardProps) {
             <Tooltip key={day.date}>
               <TooltipTrigger asChild>
                 <div
-                  className={clsx(
+                  className={cn(
                     'h-1.5 flex-1 rounded-sm relative group cursor-help',
-                    day.isCTO ? 'bg-blue-500 dark:bg-blue-400' :
-                      day.isPublicHoliday ? 'bg-amber-500 dark:bg-amber-400' :
-                        day.isCompanyDayOff ? 'bg-emerald-500 dark:bg-emerald-400' :
-                          day.isWeekend ? 'bg-violet-500 dark:bg-violet-400' :
-                            'bg-gray-200 dark:bg-gray-700',
+                    getDayColorClasses(day)
                   )}
                 />
               </TooltipTrigger>

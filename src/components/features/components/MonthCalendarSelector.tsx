@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { DayClickEventHandler } from 'react-day-picker';
 import { useState } from 'react';
 import { startOfMonth } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MonthCalendarSelectorProps {
   selectedDates: Date[];
@@ -108,9 +109,7 @@ export function MonthCalendarSelector({
                 props.className
               )}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </span>
           ),
           IconRight: ({ ...props }) => (
@@ -121,9 +120,7 @@ export function MonthCalendarSelector({
                 props.className
               )}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </span>
           ),
         }}

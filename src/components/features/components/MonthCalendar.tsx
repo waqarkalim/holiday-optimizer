@@ -2,6 +2,7 @@ import { eachDayOfInterval, endOfMonth, format, getDay, getMonth, parse, startOf
 import clsx from 'clsx';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface MonthCalendarProps {
   month: number
@@ -56,10 +57,10 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     }
     
     // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'bg-emerald-100 dark:bg-emerald-900/50'
+    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'bg-violet-100 dark:bg-violet-900/50'
     if (hasPublicHoliday && day.isPublicHoliday) return 'bg-amber-100 dark:bg-amber-900/50'
-    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'bg-violet-100 dark:bg-violet-900/50'
-    if (hasCTODays && day.isCTO) return 'bg-teal-100 dark:bg-teal-900/50'
+    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'bg-teal-100 dark:bg-teal-900/50'
+    if (hasCTODays && day.isCTO) return 'bg-green-100 dark:bg-green-900/50'
     return 'bg-white dark:bg-gray-800/60'
   }
 
@@ -77,10 +78,10 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     }
     
     // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days
-    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'text-emerald-900 dark:text-emerald-100'
+    if (hasCompanyDaysOff && day.isCompanyDayOff) return 'text-violet-900 dark:text-violet-100'
     if (hasPublicHoliday && day.isPublicHoliday) return 'text-amber-900 dark:text-amber-100'
-    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'text-violet-900 dark:text-violet-100'
-    if (hasCTODays && day.isCTO) return 'text-teal-900 dark:text-teal-100'
+    if (hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) return 'text-teal-900 dark:text-teal-100'
+    if (hasCTODays && day.isCTO) return 'text-green-900 dark:text-green-100'
     return 'text-gray-900 dark:text-gray-100'
   }
 
@@ -106,7 +107,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-900/5 dark:ring-white/10">
+    <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
       <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700">
         <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 leading-none">
           {format(firstDay, 'MMMM yyyy')}
@@ -127,7 +128,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
           {calendarDays.map((day, index) => (
             <div
               key={index}
-              className={clsx(
+              className={cn(
                 'aspect-square p-1 text-xs relative',
                 !day && 'bg-gray-50 dark:bg-gray-800/30',
                 day?.isPartOfBreak && 'font-semibold'
@@ -136,7 +137,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
               {day && (
                 <>
                   <div 
-                    className={clsx(
+                    className={cn(
                       'absolute inset-0.5 rounded-md',
                       getDayColor(day),
                       isToday(parse(day.date, 'yyyy-MM-dd', new Date())) && 'ring-2 ring-blue-400 dark:ring-blue-500 shadow-sm'
@@ -144,7 +145,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
                   />
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className={clsx(
+                      <div className={cn(
                         'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
                         getDayTextColor(day)
                       )}>

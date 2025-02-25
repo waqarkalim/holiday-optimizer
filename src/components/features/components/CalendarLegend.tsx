@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 interface LegendItemProps {
   color: string
   darkColor: string
@@ -7,7 +9,12 @@ interface LegendItemProps {
 function LegendItem({ color, darkColor, label }: LegendItemProps) {
   return (
     <div className="flex items-center space-x-1.5">
-      <div className={`w-4 h-4 rounded-md ${color} dark:${darkColor} border border-${color.replace('bg-', '')}-200 dark:border-${darkColor.replace('bg-', '')}-700`} />
+      <div className={cn(
+        "w-4 h-4 rounded-md border",
+        color,
+        `dark:${darkColor}`,
+        "border-gray-200 dark:border-gray-700"
+      )} />
       <span className="text-xs text-gray-700 dark:text-gray-300">{label}</span>
     </div>
   )
@@ -28,8 +35,8 @@ export function CalendarLegend({
 }: CalendarLegendProps) {
   const legendItems: LegendItemProps[] = [
     hasCTODays && {
-      color: "bg-teal-100",
-      darkColor: "bg-teal-900/50",
+      color: "bg-green-100",
+      darkColor: "bg-green-900/50",
       label: "CTO Day"
     },
     hasHolidays && {
@@ -38,13 +45,13 @@ export function CalendarLegend({
       label: "Public Holiday"
     },
     hasCompanyDaysOff && {
-      color: "bg-emerald-100",
-      darkColor: "bg-emerald-900/50",
+      color: "bg-violet-100",
+      darkColor: "bg-violet-900/50",
       label: "Company Day Off"
     },
     hasExtendedWeekends && {
-      color: "bg-violet-100",
-      darkColor: "bg-violet-900/50",
+      color: "bg-teal-100",
+      darkColor: "bg-teal-900/50",
       label: "Extended Weekend"
     }
   ].filter((item): item is LegendItemProps => Boolean(item))
@@ -52,8 +59,13 @@ export function CalendarLegend({
   if (legendItems.length === 0) return null
 
   return (
-    <div className="mb-3 bg-white dark:bg-gray-800/50 rounded-lg p-2.5 ring-1 ring-blue-900/5 dark:ring-blue-400/5">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+    <div className={cn(
+      "mb-3 bg-white dark:bg-gray-800/50 rounded-lg p-2.5",
+      "ring-1 ring-gray-200 dark:ring-gray-700"
+    )}>
+      <div className={cn(
+        "grid grid-cols-2 md:grid-cols-4 gap-2"
+      )}>
         {legendItems.map((item) => (
           <LegendItem
             key={item.label}
