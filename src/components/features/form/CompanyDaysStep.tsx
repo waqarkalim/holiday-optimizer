@@ -5,9 +5,8 @@ import { FormSection } from './components/FormSection';
 import { useCompanyDays } from '@/hooks/useOptimizer';
 import { DateList } from '@/components/features/DateList';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { Info } from 'lucide-react';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function CompanyDaysStep() {
   const { companyDaysOff, addCompanyDay, removeCompanyDay, clearCompanyDays } = useCompanyDays();
@@ -48,9 +47,9 @@ export function CompanyDaysStep() {
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-violet-800 dark:text-violet-300 text-sm">About Company Days Off</h4>
             <p className="text-xs text-violet-700/90 dark:text-violet-300/90 leading-relaxed">
-              Company days off are special non-working days your company provides that don't count against your PTO 
+              Company days off are special non-working days your company provides that don&apos;t count against your PTO
               (e.g., Summer Fridays, company holidays, or gifted days off). Unlike company retreats or team events 
-              where you still have work obligations, these are true days off where you're not required to work at all. 
+              where you still have work obligations, these are true days off where you&apos;re not required to work at all.
               Adding these helps the optimizer avoid suggesting PTO on days you already have free.
             </p>
           </div>

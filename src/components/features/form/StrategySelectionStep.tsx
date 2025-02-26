@@ -1,4 +1,4 @@
-import { Coffee, Palmtree, Shuffle, Star, Sunrise, Info } from 'lucide-react';
+import { Coffee, Info, Palmtree, Shuffle, Star, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { OptimizationStrategy } from '@/types';
@@ -6,7 +6,7 @@ import { KeyboardEvent } from 'react';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useStrategySelection } from '@/hooks/useOptimizer';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {

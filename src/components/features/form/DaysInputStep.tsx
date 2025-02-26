@@ -4,7 +4,7 @@ import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useDaysInput } from '@/hooks/useOptimizer';
 import { Info } from 'lucide-react';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function DaysInputStep() {
   const { days, errors, setDays } = useDaysInput();
