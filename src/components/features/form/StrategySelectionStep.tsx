@@ -1,3 +1,5 @@
+'use client';
+
 import { Coffee, Info, Palmtree, Shuffle, Star, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
@@ -31,8 +33,10 @@ export function StrategySelectionStep() {
         const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
         const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex];
         setStrategy(prevStrategy.id);
-        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`);
-        radioInput?.focus();
+        if (typeof window !== 'undefined') {
+          const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`);
+          radioInput?.focus();
+        }
         break;
       }
       case 'ArrowDown':
@@ -41,8 +45,10 @@ export function StrategySelectionStep() {
         const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
         const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex];
         setStrategy(nextStrategy.id);
-        const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`);
-        radioInput?.focus();
+        if (typeof window !== 'undefined') {
+          const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`);
+          radioInput?.focus();
+        }
         break;
       }
     }

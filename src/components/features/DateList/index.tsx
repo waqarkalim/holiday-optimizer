@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, KeyboardEvent as ReactKeyboardEvent, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -59,8 +61,10 @@ export function DateList({
           const targetIndex = e.key === 'ArrowUp' ? index - 1 : index + 1;
           const targetDate = items[targetIndex]?.date;
           if (targetDate) {
-            const targetButton = document.querySelector(`[data-date="${targetDate}"]`) as HTMLButtonElement;
-            targetButton?.focus();
+            if (typeof window !== 'undefined') {
+              const targetButton = document.querySelector(`[data-date="${targetDate}"]`) as HTMLButtonElement;
+              targetButton?.focus();
+            }
           }
         }
         break;

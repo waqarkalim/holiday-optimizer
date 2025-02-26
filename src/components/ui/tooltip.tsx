@@ -24,7 +24,7 @@ const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Portal container={document.body}>
+  <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
@@ -48,7 +48,7 @@ const StatTooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   StatTooltipContentProps
 >(({ className, sideOffset = 4, colorScheme, ...props }, ref) => (
-  <TooltipPrimitive.Portal container={document.body}>
+  <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
