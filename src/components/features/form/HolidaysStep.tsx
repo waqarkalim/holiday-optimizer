@@ -1,4 +1,4 @@
-import { AlertTriangle, Info, MapPin } from 'lucide-react';
+import { MapPin, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
 import { DateList } from '@/components/features/DateList';
@@ -8,39 +8,10 @@ import { FormSection } from './components/FormSection';
 import { useHolidays } from '@/hooks/useOptimizer';
 import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useEffect, useState } from 'react';
 
 export function HolidaysStep() {
   const { holidays, addHoliday, removeHoliday, clearHolidays, setDetectedHolidays } = useHolidays();
-  const [showDidYouForget, setShowDidYouForget] = useState(false);
-
-  // Check if common holidays might be missing
-  useEffect(() => {
-    // Only show the reminder if they have some holidays but might be missing important ones
-    if (holidays.length > 0 && holidays.length < 5) {
-      const holidayDates = holidays.map(h => parse(h.date, 'yyyy-MM-dd', new Date()));
-
-      // Check if they might be missing major holidays
-      const hasChristmas = holidayDates.some(date =>
-        date.getMonth() === 11 && date.getDate() === 25,
-      );
-
-      const hasNewYears = holidayDates.some(date =>
-        date.getMonth() === 0 && date.getDate() === 1,
-      );
-
-      // If missing obvious holidays, show reminder
-      if (!hasChristmas || !hasNewYears) {
-        setShowDidYouForget(true);
-      } else {
-        setShowDidYouForget(false);
-      }
-    } else {
-      setShowDidYouForget(false);
-    }
-  }, [holidays]);
 
   const handleHolidaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -60,55 +31,12 @@ export function HolidaysStep() {
       toast.success('Holidays detected', {
         description: `Found ${detectedHolidays.length} public holidays for your location. Any custom holidays have been preserved.`,
       });
-
-      // Hide "Did you forget?" prompt after auto-detection
-      setShowDidYouForget(false);
     } catch (error) {
       console.error('Error detecting holidays:', error);
       toast.error('Error detecting holidays', {
         description: error instanceof Error ? error.message : 'Failed to detect holidays for your location.',
       });
     }
-  };
-
-  // Jump to month with common holidays and add the holiday
-  const jumpToImportantMonth = (month: number) => {
-    const targetDate = new Date();
-    targetDate.setMonth(month);
-
-    // Set the date based on which holiday was selected
-    switch (month) {
-      case 0: // January - New Year's Day
-        targetDate.setDate(1);
-        addHoliday(format(targetDate, 'yyyy-MM-dd'), 'New Year\'s Day');
-        break;
-      case 6: // July - Independence Day
-        targetDate.setDate(4);
-        addHoliday(format(targetDate, 'yyyy-MM-dd'), 'Independence Day');
-        break;
-      case 10: // November - Thanksgiving (4th Thursday)
-        // Find the 4th Thursday
-        targetDate.setDate(1);
-        const dayOfWeek = targetDate.getDay();
-        // Move to first Thursday
-        targetDate.setDate(1 + ((4 - dayOfWeek + 7) % 7));
-        // Move to fourth Thursday
-        targetDate.setDate(targetDate.getDate() + 21);
-        addHoliday(format(targetDate, 'yyyy-MM-dd'), 'Thanksgiving');
-        break;
-      case 11: // December - Christmas
-        targetDate.setDate(25);
-        addHoliday(format(targetDate, 'yyyy-MM-dd'), 'Christmas');
-        break;
-    }
-
-    // Show success toast
-    toast.success(`Added holiday`, {
-      description: `Successfully added holiday to your calendar.`,
-    });
-
-    // Hide the reminder since user took action
-    setShowDidYouForget(false);
   };
 
   // Custom title with info icon tooltip
@@ -163,91 +91,6 @@ export function HolidaysStep() {
             Find Local Holidays
           </Button>
         </TooltipProvider>
-
-        {/* "Did you forget?" prompt */}
-        {showDidYouForget && (
-          <Alert
-            variant="default"
-            className="bg-amber-50/70 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/30 text-amber-800 dark:text-amber-200"
-          >
-            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <AlertTitle className="text-amber-800 dark:text-amber-300">Missing common holidays?</AlertTitle>
-            <AlertDescription className="text-amber-700/90 dark:text-amber-300/90">
-              <p className="mb-2 text-xs">
-                You might be missing some important holidays. Consider adding:
-              </p>
-              <div className="flex gap-1.5 flex-wrap">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => jumpToImportantMonth(11)} // December
-                      className="h-6 px-1.5 text-[10px] bg-amber-100/60 dark:bg-amber-900/40 border-amber-200 dark:border-amber-800"
-                    >
-                      Christmas
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Add Christmas (December 25) to your holidays</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => jumpToImportantMonth(0)} // January
-                      className="h-6 px-1.5 text-[10px] bg-amber-100/60 dark:bg-amber-900/40 border-amber-200 dark:border-amber-800"
-                    >
-                      New Year&apos;s
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Add New Year&apos;s Day (January 1) to your holidays</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => jumpToImportantMonth(6)} // July
-                      className="h-6 px-1.5 text-[10px] bg-amber-100/60 dark:bg-amber-900/40 border-amber-200 dark:border-amber-800"
-                    >
-                      Independence Day
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Add Independence Day (July 4) to your holidays</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => jumpToImportantMonth(10)} // November
-                      className="h-6 px-1.5 text-[10px] bg-amber-100/60 dark:bg-amber-900/40 border-amber-200 dark:border-amber-800"
-                    >
-                      Thanksgiving
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Add Thanksgiving (4th Thursday in November) to your holidays</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
 
         <div className="space-y-6">
           {/* Calendar Selection with enhanced context */}
