@@ -30,6 +30,7 @@ export function FormSection({ children, colorScheme, className, headingId }: For
         'bg-white/90 dark:bg-gray-800/60',
         'rounded-lg p-2.5',
         'ring-1',
+        'relative',
         colorStyles[colorScheme].ring,
         'space-y-2',
         className

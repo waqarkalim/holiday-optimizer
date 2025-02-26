@@ -11,6 +11,7 @@ import { CompanyDaysStep } from './features/form/CompanyDaysStep';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { OptimizationStrategy } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { TooltipProvider } from './ui/tooltip';
 
 interface OptimizerFormProps {
   onSubmitAction: (data: {
@@ -52,10 +53,12 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
         </CardHeader>
 
         <CardContent className="space-y-3">
-          <DaysInputStep />
-          <StrategySelectionStep />
-          <HolidaysStep />
-          <CompanyDaysStep />
+          <TooltipProvider>
+            <DaysInputStep />
+            <StrategySelectionStep />
+            <HolidaysStep />
+            <CompanyDaysStep />
+          </TooltipProvider>
         </CardContent>
 
         <CardFooter className="flex justify-end">

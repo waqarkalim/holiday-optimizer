@@ -41,7 +41,7 @@ const InfoIcon = ({ tooltip, label, colorScheme }: InfoIconProps) => (
     <TooltipTrigger asChild>
       <button aria-label={`Show information about ${label}`}>
         <Icon_InfoIcon
-          className="h-3.5 w-3.5"
+          className="h-3.5 w-3.5 cursor-help"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

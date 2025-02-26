@@ -10,7 +10,7 @@ import {
   startOfDay,
   startOfMonth,
 } from 'date-fns';
-import { Tooltip, TooltipTrigger, StatTooltipContent } from '@/components/ui/tooltip';
+import { StatTooltipContent, Tooltip, TooltipTrigger } from '@/components/ui/tooltip';
 import { OptimizedDay } from '@/types';
 import { cn, DayType, dayTypeToColorScheme } from '@/lib/utils';
 import { COLOR_SCHEMES, WEEKDAYS } from '@/constants';
@@ -85,7 +85,7 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
           <div className={cn(
             'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
             textClass,
-            tooltipText ? 'cursor-pointer' : '',
+            tooltipText && 'cursor-help',
             // Very subtle text emphasis
             day.isPartOfBreak && 'text-indigo-700 dark:text-indigo-300',
           )}>

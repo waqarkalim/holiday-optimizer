@@ -6,34 +6,36 @@ import { PossibleColors } from '@/types';
 import { cn } from '@/lib/utils';
 import { COLOR_SCHEMES } from '@/constants';
 
-const TooltipProvider = TooltipPrimitive.Provider;
+const TooltipProvider = ({ children, ...props }: TooltipPrimitive.TooltipProviderProps) => (
+  <TooltipPrimitive.Provider 
+    delayDuration={100} 
+    skipDelayDuration={300}
+    {...props}
+  >
+    {children}
+  </TooltipPrimitive.Provider>
+);
 
 const Tooltip = TooltipPrimitive.Root;
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipContent = React.forwardRef<
-  React.ComponentRef<typeof TooltipPrimitive.Content>,
+  React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={cn(
-      'z-50 overflow-hidden rounded-md',
-      'border border-gray-200 dark:border-gray-700',
-      'bg-white dark:bg-gray-800',
-      'px-3 py-1.5 text-sm',
-      'text-gray-900 dark:text-gray-100',
-      'shadow-md',
-      'animate-in fade-in-0 zoom-in-95',
-      'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-      'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
-      'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className,
-    )}
-    {...props}
-  />
+  <TooltipPrimitive.Portal container={document.body}>
+    <TooltipPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      className={cn(
+        'z-[9999] max-w-xs animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md',
+        className
+      )}
+      forceMount
+      {...props}
+    />
+  </TooltipPrimitive.Portal>
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
@@ -43,30 +45,23 @@ interface StatTooltipContentProps extends React.ComponentPropsWithoutRef<typeof 
 }
 
 const StatTooltipContent = React.forwardRef<
-  React.ComponentRef<typeof TooltipPrimitive.Content>,
+  React.ElementRef<typeof TooltipPrimitive.Content>,
   StatTooltipContentProps
->(({ className, sideOffset = 4, colorScheme, ...props }, ref) => {
-  return (
+>(({ className, sideOffset = 4, colorScheme, ...props }, ref) => (
+  <TooltipPrimitive.Portal container={document.body}>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 overflow-hidden rounded-md',
-        'border border-gray-200 dark:border-gray-700',
-        'px-3 py-1.5 text-sm',
-        'text-gray-900 dark:text-gray-100',
-        'shadow-md',
-        'animate-in fade-in-0 zoom-in-95',
-        'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-        'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
-        'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        'z-[9999] max-w-xs animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 rounded-md border px-2 py-2 shadow-md',
         COLOR_SCHEMES[colorScheme].tooltip.bg,
-        className,
+        className
       )}
+      forceMount
       {...props}
     />
-  );
-});
+  </TooltipPrimitive.Portal>
+));
 StatTooltipContent.displayName = 'StatTooltipContent';
 
 export { Tooltip, TooltipTrigger, TooltipContent, StatTooltipContent, TooltipProvider };
