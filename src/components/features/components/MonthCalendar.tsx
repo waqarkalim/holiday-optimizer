@@ -25,7 +25,7 @@ interface CalendarDayProps {
   day: OptimizedDay;
   dayInfo: ReturnType<(day: OptimizedDay) => {
     date: Date;
-    dayType: 'default' | 'companyDayOff' | 'weekend' | 'cto' | 'publicHoliday';
+    dayType: 'default' | 'companyDayOff' | 'weekend' | 'cto' | 'publicHoliday' | 'extendedWeekend';
     tooltipText: string;
     bgClass: string;
     textClass: string;
@@ -53,6 +53,8 @@ const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean)
     dayType = 'publicHoliday';
   } else if (day.isCompanyDayOff) {
     dayType = 'companyDayOff';
+  } else if (day.isWeekend && day.isPartOfBreak) {
+    dayType = 'extendedWeekend';
   } else if (day.isWeekend) {
     dayType = 'weekend';
   }
@@ -64,7 +66,7 @@ const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean)
  * Renders a single calendar day with appropriate styling and tooltip
  */
 const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
-  const { date, tooltipText, bgClass, textClass, isCurrentDay } = dayInfo;
+  const { date, tooltipText, bgClass, textClass, isCurrentDay, dayType } = dayInfo;
   
   const colorScheme = getDayColorScheme(day, date, isCurrentDay);
 
@@ -75,8 +77,10 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
           'absolute inset-0.5 rounded-md',
           bgClass,
           isCurrentDay && 'ring-2 ring-blue-400 dark:ring-blue-500 shadow-sm',
-          // Integrate break styles directly here with minimal effect
-          day.isPartOfBreak && !isCurrentDay && 'ring-1 ring-indigo-300/40 dark:ring-indigo-400/30 ring-dashed'
+          // Apply dashed ring for regular break days
+          day.isPartOfBreak && dayType !== 'extendedWeekend' && !isCurrentDay && 'ring-1 ring-indigo-300/40 dark:ring-indigo-400/30 ring-dashed',
+          // Apply solid ring for extended weekends
+          dayType === 'extendedWeekend' && !isCurrentDay && 'ring-1 ring-purple-400/70 dark:ring-purple-400/50'
         )}
       />
 
@@ -86,8 +90,8 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
             'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
             textClass,
             tooltipText && 'cursor-help',
-            // Very subtle text emphasis
-            day.isPartOfBreak && 'text-indigo-700 dark:text-indigo-300',
+            // Very subtle text emphasis for break days
+            day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700 dark:text-indigo-300'
           )}>
             {format(date, 'd')}
           </div>
@@ -205,7 +209,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
         dayType = 'publicHoliday';
         tooltipText = day.publicHolidayName || 'Public Holiday';
       } else if (dayTypeFlags.hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) {
-        dayType = 'weekend';
+        dayType = 'extendedWeekend';
         tooltipText = 'Extended Weekend';
       } else if (dayTypeFlags.hasCTODays && day.isCTO) {
         dayType = 'cto';

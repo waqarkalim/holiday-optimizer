@@ -174,7 +174,7 @@ const DayVisualization = ({ days }: DayVisualizationProps) => {
           const description = getDayDescription(day);
 
           // Determine height based on day type for visual hierarchy
-          const heightClass = 'h-1.5';
+          const heightClass = 'h-2';
 
           return (
             <Tooltip key={day.date}>
