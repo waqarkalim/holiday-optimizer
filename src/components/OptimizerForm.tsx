@@ -47,8 +47,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             Design Your Dream Year
           </CardTitle>
           <CardDescription>
-            In just 4 simple steps, we&apos;ll help you create the perfect balance of work and life, maximizing every
-            day off.
+            Just 3 essential steps to optimize your time off, with an optional 4th to fine-tune your perfect work-life balance.
           </CardDescription>
         </CardHeader>
 

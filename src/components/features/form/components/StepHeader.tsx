@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils';
+import { ReactNode } from 'react';
 
 interface StepHeaderProps {
   number: number;
-  title: string;
+  title: ReactNode;
   description: string;
   colorScheme: 'teal' | 'blue' | 'amber' | 'violet';
   id?: string;
