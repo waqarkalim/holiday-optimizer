@@ -39,6 +39,7 @@ export const CalendarView = ({ stats, optimizedDays }: CalendarViewProps) => {
         hasHolidays={stats.totalPublicHolidays > 0}
         hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
         hasExtendedWeekends={stats.totalExtendedWeekends > 0}
+        hasWeekends={true}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
