@@ -182,7 +182,7 @@ const DayVisualization = ({ days }: DayVisualizationProps) => {
                 {/* Day bar with color based on day type */}
                 <div
                   className={cn(
-                    'flex-1 rounded-sm relative group cursor-pointer',
+                    'flex-1 rounded-sm relative group cursor-help',
                     // Color mapping based on color scheme
                     COLOR_SCHEMES[colorScheme].calendar.bg,
                     heightClass,

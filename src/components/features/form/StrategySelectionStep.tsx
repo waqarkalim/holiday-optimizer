@@ -1,4 +1,4 @@
-import { Coffee, Palmtree, Shuffle, Star, Sunrise } from 'lucide-react';
+import { Coffee, Palmtree, Shuffle, Star, Sunrise, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { OptimizationStrategy } from '@/types';
@@ -6,6 +6,7 @@ import { KeyboardEvent } from 'react';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useStrategySelection } from '@/hooks/useOptimizer';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 
 // Update the icons type to match strategy IDs
 const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
@@ -47,11 +48,35 @@ export function StrategySelectionStep() {
     }
   };
 
+  // Custom title with info icon tooltip
+  const titleWithInfo = (
+    <div className="flex items-center justify-between w-full">
+      <span>Pick Your Perfect Style</span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="rounded-full p-1 hover:bg-blue-100/70 dark:hover:bg-blue-900/40 cursor-help transition-colors">
+            <Info className="h-3.5 w-3.5 text-blue-500/70 dark:text-blue-400/70" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right" align="start" className="max-w-xs bg-blue-50/95 dark:bg-blue-900/90 border-blue-100 dark:border-blue-800/40 text-blue-900 dark:text-blue-100">
+          <div className="space-y-2 p-1">
+            <h4 className="font-medium text-blue-800 dark:text-blue-300 text-sm">About Optimization Styles</h4>
+            <p className="text-xs text-blue-700/90 dark:text-blue-300/90 leading-relaxed">
+              Your optimization style determines how your PTO days will be distributed throughout the year. 
+              Choose based on your personal preferences - whether you enjoy frequent short breaks, 
+              longer weekends, or extended vacations. Each style creates a different pattern of time off.
+            </p>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+
   return (
     <FormSection colorScheme="blue" headingId="strategy-heading">
       <StepHeader
         number={2}
-        title="Pick Your Perfect Style"
+        title={titleWithInfo}
         description="Choose how you'd like to enjoy your time off. Each style is designed to match different preferences."
         colorScheme="blue"
         id="strategy-heading"
