@@ -216,7 +216,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       } else if (day.isWeekend) {
         // Regular weekend
         dayType = 'weekend';
-        tooltipText = 'Weekend';
+        tooltipText = 'Normal Weekend';
       }
     }
 

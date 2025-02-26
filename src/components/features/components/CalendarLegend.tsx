@@ -86,13 +86,13 @@ export function CalendarLegend({
     },
     hasWeekends && !hasExtendedWeekends && {
       dayType: 'weekend',
-      label: "Weekend",
+      label: "Normal Weekend",
       priority: 5
     },
     // If both regular and extended weekends exist, show both
     hasWeekends && hasExtendedWeekends && {
       dayType: 'weekend',
-      label: "Weekend",
+      label: "Normal Weekend",
       priority: 5
     }
   ].filter((item): item is LegendItemProps => Boolean(item));
