@@ -628,6 +628,12 @@ describe('OptimizerForm Integration Tests', () => {
         expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
         expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
         expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(12);
+        
+        // Check if collapse all exists and expand all button does not exist
+        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
+        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
+        expect(collapseAllButton).toBeInTheDocument();
+        expect(expandAllButton).not.toBeInTheDocument();
       });
 
       // Click collapse button for first group
@@ -640,6 +646,12 @@ describe('OptimizerForm Integration Tests', () => {
         expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
         expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
         expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(10);
+        
+        // Check if collapse all exists and expand all button does not exist
+        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
+        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
+        expect(collapseAllButton).toBeInTheDocument();
+        expect(expandAllButton).not.toBeInTheDocument();
       });
 
       // Click collapse button for second group
@@ -652,6 +664,12 @@ describe('OptimizerForm Integration Tests', () => {
         expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
         expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
         expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(7);
+        
+        // Check if collapse all exists and expand all button does not exist
+        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
+        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
+        expect(collapseAllButton).toBeInTheDocument();
+        expect(expandAllButton).not.toBeInTheDocument();
       });
 
       // Click collapse button for second group
@@ -664,6 +682,44 @@ describe('OptimizerForm Integration Tests', () => {
         expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
         expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(1);
         expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(3);
+        
+        // Check if collapse all exists and expand all button does not exist
+        const collapseAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /collapse all/i });
+        const expandAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i });
+        expect(collapseAllButton).not.toBeInTheDocument();
+        expect(expandAllButton).toBeInTheDocument();
+      });
+
+      await user.click(within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i }))
+
+      await waitFor(() => {
+        expect(getAllGroupListItems()).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
+        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
+        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(12);
+
+        // Check if collapse all exists and expand all button does not exist
+        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
+        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
+        expect(collapseAllButton).toBeInTheDocument();
+        expect(expandAllButton).not.toBeInTheDocument();
+      });
+
+      await user.click(within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i }))
+
+      await waitFor(() => {
+        expect(getAllGroupListItems()).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(3);
+
+        // Check if collapse all exists and expand all button does not exist
+        const collapseAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /collapse all/i });
+        const expandAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i });
+        expect(collapseAllButton).not.toBeInTheDocument();
+        expect(expandAllButton).toBeInTheDocument();
       });
     });
   });
