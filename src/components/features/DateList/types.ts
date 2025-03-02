@@ -45,6 +45,7 @@ export interface DateListItemProps {
 }
 
 export interface ListHeaderProps {
+  id: string;
   title: string;
   itemCount: number;
   colorScheme: 'amber' | 'violet';

@@ -1,7 +1,7 @@
 ---
 description: The ultimate one
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 You're helping a frontend developer who uses:
 - TypeScript and React 19 (functional components only)

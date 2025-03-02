@@ -122,6 +122,9 @@ export function DateList({
 
   if (items.length === 0) return null;
 
+  // Create a valid ID for aria-labelledby
+  const headingId = `${title.toLowerCase().replace(/\s+/g, '-')}-list-heading`;
+
   return (
     <ColorStylesContext.Provider value={colorStyles[colorScheme]}>
       <motion.section
@@ -136,9 +139,10 @@ export function DateList({
           colorStyles[colorScheme].container,
           colorStyles[colorScheme].border,
         )}
-        aria-labelledby={`${title.toLowerCase()}-list-heading`}
+        aria-labelledby={headingId}
       >
         <ListHeader
+          id={headingId}
           title={title}
           itemCount={items.length}
           colorScheme={colorScheme}

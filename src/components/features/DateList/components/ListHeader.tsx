@@ -5,6 +5,7 @@ import { ListHeaderProps } from '../types';
 import { colorStyles } from '../constants/styles';
 
 export function ListHeader({
+  id,
   title,
   itemCount,
   colorScheme,
@@ -26,8 +27,8 @@ export function ListHeader({
             <Calendar className={cn('h-4 w-4', colorStyles[colorScheme].accent)} aria-hidden="true" />
           </div>
           <div>
-            <h3 
-              id={`${title.toLowerCase()}-list-heading`}
+            <h3
+              id={id}
               className={cn('text-sm font-medium leading-none mb-1', colorStyles[colorScheme].text)}
             >
               {title}

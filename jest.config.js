@@ -23,6 +23,10 @@ const customJestConfig = {
     '!src/app/layout.tsx',
     '!src/**/*.config.js',
   ],
+  // Transform ESM modules
+  transformIgnorePatterns: [
+    '/node_modules/(?!.*\\.mjs$|lucide-react)',
+  ]
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
