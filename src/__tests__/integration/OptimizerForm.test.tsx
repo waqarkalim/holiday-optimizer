@@ -499,10 +499,6 @@ describe('OptimizerForm Integration Tests', () => {
       const companyDaysCalendar = getCompanyCalendar();
       await selectDateInCalendar(companyDaysCalendar, 0);
 
-      // Get the holiday date list
-      const holidaysDateList = getHolidaysDateList();
-      const companyDaysDateList = getCompanyDaysDateList();
-
       // Verify both lists have correct items
       await waitFor(() => {
         expect(within(getHolidaysDateList()).getAllByRole('listitem')).toHaveLength(2);
@@ -522,7 +518,7 @@ describe('OptimizerForm Integration Tests', () => {
       });
 
       await waitFor(() => {
-        expect(within(companyDaysDateList).getAllByRole('listitem')).toHaveLength(1);
+        expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1);
       });
     });
 
@@ -615,7 +611,7 @@ describe('OptimizerForm Integration Tests', () => {
       });
 
       // Test empty form submission (should be disabled)
-      await user.clear(within(getDaysInputSection()).getByRole('spinbutton'));
+      await clearDaysInput()
       expect(submitButton).toBeDisabled();
 
       // Attempt to submit the form with a disabled button (this should do nothing)
@@ -770,21 +766,17 @@ describe('OptimizerForm Integration Tests', () => {
       await user.click(findHolidaysButton);
 
       // Verify holidays are added by checking the list
-      const holidaysDateList = getHolidaysDateList();
       await waitFor(() => {
         expect(require('sonner').toast.success).toHaveBeenCalled();
       });
 
       // Add a company day
       const companyCalendar = getCompanyCalendar();
-      const companyDateCells = findEnabledDaysInCalendar(companyCalendar);
-      await user.click(companyDateCells[0]);
+      await selectDateInCalendar(companyCalendar);
 
       // Verify company day is added
-      const companyDaysDateList = getCompanyDaysDateList();
       await waitFor(() => {
-        const companyItems = within(companyDaysDateList).getAllByRole('listitem');
-        expect(companyItems.length).toBeGreaterThan(0);
+        expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1)
       });
 
       // Submit the form
