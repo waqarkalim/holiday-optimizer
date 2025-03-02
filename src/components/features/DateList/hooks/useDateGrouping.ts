@@ -16,7 +16,9 @@ export function useDateGrouping(items: DateItem[], showBulkManagement: boolean, 
         if (existingGroup) {
           existingGroup.dates.push(item);
         } else {
-          groups.push({ name: groupKey, dates: [item], isDefaultNamed });
+          // Create a new date for the first day of the month
+          const firstDayOfMonth = new Date(itemDate.getFullYear(), itemDate.getMonth(), 1);
+          groups.push({ name: groupKey, dates: [item], isDefaultNamed, groupKeyTimestamp: firstDayOfMonth.getTime() });
         }
         return groups;
       }, [])
@@ -28,8 +30,7 @@ export function useDateGrouping(items: DateItem[], showBulkManagement: boolean, 
         )
       }))
       .sort((a, b) => {
-        if (a.isDefaultNamed !== b.isDefaultNamed) return a.isDefaultNamed ? 1 : -1;
-        return b.dates.length - a.dates.length;
+        return a.groupKeyTimestamp - b.groupKeyTimestamp;
       });
   }, [items, showBulkManagement, isBulkMode]);
 } 

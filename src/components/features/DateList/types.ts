@@ -10,6 +10,7 @@ export interface GroupedDates {
   name: string;
   dates: DateItem[];
   isDefaultNamed?: boolean;
+  groupKeyTimestamp: number;
 }
 
 export interface DateListProps {

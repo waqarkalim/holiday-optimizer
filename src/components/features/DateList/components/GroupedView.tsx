@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, parse } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import { GroupedViewProps } from '../types';
 import { colorStyles } from '../constants/styles';
@@ -42,6 +42,7 @@ export function GroupedView({
     });
   }, [groupedDates, selectedDates]);
 
+
   return (
     <>
       {groupedDates.map(({ name, dates, isDefaultNamed }) => {
@@ -49,12 +50,14 @@ export function GroupedView({
         const allSelected = dates.every(d => selectedDates.includes(d.date));
         const someSelected = dates.some(d => selectedDates.includes(d.date));
         const selectedCount = dates.filter(d => selectedDates.includes(d.date)).length;
+        const groupId = `${name.toLowerCase().replace(/\s+/g, '-')}-group-id`
 
         return (
           <motion.li
             key={name + (isDefaultNamed ? '-month' : '-name')}
             {...ANIMATION_CONFIG}
             className={colorStyles[colorScheme].hover}
+            aria-labelledby={groupId}
           >
             <motion.div
               className={cn(
@@ -89,7 +92,7 @@ export function GroupedView({
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className={cn('text-sm font-medium', colorStyles[colorScheme].text)}>
+                  <span id={groupId} className={cn('text-sm font-medium', colorStyles[colorScheme].text)}>
                     {isDefaultNamed ? `Dates in ${name}` : name}
                   </span>
                   {someSelected && (
@@ -120,6 +123,7 @@ export function GroupedView({
                   'h-6 w-6 p-0',
                   colorStyles[colorScheme].hover,
                 )}
+                aria-label={isCollapsed ? 'Expand group' : 'Collapse group'}
               >
                 {isCollapsed ? (
                   <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />

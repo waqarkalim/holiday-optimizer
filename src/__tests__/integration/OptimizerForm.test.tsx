@@ -179,8 +179,23 @@ describe('OptimizerForm Integration Tests', () => {
   // Helper functions for selecting days
   const selectDateInCalendar = async (calendarRegion: HTMLElement, index = 0) => {
     const dayButtons = findEnabledDaysInCalendar(calendarRegion);
-    await user.click(dayButtons[index]);
-    return dayButtons[index];
+
+    for (let i = 0; i < dayButtons.length; i++) {
+      if (dayButtons[i].textContent == (index + 1).toString()) {
+        await user.click(dayButtons[i]);
+        return;
+      }
+    }
+  };
+  
+  const goToNextMonthInCalendar = async (calendarRegion: HTMLElement) => {
+    const btn = within(calendarRegion).getByRole('button', { name: /Go to next month/i });
+    await user.click(btn);
+  };
+
+  const goToPreviousMonthInCalendar = async (calendarRegion: HTMLElement) => {
+    const btn = within(calendarRegion).getByRole('button', { name: /Previous month/i });
+    await user.click(btn);
   };
 
   // Helper functions for finding edit and remove buttons
@@ -548,6 +563,109 @@ describe('OptimizerForm Integration Tests', () => {
       expect(companyTooltip.textContent).toBeTruthy();
       await user.unhover(companyInfoIcon);
     });
+
+    it('should properly group dates and allow collapsing/expanding groups', async () => {
+      const getGroupListItemByLabelText = (labelText: string) => {
+        return within(getCompanyDaysDateList()).getByRole('listitem', { name: labelText });
+      };
+
+      const getAllGroupListItems = () => {
+        return within(getCompanyDaysDateList()).getAllByRole('listitem', { name: /dates in .+/i });
+      };
+
+      // Fill in days to enable all form sections
+      await fillDaysInput('10');
+
+      const holidayCalendar = getHolidaysCalendar();
+      const companyCalendar = getCompanyCalendar();
+
+
+      // Select a date in current month
+      await selectDateInCalendar(holidayCalendar, 0);
+
+      // Go to next month and select another date
+      await goToNextMonthInCalendar(holidayCalendar);
+
+      await selectDateInCalendar(holidayCalendar, 0);
+
+      // Go to another month and select a third date
+      await goToNextMonthInCalendar(holidayCalendar);
+
+      await selectDateInCalendar(holidayCalendar, 0);
+
+      // Verify that we have at least 3 dates selected
+      await waitFor(() => {
+        expect(within(getHolidaysDateList()).getAllByRole('listitem')).toHaveLength(3);
+      });
+
+      // Select two dates in current month
+      await selectDateInCalendar(companyCalendar, 0);
+      await selectDateInCalendar(companyCalendar, 1);
+
+      // Go to next month and select three dates
+      await goToNextMonthInCalendar(companyCalendar);
+
+      await selectDateInCalendar(companyCalendar, 0);
+      await selectDateInCalendar(companyCalendar, 1);
+      await selectDateInCalendar(companyCalendar, 2);
+
+      // Go to another month and select a four dates
+      await goToNextMonthInCalendar(companyCalendar);
+
+      await selectDateInCalendar(companyCalendar, 0);
+      await selectDateInCalendar(companyCalendar, 1);
+      await selectDateInCalendar(companyCalendar, 2);
+      await selectDateInCalendar(companyCalendar, 3);
+
+      expect(getAllGroupListItems()[0]).toHaveTextContent('Dates in March 2025');
+      expect(getAllGroupListItems()[1]).toHaveTextContent('Dates in April 2025');
+      expect(getAllGroupListItems()[2]).toHaveTextContent('Dates in May 2025');
+
+      // Verify that we have at least 3 dates selected
+      await waitFor(() => {
+        expect(getAllGroupListItems()).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
+        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
+        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(12);
+      });
+
+      // Click collapse button for first group
+      await user.click(within(within(getCompanyDaysDateList()).getByRole('listitem', { name: 'Dates in March 2025' })).getByRole('button', { name: /collapse group/i }));
+
+      // Verify that we have at least 3 dates selected
+      await waitFor(() => {
+        expect(getAllGroupListItems()).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
+        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
+        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(10);
+      });
+
+      // Click collapse button for second group
+      await user.click(within(within(getCompanyDaysDateList()).getByRole('listitem', { name: 'Dates in April 2025' })).getByRole('button', { name: /collapse group/i }));
+
+      // Verify that we have at least 3 dates selected
+      await waitFor(() => {
+        expect(getAllGroupListItems()).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
+        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(7);
+      });
+
+      // Click collapse button for second group
+      await user.click(within(within(getCompanyDaysDateList()).getByRole('listitem', { name: 'Dates in May 2025' })).getByRole('button', { name: /collapse group/i }));
+
+      // Verify that we have at least 3 dates selected
+      await waitFor(() => {
+        expect(getAllGroupListItems()).toHaveLength(3);
+        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(1);
+        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(3);
+      });
+    });
   });
 
   // Form submission tests
@@ -611,7 +729,7 @@ describe('OptimizerForm Integration Tests', () => {
       });
 
       // Test empty form submission (should be disabled)
-      await clearDaysInput()
+      await clearDaysInput();
       expect(submitButton).toBeDisabled();
 
       // Attempt to submit the form with a disabled button (this should do nothing)
@@ -714,38 +832,38 @@ describe('OptimizerForm Integration Tests', () => {
 
       // Clear individual sections
       // Clear holidays using the Clear All button
-      const holidayClearButton = findClearButton(getHolidaysDateList())
+      const holidayClearButton = findClearButton(getHolidaysDateList());
       await user.click(holidayClearButton);
 
       // Verify holidays are cleared
       await waitFor(() => {
-        expect(within(getHolidaysSection()).queryByRole('region', { name: /selected holidays/i })).not.toBeInTheDocument()
+        expect(within(getHolidaysSection()).queryByRole('region', { name: /selected holidays/i })).not.toBeInTheDocument();
       });
 
       // Verify company days remain unaffected
-      expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1)
+      expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1);
 
       // Add another holiday
-      await selectDateInCalendar(holidaysCalendar, 1)
+      await selectDateInCalendar(holidaysCalendar, 1);
 
       // Clear days input to reset form
-      await clearDaysInput()
+      await clearDaysInput();
 
       // Verify submit button is disabled
       const submitButton = screen.getByRole('button', { name: /Create My Perfect Schedule/i });
       expect(submitButton).toBeDisabled();
 
       // Add days back and verify dates are still maintained
-      await fillDaysInput('15')
+      await fillDaysInput('15');
 
       // The holiday we added should still be there
       await waitFor(() => {
-        expect(within(getHolidaysDateList()).getAllByRole('listitem')).toHaveLength(1)
+        expect(within(getHolidaysDateList()).getAllByRole('listitem')).toHaveLength(1);
       });
 
       // The company days we added should still be there
       await waitFor(() => {
-        expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1)
+        expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1);
       });
     });
 
@@ -776,7 +894,7 @@ describe('OptimizerForm Integration Tests', () => {
 
       // Verify company day is added
       await waitFor(() => {
-        expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1)
+        expect(within(getCompanyDaysDateList()).getAllByRole('listitem')).toHaveLength(1);
       });
 
       // Submit the form
