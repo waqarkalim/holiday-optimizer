@@ -187,7 +187,7 @@ describe('OptimizerForm Integration Tests', () => {
       }
     }
   };
-  
+
   const goToNextMonthInCalendar = async (calendarRegion: HTMLElement) => {
     const btn = within(calendarRegion).getByRole('button', { name: /Go to next month/i });
     await user.click(btn);
@@ -565,161 +565,199 @@ describe('OptimizerForm Integration Tests', () => {
     });
 
     it('should properly group dates and allow collapsing/expanding groups', async () => {
-      const getGroupListItemByLabelText = (labelText: string) => {
-        return within(getCompanyDaysDateList()).getByRole('listitem', { name: labelText });
+      // Helper functions for better readability and maintainability
+      const getGroupListItemByLabelText = (labelText: string) =>
+        within(getCompanyDaysDateList()).getByRole('listitem', { name: labelText });
+
+      const getAllGroupListItems = () =>
+        within(getCompanyDaysDateList()).getAllByRole('listitem', { name: /dates in .+/i });
+
+      const getCheckboxesInGroup = (groupLabelText: string) =>
+        within(getGroupListItemByLabelText(groupLabelText)).getAllByRole('checkbox');
+
+      const getTotalCheckboxes = () =>
+        within(getCompanyDaysDateList()).getAllByRole('checkbox');
+
+      const getCollapseAllButton = () => within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
+      const queryCollapseAllButton = () => within(getCompanyDaysDateList()).queryByRole('button', { name: /collapse all/i });
+
+      const getExpandAllButton = () => within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i });
+      const queryExpandAllButton = () => within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
+
+      const collapseGroup = async (groupLabelText: string) => {
+        const group = getGroupListItemByLabelText(groupLabelText);
+        const collapseButton = within(group).getByRole('button', { name: /collapse group/i });
+        await user.click(collapseButton);
       };
 
-      const getAllGroupListItems = () => {
-        return within(getCompanyDaysDateList()).getAllByRole('listitem', { name: /dates in .+/i });
-      };
+      const getRenameTextbox = () => within(getCompanyDaysSection()).getByRole('textbox');
+      const queryRenameTextbox = () => within(getCompanyDaysSection()).queryByRole('textbox');
+      const getRenameButton = () => within(getCompanyDaysSection()).getByRole('button', { name: /rename.+/i });
+      const getCancelRenameButton = () => within(getCompanyDaysSection()).getByRole('button', { name: /cancel rename/i });
+      const queryCancelRenameButton = () => within(getCompanyDaysSection()).queryByRole('button', { name: /cancel rename/i });
+      const getConfirmRenameButton = () => within(getCompanyDaysSection()).getByRole('button', { name: /confirm rename/i });
+      const queryConfirmRenameButton = () => within(getCompanyDaysSection()).queryByRole('button', { name: /confirm rename/i });
 
-      // Fill in days to enable all form sections
+
+      // Setup test data
       await fillDaysInput('10');
 
       const holidayCalendar = getHolidaysCalendar();
       const companyCalendar = getCompanyCalendar();
 
-
-      // Select a date in current month
+      // Add holiday dates across three months
       await selectDateInCalendar(holidayCalendar, 0);
 
-      // Go to next month and select another date
       await goToNextMonthInCalendar(holidayCalendar);
-
       await selectDateInCalendar(holidayCalendar, 0);
 
-      // Go to another month and select a third date
       await goToNextMonthInCalendar(holidayCalendar);
-
       await selectDateInCalendar(holidayCalendar, 0);
 
-      // Verify that we have at least 3 dates selected
+      // Verify holiday dates were added
       await waitFor(() => {
         expect(within(getHolidaysDateList()).getAllByRole('listitem')).toHaveLength(3);
       });
 
-      // Select two dates in current month
+      // Add company dates across three months
+      // Month 1: 2 dates
       await selectDateInCalendar(companyCalendar, 0);
       await selectDateInCalendar(companyCalendar, 1);
 
-      // Go to next month and select three dates
+      // Month 2: 3 dates
       await goToNextMonthInCalendar(companyCalendar);
-
       await selectDateInCalendar(companyCalendar, 0);
       await selectDateInCalendar(companyCalendar, 1);
       await selectDateInCalendar(companyCalendar, 2);
 
-      // Go to another month and select a four dates
+      // Month 3: 4 dates
       await goToNextMonthInCalendar(companyCalendar);
-
       await selectDateInCalendar(companyCalendar, 0);
       await selectDateInCalendar(companyCalendar, 1);
       await selectDateInCalendar(companyCalendar, 2);
       await selectDateInCalendar(companyCalendar, 3);
 
-      expect(getAllGroupListItems()[0]).toHaveTextContent('Dates in March 2025');
-      expect(getAllGroupListItems()[1]).toHaveTextContent('Dates in April 2025');
-      expect(getAllGroupListItems()[2]).toHaveTextContent('Dates in May 2025');
-
-      // Verify that we have at least 3 dates selected
+      // Verify initial state with all groups expanded
       await waitFor(() => {
-        expect(getAllGroupListItems()).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
-        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
-        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(12);
-        
-        // Check if collapse all exists and expand all button does not exist
-        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
-        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
-        expect(collapseAllButton).toBeInTheDocument();
-        expect(expandAllButton).not.toBeInTheDocument();
+        const groups = getAllGroupListItems();
+        expect(groups).toHaveLength(3);
+        expect(groups[0]).toHaveTextContent('Dates in March 2025');
+        expect(groups[1]).toHaveTextContent('Dates in April 2025');
+        expect(groups[2]).toHaveTextContent('Dates in May 2025');
+
+        expect(getCheckboxesInGroup('Dates in March 2025')).toHaveLength(3);
+        expect(getCheckboxesInGroup('Dates in April 2025')).toHaveLength(4);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(5);
+        expect(getTotalCheckboxes()).toHaveLength(12);
+
+        expect(getCollapseAllButton()).toBeInTheDocument();
+        expect(queryExpandAllButton()).not.toBeInTheDocument();
       });
 
-      // Click collapse button for first group
-      await user.click(within(within(getCompanyDaysDateList()).getByRole('listitem', { name: 'Dates in March 2025' })).getByRole('button', { name: /collapse group/i }));
+      // Test collapsing individual groups
+      await collapseGroup('Dates in March 2025');
 
-      // Verify that we have at least 3 dates selected
       await waitFor(() => {
-        expect(getAllGroupListItems()).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
-        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
-        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(10);
-        
-        // Check if collapse all exists and expand all button does not exist
-        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
-        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
-        expect(collapseAllButton).toBeInTheDocument();
-        expect(expandAllButton).not.toBeInTheDocument();
+        expect(getCheckboxesInGroup('Dates in March 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in April 2025')).toHaveLength(4);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(5);
+        expect(getTotalCheckboxes()).toHaveLength(10);
+
+        expect(getCollapseAllButton()).toBeInTheDocument();
+        expect(queryExpandAllButton()).not.toBeInTheDocument();
       });
 
-      // Click collapse button for second group
-      await user.click(within(within(getCompanyDaysDateList()).getByRole('listitem', { name: 'Dates in April 2025' })).getByRole('button', { name: /collapse group/i }));
+      await collapseGroup('Dates in April 2025');
 
-      // Verify that we have at least 3 dates selected
       await waitFor(() => {
-        expect(getAllGroupListItems()).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
-        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(7);
-        
-        // Check if collapse all exists and expand all button does not exist
-        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
-        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
-        expect(collapseAllButton).toBeInTheDocument();
-        expect(expandAllButton).not.toBeInTheDocument();
+        expect(getCheckboxesInGroup('Dates in March 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in April 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(5);
+        expect(getTotalCheckboxes()).toHaveLength(7);
+
+        expect(getCollapseAllButton()).toBeInTheDocument();
+        expect(queryExpandAllButton()).not.toBeInTheDocument();
       });
 
-      // Click collapse button for second group
-      await user.click(within(within(getCompanyDaysDateList()).getByRole('listitem', { name: 'Dates in May 2025' })).getByRole('button', { name: /collapse group/i }));
+      await collapseGroup('Dates in May 2025');
 
-      // Verify that we have at least 3 dates selected
       await waitFor(() => {
-        expect(getAllGroupListItems()).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(3);
-        
-        // Check if collapse all exists and expand all button does not exist
-        const collapseAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /collapse all/i });
-        const expandAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i });
-        expect(collapseAllButton).not.toBeInTheDocument();
-        expect(expandAllButton).toBeInTheDocument();
+        expect(getCheckboxesInGroup('Dates in March 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in April 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(1);
+        expect(getTotalCheckboxes()).toHaveLength(3);
+
+        expect(queryCollapseAllButton()).not.toBeInTheDocument();
+        expect(getExpandAllButton()).toBeInTheDocument();
       });
 
-      await user.click(within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i }))
+      // Test expand all functionality
+      await user.click(getExpandAllButton());
 
       await waitFor(() => {
-        expect(getAllGroupListItems()).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(4);
-        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(5);
-        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(12);
+        expect(getCheckboxesInGroup('Dates in March 2025')).toHaveLength(3);
+        expect(getCheckboxesInGroup('Dates in April 2025')).toHaveLength(4);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(5);
+        expect(getTotalCheckboxes()).toHaveLength(12);
 
-        // Check if collapse all exists and expand all button does not exist
-        const collapseAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i });
-        const expandAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /expand all/i });
-        expect(collapseAllButton).toBeInTheDocument();
-        expect(expandAllButton).not.toBeInTheDocument();
+        expect(getCollapseAllButton()).toBeInTheDocument();
+        expect(queryExpandAllButton()).not.toBeInTheDocument();
       });
 
-      await user.click(within(getCompanyDaysDateList()).getByRole('button', { name: /collapse all/i }))
+      // Test collapse all functionality
+      await user.click(getCollapseAllButton()!);
 
       await waitFor(() => {
-        expect(getAllGroupListItems()).toHaveLength(3);
-        expect(within(getGroupListItemByLabelText('Dates in March 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in April 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getGroupListItemByLabelText('Dates in May 2025')).getAllByRole('checkbox')).toHaveLength(1);
-        expect(within(getCompanyDaysDateList()).getAllByRole('checkbox')).toHaveLength(3);
+        expect(getCheckboxesInGroup('Dates in March 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in April 2025')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(1);
+        expect(getTotalCheckboxes()).toHaveLength(3);
 
-        // Check if collapse all exists and expand all button does not exist
-        const collapseAllButton = within(getCompanyDaysDateList()).queryByRole('button', { name: /collapse all/i });
-        const expandAllButton = within(getCompanyDaysDateList()).getByRole('button', { name: /expand all/i });
-        expect(collapseAllButton).not.toBeInTheDocument();
-        expect(expandAllButton).toBeInTheDocument();
+        expect(queryCollapseAllButton()).not.toBeInTheDocument();
+        expect(getExpandAllButton()).toBeInTheDocument();
+      });
+
+      await user.click(getExpandAllButton());
+
+      await user.click(getCheckboxesInGroup('Dates in March 2025')[0]);
+      await user.click(getCheckboxesInGroup('Dates in April 2025')[0]);
+
+      await user.click(getRenameButton());
+      await user.clear(getRenameTextbox());
+      await user.type(getRenameTextbox(), 'Test Group Name');
+
+      await user.click(getCancelRenameButton());
+
+      expect(queryRenameTextbox()).not.toBeInTheDocument();
+      expect(queryCancelRenameButton()).not.toBeInTheDocument();
+      expect(queryConfirmRenameButton()).not.toBeInTheDocument();
+
+      await user.click(getRenameButton());
+      await user.clear(getRenameTextbox());
+      await user.type(getRenameTextbox(), 'Test Group Name');
+
+      await user.click(getConfirmRenameButton());
+
+      await waitFor(() => {
+        expect(getCheckboxesInGroup('Test Group Name')).toHaveLength(1);
+        expect(getCheckboxesInGroup('Dates in May 2025')).toHaveLength(5);
+        expect(getTotalCheckboxes()).toHaveLength(6);
+
+        expect(getCollapseAllButton()).toBeInTheDocument();
+        expect(queryExpandAllButton()).not.toBeInTheDocument();
+      });
+
+      await user.click(getCheckboxesInGroup('Dates in May 2025')[0]);
+
+      await user.click(getRenameButton());
+      await user.clear(getRenameTextbox());
+      await user.type(getRenameTextbox(), 'Test Group Name');
+
+      await user.click(getConfirmRenameButton());
+
+      await waitFor(() => {
+        expect(getCheckboxesInGroup('Test Group Name')).toHaveLength(1);
+        expect(getTotalCheckboxes()).toHaveLength(1);
       });
     });
   });
