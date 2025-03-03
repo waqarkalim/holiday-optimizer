@@ -6,6 +6,7 @@ import { OptimizerForm } from '@/components/OptimizerForm';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { toast } from 'sonner';
 
 // Mock window.scrollTo since it's not implemented in jsdom
 window.scrollTo = jest.fn();
@@ -28,43 +29,43 @@ Object.defineProperty(window, 'matchMedia', {
 // We need to mock icons since they're SVG components that Jest can't render
 // but we're NOT mocking any actual child components of OptimizerForm
 jest.mock('lucide-react', () => ({
-  CalendarClock: (props: any) => <div data-testid="calendar-clock-icon" {...props} />,
-  Calendar: (props: any) => <div data-testid="calendar-icon" {...props} />,
-  ChevronsUpDown: (props: any) => <div data-testid="chevrons-up-down-icon" {...props} />,
-  Check: (props: any) => <div data-testid="check-icon" {...props} />,
-  ChevronLeft: (props: any) => <div data-testid="chevron-left-icon" {...props} />,
-  ChevronRight: (props: any) => <div data-testid="chevron-right-icon" {...props} />,
-  MessageSquare: (props: any) => <div data-testid="message-square-icon" {...props} />,
-  Sparkles: (props: any) => <div data-testid="sparkles-icon" {...props} />,
-  Info: (props: any) => <div data-testid="info-icon" {...props} />,
-  Plus: (props: any) => <div data-testid="plus-icon" {...props} />,
-  X: (props: any) => <div data-testid="x-icon" {...props} />,
-  ChevronDown: (props: any) => <div data-testid="chevron-down-icon" {...props} />,
-  LayoutDashboard: (props: any) => <div data-testid="layout-dashboard-icon" {...props} />,
-  CalendarDays: (props: any) => <div data-testid="calendar-days-icon" {...props} />,
-  Filter: (props: any) => <div data-testid="filter-icon" {...props} />,
-  MoreHorizontal: (props: any) => <div data-testid="more-horizontal-icon" {...props} />,
-  Columns: (props: any) => <div data-testid="columns-icon" {...props} />,
-  List: (props: any) => <div data-testid="list-icon" {...props} />,
-  Palmtree: (props: any) => <div data-testid="palmtree-icon" {...props} />,
-  Coffee: (props: any) => <div data-testid="coffee-icon" {...props} />,
-  Shuffle: (props: any) => <div data-testid="shuffle-icon" {...props} />,
-  Star: (props: any) => <div data-testid="star-icon" {...props} />,
-  Sunrise: (props: any) => <div data-testid="sunrise-icon" {...props} />,
-  MapPin: (props: any) => <div data-testid="map-pin-icon" {...props} />,
-  Trash: (props: any) => <div data-testid="trash-icon" {...props} />,
-  Trash2: (props: any) => <div data-testid="trash2-icon" {...props} />,
-  Pen: (props: any) => <div data-testid="pen-icon" {...props} />,
-  Pencil: (props: any) => <div data-testid="pencil-icon" {...props} />,
-  Sun: (props: any) => <div data-testid="sun-icon" {...props} />,
-  Moon: (props: any) => <div data-testid="moon-icon" {...props} />,
-  ChevronUp: (props: any) => <div data-testid="chevron-up-icon" {...props} />,
-  Loader2: (props: any) => <div data-testid="loader2-icon" {...props} />,
-  MoreVertical: (props: any) => <div data-testid="more-vertical-icon" {...props} />,
-  MinusCircle: (props: any) => <div data-testid="minus-circle-icon" {...props} />,
-  AlertCircle: (props: any) => <div data-testid="alert-circle-icon" {...props} />,
-  Save: (props: any) => <div data-testid="save-icon" {...props} />,
-  ArrowRight: (props: any) => <div data-testid="arrow-right-icon" {...props} />,
+  CalendarClock: () => <div data-testid="calendar-clock-icon" />,
+  Calendar: () => <div data-testid="calendar-icon" />,
+  ChevronsUpDown: () => <div data-testid="chevrons-up-down-icon" />,
+  Check: () => <div data-testid="check-icon" />,
+  ChevronLeft: () => <div data-testid="chevron-left-icon" />,
+  ChevronRight: () => <div data-testid="chevron-right-icon" />,
+  MessageSquare: () => <div data-testid="message-square-icon" />,
+  Sparkles: () => <div data-testid="sparkles-icon" />,
+  Info: () => <div data-testid="info-icon" />,
+  Plus: () => <div data-testid="plus-icon" />,
+  X: () => <div data-testid="x-icon" />,
+  ChevronDown: () => <div data-testid="chevron-down-icon" />,
+  LayoutDashboard: () => <div data-testid="layout-dashboard-icon" />,
+  CalendarDays: () => <div data-testid="calendar-days-icon" />,
+  Filter: () => <div data-testid="filter-icon" />,
+  MoreHorizontal: () => <div data-testid="more-horizontal-icon" />,
+  Columns: () => <div data-testid="columns-icon" />,
+  List: () => <div data-testid="list-icon" />,
+  Palmtree: () => <div data-testid="palmtree-icon" />,
+  Coffee: () => <div data-testid="coffee-icon" />,
+  Shuffle: () => <div data-testid="shuffle-icon" />,
+  Star: () => <div data-testid="star-icon" />,
+  Sunrise: () => <div data-testid="sunrise-icon" />,
+  MapPin: () => <div data-testid="map-pin-icon" />,
+  Trash: () => <div data-testid="trash-icon" />,
+  Trash2: () => <div data-testid="trash2-icon" />,
+  Pen: () => <div data-testid="pen-icon" />,
+  Pencil: () => <div data-testid="pencil-icon" />,
+  Sun: () => <div data-testid="sun-icon" />,
+  Moon: () => <div data-testid="moon-icon" />,
+  ChevronUp: () => <div data-testid="chevron-up-icon" />,
+  Loader2: () => <div data-testid="loader2-icon" />,
+  MoreVertical: () => <div data-testid="more-vertical-icon" />,
+  MinusCircle: () => <div data-testid="minus-circle-icon" />,
+  AlertCircle: () => <div data-testid="alert-circle-icon" />,
+  Save: () => <div data-testid="save-icon" />,
+  ArrowRight: () => <div data-testid="arrow-right-icon" />,
 }));
 
 // Mock useLocalStorage hook
@@ -193,30 +194,7 @@ describe('OptimizerForm Integration Tests', () => {
     await user.click(btn);
   };
 
-  const goToPreviousMonthInCalendar = async (calendarRegion: HTMLElement) => {
-    const btn = within(calendarRegion).getByRole('button', { name: /Previous month/i });
-    await user.click(btn);
-  };
-
-  // Helper functions for finding edit and remove buttons
-  const findEditButton = (container: HTMLElement) => {
-    // Try to find by aria-label first - but be more specific to avoid multiple matches
-    const editButtons = within(container).queryAllByRole('button', { name: /edit name/i });
-    if (editButtons.length === 1) return editButtons[0];
-
-    // If we have multiple edit buttons, get the first one
-    if (editButtons.length > 1) return editButtons[0];
-
-    // Try to find by pencil icon
-    const pencilIcon = within(container).queryByTestId('pencil-icon');
-    if (pencilIcon) {
-      // Get the closest button to the pencil icon
-      return pencilIcon.closest('button');
-    }
-
-    return null;
-  };
-
+  // Helper functions for finding remove button
   const findRemoveButton = (container: HTMLElement) => {
     // Try to find by aria-label first
     return within(container).getByRole('button', { name: /remove.+/i });
@@ -497,7 +475,7 @@ describe('OptimizerForm Integration Tests', () => {
 
       // Should show a success toast
       await waitFor(() => {
-        expect(require('sonner').toast.success).toHaveBeenCalled();
+        expect(toast.success).toHaveBeenCalled();
       });
     });
 
@@ -979,7 +957,7 @@ describe('OptimizerForm Integration Tests', () => {
 
       // Verify holidays are added by checking the list
       await waitFor(() => {
-        expect(require('sonner').toast.success).toHaveBeenCalled();
+        expect(toast.success).toHaveBeenCalled();
       });
 
       // Add a company day
