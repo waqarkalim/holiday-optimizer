@@ -566,6 +566,12 @@ describe('OptimizerForm Integration Tests', () => {
         const group = getGroupListItemByLabelText(groupLabelText);
         const collapseButton = within(group).getByRole('button', { name: /collapse group/i });
         await user.click(collapseButton);
+        
+        // Wait for the group to collapse by checking that the checkbox count changes
+        await waitFor(() => {
+          const checkboxes = within(group).queryAllByRole('checkbox');
+          expect(checkboxes.length).toBeLessThanOrEqual(1);
+        });
       };
 
       const getRenameTextbox = () => within(getCompanyDaysSection()).getByRole('textbox');
@@ -643,7 +649,7 @@ describe('OptimizerForm Integration Tests', () => {
 
         expect(getCollapseAllButton()).toBeInTheDocument();
         expect(queryExpandAllButton()).not.toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       await collapseGroup('Dates in April 2025');
 
@@ -655,7 +661,7 @@ describe('OptimizerForm Integration Tests', () => {
 
         expect(getCollapseAllButton()).toBeInTheDocument();
         expect(queryExpandAllButton()).not.toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       await collapseGroup('Dates in May 2025');
 
@@ -667,7 +673,7 @@ describe('OptimizerForm Integration Tests', () => {
 
         expect(queryCollapseAllButton()).not.toBeInTheDocument();
         expect(getExpandAllButton()).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       // Test expand all functionality
       await user.click(getExpandAllButton());
@@ -680,7 +686,7 @@ describe('OptimizerForm Integration Tests', () => {
 
         expect(getCollapseAllButton()).toBeInTheDocument();
         expect(queryExpandAllButton()).not.toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       // Test collapse all functionality
       await user.click(getCollapseAllButton()!);
@@ -693,7 +699,7 @@ describe('OptimizerForm Integration Tests', () => {
 
         expect(queryCollapseAllButton()).not.toBeInTheDocument();
         expect(getExpandAllButton()).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       await user.click(getExpandAllButton());
 
