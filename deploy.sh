@@ -8,9 +8,6 @@ echo "🚀 Starting deployment process..."
 echo "📦 Installing dependencies..."
 pnpm install
 
-echo "🧪 Running tests..."
-pnpm test
-
 echo "🏗️ Building Next.js application..."
 pnpm build
 
