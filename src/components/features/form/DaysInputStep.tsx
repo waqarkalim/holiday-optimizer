@@ -9,7 +9,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 export function DaysInputStep() {
   const { days, errors, setDays } = useDaysInput();
 
-  // Custom title with info icon tooltip
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setDays(e.target.value);
+
+  // Info tooltip for additional context
   const titleWithInfo = (
     <div className="flex items-center justify-between w-full">
       <span>Start with Your Days</span>
@@ -19,7 +21,11 @@ export function DaysInputStep() {
             <Info className="h-3.5 w-3.5 text-teal-500/70 dark:text-teal-400/70" />
           </div>
         </TooltipTrigger>
-        <TooltipContent side="right" align="start" className="max-w-xs bg-teal-50/95 dark:bg-teal-900/90 border-teal-100 dark:border-teal-800/40 text-teal-900 dark:text-teal-100">
+        <TooltipContent 
+          side="right" 
+          align="start" 
+          className="max-w-xs bg-teal-50/95 dark:bg-teal-900/90 border-teal-100 dark:border-teal-800/40 text-teal-900 dark:text-teal-100"
+        >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-teal-800 dark:text-teal-300 text-sm">About Your PTO Days</h4>
             <p className="text-xs text-teal-700/90 dark:text-teal-300/90 leading-relaxed">
@@ -31,6 +37,17 @@ export function DaysInputStep() {
         </TooltipContent>
       </Tooltip>
     </div>
+  );
+
+  const inputClasses = cn(
+    'max-w-[160px] h-9',
+    'bg-white dark:bg-gray-900',
+    'border-teal-200 dark:border-teal-800',
+    'focus:border-teal-400 dark:focus:border-teal-600',
+    'text-sm font-medium text-teal-900 dark:text-teal-100',
+    'placeholder:text-teal-400 dark:placeholder:text-teal-500',
+    'transition-colors duration-200',
+    errors && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
   );
 
   return (
@@ -55,17 +72,8 @@ export function DaysInputStep() {
           min={1}
           max={365}
           value={days}
-          onChange={(e) => setDays(e.target.value)}
-          className={cn(
-            'max-w-[160px] h-9',
-            'bg-white dark:bg-gray-900',
-            'border-teal-200 dark:border-teal-800',
-            'focus:border-teal-400 dark:focus:border-teal-600',
-            'text-sm font-medium text-teal-900 dark:text-teal-100',
-            'placeholder:text-teal-400 dark:placeholder:text-teal-500',
-            'transition-colors duration-200',
-            errors && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
-          )}
+          onChange={handleChange}
+          className={inputClasses}
           placeholder="Enter days"
           required
           aria-describedby="days-description days-error"

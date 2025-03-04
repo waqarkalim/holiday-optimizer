@@ -10,14 +10,14 @@ import { FormSection } from './components/FormSection';
 import { useStrategySelection } from '@/hooks/useOptimizer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Update the icons type to match strategy IDs
-const STRATEGY_ICONS: Record<OptimizationStrategy, typeof Shuffle> = {
+// Map strategy IDs to their respective icons
+const STRATEGY_ICONS = {
   balanced: Shuffle,
   miniBreaks: Star,
   longWeekends: Coffee,
   weekLongBreaks: Sunrise,
   extendedVacations: Palmtree,
-};
+} as const;
 
 export function StrategySelectionStep() {
   const { strategy, setStrategy } = useStrategySelection();
@@ -26,35 +26,29 @@ export function StrategySelectionStep() {
     const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy);
     const lastIndex = OPTIMIZATION_STRATEGIES.length - 1;
 
-    switch (e.key) {
-      case 'ArrowUp':
-      case 'ArrowLeft': {
-        e.preventDefault();
-        const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
-        const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex];
-        setStrategy(prevStrategy.id);
-        if (typeof window !== 'undefined') {
-          const radioInput = document.querySelector<HTMLInputElement>(`input[value="${prevStrategy.id}"]`);
-          radioInput?.focus();
-        }
-        break;
-      }
-      case 'ArrowDown':
-      case 'ArrowRight': {
-        e.preventDefault();
-        const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
-        const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex];
-        setStrategy(nextStrategy.id);
-        if (typeof window !== 'undefined') {
-          const radioInput = document.querySelector<HTMLInputElement>(`input[value="${nextStrategy.id}"]`);
-          radioInput?.focus();
-        }
-        break;
-      }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prevIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
+      const prevStrategy = OPTIMIZATION_STRATEGIES[prevIndex];
+      setStrategy(prevStrategy.id);
+      focusStrategyRadio(prevStrategy.id);
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
+      const nextStrategy = OPTIMIZATION_STRATEGIES[nextIndex];
+      setStrategy(nextStrategy.id);
+      focusStrategyRadio(nextStrategy.id);
     }
   };
 
-  // Custom title with info icon tooltip
+  const focusStrategyRadio = (strategyId: string) => {
+    if (typeof window !== 'undefined') {
+      const radioInput = document.querySelector<HTMLInputElement>(`input[value="${strategyId}"]`);
+      radioInput?.focus();
+    }
+  };
+
+  // Info tooltip for strategy selection
   const titleWithInfo = (
     <div className="flex items-center justify-between w-full">
       <span>Pick Your Perfect Style</span>
@@ -95,8 +89,9 @@ export function StrategySelectionStep() {
         onKeyDown={handleStrategyKeyDown}
       >
         {OPTIMIZATION_STRATEGIES.map((strategyOption, index) => {
-          const Icon = STRATEGY_ICONS[strategyOption.id];
+          const Icon = STRATEGY_ICONS[strategyOption.id as OptimizationStrategy];
           const isSelected = strategy === strategyOption.id;
+          const isFirstOption = index === 0;
 
           return (
             <label
@@ -115,7 +110,7 @@ export function StrategySelectionStep() {
                 value={strategyOption.id}
                 checked={isSelected}
                 className="sr-only"
-                tabIndex={isSelected || (index === 0 && !strategy) ? 0 : -1}
+                tabIndex={isSelected || (isFirstOption && !strategy) ? 0 : -1}
                 onChange={() => setStrategy(strategyOption.id)}
               />
               <div className="flex items-start gap-3 w-full">
@@ -133,8 +128,7 @@ export function StrategySelectionStep() {
                       {strategyOption.label}
                     </p>
                     {strategyOption.id === 'balanced' && (
-                      <span
-                        className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                      <span className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
                         Recommended
                       </span>
                     )}

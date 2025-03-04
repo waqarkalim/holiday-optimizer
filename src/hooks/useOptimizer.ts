@@ -1,8 +1,13 @@
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { OptimizationStrategy } from '@/types';
 
+/**
+ * Hook for managing days input in the optimizer form
+ * Provides access to days state and methods to update it
+ */
 export function useDaysInput() {
   const { state, dispatch } = useOptimizer();
+  
   return {
     days: state.days,
     errors: state.errors.days,
@@ -10,16 +15,27 @@ export function useDaysInput() {
   };
 }
 
+/**
+ * Hook for managing strategy selection in the optimizer form
+ * Provides access to strategy state and methods to update it
+ */
 export function useStrategySelection() {
   const { state, dispatch } = useOptimizer();
+  
   return {
     strategy: state.strategy,
-    setStrategy: (value: OptimizationStrategy) => dispatch({ type: 'SET_STRATEGY', payload: value }),
+    setStrategy: (value: OptimizationStrategy) => 
+      dispatch({ type: 'SET_STRATEGY', payload: value }),
   };
 }
 
+/**
+ * Hook for managing holidays in the optimizer form
+ * Provides access to holidays state and methods to update it
+ */
 export function useHolidays() {
   const { state, dispatch } = useOptimizer();
+  
   return {
     holidays: state.holidays,
     errors: state.errors.holiday,
@@ -27,7 +43,8 @@ export function useHolidays() {
       dispatch({ type: 'ADD_HOLIDAY', payload: { date, name } }),
     removeHoliday: (date: string) => 
       dispatch({ type: 'REMOVE_HOLIDAY', payload: date }),
-    clearHolidays: () => dispatch({ type: 'CLEAR_HOLIDAYS' }),
+    clearHolidays: () => 
+      dispatch({ type: 'CLEAR_HOLIDAYS' }),
     setHolidays: (holidays: Array<{ date: string, name: string }>) => 
       dispatch({ type: 'SET_HOLIDAYS', payload: holidays }),
     setDetectedHolidays: (holidays: Array<{ date: string, name: string }>) => 
@@ -35,8 +52,13 @@ export function useHolidays() {
   };
 }
 
+/**
+ * Hook for managing company days in the optimizer form
+ * Provides access to company days state and methods to update it
+ */
 export function useCompanyDays() {
   const { state, dispatch } = useOptimizer();
+  
   return {
     companyDaysOff: state.companyDaysOff,
     errors: state.errors.companyDay,
@@ -44,7 +66,8 @@ export function useCompanyDays() {
       dispatch({ type: 'ADD_COMPANY_DAY', payload: { date, name } }),
     removeCompanyDay: (date: string) => 
       dispatch({ type: 'REMOVE_COMPANY_DAY', payload: date }),
-    clearCompanyDays: () => dispatch({ type: 'CLEAR_COMPANY_DAYS' }),
+    clearCompanyDays: () => 
+      dispatch({ type: 'CLEAR_COMPANY_DAYS' }),
     setCompanyDays: (days: Array<{ date: string, name: string }>) => 
       dispatch({ type: 'SET_COMPANY_DAYS', payload: days }),
   };

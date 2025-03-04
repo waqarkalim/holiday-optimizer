@@ -22,7 +22,15 @@ export function CompanyDaysStep() {
     }
   };
 
-  // Custom title with badge and info icon
+  const handleUpdateCompanyDayName = (date: string, newName: string) => {
+    addCompanyDay(date, newName);
+  };
+
+  const handleBulkRename = (dates: string[], newName: string) => {
+    dates.forEach(date => addCompanyDay(date, newName));
+  };
+
+  // Title with badge and info tooltip
   const titleWithBadge = (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-2">
@@ -43,7 +51,11 @@ export function CompanyDaysStep() {
             <Info className="h-3.5 w-3.5 text-violet-500/70 dark:text-violet-400/70" />
           </div>
         </TooltipTrigger>
-        <TooltipContent side="right" align="start" className="max-w-xs bg-violet-50/95 dark:bg-violet-900/90 border-violet-100 dark:border-violet-800/40 text-violet-900 dark:text-violet-100">
+        <TooltipContent 
+          side="right" 
+          align="start" 
+          className="max-w-xs bg-violet-50/95 dark:bg-violet-900/90 border-violet-100 dark:border-violet-800/40 text-violet-900 dark:text-violet-100"
+        >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-violet-800 dark:text-violet-300 text-sm">About Company Days Off</h4>
             <p className="text-xs text-violet-700/90 dark:text-violet-300/90 leading-relaxed">
@@ -58,6 +70,8 @@ export function CompanyDaysStep() {
     </div>
   );
 
+  const selectedDates = companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
+
   return (
     <FormSection colorScheme="violet" headingId="company-days-heading">
       <StepHeader
@@ -69,29 +83,21 @@ export function CompanyDaysStep() {
       />
 
       <div className="space-y-6" role="group" aria-labelledby="company-days-heading">
-        {/* Calendar Selection */}
         <MonthCalendarSelector
           id="company-days-calendar"
-          selectedDates={companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()))}
+          selectedDates={selectedDates}
           onDateSelect={handleCompanyDaySelect}
           colorScheme="violet"
         />
 
-        {/* Selected Company Days List */}
         <DateList
           items={companyDaysOff}
           title="Selected Company Days"
           colorScheme="violet"
-          onRemove={(date: string) => removeCompanyDay(date)}
+          onRemove={removeCompanyDay}
           onClearAll={clearCompanyDays}
-          onUpdateName={(date: string, newName: string) => {
-            addCompanyDay(date, newName);
-          }}
-          onBulkRename={(dates: string[], newName: string) => {
-            dates.forEach(date => {
-              addCompanyDay(date, newName);
-            });
-          }}
+          onUpdateName={handleUpdateCompanyDayName}
+          onBulkRename={handleBulkRename}
           showBulkManagement={true}
           isBulkMode={true}
         />
