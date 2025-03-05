@@ -5,7 +5,7 @@ import { format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { DateItem } from '../types';
 import { colorStyles } from '../constants/styles';
-import { KeyboardEvent, useRef } from 'react';
+import { useRef } from 'react';
 import { useDateList } from '../context/DateListContext';
 
 interface DateListItemProps {
@@ -15,114 +15,36 @@ interface DateListItemProps {
 export function DateListItem({ item }: DateListItemProps) {
   const {
     editingDate,
-    setEditingDate,
     editingValue,
-    onUpdateNameAction: onUpdateName,
-    onRemoveAction: onRemove,
     colorScheme,
-    handleKeyDown,
-    startEditing,
-    handleBlur,
     setEditingValue,
+    startEditing,
+    cancelEdit,
+    confirmEdit,
+    onRemoveAction,
   } = useDateList();
 
+  // Only keep the input ref which is needed for autofocus
   const inputRef = useRef<HTMLInputElement>(null);
-  const editButtonRef = useRef<HTMLButtonElement>(null);
-  const removeButtonRef = useRef<HTMLButtonElement>(null);
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Common handlers for shared patterns
-  const handleEnterOrSpace = (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>, action: () => void) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      action();
-      return true;
-    }
-    return false;
-  };
+  // Format the date for display and accessibility
+  const formattedDate = format(
+    parse(item.date, 'yyyy-MM-dd', new Date()),
+    'MMMM d, yyyy',
+  );
 
-  const focusEditButton = () => setTimeout(() => editButtonRef.current?.focus(), 0);
+  // Determine if we're in edit mode for this item
+  const isEditing = editingDate === item.date;
 
-  const handleEscape = (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>) => {
+  // Handle keyboard events for edit mode
+  const handleEditModeKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       e.preventDefault();
-      setEditingDate(null);
-      focusEditButton();
-      return true;
-    }
-    return false;
-  };
-
-  // Simplified key handlers using the common functions
-  const handleEditKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (handleEnterOrSpace(e, () => startEditing(item.date, item.name))) {
-      return;
-    }
-    // Forward other key events to the common handler
-    handleKeyDown(e, item.date);
-  };
-
-  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Tab' && !e.shiftKey) {
-      // Move to cancel button when Tab is pressed
+      cancelEdit();
+    } else if (e.key === 'Enter') {
       e.preventDefault();
-      cancelButtonRef.current?.focus();
-      return;
+      confirmEdit(item.date);
     }
-    // Handle other keys with the common handler
-    handleKeyDown(e, item.date);
-  };
-
-  const handleCancelKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (handleEnterOrSpace(e, () => {
-      setEditingDate(null);
-      focusEditButton();
-    })) {
-      return;
-    }
-    
-    if (handleEscape(e)) return;
-    
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      if (e.shiftKey) {
-        // If tabbing backward, move to input field
-        inputRef.current?.focus();
-      } else {
-        // If tabbing forward, move to confirm button
-        confirmButtonRef.current?.focus();
-      }
-    }
-  };
-
-  const handleConfirmKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (handleEnterOrSpace(e, () => {
-      if (editingDate !== null && onUpdateName) {
-        onUpdateName(item.date, editingValue.trim());
-        setEditingDate(null);
-        focusEditButton();
-      }
-    })) {
-      return;
-    }
-    
-    if (handleEscape(e)) return;
-    
-    if (e.key === 'Tab' && e.shiftKey) {
-      // If tabbing backward, move to cancel button
-      e.preventDefault();
-      cancelButtonRef.current?.focus();
-    }
-    // Allow default Tab behavior to exit the component
-  };
-
-  const handleRemoveKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (handleEnterOrSpace(e, () => onRemove(item.date))) {
-      return;
-    }
-    // Forward other key events to the common handler
-    handleKeyDown(e, item.date);
   };
 
   return (
@@ -132,48 +54,36 @@ export function DateListItem({ item }: DateListItemProps) {
         'border-t',
         colorStyles[colorScheme].divider,
         colorStyles[colorScheme].hover,
-        'transition-colors duration-200'
+        'transition-colors duration-200',
       )}
       data-date={item.date}
     >
       <div className="flex items-center gap-3 px-3 py-2">
         <div className="flex-1 min-w-0">
-          {editingDate === item.date ? (
-            <div className="flex items-center gap-1.5">
+          {isEditing ? (
+            <div
+              className="flex items-center gap-1.5"
+            >
               <Input
                 ref={inputRef}
                 autoFocus
                 value={editingValue}
                 onChange={(e) => setEditingValue(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                onBlur={(e) => {
-                  // Only trigger blur if we're not focusing one of our buttons
-                  if (
-                    e.relatedTarget !== cancelButtonRef.current && 
-                    e.relatedTarget !== confirmButtonRef.current
-                  ) {
-                    handleBlur();
-                  }
-                }}
+                onKeyDown={handleEditModeKeyDown}
                 className={cn(
                   'h-7 text-sm font-medium flex-1',
                   'bg-white dark:bg-gray-900',
                   colorStyles[colorScheme].input,
                   colorStyles[colorScheme].text,
                 )}
-                aria-label={`Edit name for ${format(parse(item.date, 'yyyy-MM-dd', new Date()), 'MMMM d, yyyy')}`}
+                aria-label={`Edit name for ${formattedDate}`}
               />
-              <div className="flex gap-1">
+              <div className="flex gap-1" role="group" aria-label="Edit actions">
                 <Button
-                  ref={cancelButtonRef}
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    setEditingDate(null);
-                    setTimeout(() => editButtonRef.current?.focus(), 0);
-                  }}
-                  onKeyDown={handleCancelKeyDown}
+                  onClick={cancelEdit}
                   className={cn(
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
@@ -181,7 +91,6 @@ export function DateListItem({ item }: DateListItemProps) {
                     'group',
                   )}
                   aria-label="Cancel edit"
-                  tabIndex={0}
                 >
                   <X className={cn(
                     'h-3.5 w-3.5',
@@ -190,15 +99,10 @@ export function DateListItem({ item }: DateListItemProps) {
                   )} />
                 </Button>
                 <Button
-                  ref={confirmButtonRef}
                   type="button"
+                  onClick={() => confirmEdit(item.date)}
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    handleBlur();
-                    setTimeout(() => editButtonRef.current?.focus(), 0);
-                  }}
-                  onKeyDown={handleConfirmKeyDown}
                   className={cn(
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
@@ -206,7 +110,6 @@ export function DateListItem({ item }: DateListItemProps) {
                     'group',
                   )}
                   aria-label="Confirm edit"
-                  tabIndex={0}
                 >
                   <Check className={cn(
                     'h-3.5 w-3.5',
@@ -225,53 +128,47 @@ export function DateListItem({ item }: DateListItemProps) {
                 )}>
                   {item.name}
                 </p>
-                {onUpdateName && (
-                  <Button
-                    ref={editButtonRef}
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => startEditing(item.date, item.name)}
-                    onKeyDown={handleEditKeyDown}
-                    className={cn(
-                      'h-6 w-6 p-0',
-                      'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
-                      'transition-all duration-200',
-                      colorStyles[colorScheme].hover,
-                      'hover:scale-110 active:scale-95',
-                    )}
-                    aria-label={`Edit name for ${item.name}`}
-                    tabIndex={0}
-                    data-date={item.date}
-                  >
-                    <Pencil className={cn(
-                      'h-3 w-3',
-                      colorStyles[colorScheme].accent,
-                    )} />
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => startEditing(item.date, item.name)}
+                  className={cn(
+                    'h-6 w-6 p-0',
+                    'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
+                    'transition-all duration-200',
+                    colorStyles[colorScheme].hover,
+                    'hover:scale-110 active:scale-95',
+                  )}
+                  aria-label={`Edit name for ${item.name}`}
+                  data-date={item.date}
+                  data-date-button
+                >
+                  <Pencil className={cn(
+                    'h-3 w-3',
+                    colorStyles[colorScheme].accent,
+                  )} />
+                </Button>
               </div>
-              <time 
+              <time
                 dateTime={item.date}
                 className={cn(
                   'block text-xs mt-0.5',
-                  colorStyles[colorScheme].muted
+                  colorStyles[colorScheme].muted,
                 )}
               >
-                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'MMMM d, yyyy')}
+                {formattedDate}
               </time>
             </>
           )}
         </div>
-        
+
         {/* Remove Button */}
         <Button
-          ref={removeButtonRef}
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => onRemove(item.date)}
-          onKeyDown={handleRemoveKeyDown}
+          onClick={() => onRemoveAction(item.date)}
           className={cn(
             'h-7 w-7 p-0',
             'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
@@ -280,7 +177,7 @@ export function DateListItem({ item }: DateListItemProps) {
             'group',
           )}
           aria-label={`Remove ${item.name}`}
-          tabIndex={0}
+          data-date-button
         >
           <X className={cn(
             'h-3.5 w-3.5',

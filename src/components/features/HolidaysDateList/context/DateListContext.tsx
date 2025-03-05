@@ -1,41 +1,49 @@
 'use client';
 
-import { KeyboardEvent as ReactKeyboardEvent, createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { DateItem } from '../types';
 
+// =============================================================================
+// TYPES
+// =============================================================================
+
+/**
+ * Simplified context API for the DateList component
+ */
 interface DateListContextProps {
-  // State
-  items: DateItem[];
-  colorScheme: 'amber' | 'violet';
-  title: string;
-  editingDate: string | null;
-  editingValue: string;
+  // ---- State ----
+  items: DateItem[];                              // List of date items
+  colorScheme: 'amber';                           // Color theme
+  title: string;                                  // Title of the list
+  editingDate: string | null;                     // Currently editing date or null
+  editingValue: string;                           // Current input value
+  itemCount: number;                              // Number of items
+  headingId: string;                              // Accessibility ID
   
-  // Actions
-  onRemoveAction: (date: string) => void;
-  onClearAllAction: () => void;
-  onUpdateNameAction?: (date: string, newName: string) => void;
+  // ---- Actions ----
+  onRemoveAction: (date: string) => void;         // Remove a date
+  onClearAllAction: () => void;                   // Clear all dates
+  onUpdateNameAction: (date: string, newName: string) => void; // Update name (optional)
   
-  // Derived state
-  itemCount: number;
-  headingId: string;
-  
-  // Handlers
-  setEditingDate: (date: string | null) => void;
-  setEditingValue: (value: string) => void;
-  cancelEdit: () => void;
-  confirmEdit: (date: string) => void;
-  navigateWithArrowKeys: (e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, currentIndex: number) => void;
-  handleEditingModeKeys: (e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, date: string) => void;
-  handleNormalModeKeys: (e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, date: string, index: number) => void;
-  handleKeyDown: (e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, date: string) => void;
-  startEditing: (date: string, currentName: string) => void;
-  handleBlur: () => void;
+  // ---- Edit Operations ----
+  startEditing: (date: string, currentName: string) => void; // Enter edit mode
+  cancelEdit: () => void;                         // Cancel editing
+  confirmEdit: (date: string) => void;            // Save changes
+  setEditingValue: (value: string) => void;       // Update input value
 }
 
-// Create context with a meaningful default value that throws when used outside provider
+// =============================================================================
+// CONTEXT CREATION
+// =============================================================================
+
+/**
+ * Context for DateList functionality
+ */
 const DateListContext = createContext<DateListContextProps | null>(null);
 
+/**
+ * Hook to access DateList context
+ */
 export function useDateList() {
   const context = useContext(DateListContext);
   if (!context) {
@@ -44,16 +52,30 @@ export function useDateList() {
   return context;
 }
 
+// =============================================================================
+// PROVIDER PROPS
+// =============================================================================
+
+/**
+ * Props for the DateListProvider component
+ */
 export interface DateListProviderProps {
-  items: DateItem[];
-  title: string;
-  colorScheme: 'amber' | 'violet';
-  onRemoveAction: (date: string) => void;
-  onClearAllAction: () => void;
-  onUpdateNameAction?: (date: string, newName: string) => void;
-  children: React.ReactNode;
+  items: DateItem[];                // List of date items
+  title: string;                    // List title
+  colorScheme: 'amber';             // Color theme
+  onRemoveAction: (date: string) => void;        // Remove handler
+  onClearAllAction: () => void;                  // Clear all handler
+  onUpdateNameAction: (date: string, newName: string) => void; // Rename handler (optional)
+  children: React.ReactNode;        // Child components
 }
 
+// =============================================================================
+// PROVIDER COMPONENT
+// =============================================================================
+
+/**
+ * Provider component for DateList context
+ */
 export function DateListProvider({
   items,
   title,
@@ -61,133 +83,78 @@ export function DateListProvider({
   onRemoveAction,
   onClearAllAction,
   onUpdateNameAction,
-  children,
+  children
 }: DateListProviderProps) {
-  // Local state
+  // =========================================================================
+  // STATE
+  // =========================================================================
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
-
+  
   // Derived state
   const itemCount = items.length;
-  const headingId = `${title.toLowerCase().replace(/\s+/g, '-')}-list-heading`;
-
-  // Cancel the current edit
-  const cancelEdit = useCallback(() => {
+  const headingId = `holiday-list-heading-${title.toLowerCase().replace(/\s+/g, '-')}`;
+  
+  // =========================================================================
+  // EDIT OPERATIONS
+  // =========================================================================
+  
+  /**
+   * Cancel the current edit
+   */
+  const cancelEdit = () => {
     setEditingDate(null);
-  }, []);
+    setEditingValue('');
+  }
 
-  // Confirm the edit
-  const confirmEdit = useCallback((date: string) => {
-    if (onUpdateNameAction) {
+  /**
+   * Save the current edit
+   */
+  const confirmEdit = (date: string) => {
+    if (editingValue.trim()) {
       onUpdateNameAction(date, editingValue.trim());
-      cancelEdit();
     }
-  }, [editingValue, onUpdateNameAction, cancelEdit]);
+    cancelEdit();
+  }
   
-  // Handle arrow key navigation between items
-  const navigateWithArrowKeys = useCallback((
-    e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>,
-    currentIndex: number
-  ) => {
-    e.preventDefault();
-    const targetIndex = e.key === 'ArrowUp' ? currentIndex - 1 : currentIndex + 1;
-    const targetDate = items[targetIndex]?.date;
-    
-    if (targetDate && typeof window !== 'undefined') {
-      const targetButton = document.querySelector(`[data-date="${targetDate}"]`) as HTMLButtonElement;
-      targetButton?.focus();
-    }
-  }, [items]);
-
-  // Handle keys when in editing mode
-  const handleEditingModeKeys = useCallback((
-    e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, 
-    date: string
-  ) => {
-    if (e.key === 'Enter' && onUpdateNameAction) {
-      e.preventDefault();
-      confirmEdit(date);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      cancelEdit();
-    }
-  }, [confirmEdit, cancelEdit, onUpdateNameAction]);
-  
-  // Handle keys when not in editing mode
-  const handleNormalModeKeys = useCallback((
-    e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, 
-    date: string,
-    index: number
-  ) => {
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      onRemoveAction(date);
-    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      navigateWithArrowKeys(e, index);
-    }
-  }, [onRemoveAction, navigateWithArrowKeys]);
-
-  // Handle keyboard navigation and actions
-  const handleKeyDown = useCallback((
-    e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, 
-    date: string
-  ) => {
-    const index = items.findIndex(item => item.date === date);
-    if (index === -1) return;
-    
-    // While in editing mode
-    if (editingDate !== null) {
-      handleEditingModeKeys(e, date);
-      return;
-    }
-    
-    // Not in editing mode
-    handleNormalModeKeys(e, date, index);
-  }, [items, editingDate, handleEditingModeKeys, handleNormalModeKeys]);
-
-  // Start editing a date item
-  const startEditing = useCallback((date: string, currentName: string) => {
-    if (!onUpdateNameAction) return;
-    setEditingValue(currentName);
+  /**
+   * Start editing an item
+   */
+  const startEditing = (date: string, currentName: string) => {
     setEditingDate(date);
-  }, [onUpdateNameAction]);
-
-  // Handle blur event on edit fields
-  const handleBlur = useCallback(() => {
-    if (editingDate !== null && onUpdateNameAction) {
-      confirmEdit(editingDate);
-    }
-  }, [editingDate, confirmEdit, onUpdateNameAction]);
-
-  const contextValue = {
+    setEditingValue(currentName);
+  }
+  
+  // =========================================================================
+  // CONTEXT VALUE
+  // =========================================================================
+  
+  const contextValue: DateListContextProps = {
     // State
     items,
     colorScheme,
     title,
     editingDate,
     editingValue,
+    itemCount,
+    headingId,
     
     // Actions
     onRemoveAction,
     onClearAllAction,
     onUpdateNameAction,
     
-    // Derived state
-    itemCount,
-    headingId,
-    
-    // Handlers
-    setEditingDate,
-    setEditingValue,
+    // Edit operations
+    startEditing,
     cancelEdit,
     confirmEdit,
-    navigateWithArrowKeys,
-    handleEditingModeKeys,
-    handleNormalModeKeys,
-    handleKeyDown,
-    startEditing,
-    handleBlur,
+    setEditingValue,
   };
-
+  
+  // =========================================================================
+  // RENDER
+  // =========================================================================
+  
   return (
     <DateListContext.Provider value={contextValue}>
       {children}
