@@ -631,3 +631,5 @@ export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as con
 export const PROJECT_NAME = 'Holiday Planner';
 
 export const UMAMI_WEBSITE_ID = isProd() ? '7b755cde-abc3-42cd-a004-d0f012ec1757' : '89a9e611-e052-4f9a-aaea-754e67065d3f';
+
+export const GITHUB_URL = "https://github.com/waqarkalim/holiday-optimizer"

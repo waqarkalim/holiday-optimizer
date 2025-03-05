@@ -2,6 +2,7 @@ import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn, spacing } from '@/lib/utils';
 import { GitHubLink } from '@/components/ui/github-link';
+import { GITHUB_URL } from '@/constants';
 
 const Header = () => (
   <header className={cn(
@@ -18,14 +19,14 @@ const Header = () => (
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
           <GitHubLink
-            href="https://github.com/waqarkalim/holiday-optimizer"
+            href={GITHUB_URL}
             variant="default"
-            className="hidden sm:inline-flex hover:scale-[1.02] transition-transform"
+            className="hidden sm:inline-flex"
           />
           <GitHubLink
-            href="https://github.com/waqarkalim/holiday-optimizer"
+            href={GITHUB_URL}
             variant="compact"
-            className="sm:hidden hover:scale-[1.02] transition-transform"
+            className="sm:hidden"
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { PROJECT_NAME } from '@/constants';
+import { GITHUB_URL, PROJECT_NAME } from '@/constants';
 import { cn, linkStyles, spacing, textSize } from '@/lib/utils';
 import { GitHubLink } from '@/components/ui/github-link';
 
@@ -27,18 +27,15 @@ const Footer = () => (
           {/* Right Column - Links & Info */}
           <div className="flex flex-col items-start md:items-end space-y-3">
             <div className="flex items-center gap-3">
-              <GitHubLink
-                href="https://github.com/waqarkalim/holiday-optimizer"
-                className="hover:scale-[1.02] transition-transform"
-              />
+              <GitHubLink href={GITHUB_URL} />
               <a
-                href="https://github.com/waqarkalim/holiday-optimizer/issues"
+                href={`${GITHUB_URL}/issues`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
                   linkStyles('secondary'),
                   textSize('small'),
-                  'px-2.5 py-1.5 rounded-lg font-medium hover:scale-[1.02] transition-transform',
+                  'px-2.5 py-1.5 rounded-lg font-medium',
                 )}
                 aria-label="Report an issue on GitHub"
               >
