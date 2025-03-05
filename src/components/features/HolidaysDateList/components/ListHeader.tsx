@@ -32,7 +32,7 @@ export function ListHeader({
           </div>
         </div>
 
-        {/* Clear All - Always visible */}
+        {/* Clear All button - Individual operation, not bulk */}
         <Button
           type="button"
           variant="outline"

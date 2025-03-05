@@ -3,7 +3,6 @@ import { KeyboardEvent } from 'react';
 export interface DateItem {
   date: string;
   name: string;
-  alternateNames?: string[];
 }
 
 export interface DateListProps {

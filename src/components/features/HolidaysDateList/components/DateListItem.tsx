@@ -26,14 +26,35 @@ export function DateListItem({
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleEditKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+  // Common handlers for shared patterns
+  const handleEnterOrSpace = (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>, action: () => void) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      startEditing(item.date, item.name);
-    } else {
-      // Forward other key events to the common handler
-      handleKeyDown(e, item.date);
+      action();
+      return true;
     }
+    return false;
+  };
+
+  const focusEditButton = () => setTimeout(() => editButtonRef.current?.focus(), 0);
+
+  const handleEscape = (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setEditingDate(null);
+      focusEditButton();
+      return true;
+    }
+    return false;
+  };
+
+  // Simplified key handlers using the common functions
+  const handleEditKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (handleEnterOrSpace(e, () => startEditing(item.date, item.name))) {
+      return;
+    }
+    // Forward other key events to the common handler
+    handleKeyDown(e, item.date);
   };
 
   const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -41,64 +62,61 @@ export function DateListItem({
       // Move to cancel button when Tab is pressed
       e.preventDefault();
       cancelButtonRef.current?.focus();
-    } else {
-      // Handle other keys with the common handler
-      handleKeyDown(e, item.date);
+      return;
     }
+    // Handle other keys with the common handler
+    handleKeyDown(e, item.date);
   };
 
   const handleCancelKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
+    if (handleEnterOrSpace(e, () => {
       setEditingDate(null);
-      // Return focus to the edit button
-      setTimeout(() => editButtonRef.current?.focus(), 0);
-    } else if (e.key === 'Tab' && !e.shiftKey) {
-      // If tabbing forward, move to confirm button
+      focusEditButton();
+    })) {
+      return;
+    }
+    
+    if (handleEscape(e)) return;
+    
+    if (e.key === 'Tab') {
       e.preventDefault();
-      confirmButtonRef.current?.focus();
-    } else if (e.key === 'Tab' && e.shiftKey) {
-      // If tabbing backward, move to input field
-      e.preventDefault();
-      inputRef.current?.focus();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setEditingDate(null);
-      // Return focus to the edit button
-      setTimeout(() => editButtonRef.current?.focus(), 0);
+      if (e.shiftKey) {
+        // If tabbing backward, move to input field
+        inputRef.current?.focus();
+      } else {
+        // If tabbing forward, move to confirm button
+        confirmButtonRef.current?.focus();
+      }
     }
   };
 
   const handleConfirmKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
+    if (handleEnterOrSpace(e, () => {
       if (editingDate !== null && onUpdateName) {
         onUpdateName(item.date, editingValue.trim());
         setEditingDate(null);
-        // Return focus to the edit button
-        setTimeout(() => editButtonRef.current?.focus(), 0);
+        focusEditButton();
       }
-    } else if (e.key === 'Tab' && e.shiftKey) {
+    })) {
+      return;
+    }
+    
+    if (handleEscape(e)) return;
+    
+    if (e.key === 'Tab' && e.shiftKey) {
       // If tabbing backward, move to cancel button
       e.preventDefault();
       cancelButtonRef.current?.focus();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setEditingDate(null);
-      // Return focus to the edit button
-      setTimeout(() => editButtonRef.current?.focus(), 0);
     }
     // Allow default Tab behavior to exit the component
   };
 
   const handleRemoveKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onRemove(item.date);
-    } else {
-      // Forward other key events to the common handler
-      handleKeyDown(e, item.date);
+    if (handleEnterOrSpace(e, () => onRemove(item.date))) {
+      return;
     }
+    // Forward other key events to the common handler
+    handleKeyDown(e, item.date);
   };
 
   return (
@@ -110,6 +128,7 @@ export function DateListItem({
         colorStyles[colorScheme].hover,
         'transition-colors duration-200'
       )}
+      data-date={item.date}
     >
       <div className="flex items-center gap-3 px-3 py-2">
         <div className="flex-1 min-w-0">
@@ -217,6 +236,7 @@ export function DateListItem({
                     )}
                     aria-label={`Edit name for ${item.name}`}
                     tabIndex={0}
+                    data-date={item.date}
                   >
                     <Pencil className={cn(
                       'h-3 w-3',
@@ -232,11 +252,13 @@ export function DateListItem({
                   colorStyles[colorScheme].muted
                 )}
               >
-                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, MMMM d, yyyy')}
+                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'MMMM d, yyyy')}
               </time>
             </>
           )}
         </div>
+        
+        {/* Remove Button */}
         <Button
           ref={removeButtonRef}
           type="button"
@@ -248,33 +270,17 @@ export function DateListItem({
             'h-7 w-7 p-0',
             'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
             'transition-all duration-200',
-            'hover:scale-110 active:scale-95',
-            colorScheme === 'amber' ? [
-              'hover:bg-amber-100/70 dark:hover:bg-amber-900/30',
-              'hover:text-amber-600 dark:hover:text-amber-400',
-            ] : [
-              'hover:bg-violet-100/70 dark:hover:bg-violet-900/30',
-              'hover:text-violet-600 dark:hover:text-violet-400',
-            ],
-            'group/button',
+            colorStyles[colorScheme].hover,
+            'group',
           )}
-          tabIndex={0}
           aria-label={`Remove ${item.name}`}
-          data-date={item.date}
+          tabIndex={0}
         >
-          <X 
-            className={cn(
-              'h-3.5 w-3.5',
-              'transition-colors duration-200',
-              colorScheme === 'amber' ? [
-                'text-amber-500/60 dark:text-amber-400/60',
-                'group-hover/button:text-amber-600 dark:group-hover/button:text-amber-400',
-              ] : [
-                'text-violet-500/60 dark:text-violet-400/60',
-                'group-hover/button:text-violet-600 dark:group-hover/button:text-violet-400',
-              ],
-            )} 
-          />
+          <X className={cn(
+            'h-3.5 w-3.5',
+            colorStyles[colorScheme].accent,
+            'group-hover:text-red-500 dark:group-hover:text-red-400',
+          )} />
         </Button>
       </div>
     </div>

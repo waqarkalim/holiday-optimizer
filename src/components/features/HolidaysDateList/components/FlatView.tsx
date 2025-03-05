@@ -17,6 +17,7 @@ export function FlatView({
   handleBlur,
   setEditingValue,
 }: FlatViewProps) {
+  // Simple date sort without any bulk or grouping functionality
   const sortedItems = [...items].sort((a, b) =>
     parse(a.date, 'yyyy-MM-dd', new Date()).getTime() -
     parse(b.date, 'yyyy-MM-dd', new Date()).getTime()

@@ -39,14 +39,6 @@ export function HolidaysStep() {
     }
   };
 
-  const handleUpdateHolidayName = (date: string, newName: string) => {
-    addHoliday(date, newName);
-  };
-
-  const handleBulkRename = (dates: string[], newName: string) => {
-    dates.forEach(date => addHoliday(date, newName));
-  };
-
   // Info tooltip content
   const titleWithInfo = (
     <div className="flex items-center justify-between w-full">
@@ -116,9 +108,7 @@ export function HolidaysStep() {
             colorScheme="amber"
             onRemoveAction={removeHoliday}
             onClearAllAction={clearHolidays}
-            onUpdateName={handleUpdateHolidayName}
-            onBulkRename={handleBulkRename}
-            showBulkManagement={false}
+            onUpdateName={addHoliday}
           />
         </div>
       </div>
