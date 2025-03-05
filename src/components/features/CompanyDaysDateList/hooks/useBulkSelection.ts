@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { DateItem } from '../types';
 
 export function useBulkSelection(onBulkRename?: (dates: string[], newName: string) => void) {
@@ -6,7 +6,7 @@ export function useBulkSelection(onBulkRename?: (dates: string[], newName: strin
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
 
-  const handleBulkRename = useCallback((items: DateItem[]) => {
+  const handleBulkRename = (items: DateItem[]) => {
     if (!onBulkRename || selectedDates.length === 0) return;
     
     const selectedItems = items.filter(item => selectedDates.includes(item.date));
@@ -18,14 +18,14 @@ export function useBulkSelection(onBulkRename?: (dates: string[], newName: strin
     const commonName = Object.entries(nameCount).reduce((a, b) => (a[1] > b[1] ? a : b))[0];
     setEditingValue(commonName);
     setEditingDate('bulk');
-  }, [selectedDates, onBulkRename]);
+  }
 
-  const handleBulkRenameConfirm = useCallback(() => {
+  const handleBulkRenameConfirm = () => {
     if (!onBulkRename || selectedDates.length === 0) return;
     onBulkRename(selectedDates, editingValue.trim());
     setEditingDate(null);
     setSelectedDates([]);
-  }, [selectedDates, editingValue, onBulkRename]);
+  }
 
   return {
     selectedDates,

@@ -1,23 +1,28 @@
 import { Button } from '@/components/ui/button';
 import { Calendar, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ListHeaderProps } from '../types';
 import { colorStyles } from '../constants/styles';
+import { useDateList } from '../context/DateListContext';
 
-export function ListHeader({
-  id,
-  title,
-  itemCount,
-  colorScheme,
-  showBulkManagement,
-  isBulkMode,
-  selectedDates,
-  onBulkRename,
-  onClearAll,
-  groupedDates,
-  collapsedGroups,
-  setCollapsedGroups,
-}: ListHeaderProps) {
+export interface ListHeaderProps {
+  id: string;
+}
+
+export function ListHeader({ id }: ListHeaderProps) {
+  const {
+    title,
+    colorScheme,
+    items,
+    selectedDates,
+    groupedDates,
+    collapsedGroups,
+    handleBulkRename,
+    onClearAllAction,
+    setCollapsedGroups
+  } = useDateList();
+
+  const itemCount = items.length;
+
   return (
     <div className="mb-4 space-y-2">
       {/* Title and Count */}
@@ -44,7 +49,7 @@ export function ListHeader({
           type="button"
           variant="outline"
           size="sm"
-          onClick={onClearAll}
+          onClick={onClearAllAction}
           className={cn(
             'h-7 px-2.5 gap-1.5',
             'border transition-all duration-200',
@@ -64,88 +69,88 @@ export function ListHeader({
         </Button>
       </div>
 
-      {/* Bulk Management Controls */}
-      {showBulkManagement && isBulkMode && (
-        <div className="flex items-center gap-2">
-          {/* Rename Button - Always visible in bulk mode */}
+      {/* Bulk Management Controls - Always visible since bulk mode is always on */}
+      <div className="flex items-center gap-2">
+        {/* Rename Button */}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleBulkRename}
+          disabled={selectedDates.length === 0}
+          className={cn(
+            'h-7 px-2.5 gap-1.5',
+            'border transition-all duration-200',
+            colorStyles[colorScheme].border,
+            selectedDates.length > 0 && [
+              colorStyles[colorScheme].hover,
+              colorStyles[colorScheme].active,
+            ],
+            'hover:border-opacity-100',
+            'group',
+            'flex-1',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
+            'disabled:hover:bg-transparent',
+          )}
+          tabIndex={0}
+          aria-label={selectedDates.length > 0 
+            ? `Rename ${selectedDates.length} selected dates`
+            : 'Select dates to rename them'
+          }
+        >
+          <Pencil className={cn(
+            'h-3.5 w-3.5',
+            colorStyles[colorScheme].accent,
+            'opacity-50 group-hover:opacity-100 transition-opacity',
+            selectedDates.length === 0 && 'opacity-40 group-hover:opacity-40',
+          )} />
+          <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
+            {selectedDates.length > 0 ? `Rename ${selectedDates.length}` : 'Rename Selected'}
+          </span>
+        </Button>
+
+        {/* Expand/Collapse All - Only visible with multiple groups */}
+        {groupedDates.length > 1 && (
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={onBulkRename}
-            disabled={selectedDates.length === 0}
+            onClick={() => {
+              const allCollapsed = groupedDates.every(g => collapsedGroups.includes(g.name));
+              setCollapsedGroups(() => 
+                allCollapsed ? [] : groupedDates.map(g => g.name)
+              );
+            }}
             className={cn(
               'h-7 px-2.5 gap-1.5',
-              'border transition-all duration-200',
-              colorStyles[colorScheme].border,
-              selectedDates.length > 0 && [
-                colorStyles[colorScheme].hover,
-                colorStyles[colorScheme].active,
-              ],
-              'hover:border-opacity-100',
+              colorStyles[colorScheme].hover,
               'group',
-              'flex-1',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              'disabled:hover:bg-transparent',
+              'hidden sm:flex', // Hide on mobile to save space
             )}
             tabIndex={0}
-            aria-label={selectedDates.length > 0 
-              ? `Rename ${selectedDates.length} selected dates`
-              : 'Select dates to rename them'
+            aria-label={groupedDates.every(g => collapsedGroups.includes(g.name))
+              ? "Expand all groups"
+              : "Collapse all groups"
             }
           >
-            <Pencil className={cn(
-              'h-3.5 w-3.5',
-              colorStyles[colorScheme].accent,
-              'opacity-50 group-hover:opacity-100 transition-opacity',
-              selectedDates.length === 0 && 'opacity-40 group-hover:opacity-40',
-            )} />
-            <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
-              {selectedDates.length > 0 ? `Rename ${selectedDates.length}` : 'Rename Selected'}
-            </span>
+            {groupedDates.every(g => collapsedGroups.includes(g.name)) ? (
+              <>
+                <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
+                  Expand All
+                </span>
+              </>
+            ) : (
+              <>
+                <ChevronUp className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
+                <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
+                  Collapse All
+                </span>
+              </>
+            )}
           </Button>
-
-          {/* Expand/Collapse All - Only visible with multiple groups */}
-          {groupedDates.length > 1 && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const allCollapsed = groupedDates.every(g => collapsedGroups.includes(g.name));
-                setCollapsedGroups(allCollapsed ? [] : groupedDates.map(g => g.name));
-              }}
-              className={cn(
-                'h-7 px-2.5 gap-1.5',
-                colorStyles[colorScheme].hover,
-                'group',
-                'hidden sm:flex', // Hide on mobile to save space
-              )}
-              tabIndex={0}
-              aria-label={groupedDates.every(g => collapsedGroups.includes(g.name))
-                ? "Expand all groups"
-                : "Collapse all groups"
-              }
-            >
-              {groupedDates.every(g => collapsedGroups.includes(g.name)) ? (
-                <>
-                  <ChevronDown className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
-                  <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
-                    Expand All
-                  </span>
-                </>
-              ) : (
-                <>
-                  <ChevronUp className={cn('h-3.5 w-3.5', colorStyles[colorScheme].accent)} />
-                  <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
-                    Collapse All
-                  </span>
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 } 

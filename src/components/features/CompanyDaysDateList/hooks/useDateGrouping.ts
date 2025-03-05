@@ -2,10 +2,8 @@ import { useMemo } from 'react';
 import { format, parse } from 'date-fns';
 import { DateItem, GroupedDates } from '../types';
 
-export function useDateGrouping(items: DateItem[], showBulkManagement: boolean, isBulkMode: boolean) {
+export function useDateGrouping(items: DateItem[]) {
   return useMemo(() => {
-    if (!showBulkManagement || !isBulkMode) return [];
-
     return items
       .reduce((groups: GroupedDates[], item) => {
         const itemDate = parse(item.date, 'yyyy-MM-dd', new Date());
@@ -32,5 +30,5 @@ export function useDateGrouping(items: DateItem[], showBulkManagement: boolean, 
       .sort((a, b) => {
         return a.groupKeyTimestamp - b.groupKeyTimestamp;
       });
-  }, [items, showBulkManagement, isBulkMode]);
+  }, [items]);
 } 

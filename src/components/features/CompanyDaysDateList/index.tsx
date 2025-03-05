@@ -1,126 +1,45 @@
 'use client';
 
-import { createContext, KeyboardEvent as ReactKeyboardEvent, useCallback } from 'react';
+import { createContext } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DateListProps } from './types';
 import { colorStyles } from './constants/styles';
 import { ANIMATION_CONFIG } from './constants/animations';
-import { useDateGrouping } from './hooks/useDateGrouping';
-import { useBulkSelection } from './hooks/useBulkSelection';
-import { useGroupCollapse } from './hooks/useGroupCollapse';
 import { ListHeader } from './components/ListHeader';
 import { BulkRenameInput } from './components/BulkRenameInput';
 import { GroupedView } from './components/GroupedView';
-import { FlatView } from './components/FlatView';
+import { DateListProvider, useDateList } from './context/DateListContext';
+import { useCompanyDays } from '@/hooks/useOptimizer';
 
 // Color styles context
 const ColorStylesContext = createContext<Record<string, string>>({});
 
-export function DateList({
-  items,
-  title,
-  colorScheme,
-  onRemoveAction,
-  onClearAllAction,
-  onUpdateName,
-  onBulkRename,
-  showBulkManagement = false,
-  isBulkMode = false,
-}: DateListProps) {
-  const groupedDates = useDateGrouping(items, showBulkManagement, isBulkMode);
-  const { collapsedGroups, setCollapsedGroups } = useGroupCollapse(groupedDates, showBulkManagement, isBulkMode);
+export function DateList({ title, colorScheme }: DateListProps) {
+  const { companyDaysOff, addCompanyDay } = useCompanyDays();
+  const onBulkRename = (dates: string[], newName: string) => {
+    dates.forEach(date => addCompanyDay(date, newName));
+  };
+
+  if (companyDaysOff.length === 0) return null;
+
+  return (
+    <DateListProvider
+      title={title}
+      colorScheme={colorScheme}
+      onBulkRename={onBulkRename}
+    >
+      <DateListContent />
+    </DateListProvider>
+  );
+}
+
+function DateListContent() {
   const {
-    selectedDates,
-    setSelectedDates,
+    title,
+    colorScheme,
     editingDate,
-    setEditingDate,
-    editingValue,
-    setEditingValue,
-    handleBulkRename,
-    handleBulkRenameConfirm
-  } = useBulkSelection(onBulkRename);
-
-  const handleKeyDown = useCallback((e: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, date: string) => {
-    const index = items.findIndex(item => item.date === date);
-    if (index === -1) return;
-
-    switch (e.key) {
-      case 'Delete':
-      case 'Backspace': {
-        if (editingDate === null) {
-          e.preventDefault();
-          onRemoveAction(date);
-        }
-        break;
-      }
-      case 'ArrowUp':
-      case 'ArrowDown': {
-        e.preventDefault();
-        if (editingDate === null) {
-          const targetIndex = e.key === 'ArrowUp' ? index - 1 : index + 1;
-          const targetDate = items[targetIndex]?.date;
-          if (targetDate) {
-            if (typeof window !== 'undefined') {
-              const targetButton = document.querySelector(`[data-date="${targetDate}"]`) as HTMLButtonElement;
-              targetButton?.focus();
-            }
-          }
-        }
-        break;
-      }
-      case 'Enter': {
-        if (editingDate !== null && onUpdateName) {
-          e.preventDefault();
-          onUpdateName(date, editingValue.trim());
-          setEditingDate(null);
-        }
-        break;
-      }
-      case 'Escape': {
-        if (editingDate !== null) {
-          e.preventDefault();
-          setEditingDate(null);
-        }
-        break;
-      }
-    }
-  }, [items, editingDate, editingValue, onRemoveAction, onUpdateName, setEditingDate]);
-
-  const startEditing = useCallback((date: string, currentName: string) => {
-    if (!onUpdateName) return;
-    setEditingValue(currentName);
-    setEditingDate(date);
-  }, [onUpdateName, setEditingValue, setEditingDate]);
-
-  const handleBlur = useCallback(() => {
-    if (editingDate !== null && onUpdateName) {
-      onUpdateName(editingDate, editingValue.trim());
-      setEditingDate(null);
-    }
-  }, [editingDate, editingValue, onUpdateName, setEditingDate]);
-
-  const handleSelectGroup = useCallback((name: string) => {
-    if (!showBulkManagement) return;
-    const groupDates = groupedDates.find(g => g.name === name)?.dates || [];
-    const dates = groupDates.map(d => d.date);
-    const allSelected = dates.every(date => selectedDates.includes(date));
-    setSelectedDates(prev =>
-      allSelected
-        ? prev.filter(d => !dates.includes(d))
-        : [...new Set([...prev, ...dates])]
-    );
-  }, [showBulkManagement, groupedDates, selectedDates, setSelectedDates]);
-
-  const toggleGroupCollapse = useCallback((name: string) => {
-    setCollapsedGroups(prev =>
-      prev.includes(name)
-        ? prev.filter(n => n !== name)
-        : [...prev, name]
-    );
-  }, [setCollapsedGroups]);
-
-  if (items.length === 0) return null;
+  } = useDateList();
 
   // Create a valid ID for aria-labelledby
   const headingId = `${title.toLowerCase().replace(/\s+/g, '-')}-list-heading`;
@@ -143,27 +62,10 @@ export function DateList({
       >
         <ListHeader
           id={headingId}
-          title={title}
-          itemCount={items.length}
-          colorScheme={colorScheme}
-          showBulkManagement={showBulkManagement}
-          isBulkMode={isBulkMode}
-          selectedDates={selectedDates}
-          onBulkRename={() => handleBulkRename(items)}
-          onClearAll={onClearAllAction}
-          groupedDates={groupedDates}
-          collapsedGroups={collapsedGroups}
-          setCollapsedGroups={setCollapsedGroups}
         />
 
-        {showBulkManagement && isBulkMode && editingDate === 'bulk' && (
-          <BulkRenameInput
-            editingValue={editingValue}
-            setEditingValue={setEditingValue}
-            setEditingDate={setEditingDate}
-            handleBulkRenameConfirm={handleBulkRenameConfirm}
-            colorScheme={colorScheme}
-          />
+        {editingDate === 'bulk' && (
+          <BulkRenameInput />
         )}
 
         <div className={cn('rounded-lg border', colorStyles[colorScheme].border, 'overflow-hidden')}>
@@ -173,43 +75,7 @@ export function DateList({
             aria-label={`List of dates`}
           >
             <AnimatePresence initial={false} mode="popLayout">
-              {showBulkManagement && isBulkMode ? (
-                <GroupedView
-                  groupedDates={groupedDates}
-                  colorScheme={colorScheme}
-                  selectedDates={selectedDates}
-                  collapsedGroups={collapsedGroups}
-                  handleSelectGroup={handleSelectGroup}
-                  toggleGroupCollapse={toggleGroupCollapse}
-                  onUpdateName={onUpdateName}
-                  onRemove={onRemoveAction}
-                  handleKeyDown={handleKeyDown}
-                  startEditing={startEditing}
-                  handleBlur={handleBlur}
-                  setSelectedDates={setSelectedDates}
-                  editingDate={editingDate}
-                  setEditingDate={setEditingDate}
-                  editingValue={editingValue}
-                  setEditingValue={setEditingValue}
-                />
-              ) : (
-                <FlatView
-                  items={items}
-                  colorScheme={colorScheme}
-                  showBulkManagement={showBulkManagement && isBulkMode}
-                  selectedDates={selectedDates}
-                  setSelectedDates={setSelectedDates}
-                  editingDate={editingDate}
-                  setEditingDate={setEditingDate}
-                  editingValue={editingValue}
-                  onUpdateName={onUpdateName}
-                  onRemove={onRemoveAction}
-                  handleKeyDown={handleKeyDown}
-                  startEditing={startEditing}
-                  handleBlur={handleBlur}
-                  setEditingValue={setEditingValue}
-                />
-              )}
+              <GroupedView />
             </AnimatePresence>
           </ul>
         </div>

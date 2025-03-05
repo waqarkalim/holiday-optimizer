@@ -3,28 +3,35 @@ import { Input } from '@/components/ui/input';
 import { Check, Pencil, X } from 'lucide-react';
 import { format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { DateListItemProps } from '../types';
 import { colorStyles } from '../constants/styles';
 import { CHECKBOX_ANIMATION } from '../constants/animations';
 import { motion } from 'framer-motion';
+import { DateItem } from '../types';
+import { useDateList } from '../context/DateListContext';
+
+export interface DateListItemProps {
+  item: DateItem;
+  isGrouped?: boolean;
+}
 
 export function DateListItem({
-  item,
-  showBulkManagement,
-  selectedDates,
-  setSelectedDates,
-  editingDate,
-  setEditingDate,
-  editingValue,
-  onUpdateName,
-  onRemove,
-  colorScheme,
-  handleKeyDown,
-  startEditing,
-  handleBlur,
-  setEditingValue,
-  isGrouped = false,
-}: DateListItemProps) {
+                               item,
+                               isGrouped = false,
+                             }: DateListItemProps) {
+  const {
+    selectedDates,
+    setSelectedDates,
+    editingDate,
+    setEditingDate,
+    editingValue,
+    setEditingValue,
+    onRemoveAction,
+    colorScheme,
+    handleKeyDown,
+    startEditing,
+    handleBlur,
+  } = useDateList();
+
   return (
     <div
       className={cn(
@@ -33,32 +40,30 @@ export function DateListItem({
         colorStyles[colorScheme].divider,
         colorStyles[colorScheme].hover,
         'transition-colors duration-200',
-        showBulkManagement && 'pl-8',
+        'pl-8',
       )}
     >
       <div className="flex items-center gap-3 px-3 py-2">
-        {showBulkManagement && (
-          <motion.div
-            {...CHECKBOX_ANIMATION}
-          >
-            <input
-              type="checkbox"
-              checked={selectedDates.includes(item.date)}
-              onChange={() => {
-                setSelectedDates(prev =>
-                  prev.includes(item.date)
-                    ? prev.filter(d => d !== item.date)
-                    : [...prev, item.date],
-                );
-              }}
-              className={cn(
-                'h-3.5 w-3.5 rounded',
-                `text-${colorScheme}-600 dark:text-${colorScheme}-400`,
-                'border-gray-300 dark:border-gray-600',
-              )}
-            />
-          </motion.div>
-        )}
+        <motion.div
+          {...CHECKBOX_ANIMATION}
+        >
+          <input
+            type="checkbox"
+            checked={selectedDates.includes(item.date)}
+            onChange={() => {
+              setSelectedDates(prev =>
+                prev.includes(item.date)
+                  ? prev.filter(d => d !== item.date)
+                  : [...prev, item.date],
+              );
+            }}
+            className={cn(
+              'h-3.5 w-3.5 rounded',
+              `text-${colorScheme}-600 dark:text-${colorScheme}-400`,
+              'border-gray-300 dark:border-gray-600',
+            )}
+          />
+        </motion.div>
         <div className="flex-1 min-w-0">
           {editingDate === item.date ? (
             <div className="flex items-center gap-1.5">
@@ -128,7 +133,7 @@ export function DateListItem({
                     {item.name}
                   </p>
                 )}
-                {onUpdateName && !isGrouped && (
+                {!isGrouped && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -150,16 +155,16 @@ export function DateListItem({
                   </Button>
                 )}
               </div>
-              <time 
+              <time
                 dateTime={item.date}
                 className={cn(
                   'block',
                   isGrouped ? 'text-sm' : 'text-xs mt-0.5',
-                  isGrouped ? colorStyles[colorScheme].text : colorStyles[colorScheme].muted
+                  isGrouped ? colorStyles[colorScheme].text : colorStyles[colorScheme].muted,
                 )}
               >
-                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 
-                  isGrouped ? 'EEEE, MMMM d, yyyy' : 'EEEE, MMMM d, yyyy'
+                {format(parse(item.date, 'yyyy-MM-dd', new Date()),
+                  isGrouped ? 'EEEE, MMMM d, yyyy' : 'EEEE, MMMM d, yyyy',
                 )}
               </time>
             </>
@@ -169,38 +174,28 @@ export function DateListItem({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => onRemove(item.date)}
+          onClick={() => onRemoveAction(item.date)}
           onKeyDown={(e) => handleKeyDown(e, item.date)}
           className={cn(
             'h-7 w-7 p-0',
             'opacity-0 group-hover/item:opacity-100',
             'transition-all duration-200',
             'hover:scale-110 active:scale-95',
-            colorScheme === 'amber' ? [
-              'hover:bg-amber-100/70 dark:hover:bg-amber-900/30',
-              'hover:text-amber-600 dark:hover:text-amber-400',
-            ] : [
-              'hover:bg-violet-100/70 dark:hover:bg-violet-900/30',
-              'hover:text-violet-600 dark:hover:text-violet-400',
-            ],
+            'hover:bg-violet-100/70 dark:hover:bg-violet-900/30',
+            'hover:text-violet-600 dark:hover:text-violet-400',
             'group/button',
           )}
           tabIndex={0}
           aria-label={`Remove ${item.name}`}
           data-date={item.date}
         >
-          <X 
+          <X
             className={cn(
               'h-3.5 w-3.5',
               'transition-colors duration-200',
-              colorScheme === 'amber' ? [
-                'text-amber-500/60 dark:text-amber-400/60',
-                'group-hover/button:text-amber-600 dark:group-hover/button:text-amber-400',
-              ] : [
-                'text-violet-500/60 dark:text-violet-400/60',
-                'group-hover/button:text-violet-600 dark:group-hover/button:text-violet-400',
-              ],
-            )} 
+              'text-violet-500/60 dark:text-violet-400/60',
+              'group-hover/button:text-violet-600 dark:group-hover/button:text-violet-400',
+            )}
           />
         </Button>
       </div>

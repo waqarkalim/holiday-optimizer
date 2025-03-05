@@ -4,29 +4,21 @@ import { cn } from '@/lib/utils';
 import { format, parse } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import { GroupedViewProps } from '../types';
 import { colorStyles } from '../constants/styles';
 import { ANIMATION_CONFIG, CHECKBOX_ANIMATION } from '../constants/animations';
 import { DateListItem } from './DateListItem';
+import { useDateList } from '../context/DateListContext';
 
-export function GroupedView({
-  groupedDates,
-  colorScheme,
-  selectedDates,
-  collapsedGroups,
-  handleSelectGroup,
-  toggleGroupCollapse,
-  onUpdateName,
-  onRemove,
-  handleKeyDown,
-  startEditing,
-  handleBlur,
-  setSelectedDates,
-  editingDate,
-  setEditingDate,
-  editingValue,
-  setEditingValue,
-}: GroupedViewProps) {
+export function GroupedView() {
+  const {
+    groupedDates,
+    colorScheme,
+    selectedDates,
+    collapsedGroups,
+    handleSelectGroup,
+    toggleGroupCollapse,
+  } = useDateList();
+  
   // Create refs for all groups at the top level
   const checkboxRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
@@ -142,19 +134,6 @@ export function GroupedView({
                     <DateListItem
                       key={item.date}
                       item={item}
-                      showBulkManagement={true}
-                      selectedDates={selectedDates}
-                      setSelectedDates={setSelectedDates}
-                      editingDate={editingDate}
-                      setEditingDate={setEditingDate}
-                      editingValue={editingValue}
-                      onUpdateName={onUpdateName}
-                      onRemove={onRemove}
-                      colorScheme={colorScheme}
-                      handleKeyDown={handleKeyDown}
-                      startEditing={startEditing}
-                      handleBlur={handleBlur}
-                      setEditingValue={setEditingValue}
                       isGrouped={!isDefaultNamed}
                     />
                   ))}

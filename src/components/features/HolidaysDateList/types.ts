@@ -9,6 +9,5 @@ export interface DateListProps {
   colorScheme: 'amber';
   onRemoveAction: (date: string) => void;
   onClearAllAction: () => void;
-  showName: boolean;
   onUpdateNameAction: (date: string, newName: string) => void;
 }
