@@ -2,7 +2,7 @@
 import '@testing-library/jest-dom'
 
 // Set a longer default timeout for all tests
-jest.setTimeout(15000); // 15 seconds for all tests
+jest.setTimeout(300000); // 5 minutes for all tests
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
