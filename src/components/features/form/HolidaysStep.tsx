@@ -11,7 +11,9 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function HolidaysStep() {
-  const { holidays, addHoliday, removeHoliday, clearHolidays, setDetectedHolidays } = useHolidays();
+  const title = 'Selected Holidays';
+  const colorScheme = 'amber';
+  const { holidays, addHoliday, removeHoliday, setDetectedHolidays } = useHolidays();
 
   const handleHolidaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -45,12 +47,13 @@ export function HolidaysStep() {
       <span>Public Holidays</span>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="rounded-full p-1 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 cursor-help transition-colors">
+          <div
+            className="rounded-full p-1 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 cursor-help transition-colors">
             <Info className="h-3.5 w-3.5 text-amber-500/70 dark:text-amber-400/70" />
           </div>
         </TooltipTrigger>
-        <TooltipContent 
-          side="right" 
+        <TooltipContent
+          side="right"
           align="start"
           className="max-w-xs bg-amber-50/95 dark:bg-amber-900/90 border-amber-100 dark:border-amber-800/40 text-amber-900 dark:text-amber-100"
         >
@@ -70,12 +73,12 @@ export function HolidaysStep() {
   const selectedDates = holidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()));
 
   return (
-    <FormSection colorScheme="amber" headingId="holidays-heading">
+    <FormSection colorScheme={colorScheme} headingId="holidays-heading">
       <StepHeader
         number={3}
         title={titleWithInfo}
         description="Find holidays in your area instantly, or pick specific dates from the calendar. Select multiple dates to rename them together."
-        colorScheme="amber"
+        colorScheme={colorScheme}
         id="holidays-heading"
       />
 
@@ -99,17 +102,10 @@ export function HolidaysStep() {
             id="holidays-calendar"
             selectedDates={selectedDates}
             onDateSelect={handleHolidaySelect}
-            colorScheme="amber"
+            colorScheme={colorScheme}
           />
 
-          <DateList
-            items={holidays}
-            title="Selected Holidays"
-            colorScheme="amber"
-            onRemoveAction={removeHoliday}
-            onClearAllAction={clearHolidays}
-            onUpdateNameAction={addHoliday}
-          />
+          <DateList title={title} colorScheme={colorScheme} />
         </div>
       </div>
     </FormSection>

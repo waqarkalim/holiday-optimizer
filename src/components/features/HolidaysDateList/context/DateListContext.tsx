@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState } from 'react';
 import { DateItem } from '../types';
+import { useHolidays } from '@/hooks/useOptimizer';
 
 // =============================================================================
 // TYPES
@@ -19,12 +20,12 @@ interface DateListContextProps {
   editingValue: string;                           // Current input value
   itemCount: number;                              // Number of items
   headingId: string;                              // Accessibility ID
-  
+
   // ---- Actions ----
   onRemoveAction: (date: string) => void;         // Remove a date
   onClearAllAction: () => void;                   // Clear all dates
   onUpdateNameAction: (date: string, newName: string) => void; // Update name (optional)
-  
+
   // ---- Edit Operations ----
   startEditing: (date: string, currentName: string) => void; // Enter edit mode
   cancelEdit: () => void;                         // Cancel editing
@@ -60,12 +61,8 @@ export function useDateList() {
  * Props for the DateListProvider component
  */
 export interface DateListProviderProps {
-  items: DateItem[];                // List of date items
   title: string;                    // List title
   colorScheme: 'amber';             // Color theme
-  onRemoveAction: (date: string) => void;        // Remove handler
-  onClearAllAction: () => void;                  // Clear all handler
-  onUpdateNameAction: (date: string, newName: string) => void; // Rename handler (optional)
   children: React.ReactNode;        // Child components
 }
 
@@ -76,88 +73,81 @@ export interface DateListProviderProps {
 /**
  * Provider component for DateList context
  */
-export function DateListProvider({
-  items,
-  title,
-  colorScheme,
-  onRemoveAction,
-  onClearAllAction,
-  onUpdateNameAction,
-  children
-}: DateListProviderProps) {
+export const DateListProvider = ({ title, colorScheme, children }: DateListProviderProps) => {
+  const { holidays, addHoliday, removeHoliday, clearHolidays } = useHolidays();
   // =========================================================================
   // STATE
   // =========================================================================
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
-  
+
   // Derived state
-  const itemCount = items.length;
+  const itemCount = holidays.length;
   const headingId = `holiday-list-heading-${title.toLowerCase().replace(/\s+/g, '-')}`;
-  
+
   // =========================================================================
   // EDIT OPERATIONS
   // =========================================================================
-  
+
   /**
    * Cancel the current edit
    */
   const cancelEdit = () => {
     setEditingDate(null);
     setEditingValue('');
-  }
+  };
 
   /**
    * Save the current edit
    */
   const confirmEdit = (date: string) => {
     if (editingValue.trim()) {
-      onUpdateNameAction(date, editingValue.trim());
+      addHoliday(date, editingValue.trim());
     }
     cancelEdit();
-  }
-  
+  };
+
   /**
    * Start editing an item
    */
   const startEditing = (date: string, currentName: string) => {
     setEditingDate(date);
     setEditingValue(currentName);
-  }
-  
+  };
+
   // =========================================================================
   // CONTEXT VALUE
   // =========================================================================
-  
+
   const contextValue: DateListContextProps = {
     // State
-    items,
+    items: holidays,
     colorScheme,
     title,
     editingDate,
     editingValue,
     itemCount,
     headingId,
-    
+
     // Actions
-    onRemoveAction,
-    onClearAllAction,
-    onUpdateNameAction,
-    
+    onRemoveAction: removeHoliday,
+    onClearAllAction: clearHolidays,
+    onUpdateNameAction: addHoliday,
+
     // Edit operations
     startEditing,
     cancelEdit,
     confirmEdit,
     setEditingValue,
   };
-  
+
   // =========================================================================
   // RENDER
   // =========================================================================
-  
+
   return (
     <DateListContext.Provider value={contextValue}>
       {children}
     </DateListContext.Provider>
   );
-} 
+};

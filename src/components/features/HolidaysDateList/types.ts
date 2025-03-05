@@ -4,10 +4,6 @@ export interface DateItem {
 }
 
 export interface DateListProps {
-  items: DateItem[];
   title: string;
   colorScheme: 'amber';
-  onRemoveAction: (date: string) => void;
-  onClearAllAction: () => void;
-  onUpdateNameAction: (date: string, newName: string) => void;
 }

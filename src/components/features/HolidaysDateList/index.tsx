@@ -8,31 +8,19 @@ import { ANIMATION_CONFIG } from './constants/animations';
 import { ListHeader } from './components/ListHeader';
 import { FlatView } from './components/FlatView';
 import { DateListProvider, useDateList } from './context/DateListContext';
+import { useHolidays } from '@/hooks/useOptimizer';
 
-export function DateList({
-  items,
-  title,
-  colorScheme,
-  onRemoveAction,
-  onClearAllAction,
-  onUpdateNameAction,
-}: DateListProps) {
-  // Early return if no items
-  if (items.length === 0) return null;
+export const DateList = ({ title, colorScheme }: DateListProps) => {
+  const { holidays } = useHolidays();
+  // Early return if no holidays
+  if (holidays.length === 0) return null;
 
   return (
-    <DateListProvider
-      items={items}
-      title={title}
-      colorScheme={colorScheme}
-      onRemoveAction={onRemoveAction}
-      onClearAllAction={onClearAllAction}
-      onUpdateNameAction={onUpdateNameAction}
-    >
+    <DateListProvider title={title} colorScheme={colorScheme}>
       <DateListContent />
     </DateListProvider>
   );
-}
+};
 
 // Separated content component that consumes the context
 function DateListContent() {
