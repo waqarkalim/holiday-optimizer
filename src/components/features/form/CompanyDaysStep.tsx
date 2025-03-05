@@ -3,7 +3,7 @@ import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useCompanyDays } from '@/hooks/useOptimizer';
-import { DateList } from '@/components/features/DateList';
+import { DateList } from '@/components/features/CompanyDaysDateList';
 import { Badge } from '@/components/ui/badge';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -20,10 +20,6 @@ export function CompanyDaysStep() {
     } else {
       addCompanyDay(formattedDate, format(date, 'MMMM d, yyyy'));
     }
-  };
-
-  const handleUpdateCompanyDayName = (date: string, newName: string) => {
-    addCompanyDay(date, newName);
   };
 
   const handleBulkRename = (dates: string[], newName: string) => {
@@ -94,9 +90,9 @@ export function CompanyDaysStep() {
           items={companyDaysOff}
           title="Selected Company Days"
           colorScheme="violet"
-          onRemove={removeCompanyDay}
-          onClearAll={clearCompanyDays}
-          onUpdateName={handleUpdateCompanyDayName}
+          onRemoveAction={removeCompanyDay}
+          onClearAllAction={clearCompanyDays}
+          onUpdateName={addCompanyDay}
           onBulkRename={handleBulkRename}
           showBulkManagement={true}
           isBulkMode={true}

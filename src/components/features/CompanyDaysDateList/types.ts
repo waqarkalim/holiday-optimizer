@@ -17,8 +17,8 @@ export interface DateListProps {
   items: DateItem[];
   title: string;
   colorScheme: 'amber' | 'violet';
-  onRemove: (date: string) => void;
-  onClearAll: () => void;
+  onRemoveAction: (date: string) => void;
+  onClearAllAction: () => void;
   showName?: boolean;
   onUpdateName?: (date: string, newName: string) => void;
   onBulkRename?: (dates: string[], newName: string) => void;

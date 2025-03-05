@@ -1,7 +1,7 @@
-import { MapPin, Info } from 'lucide-react';
+import { Info, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
-import { DateList } from '@/components/features/DateList';
+import { DateList } from '@/components/features/HolidaysDateList';
 import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
@@ -114,8 +114,8 @@ export function HolidaysStep() {
             items={holidays}
             title="Selected Holidays"
             colorScheme="amber"
-            onRemove={removeHoliday}
-            onClearAll={clearHolidays}
+            onRemoveAction={removeHoliday}
+            onClearAllAction={clearHolidays}
             onUpdateName={handleUpdateHolidayName}
             onBulkRename={handleBulkRename}
             showBulkManagement={false}

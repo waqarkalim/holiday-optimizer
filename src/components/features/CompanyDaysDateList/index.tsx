@@ -21,8 +21,8 @@ export function DateList({
   items,
   title,
   colorScheme,
-  onRemove,
-  onClearAll,
+  onRemoveAction,
+  onClearAllAction,
   onUpdateName,
   onBulkRename,
   showBulkManagement = false,
@@ -50,7 +50,7 @@ export function DateList({
       case 'Backspace': {
         if (editingDate === null) {
           e.preventDefault();
-          onRemove(date);
+          onRemoveAction(date);
         }
         break;
       }
@@ -85,7 +85,7 @@ export function DateList({
         break;
       }
     }
-  }, [items, editingDate, editingValue, onRemove, onUpdateName, setEditingDate]);
+  }, [items, editingDate, editingValue, onRemoveAction, onUpdateName, setEditingDate]);
 
   const startEditing = useCallback((date: string, currentName: string) => {
     if (!onUpdateName) return;
@@ -150,7 +150,7 @@ export function DateList({
           isBulkMode={isBulkMode}
           selectedDates={selectedDates}
           onBulkRename={() => handleBulkRename(items)}
-          onClearAll={onClearAll}
+          onClearAll={onClearAllAction}
           groupedDates={groupedDates}
           collapsedGroups={collapsedGroups}
           setCollapsedGroups={setCollapsedGroups}
@@ -182,7 +182,7 @@ export function DateList({
                   handleSelectGroup={handleSelectGroup}
                   toggleGroupCollapse={toggleGroupCollapse}
                   onUpdateName={onUpdateName}
-                  onRemove={onRemove}
+                  onRemove={onRemoveAction}
                   handleKeyDown={handleKeyDown}
                   startEditing={startEditing}
                   handleBlur={handleBlur}
@@ -203,7 +203,7 @@ export function DateList({
                   setEditingDate={setEditingDate}
                   editingValue={editingValue}
                   onUpdateName={onUpdateName}
-                  onRemove={onRemove}
+                  onRemove={onRemoveAction}
                   handleKeyDown={handleKeyDown}
                   startEditing={startEditing}
                   handleBlur={handleBlur}
