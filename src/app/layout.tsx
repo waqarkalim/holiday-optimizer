@@ -32,8 +32,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="light"
+      forcedTheme="light"
       disableTransitionOnChange
     >
       <TooltipProvider>

@@ -1,5 +1,4 @@
 import { Logo } from '@/components/Logo';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn, spacing } from '@/lib/utils';
 import { GitHubLink } from '@/components/ui/github-link';
 import { GITHUB_URL } from '@/constants';
@@ -17,7 +16,6 @@ const Header = () => (
       <div className="flex h-14 items-center justify-between">
         <Logo />
         <div className="flex items-center gap-2 sm:gap-3">
-          <ThemeToggle />
           <GitHubLink
             href={GITHUB_URL}
             variant="default"
