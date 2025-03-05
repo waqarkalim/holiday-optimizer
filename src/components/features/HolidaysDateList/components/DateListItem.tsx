@@ -3,23 +3,29 @@ import { Input } from '@/components/ui/input';
 import { Check, Pencil, X } from 'lucide-react';
 import { format, parse } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { DateListItemProps } from '../types';
+import { DateItem } from '../types';
 import { colorStyles } from '../constants/styles';
 import { KeyboardEvent, useRef } from 'react';
+import { useDateList } from '../context/DateListContext';
 
-export function DateListItem({
-  item,
-  editingDate,
-  setEditingDate,
-  editingValue,
-  onUpdateName,
-  onRemove,
-  colorScheme,
-  handleKeyDown,
-  startEditing,
-  handleBlur,
-  setEditingValue,
-}: DateListItemProps) {
+interface DateListItemProps {
+  item: DateItem;
+}
+
+export function DateListItem({ item }: DateListItemProps) {
+  const {
+    editingDate,
+    setEditingDate,
+    editingValue,
+    onUpdateNameAction: onUpdateName,
+    onRemoveAction: onRemove,
+    colorScheme,
+    handleKeyDown,
+    startEditing,
+    handleBlur,
+    setEditingValue,
+  } = useDateList();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const removeButtonRef = useRef<HTMLButtonElement>(null);

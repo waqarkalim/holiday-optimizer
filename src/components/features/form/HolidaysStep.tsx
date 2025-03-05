@@ -108,7 +108,7 @@ export function HolidaysStep() {
             colorScheme="amber"
             onRemoveAction={removeHoliday}
             onClearAllAction={clearHolidays}
-            onUpdateName={addHoliday}
+            onUpdateNameAction={addHoliday}
           />
         </div>
       </div>

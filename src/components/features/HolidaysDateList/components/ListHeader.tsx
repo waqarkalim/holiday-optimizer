@@ -1,16 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { Calendar, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ListHeaderProps } from '../types';
 import { colorStyles } from '../constants/styles';
+import { useDateList } from '../context/DateListContext';
 
-export function ListHeader({
-  id,
-  title,
-  itemCount,
-  colorScheme,
-  onClearAll,
-}: ListHeaderProps) {
+export function ListHeader() {
+  const {
+    headingId: id,
+    title,
+    itemCount,
+    colorScheme,
+    onClearAllAction: onClearAll
+  } = useDateList();
+
   return (
     <div className="mb-4 space-y-2">
       {/* Title and Count */}

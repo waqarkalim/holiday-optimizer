@@ -45,9 +45,7 @@ export function useHolidays() {
       dispatch({ type: 'REMOVE_HOLIDAY', payload: date }),
     clearHolidays: () => 
       dispatch({ type: 'CLEAR_HOLIDAYS' }),
-    setHolidays: (holidays: Array<{ date: string, name: string }>) => 
-      dispatch({ type: 'SET_HOLIDAYS', payload: holidays }),
-    setDetectedHolidays: (holidays: Array<{ date: string, name: string }>) => 
+    setDetectedHolidays: (holidays: Array<{ date: string, name: string }>) =>
       dispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: holidays }),
   };
 }
