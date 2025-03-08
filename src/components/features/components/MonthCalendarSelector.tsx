@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { DayClickEventHandler } from 'react-day-picker';
 import { useEffect, useState } from 'react';
 import { startOfMonth, startOfYear } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LucideIcon } from 'lucide-react';
 
 interface MonthCalendarSelectorProps {
   selectedDates: Date[];
@@ -14,6 +14,35 @@ interface MonthCalendarSelectorProps {
   id?: string;
   year?: number;
 }
+
+// Shared NavigationIcon component
+type NavigationIconProps = {
+  ariaLabel: string;
+  Icon: LucideIcon;
+  className?: string;
+  colorScheme: 'amber' | 'violet';
+  [key: string]: unknown; // Allow other props to be passed
+};
+
+const NavigationIcon = ({ ariaLabel, Icon, className, colorScheme, ...props }: NavigationIconProps) => (
+  <span
+    {...props}
+    aria-label={ariaLabel}
+    className={cn(
+      'flex items-center justify-center',
+      'rounded-md',
+      'h-7 w-7',
+      'bg-transparent',
+      'hover:bg-gray-100 dark:hover:bg-gray-800',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      colorScheme === 'amber' ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-violet-500',
+      'disabled:opacity-40 disabled:pointer-events-none',
+      className
+    )}
+  >
+    <Icon className="h-4 w-4" aria-hidden="true" />
+  </span>
+);
 
 export function MonthCalendarSelector({
   selectedDates,
@@ -130,48 +159,20 @@ export function MonthCalendarSelector({
         }}
         components={{
           IconLeft: (props) => (
-            <span
+            <NavigationIcon 
               {...props}
-              role="button"
-              aria-label="Go to previous month"
-              tabIndex={0}
-              className={cn(
-                'flex items-center justify-center',
-                'rounded-md',
-                'h-7 w-7',
-                'bg-transparent',
-                'hover:bg-gray-100 dark:hover:bg-gray-800',
-                'transition-colors duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-                colorScheme === 'amber' ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-violet-500',
-                'disabled:opacity-40 disabled:pointer-events-none',
-                props.className
-              )}
-            >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            </span>
+              ariaLabel="Go to previous month" 
+              Icon={ChevronLeft} 
+              colorScheme={colorScheme}
+            />
           ),
           IconRight: (props) => (
-            <span
+            <NavigationIcon 
               {...props}
-              role="button"
-              tabIndex={0}
-              aria-label="Go to next month"
-              className={cn(
-                'flex items-center justify-center',
-                'rounded-md',
-                'h-7 w-7',
-                'bg-transparent',
-                'hover:bg-gray-100 dark:hover:bg-gray-800',
-                'transition-colors duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-                colorScheme === 'amber' ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-violet-500',
-                'disabled:opacity-40 disabled:pointer-events-none',
-                props.className
-              )}
-            >
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            </span>
+              ariaLabel="Go to next month" 
+              Icon={ChevronRight} 
+              colorScheme={colorScheme}
+            />
           ),
         }}
         classNames={{
