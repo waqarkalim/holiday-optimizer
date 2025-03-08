@@ -34,13 +34,13 @@ interface CalendarDayProps {
   hasPublicHoliday: boolean;
 }
 
-const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean) => {
+const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean, isCurrentYear: boolean) => {
   // Determine color scheme based on day state
   if (isCurrentDay) {
     return 'today';
   }
   
-  if (isPast(startOfDay(date)) && !isCurrentDay) {
+  if (isCurrentYear && isPast(startOfDay(date)) && !isCurrentDay) {
     return 'past';
   }
   
@@ -68,7 +68,11 @@ const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean)
 const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
   const { date, tooltipText, bgClass, textClass, isCurrentDay, dayType } = dayInfo;
   
-  const colorScheme = getDayColorScheme(day, date, isCurrentDay);
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const isCurrentYear = date.getFullYear() === currentYear;
+  
+  const colorScheme = getDayColorScheme(day, date, isCurrentDay, isCurrentYear);
 
   return (
     <>
@@ -144,9 +148,7 @@ const getDayStyles = (isCurrentDay: boolean, isPastDay: boolean, dayType: DayTyp
 
 /**
  * MonthCalendar Component
- *
- * Renders a monthly calendar view with color-coded days based on their types
- * (CTO days, public holidays, company days off, etc.)
+ * Displays a single month calendar with optimized day styling
  */
 export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   // Initialize calendar dates
@@ -154,6 +156,9 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   const lastDay = endOfMonth(firstDay);
   const daysInMonth = eachDayOfInterval({ start: firstDay, end: lastDay });
   const startingDayIndex = getDay(firstDay);
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const isCurrentYear = year === currentYear;
 
   // Check if any day types exist in the data
   const dayTypeFlags = {
@@ -181,6 +186,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       isWeekend: getDay(date) === 0 || getDay(date) === 6,
       isCTO: false,
       isPartOfBreak: false,
+      isPublicHoliday: false,
+      isCompanyDayOff: false,
     };
   });
 
@@ -190,7 +197,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   const getDayInfo = (day: OptimizedDay) => {
     const date = parse(day.date, 'yyyy-MM-dd', new Date());
     const isCurrentDay = isToday(date);
-    const isPastDay = isPast(startOfDay(date)) && !isCurrentDay;
+    // Only consider dates as past when in the current year
+    const isPastDay = isCurrentYear && isPast(startOfDay(date)) && !isCurrentDay;
 
     // Determine day type with order of precedence
     let dayType: DayType = 'default';
@@ -233,6 +241,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       bgClass,
       textClass,
       isCurrentDay,
+      isPastDay
     };
   };
 

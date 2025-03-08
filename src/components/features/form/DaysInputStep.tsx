@@ -53,7 +53,7 @@ export function DaysInputStep() {
   return (
     <FormSection colorScheme="teal" headingId="days-heading">
       <StepHeader
-        number={1}
+        number={2}
         title={titleWithInfo}
         description="How many paid time off days do you have? We'll optimize your days from today until the end of the year, making every single one count."
         colorScheme="teal"

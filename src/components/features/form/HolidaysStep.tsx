@@ -9,11 +9,14 @@ import { useHolidays } from '@/hooks/useOptimizer';
 import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useOptimizer } from '@/contexts/OptimizerContext';
 
 export function HolidaysStep() {
   const title = 'Selected Holidays';
   const colorScheme = 'amber';
   const { holidays, addHoliday, removeHoliday, setDetectedHolidays } = useHolidays();
+  const { state } = useOptimizer();
+  const { selectedYear } = state;
 
   const handleHolidaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -28,10 +31,10 @@ export function HolidaysStep() {
 
   const handleAutoDetect = async () => {
     try {
-      const detectedHolidays = await detectPublicHolidays();
+      const detectedHolidays = await detectPublicHolidays(selectedYear);
       setDetectedHolidays(detectedHolidays);
       toast.success('Holidays detected', {
-        description: `Found ${detectedHolidays.length} public holidays for your location. Any custom holidays have been preserved.`,
+        description: `Found ${detectedHolidays.length} public holidays for your location in ${selectedYear}. Any custom holidays have been preserved.`,
       });
     } catch (error) {
       console.error('Error detecting holidays:', error);
@@ -75,9 +78,9 @@ export function HolidaysStep() {
   return (
     <FormSection colorScheme={colorScheme} headingId="holidays-heading">
       <StepHeader
-        number={3}
+        number={4}
         title={titleWithInfo}
-        description="Find holidays in your area instantly, or pick specific dates from the calendar. Select multiple dates to rename them together."
+        description={`Find holidays in your area for ${selectedYear}, or pick specific dates from the calendar. Select multiple dates to rename them together.`}
         colorScheme={colorScheme}
         id="holidays-heading"
       />
@@ -91,10 +94,10 @@ export function HolidaysStep() {
           className="w-full bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2"
           tabIndex={0}
           role="button"
-          aria-label="Find public holidays in your location"
+          aria-label={`Find public holidays in your location for ${selectedYear}`}
         >
           <MapPin className="h-3.5 w-3.5 mr-2 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-          Find Local Holidays
+          Find {selectedYear} Holidays
         </Button>
 
         <div className="space-y-6">
@@ -103,6 +106,7 @@ export function HolidaysStep() {
             selectedDates={selectedDates}
             onDateSelect={handleHolidaySelect}
             colorScheme={colorScheme}
+            year={selectedYear}
           />
 
           <DateList title={title} colorScheme={colorScheme} />

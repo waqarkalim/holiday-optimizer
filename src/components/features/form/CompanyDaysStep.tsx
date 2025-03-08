@@ -7,11 +7,14 @@ import { DateList } from '@/components/features/CompanyDaysDateList';
 import { Badge } from '@/components/ui/badge';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useOptimizer } from '@/contexts/OptimizerContext';
 
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
   const colorScheme = 'violet';
   const { companyDaysOff, addCompanyDay, removeCompanyDay } = useCompanyDays();
+  const { state } = useOptimizer();
+  const { selectedYear } = state;
 
   const handleCompanyDaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -71,9 +74,9 @@ export function CompanyDaysStep() {
   return (
     <FormSection colorScheme={colorScheme} headingId="company-days-heading">
       <StepHeader
-        number={4}
+        number={5}
         title={titleWithBadge}
-        description="Select your company's special non-working days (like Summer Fridays or company holidays) that don't count against your PTO. Group and rename multiple dates together for easier management."
+        description={`Select your company's special non-working days for ${selectedYear} (like Summer Fridays or company holidays) that don't count against your PTO. Group and rename multiple dates together for easier management.`}
         colorScheme={colorScheme}
         id="company-days-heading"
       />
@@ -84,6 +87,7 @@ export function CompanyDaysStep() {
           selectedDates={selectedDates}
           onDateSelect={handleCompanyDaySelect}
           colorScheme={colorScheme}
+          year={selectedYear}
         />
 
         <DateList title={title} colorScheme={colorScheme} />

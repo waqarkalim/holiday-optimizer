@@ -75,9 +75,9 @@ export function StrategySelectionStep() {
   return (
     <FormSection colorScheme="blue" headingId="strategy-heading">
       <StepHeader
-        number={2}
+        number={3}
         title={titleWithInfo}
-        description="Choose how you'd like to enjoy your time off. Each style is designed to match different preferences."
+        description="Select how you want to distribute your time off. This will determine the pattern and length of your breaks throughout the year."
         colorScheme="blue"
         id="strategy-heading"
       />

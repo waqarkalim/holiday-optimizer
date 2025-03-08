@@ -8,6 +8,7 @@ import { DaysInputStep } from './features/form/DaysInputStep';
 import { StrategySelectionStep } from './features/form/StrategySelectionStep';
 import { HolidaysStep } from './features/form/HolidaysStep';
 import { CompanyDaysStep } from './features/form/CompanyDaysStep';
+import { YearSelectionStep } from './features/form/YearSelectionStep';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { OptimizationStrategy } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
@@ -18,6 +19,7 @@ interface FormData {
   strategy: OptimizationStrategy;
   companyDaysOff: Array<{ date: string; name: string }>;
   holidays: Array<{ date: string; name: string }>;
+  selectedYear: number;
 }
 
 interface OptimizerFormProps {
@@ -27,7 +29,7 @@ interface OptimizerFormProps {
 
 export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFormProps) {
   const { state } = useOptimizer();
-  const { days, strategy, companyDaysOff, holidays } = state;
+  const { days, strategy, companyDaysOff, holidays, selectedYear } = state;
 
   // Initialize local storage sync
   useLocalStorage();
@@ -42,7 +44,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       days: numDays, 
       strategy, 
       companyDaysOff, 
-      holidays 
+      holidays,
+      selectedYear
     };
     
     onSubmitAction(formData);
@@ -76,12 +79,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             Design Your Dream Year
           </CardTitle>
           <CardDescription>
-            Just 3 essential steps to optimize your time off, with an optional 4th to fine-tune your perfect work-life balance.
+            Just 4 essential steps to optimize your time off, with an optional 5th to fine-tune your perfect work-life balance.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-3">
           <TooltipProvider>
+            <YearSelectionStep />
             <DaysInputStep />
             <StrategySelectionStep />
             <HolidaysStep />

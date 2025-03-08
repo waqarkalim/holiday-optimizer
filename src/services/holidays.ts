@@ -62,7 +62,7 @@ const getCountryFromCoordinates = async (latitude: number, longitude: number): P
   }
 };
 
-export const detectPublicHolidays = async (): Promise<DetectedHoliday[]> => {
+export const detectPublicHolidays = async (year?: number): Promise<DetectedHoliday[]> => {
   try {
     // Get user's location
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -79,12 +79,12 @@ export const detectPublicHolidays = async (): Promise<DetectedHoliday[]> => {
       position.coords.longitude,
     );
 
-    // Get current year
-    const year = new Date().getUTCFullYear();
+    // Use provided year or default to current year
+    const targetYear = year || new Date().getUTCFullYear();
 
     // Fetch holidays from Nager.Date API
     const response = await fetch(
-      `https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`,
+      `https://date.nager.at/api/v3/PublicHolidays/${targetYear}/${countryCode}`,
     );
 
     if (!response.ok) {

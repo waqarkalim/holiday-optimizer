@@ -30,6 +30,20 @@ export function useStrategySelection() {
 }
 
 /**
+ * Hook for managing year selection in the optimizer form
+ * Provides access to selected year state and methods to update it
+ */
+export function useYearSelection() {
+  const { state, dispatch } = useOptimizer();
+  
+  return {
+    selectedYear: state.selectedYear,
+    setSelectedYear: (value: number) => 
+      dispatch({ type: 'SET_SELECTED_YEAR', payload: value }),
+  };
+}
+
+/**
  * Hook for managing holidays in the optimizer form
  * Provides access to holidays state and methods to update it
  */

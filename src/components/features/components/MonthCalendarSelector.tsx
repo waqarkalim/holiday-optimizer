@@ -1,8 +1,8 @@
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { DayClickEventHandler } from 'react-day-picker';
-import { useState } from 'react';
-import { startOfMonth } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { startOfMonth, startOfYear } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MonthCalendarSelectorProps {
@@ -12,6 +12,7 @@ interface MonthCalendarSelectorProps {
   minDate?: Date;
   maxDate?: Date;
   id?: string;
+  year?: number;
 }
 
 export function MonthCalendarSelector({
@@ -21,8 +22,23 @@ export function MonthCalendarSelector({
   minDate,
   maxDate,
   id,
+  year,
 }: MonthCalendarSelectorProps) {
-  const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date()));
+  const [currentDate, setCurrentDate] = useState(() => {
+    // If year is provided, use January of that year as the starting month
+    if (year) {
+      return startOfYear(new Date(year, 0, 1));
+    }
+    // Otherwise, use the current month
+    return startOfMonth(new Date());
+  });
+
+  // Update the calendar when the year changes
+  useEffect(() => {
+    if (year) {
+      setCurrentDate(startOfYear(new Date(year, 0, 1)));
+    }
+  }, [year]);
 
   const handleDayClick: DayClickEventHandler = (day, modifiers) => {
     if (modifiers.disabled) return;
@@ -30,6 +46,11 @@ export function MonthCalendarSelector({
   };
 
   const isDateDisabled = (date: Date): boolean => {
+    // If year is provided, only allow dates from that year
+    if (year && date.getFullYear() !== year) {
+      return true;
+    }
+    
     if (!minDate && !maxDate) return false;
     const isBeforeMin = minDate ? date < startOfMonth(minDate) : false;
     const isAfterMax = maxDate ? date > maxDate : false;

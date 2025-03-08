@@ -16,13 +16,14 @@ interface FormState {
   strategy: OptimizationStrategy
   companyDaysOff: Array<CompanyDayOff>
   holidays: Array<{ date: string, name: string }>
+  selectedYear: number
 }
 
 const HomePage = () => {
-  const currentYear = new Date().getUTCFullYear();
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
+  const [selectedYear, setSelectedYear] = useState(2025);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleOptimize = async (data: FormState) => {
@@ -30,10 +31,11 @@ const HomePage = () => {
 
     try {
       setIsOptimizing(true);
+      setSelectedYear(data.selectedYear);
       const result = await optimizeDaysAsync({
         numberOfDays: data.numberOfDays,
         strategy: data.strategy,
-        year: currentYear,
+        year: data.selectedYear,
         companyDaysOff: data.companyDaysOff,
         holidays: data.holidays
       });
@@ -64,7 +66,7 @@ const HomePage = () => {
         <PageHeader>
           <PageTitle>Plan Your Time Off</PageTitle>
           <PageDescription>
-            Optimize your CTO days from today until the end of {currentYear}, making every day off count
+            Optimize your CTO days for {selectedYear}, making every day off count
           </PageDescription>
         </PageHeader>
 
@@ -81,12 +83,13 @@ const HomePage = () => {
                 : 'max-w-xl mx-auto w-full'
             )}>
               <OptimizerForm
-                onSubmitAction={({ days, strategy, companyDaysOff, holidays }) => {
+                onSubmitAction={({ days, strategy, companyDaysOff, holidays, selectedYear }) => {
                   const newFormState = {
                     numberOfDays: days,
                     strategy,
                     companyDaysOff,
-                    holidays
+                    holidays,
+                    selectedYear
                   };
                   handleOptimize(newFormState);
                 }}
@@ -102,7 +105,7 @@ const HomePage = () => {
                     <LoadingSpinner 
                       variant="primary"
                       label="Creating Your Perfect Schedule"
-                      description="Optimizing your time off for maximum enjoyment..."
+                      description={`Optimizing your time off for ${selectedYear} for maximum enjoyment...`}
                     />
                   </Card>
                 ) : optimizationResult && (
@@ -111,6 +114,7 @@ const HomePage = () => {
                     optimizedDays={optimizationResult.days}
                     breaks={optimizationResult.breaks}
                     stats={optimizationResult.stats}
+                    selectedYear={selectedYear}
                   />
                 )}
               </div>
