@@ -4,7 +4,7 @@ import { Coffee, Info, Palmtree, Shuffle, Star, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { OptimizationStrategy } from '@/types';
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useStrategySelection } from '@/hooks/useOptimizer';
@@ -21,6 +21,7 @@ const STRATEGY_ICONS = {
 
 export function StrategySelectionStep() {
   const { strategy, setStrategy } = useStrategySelection();
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const handleStrategyKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const currentIndex = OPTIMIZATION_STRATEGIES.findIndex(s => s.id === strategy);
@@ -48,17 +49,36 @@ export function StrategySelectionStep() {
     }
   };
 
+  const handleTooltipKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    // Activate tooltip on Enter or Space key
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setTooltipOpen(!tooltipOpen);
+    }
+  };
+
   // Info tooltip for strategy selection
   const titleWithInfo = (
     <div className="flex items-center justify-between w-full">
       <span>Pick Your Perfect Style</span>
-      <Tooltip>
+      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <div className="rounded-full p-1 hover:bg-blue-100/70 dark:hover:bg-blue-900/40 cursor-help transition-colors">
+          <button
+            type="button"
+            className="rounded-full p-1 hover:bg-blue-100/70 dark:hover:bg-blue-900/40 cursor-help transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            tabIndex={0}
+            aria-label="About optimization styles"
+            onKeyDown={handleTooltipKeyDown}
+          >
             <Info className="h-3.5 w-3.5 text-blue-500/70 dark:text-blue-400/70" />
-          </div>
+          </button>
         </TooltipTrigger>
-        <TooltipContent side="right" align="start" className="max-w-xs bg-blue-50/95 dark:bg-blue-900/90 border-blue-100 dark:border-blue-800/40 text-blue-900 dark:text-blue-100">
+        <TooltipContent 
+          side="right" 
+          align="start" 
+          className="max-w-xs bg-blue-50/95 dark:bg-blue-900/90 border-blue-100 dark:border-blue-800/40 text-blue-900 dark:text-blue-100"
+          role="tooltip"
+        >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-blue-800 dark:text-blue-300 text-sm">About Optimization Styles</h4>
             <p className="text-xs text-blue-700/90 dark:text-blue-300/90 leading-relaxed">
@@ -75,7 +95,7 @@ export function StrategySelectionStep() {
   return (
     <FormSection colorScheme="blue" headingId="strategy-heading">
       <StepHeader
-        number={3}
+        number={2}
         title={titleWithInfo}
         description="Select how you want to distribute your time off. This will determine the pattern and length of your breaks throughout the year."
         colorScheme="blue"

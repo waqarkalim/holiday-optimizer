@@ -5,26 +5,65 @@ import { FormSection } from './components/FormSection';
 import { useDaysInput } from '@/hooks/useOptimizer';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { KeyboardEvent, useState, useRef } from 'react';
 
 export function DaysInputStep() {
   const { days, errors, setDays } = useDaysInput();
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  
+  // References for focus management
+  const inputRef = useRef<HTMLInputElement>(null);
+  const tooltipButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setDays(e.target.value);
+  
+  const handleTooltipKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    // Activate tooltip on Enter or Space key
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setTooltipOpen(!tooltipOpen);
+    }
+    
+    // When Tab is pressed on the tooltip, focus the input
+    if (e.key === 'Tab' && !e.shiftKey) {
+      if (inputRef.current) {
+        // Let the default tab behavior work, which should go to the input
+      }
+    }
+  };
+  
+  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // When Shift+Tab is pressed on the input, focus the tooltip button
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      if (tooltipButtonRef.current) {
+        tooltipButtonRef.current.focus();
+      }
+    }
+  };
 
   // Info tooltip for additional context
   const titleWithInfo = (
     <div className="flex items-center justify-between w-full">
       <span>Start with Your Days</span>
-      <Tooltip>
+      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <div className="rounded-full p-1 hover:bg-teal-100/70 dark:hover:bg-teal-900/40 cursor-help transition-colors">
+          <button
+            type="button"
+            ref={tooltipButtonRef}
+            className="rounded-full p-1 hover:bg-teal-100/70 dark:hover:bg-teal-900/40 cursor-help transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1" 
+            tabIndex={0}
+            aria-label="About your PTO days"
+            onKeyDown={handleTooltipKeyDown}
+          >
             <Info className="h-3.5 w-3.5 text-teal-500/70 dark:text-teal-400/70" />
-          </div>
+          </button>
         </TooltipTrigger>
         <TooltipContent 
           side="right" 
           align="start" 
           className="max-w-xs bg-teal-50/95 dark:bg-teal-900/90 border-teal-100 dark:border-teal-800/40 text-teal-900 dark:text-teal-100"
+          role="tooltip"
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-teal-800 dark:text-teal-300 text-sm">About Your PTO Days</h4>
@@ -53,17 +92,21 @@ export function DaysInputStep() {
   return (
     <FormSection colorScheme="teal" headingId="days-heading">
       <StepHeader
-        number={2}
+        number={1}
         title={titleWithInfo}
         description="How many paid time off days do you have? We'll optimize your days from today until the end of the year, making every single one count."
         colorScheme="teal"
         id="days-heading"
       />
       <div className="pt-1">
-        <label htmlFor="days" className="sr-only">Enter number of CTO days available (numeric input field)</label>
+        <label htmlFor="days" className="block text-sm font-medium text-teal-700 dark:text-teal-300 mb-1">
+          Number of days
+          <span className="sr-only">(numeric input field)</span>
+        </label>
         <Input
           autoFocus
           id="days"
+          ref={inputRef}
           name="days"
           type="number"
           inputMode="numeric"
@@ -73,10 +116,11 @@ export function DaysInputStep() {
           max={365}
           value={days}
           onChange={handleChange}
+          onKeyDown={handleInputKeyDown}
           className={inputClasses}
           placeholder="Enter days"
           required
-          aria-describedby="days-description days-error"
+          aria-describedby={errors ? "days-error" : undefined}
           aria-invalid={!!errors}
           aria-errormessage={errors ? 'days-error' : undefined}
         />

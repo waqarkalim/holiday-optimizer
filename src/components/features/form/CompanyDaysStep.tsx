@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOptimizer } from '@/contexts/OptimizerContext';
+import { KeyboardEvent, useState } from 'react';
 
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
@@ -15,6 +16,7 @@ export function CompanyDaysStep() {
   const { companyDaysOff, addCompanyDay, removeCompanyDay } = useCompanyDays();
   const { state } = useOptimizer();
   const { selectedYear } = state;
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const handleCompanyDaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -24,6 +26,14 @@ export function CompanyDaysStep() {
       removeCompanyDay(formattedDate);
     } else {
       addCompanyDay(formattedDate, format(date, 'MMMM d, yyyy'));
+    }
+  };
+
+  const handleTooltipKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    // Activate tooltip on Enter or Space key
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setTooltipOpen(!tooltipOpen);
     }
   };
 
@@ -42,17 +52,23 @@ export function CompanyDaysStep() {
           Optional
         </Badge>
       </div>
-      <Tooltip>
+      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <div
-            className="rounded-full p-1 hover:bg-violet-100/70 dark:hover:bg-violet-900/40 cursor-help transition-colors">
+          <button
+            type="button"
+            className="rounded-full p-1 hover:bg-violet-100/70 dark:hover:bg-violet-900/40 cursor-help transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-1"
+            tabIndex={0}
+            aria-label="About company days off"
+            onKeyDown={handleTooltipKeyDown}
+          >
             <Info className="h-3.5 w-3.5 text-violet-500/70 dark:text-violet-400/70" />
-          </div>
+          </button>
         </TooltipTrigger>
         <TooltipContent
           side="right"
           align="start"
           className="max-w-xs bg-violet-50/95 dark:bg-violet-900/90 border-violet-100 dark:border-violet-800/40 text-violet-900 dark:text-violet-100"
+          role="tooltip"
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-violet-800 dark:text-violet-300 text-sm">About Company Days Off</h4>
@@ -74,7 +90,7 @@ export function CompanyDaysStep() {
   return (
     <FormSection colorScheme={colorScheme} headingId="company-days-heading">
       <StepHeader
-        number={5}
+        number={4}
         title={titleWithBadge}
         description={`Select your company's special non-working days for ${selectedYear} (like Summer Fridays or company holidays) that don't count against your PTO. Group and rename multiple dates together for easier management.`}
         colorScheme={colorScheme}

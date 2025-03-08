@@ -10,6 +10,7 @@ import { detectPublicHolidays } from '@/services/holidays';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOptimizer } from '@/contexts/OptimizerContext';
+import { KeyboardEvent, useState } from 'react';
 
 export function HolidaysStep() {
   const title = 'Selected Holidays';
@@ -17,6 +18,7 @@ export function HolidaysStep() {
   const { holidays, addHoliday, removeHoliday, setDetectedHolidays } = useHolidays();
   const { state } = useOptimizer();
   const { selectedYear } = state;
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const handleHolidaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -44,21 +46,35 @@ export function HolidaysStep() {
     }
   };
 
+  const handleTooltipKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    // Activate tooltip on Enter or Space key
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setTooltipOpen(!tooltipOpen);
+    }
+  };
+
   // Info tooltip content
   const titleWithInfo = (
     <div className="flex items-center justify-between w-full">
       <span>Public Holidays</span>
-      <Tooltip>
+      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <div
-            className="rounded-full p-1 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 cursor-help transition-colors">
+          <button
+            type="button"
+            className="rounded-full p-1 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 cursor-help transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+            tabIndex={0}
+            aria-label="Why public holidays matter"
+            onKeyDown={handleTooltipKeyDown}
+          >
             <Info className="h-3.5 w-3.5 text-amber-500/70 dark:text-amber-400/70" />
-          </div>
+          </button>
         </TooltipTrigger>
         <TooltipContent
           side="right"
           align="start"
           className="max-w-xs bg-amber-50/95 dark:bg-amber-900/90 border-amber-100 dark:border-amber-800/40 text-amber-900 dark:text-amber-100"
+          role="tooltip"
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-amber-800 dark:text-amber-300 text-sm">Why Public Holidays Matter</h4>
@@ -78,7 +94,7 @@ export function HolidaysStep() {
   return (
     <FormSection colorScheme={colorScheme} headingId="holidays-heading">
       <StepHeader
-        number={4}
+        number={3}
         title={titleWithInfo}
         description={`Find holidays in your area for ${selectedYear}, or pick specific dates from the calendar. Select multiple dates to rename them together.`}
         colorScheme={colorScheme}
