@@ -51,6 +51,7 @@ const GitHubLink = ({
       rel="noopener noreferrer"
       className={cn(baseStyles, variantStyles[variant], className)}
       aria-label={typeof children === 'string' ? children : 'View on GitHub'}
+      tabIndex={0}
     >
       <GitHubIcon className={variant === 'default' ? "mr-1.5" : ""} />
       {variant === 'default' && <span>{children}</span>}

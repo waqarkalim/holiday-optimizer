@@ -5,16 +5,16 @@ import { cn, linkStyles, spacing, textSize } from '@/lib/utils';
 import { GitHubLink } from '@/components/ui/github-link';
 
 const Footer = () => (
-  <footer className="bg-white/90 dark:bg-gray-800/90 border-t border-gray-200/60 dark:border-gray-700/30">
+  <footer className="bg-white/90 dark:bg-gray-800/90 border-t border-gray-200/60 dark:border-gray-700/30" role="contentinfo" aria-label="Site footer">
     <div className={cn(
       'mx-auto max-w-7xl',
       spacing.container,
     )}>
       <div className="py-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-200/60 dark:border-gray-700/30">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-200/60 dark:border-gray-700/30">
           {/* Left Column - Brand */}
-          <div className="space-y-3">
+          <article className="space-y-3">
             <Logo />
             <p className={cn(
               textSize('small'),
@@ -22,10 +22,10 @@ const Footer = () => (
             )}>
               A smart tool to help you plan and optimize your CTO days for the best possible breaks throughout the year.
             </p>
-          </div>
+          </article>
 
           {/* Right Column - Links & Info */}
-          <div className="flex flex-col items-start md:items-end space-y-3">
+          <aside className="flex flex-col items-start md:items-end space-y-3">
             <div className="flex items-center gap-3">
               <GitHubLink href={GITHUB_URL} />
               <a
@@ -38,12 +38,13 @@ const Footer = () => (
                   'px-2.5 py-1.5 rounded-lg font-medium',
                 )}
                 aria-label="Report an issue on GitHub"
+                tabIndex={0}
               >
                 <svg className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                      aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Report an Issue
+                <span>Report an Issue</span>
               </a>
             </div>
             <div className="flex items-center gap-1.5">
@@ -76,42 +77,51 @@ const Footer = () => (
                   textSize('tiny'),
                 )}
                 aria-label="Visit Waqar Bin Kalim's GitHub profile"
+                tabIndex={0}
               >
                 Waqar Bin Kalim
               </a>
             </div>
-          </div>
-        </div>
+          </aside>
+        </section>
 
         {/* Bottom Bar */}
-        <div className="pt-4 flex flex-col sm:flex-row justify-between items-center">
+        <section className="pt-4 flex flex-col sm:flex-row justify-between items-center">
           <p className={cn(
             textSize('tiny'),
             'text-gray-500 dark:text-gray-400',
           )}>
-            &copy; {new Date().getUTCFullYear()} {PROJECT_NAME}. All rights reserved.
+            <small>&copy; {new Date().getUTCFullYear()} {PROJECT_NAME}. All rights reserved.</small>
           </p>
-          <div className="flex items-center gap-4 mt-3 sm:mt-0">
-            <Link
-              href="/privacy"
-              className={cn(
-                linkStyles('ghost'),
-                textSize('tiny'),
-              )}
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/terms"
-              className={cn(
-                linkStyles('ghost'),
-                textSize('tiny'),
-              )}
-            >
-              Terms of Service
-            </Link>
-          </div>
-        </div>
+          <nav aria-label="Footer navigation" className="mt-3 sm:mt-0">
+            <ul className="flex items-center gap-4">
+              <li>
+                <Link
+                  href="/privacy"
+                  className={cn(
+                    linkStyles('ghost'),
+                    textSize('tiny'),
+                  )}
+                  tabIndex={0}
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className={cn(
+                    linkStyles('ghost'),
+                    textSize('tiny'),
+                  )}
+                  tabIndex={0}
+                >
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </section>
       </div>
     </div>
   </footer>

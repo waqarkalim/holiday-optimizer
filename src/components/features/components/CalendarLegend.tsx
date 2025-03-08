@@ -12,11 +12,9 @@ function LegendItem({ dayType, label }: LegendItemProps) {
   const colorScheme = dayTypeToColorScheme[dayType];
   
   return (
-    <div 
+    <li 
       className="flex items-center space-x-2.5 px-3 py-2 rounded-md 
                 focus-within:ring-2 focus-within:ring-blue-200 dark:focus-within:ring-blue-800/30"
-      tabIndex={0}
-      role="listitem"
       aria-label={`${label} calendar day type`}
     >
       <div className={cn(
@@ -25,7 +23,7 @@ function LegendItem({ dayType, label }: LegendItemProps) {
         "ring-1 ring-gray-200/80 dark:ring-gray-700/80 shadow-sm"
       )} />
       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
-    </div>
+    </li>
   )
 }
 
@@ -134,8 +132,7 @@ export function CalendarLegend({
       
       {/* Content area with proper spacing for cognitive breathing room */}
       <div className="p-3">
-        <div 
-          role="list"
+        <ul
           aria-label="Calendar day types" 
           className={cn(
             "grid gap-1",
@@ -150,7 +147,7 @@ export function CalendarLegend({
               priority={item.priority}
             />
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   )

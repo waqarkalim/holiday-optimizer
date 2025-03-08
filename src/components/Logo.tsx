@@ -2,7 +2,7 @@ import { PROJECT_NAME } from '@/constants';
 import Link from 'next/link';
 
 export const Logo = () =>
-  <Link href="/">
+  <Link href="/" tabIndex={0}>
     <div className="flex items-center space-x-2">
       <div
         className="p-1.5 bg-blue-500 dark:bg-blue-400 rounded-lg shadow-sm">

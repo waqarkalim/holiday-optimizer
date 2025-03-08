@@ -136,6 +136,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             variant="primary-action"
             disabled={isLoading || !isFormValid}
             aria-busy={isLoading}
+            tabIndex={0}
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">

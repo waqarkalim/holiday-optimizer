@@ -39,7 +39,7 @@ interface InfoIconProps {
 const InfoIcon = ({ tooltip, label, colorScheme }: InfoIconProps) => (
   <Tooltip>
     <TooltipTrigger asChild>
-      <button aria-label={`Show information about ${label}`}>
+      <button aria-label={`Show information about ${label}`} tabIndex={0}>
         <Icon_InfoIcon
           className="h-3.5 w-3.5 cursor-help"
           fill="none"
