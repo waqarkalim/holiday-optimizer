@@ -18,7 +18,16 @@ const TooltipProvider = ({ children, ...props }: TooltipPrimitive.TooltipProvide
 
 const Tooltip = TooltipPrimitive.Root;
 
-const TooltipTrigger = TooltipPrimitive.Trigger;
+const TooltipTrigger = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>
+>((props, ref) => (
+  <TooltipPrimitive.Trigger 
+    ref={ref} 
+    {...props} 
+  />
+));
+TooltipTrigger.displayName = TooltipPrimitive.Trigger.displayName;
 
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
@@ -33,6 +42,7 @@ const TooltipContent = React.forwardRef<
         className
       )}
       forceMount
+      tabIndex={-1}
       {...props}
     />
   </TooltipPrimitive.Portal>

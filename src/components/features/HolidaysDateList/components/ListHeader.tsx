@@ -13,6 +13,13 @@ export function ListHeader() {
     onClearAllAction: onClearAll
   } = useDateList();
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClearAll();
+    }
+  };
+
   return (
     <div className="mb-4 space-y-2">
       {/* Title and Count */}
@@ -40,6 +47,7 @@ export function ListHeader() {
           variant="outline"
           size="sm"
           onClick={onClearAll}
+          onKeyDown={handleKeyDown}
           className={cn(
             'h-7 px-2.5 gap-1.5',
             'border transition-all duration-200',
@@ -51,6 +59,7 @@ export function ListHeader() {
           )}
           tabIndex={0}
           aria-label={`Clear all ${title.toLowerCase()}`}
+          data-clear-button="true"
         >
           <Trash2 className={cn('h-3.5 w-3.5', 'transition-colors duration-200', colorStyles[colorScheme].accent)} />
           <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>

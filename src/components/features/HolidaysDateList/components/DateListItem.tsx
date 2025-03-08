@@ -47,6 +47,14 @@ export function DateListItem({ item }: DateListItemProps) {
     }
   };
 
+  // Handle keyboard events for both edit and remove buttons
+  const handleButtonKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -77,6 +85,7 @@ export function DateListItem({ item }: DateListItemProps) {
                   colorStyles[colorScheme].text,
                 )}
                 aria-label={`Edit name for ${formattedDate}`}
+                data-edit-input="true"
               />
               <div className="flex gap-1" role="group" aria-label="Edit actions">
                 <Button
@@ -84,13 +93,16 @@ export function DateListItem({ item }: DateListItemProps) {
                   variant="ghost"
                   size="sm"
                   onClick={cancelEdit}
+                  onKeyDown={(e) => handleButtonKeyDown(e, cancelEdit)}
                   className={cn(
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
                     'hover:bg-red-100/70 dark:hover:bg-red-900/30',
-                    'group',
+                    'group focus:ring-1 focus:ring-red-500 focus:ring-offset-1',
                   )}
+                  tabIndex={0}
                   aria-label="Cancel edit"
+                  data-cancel-button="true"
                 >
                   <X className={cn(
                     'h-3.5 w-3.5',
@@ -101,15 +113,18 @@ export function DateListItem({ item }: DateListItemProps) {
                 <Button
                   type="button"
                   onClick={() => confirmEdit(item.date)}
+                  onKeyDown={(e) => handleButtonKeyDown(e, () => confirmEdit(item.date))}
                   variant="ghost"
                   size="sm"
                   className={cn(
                     'h-7 w-7 p-0',
                     colorStyles[colorScheme].hover,
                     'hover:bg-green-100/70 dark:hover:bg-green-900/30',
-                    'group',
+                    'group focus:ring-1 focus:ring-green-500 focus:ring-offset-1',
                   )}
+                  tabIndex={0}
                   aria-label="Confirm edit"
+                  data-confirm-button="true"
                 >
                   <Check className={cn(
                     'h-3.5 w-3.5',
@@ -133,16 +148,19 @@ export function DateListItem({ item }: DateListItemProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => startEditing(item.date, item.name)}
+                  onKeyDown={(e) => handleButtonKeyDown(e, () => startEditing(item.date, item.name))}
                   className={cn(
                     'h-6 w-6 p-0',
                     'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
                     'transition-all duration-200',
                     colorStyles[colorScheme].hover,
                     'hover:scale-110 active:scale-95',
+                    'focus:ring-1 focus:ring-amber-500 focus:ring-offset-1',
                   )}
                   aria-label={`Edit name for ${item.name}`}
+                  tabIndex={0}
                   data-date={item.date}
-                  data-date-button
+                  data-edit-button="true"
                 >
                   <Pencil className={cn(
                     'h-3 w-3',
@@ -169,15 +187,18 @@ export function DateListItem({ item }: DateListItemProps) {
           variant="ghost"
           size="sm"
           onClick={() => onRemoveAction(item.date)}
+          onKeyDown={(e) => handleButtonKeyDown(e, () => onRemoveAction(item.date))}
           className={cn(
             'h-7 w-7 p-0',
             'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
             'transition-all duration-200',
             colorStyles[colorScheme].hover,
-            'group',
+            'group focus:ring-1 focus:ring-red-500 focus:ring-offset-1',
+            isEditing ? 'opacity-100' : '', // Always show when in edit mode
           )}
+          tabIndex={0}
           aria-label={`Remove ${item.name}`}
-          data-date-button
+          data-date-remove-button="true"
         >
           <X className={cn(
             'h-3.5 w-3.5',

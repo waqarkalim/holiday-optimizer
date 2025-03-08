@@ -55,6 +55,7 @@ export function DaysInputStep() {
             tabIndex={0}
             aria-label="About your PTO days"
             onKeyDown={handleTooltipKeyDown}
+            data-tooltip-trigger="true"
           >
             <Info className="h-3.5 w-3.5 text-teal-500/70 dark:text-teal-400/70" />
           </button>
@@ -64,6 +65,7 @@ export function DaysInputStep() {
           align="start" 
           className="max-w-xs bg-teal-50/95 dark:bg-teal-900/90 border-teal-100 dark:border-teal-800/40 text-teal-900 dark:text-teal-100"
           role="tooltip"
+          tabIndex={-1}
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-teal-800 dark:text-teal-300 text-sm">About Your PTO Days</h4>

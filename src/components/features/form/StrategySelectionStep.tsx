@@ -69,6 +69,7 @@ export function StrategySelectionStep() {
             tabIndex={0}
             aria-label="About optimization styles"
             onKeyDown={handleTooltipKeyDown}
+            data-tooltip-trigger="true"
           >
             <Info className="h-3.5 w-3.5 text-blue-500/70 dark:text-blue-400/70" />
           </button>
@@ -78,6 +79,7 @@ export function StrategySelectionStep() {
           align="start" 
           className="max-w-xs bg-blue-50/95 dark:bg-blue-900/90 border-blue-100 dark:border-blue-800/40 text-blue-900 dark:text-blue-100"
           role="tooltip"
+          tabIndex={-1}
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-blue-800 dark:text-blue-300 text-sm">About Optimization Styles</h4>

@@ -15,10 +15,12 @@ export function FlatView() {
 
   return (
     <>
-      {sortedItems.map((item) => (
+      {sortedItems.map((item, index) => (
         <motion.li
           key={item.date}
           {...ANIMATION_CONFIG}
+          data-list-item="true"
+          data-list-index={index}
         >
           <DateListItem item={item} />
         </motion.li>

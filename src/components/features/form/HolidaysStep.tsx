@@ -66,6 +66,7 @@ export function HolidaysStep() {
             tabIndex={0}
             aria-label="Why public holidays matter"
             onKeyDown={handleTooltipKeyDown}
+            data-tooltip-trigger="true"
           >
             <Info className="h-3.5 w-3.5 text-amber-500/70 dark:text-amber-400/70" />
           </button>
@@ -75,6 +76,7 @@ export function HolidaysStep() {
           align="start"
           className="max-w-xs bg-amber-50/95 dark:bg-amber-900/90 border-amber-100 dark:border-amber-800/40 text-amber-900 dark:text-amber-100"
           role="tooltip"
+          tabIndex={-1}
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-amber-800 dark:text-amber-300 text-sm">Why Public Holidays Matter</h4>
