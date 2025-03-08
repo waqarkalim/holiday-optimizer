@@ -25,6 +25,8 @@ export function StepBadge({ label, colorScheme }: StepBadgeProps) {
       variant="outline"
       size="sm"
       className={`font-medium text-[0.65rem] px-1.5 ${colorClasses[colorScheme]}`}
+      aria-label={label}
+      role="status"
     >
       {label}
     </Badge>

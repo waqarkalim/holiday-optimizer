@@ -1,5 +1,5 @@
-import { StepTooltip, StepTooltipProps } from './StepTooltip';
-import { StepBadge, StepBadgeProps } from './StepBadge';
+import { StepTooltip } from './StepTooltip';
+import { StepBadge } from './StepBadge';
 
 export interface StepTitleWithInfoProps {
   /**
@@ -33,9 +33,18 @@ export function StepTitleWithInfo({
   tooltip 
 }: StepTitleWithInfoProps) {
   return (
-    <div className="flex items-center justify-between w-full">
+    <div 
+      className="flex items-center justify-between w-full"
+      role="group"
+      aria-labelledby={`title-${title.replace(/\s+/g, '-').toLowerCase()}`}
+    >
       <div className="flex items-center gap-2">
-        <span>{title}</span>
+        <span 
+          id={`title-${title.replace(/\s+/g, '-').toLowerCase()}`}
+          className="font-medium"
+        >
+          {title}
+        </span>
         {badge && <StepBadge label={badge.label} colorScheme={colorScheme} />}
       </div>
       <StepTooltip
