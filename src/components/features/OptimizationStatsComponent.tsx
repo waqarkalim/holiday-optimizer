@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { OptimizationStats } from '@/types';
 import StatCard from './components/StatCard';
-import { Building2, Calendar, CalendarDays, Sun, Umbrella, BarChart2 } from 'lucide-react';
+import { BarChart2, Building2, Calendar, CalendarDays, Sun, Umbrella } from 'lucide-react';
 import { SectionCard } from '@/components/ui/section-card';
 
 interface OptimizationStatsComponentProps {
@@ -39,7 +39,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           icon={<Sun className="h-5 w-5" />}
           value={stats.totalPublicHolidays}
           label="Public Holidays"
-          tooltip="Number of public holidays in the selected year"
+          tooltip="Number of public holidays that are part of a longer break"
           colorScheme="amber"
         />
 
@@ -57,7 +57,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           icon={<Building2 className="h-5 w-5" />}
           value={stats.totalCompanyDaysOff}
           label="Company Days Off"
-          tooltip="Number of company-wide days off (e.g., Christmas closure)"
+          tooltip="Number of company-wide days off (e.g., Christmas closure) that part of a longer break"
           colorScheme="violet"
         />
       </div>
