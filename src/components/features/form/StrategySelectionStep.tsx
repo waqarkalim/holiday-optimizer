@@ -77,17 +77,6 @@ export function StrategySelectionStep() {
 
           return (
             <div key={strategyOption.id} className="relative">
-              <input
-                type="radio"
-                id={`strategy-${strategyOption.id}`}
-                name="strategy"
-                value={strategyOption.id}
-                checked={isSelected}
-                onChange={() => setStrategy(strategyOption.id)}
-                className="absolute opacity-0 h-0 w-0"
-                tabIndex={0}
-                aria-describedby={`strategy-description-${strategyOption.id}`}
-              />
               <label
                 htmlFor={`strategy-${strategyOption.id}`}
                 className={cn(
@@ -98,6 +87,17 @@ export function StrategySelectionStep() {
                     : 'bg-white dark:bg-gray-800/60 ring-1 ring-gray-200 dark:ring-gray-700 hover:ring-blue-200 dark:hover:ring-blue-800',
                 )}
               >
+                <input
+                  type="radio"
+                  id={`strategy-${strategyOption.id}`}
+                  name="strategy"
+                  value={strategyOption.id}
+                  checked={isSelected}
+                  onChange={() => setStrategy(strategyOption.id)}
+                  className="absolute opacity-0 h-0 w-0"
+                  tabIndex={0}
+                  aria-describedby={`strategy-description-${strategyOption.id}`}
+                />
                 <div className="flex items-start gap-3 w-full">
                   <div className={cn(
                     'p-2 rounded-md mt-0.5',
@@ -113,13 +113,14 @@ export function StrategySelectionStep() {
                         {strategyOption.label}
                       </p>
                       {strategyOption.id === 'balanced' && (
-                        <span className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
+                        <span
+                          className="inline-flex items-center rounded-md bg-blue-50/80 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-900 dark:text-blue-100 ring-1 ring-blue-900/10 dark:ring-blue-400/10">
                           Recommended
                         </span>
                       )}
                     </div>
-                    <p 
-                      id={`strategy-description-${strategyOption.id}`} 
+                    <p
+                      id={`strategy-description-${strategyOption.id}`}
                       className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 mt-1"
                     >
                       {strategyOption.description}
