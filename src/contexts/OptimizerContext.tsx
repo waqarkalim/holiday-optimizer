@@ -51,7 +51,7 @@ const initialState: OptimizerState = {
   companyDaysOff: [],
   holidays: [],
   selectedDates: [],
-  selectedYear: 2025,
+  selectedYear: new Date().getFullYear(),
   errors: {}
 }
 

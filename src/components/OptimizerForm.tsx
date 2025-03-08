@@ -97,45 +97,28 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             <div className="flex items-center gap-2" role="group" aria-labelledby="year-selection-label">
               <span id="year-selection-label" className="text-sm text-gray-600 dark:text-gray-300">Planning for:</span>
               <div className="relative">
-                <Select
+                <select
+                  id="year-select"
                   value={selectedYear.toString()}
-                  onValueChange={handleYearChange}
+                  onChange={(e) => handleYearChange(e.target.value)}
+                  className="h-8 w-28 rounded-md border border-teal-200 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-sm ring-offset-white focus:outline-none focus:ring-1 focus:ring-teal-500 dark:border-teal-800 dark:bg-teal-950 dark:text-gray-50 appearance-none cursor-pointer"
+                  aria-labelledby="year-selection-label"
                 >
-                  <SelectTrigger
-                    id="year-select"
-                    ref={yearSelectRef}
-                    className="h-8 w-28 rounded-md border border-teal-200 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-sm ring-offset-white focus:outline-none focus:ring-1 focus:ring-teal-500 dark:border-teal-800 dark:bg-teal-950 dark:text-gray-50"
-                    aria-label="Select planning year"
-                    tabIndex={0}
-                  >
-                    <SelectValue placeholder="Select a year" />
-                  </SelectTrigger>
-                  <SelectContent
-                    className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-md w-28 p-1"
-                    position="popper"
-                    align="end"
-                    sideOffset={4}
-                  >
-                    <div className="max-h-[180px] overflow-y-auto">
-                      {AVAILABLE_YEARS.map((year) => {
-                        const isSelected = year.toString() === selectedYear.toString();
-                        return (
-                          <SelectItem
-                            key={year}
-                            value={year.toString()}
-                            className={cn(
-                              "flex h-8 px-2 text-sm items-center justify-center rounded-sm cursor-pointer",
-                              "text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30",
-                              isSelected && "bg-teal-50 text-teal-900 font-medium dark:bg-teal-900/30 dark:text-teal-100"
-                            )}
-                          >
-                            <span>{year}</span>
-                          </SelectItem>
-                        );
-                      })}
-                    </div>
-                  </SelectContent>
-                </Select>
+                  {AVAILABLE_YEARS.map((year) => (
+                    <option 
+                      key={year} 
+                      value={year.toString()}
+                      className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300"
+                    >
+                      {year}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>

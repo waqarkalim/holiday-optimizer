@@ -23,7 +23,7 @@ const HomePage = () => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
-  const [selectedYear, setSelectedYear] = useState(2025);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleOptimize = async (data: FormState) => {
