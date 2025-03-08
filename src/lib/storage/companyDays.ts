@@ -1,22 +1,27 @@
-const STORAGE_KEY = 'companyDays';
+const STORAGE_KEY_BASE = 'companyDays';
 
 interface CompanyDay {
   date: string;
   name: string;
 }
 
-export function getStoredCompanyDays(): CompanyDay[] {
+// Helper function to get the year-specific storage key
+const getYearStorageKey = (year: number): string => `${STORAGE_KEY_BASE}_${year}`;
+
+export function getStoredCompanyDays(year: number = new Date().getFullYear()): CompanyDay[] {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const storageKey = getYearStorageKey(year);
+    const stored = localStorage.getItem(storageKey);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
   }
 }
 
-export function storeCompanyDay(day: CompanyDay) {
+export function storeCompanyDay(day: CompanyDay, year: number = new Date().getFullYear()) {
   try {
-    const companyDays = getStoredCompanyDays();
+    const storageKey = getYearStorageKey(year);
+    const companyDays = getStoredCompanyDays(year);
     const existingIndex = companyDays.findIndex(d => d.date === day.date);
     
     if (existingIndex !== -1) {
@@ -27,38 +32,19 @@ export function storeCompanyDay(day: CompanyDay) {
       companyDays.push(day);
     }
     
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(companyDays));
+    localStorage.setItem(storageKey, JSON.stringify(companyDays));
   } catch (error) {
     console.error('Failed to store company day:', error);
   }
 }
 
-export function removeStoredCompanyDay(dateToRemove: string) {
+export function removeStoredCompanyDay(dateToRemove: string, year: number = new Date().getFullYear()) {
   try {
-    const companyDays = getStoredCompanyDays();
+    const storageKey = getYearStorageKey(year);
+    const companyDays = getStoredCompanyDays(year);
     const updatedCompanyDays = companyDays.filter(day => day.date !== dateToRemove);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCompanyDays));
+    localStorage.setItem(storageKey, JSON.stringify(updatedCompanyDays));
   } catch (error) {
     console.error('Failed to remove company day:', error);
   }
 }
-
-export function clearStoredCompanyDays() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (error) {
-    console.error('Failed to clear company days:', error);
-  }
-}
-
-export function updateStoredCompanyDay(date: string, newName: string) {
-  try {
-    const companyDays = getStoredCompanyDays();
-    const updatedCompanyDays = companyDays.map(day =>
-      day.date === date ? { ...day, name: newName } : day
-    );
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCompanyDays));
-  } catch (error) {
-    console.error('Failed to update company day:', error);
-  }
-} 
