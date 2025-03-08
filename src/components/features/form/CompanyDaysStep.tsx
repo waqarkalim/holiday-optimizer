@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOptimizer } from '@/contexts/OptimizerContext';
-import { KeyboardEvent, useState } from 'react';
+import { useState } from 'react';
 
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
@@ -26,14 +26,6 @@ export function CompanyDaysStep() {
       removeCompanyDay(formattedDate);
     } else {
       addCompanyDay(formattedDate, format(date, 'MMMM d, yyyy'));
-    }
-  };
-
-  const handleTooltipKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    // Activate tooltip on Enter or Space key
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setTooltipOpen(!tooltipOpen);
     }
   };
 
@@ -57,10 +49,7 @@ export function CompanyDaysStep() {
           <button
             type="button"
             className="rounded-full p-1 hover:bg-violet-100/70 dark:hover:bg-violet-900/40 cursor-help transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-1"
-            tabIndex={0}
             aria-label="About company days off"
-            onKeyDown={handleTooltipKeyDown}
-            data-tooltip-trigger="true"
           >
             <Info className="h-3.5 w-3.5 text-violet-500/70 dark:text-violet-400/70" />
           </button>
@@ -70,7 +59,6 @@ export function CompanyDaysStep() {
           align="start"
           className="max-w-xs bg-violet-50/95 dark:bg-violet-900/90 border-violet-100 dark:border-violet-800/40 text-violet-900 dark:text-violet-100"
           role="tooltip"
-          tabIndex={-1}
         >
           <div className="space-y-2 p-1">
             <h4 className="font-medium text-violet-800 dark:text-violet-300 text-sm">About Company Days Off</h4>
@@ -99,7 +87,8 @@ export function CompanyDaysStep() {
         id="company-days-heading"
       />
 
-      <div className="space-y-6" role="group" aria-labelledby="company-days-heading">
+      <fieldset className="space-y-6 border-0 m-0 p-0" aria-labelledby="company-days-heading">
+        <legend className="sr-only">Company days off selection</legend>
         <MonthCalendarSelector
           id="company-days-calendar"
           selectedDates={selectedDates}
@@ -109,7 +98,7 @@ export function CompanyDaysStep() {
         />
 
         <DateList title={title} colorScheme={colorScheme} />
-      </div>
+      </fieldset>
     </FormSection>
   );
 } 
