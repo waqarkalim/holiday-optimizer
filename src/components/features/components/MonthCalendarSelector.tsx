@@ -1,7 +1,7 @@
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { DayClickEventHandler } from 'react-day-picker';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { startOfMonth, startOfYear } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -88,7 +88,6 @@ export function MonthCalendarSelector({
 
   return (
     <section
-      role="region"
       aria-label={`Calendar for selecting ${calendarType}`}
       id={id}
       className="relative"
@@ -100,6 +99,8 @@ export function MonthCalendarSelector({
           <li>Use arrow keys to move between days</li>
           <li>Press Space or Enter to select a date</li>
           <li>Use Page Up/Down to move between months</li>
+          <li>Use the "Previous month" and "Next month" buttons to navigate between months</li>
+          <li>Press Tab to reach the month navigation buttons and Space or Enter to activate them</li>
         </ul>
       </div>
 
@@ -121,23 +122,51 @@ export function MonthCalendarSelector({
           'ring-1 ring-black/5 dark:ring-white/10'
         )}
         pagedNavigation
+        modifiersClassNames={{
+          selected: 'selected-day',
+        }}
+        modifiers={{
+          today: new Date(),
+        }}
         components={{
-          IconLeft: ({ ...props }) => (
+          IconLeft: (props) => (
             <span
               {...props}
+              role="button"
+              aria-label="Go to previous month"
+              tabIndex={0}
               className={cn(
                 'flex items-center justify-center',
+                'rounded-md',
+                'h-7 w-7',
+                'bg-transparent',
+                'hover:bg-gray-100 dark:hover:bg-gray-800',
+                'transition-colors duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                colorScheme === 'amber' ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-violet-500',
+                'disabled:opacity-40 disabled:pointer-events-none',
                 props.className
               )}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </span>
           ),
-          IconRight: ({ ...props }) => (
+          IconRight: (props) => (
             <span
               {...props}
+              role="button"
+              tabIndex={0}
+              aria-label="Go to next month"
               className={cn(
                 'flex items-center justify-center',
+                'rounded-md',
+                'h-7 w-7',
+                'bg-transparent',
+                'hover:bg-gray-100 dark:hover:bg-gray-800',
+                'transition-colors duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                colorScheme === 'amber' ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-violet-500',
+                'disabled:opacity-40 disabled:pointer-events-none',
                 props.className
               )}
             >
@@ -164,19 +193,35 @@ export function MonthCalendarSelector({
             'active:scale-95',
             'focus-visible:outline-none focus-visible:ring-4',
             'disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed',
+            'focus:ring-offset-2',
+            'focus:ring-2',
+            'focus-visible:ring-2',
+            'focus-visible:ring-offset-2',
             colorStyles[colorScheme].nav.button,
           ),
           nav_button_previous: cn(
             'absolute left-1 flex items-center justify-center opacity-85 hover:opacity-100',
             'focus:outline-none focus:ring-4 focus:ring-offset-2',
             colorScheme === 'amber' ? 'focus:ring-amber-500/50' : 'focus:ring-violet-500/50',
-            'cursor-pointer'
+            'cursor-pointer',
+            'transition-all duration-200',
+            'h-7 w-7 rounded-md',
+            'focus-visible:ring-4',
+            'aria-disabled:opacity-50 aria-disabled:pointer-events-none',
+            'focus-visible:ring-offset-2',
+            colorScheme === 'amber' ? 'focus-visible:ring-amber-500/50' : 'focus-visible:ring-violet-500/50'
           ),
           nav_button_next: cn(
             'absolute right-1 flex items-center justify-center opacity-85 hover:opacity-100',
             'focus:outline-none focus:ring-4 focus:ring-offset-2',
             colorScheme === 'amber' ? 'focus:ring-amber-500/50' : 'focus:ring-violet-500/50',
-            'cursor-pointer'
+            'cursor-pointer',
+            'transition-all duration-200',
+            'h-7 w-7 rounded-md',
+            'focus-visible:ring-4',
+            'aria-disabled:opacity-50 aria-disabled:pointer-events-none',
+            'focus-visible:ring-offset-2',
+            colorScheme === 'amber' ? 'focus-visible:ring-amber-500/50' : 'focus-visible:ring-violet-500/50'
           ),
           table: 'w-full border-collapse space-y-1',
           head_row: 'flex w-full border-b border-gray-200 dark:border-gray-700',
