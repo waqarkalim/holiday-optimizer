@@ -1,14 +1,13 @@
 'use client';
 
-import { Coffee, Info, Palmtree, Shuffle, Star, Sunrise } from 'lucide-react';
+import { Coffee, Palmtree, Shuffle, Star, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OPTIMIZATION_STRATEGIES } from '@/constants';
 import { OptimizationStrategy } from '@/types';
-import { useState } from 'react';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useStrategySelection } from '@/hooks/useOptimizer';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 
 // Map strategy IDs to their respective icons
 const STRATEGY_ICONS = {
@@ -21,39 +20,18 @@ const STRATEGY_ICONS = {
 
 export function StrategySelectionStep() {
   const { strategy, setStrategy } = useStrategySelection();
-  const [tooltipOpen, setTooltipOpen] = useState(false);
 
-  // Info tooltip for strategy selection
+  // Using the new StepTitleWithInfo component
   const titleWithInfo = (
-    <div className="flex items-center justify-between w-full">
-      <span>Pick Your Perfect Style</span>
-      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className="rounded-full p-1 hover:bg-blue-100/70 dark:hover:bg-blue-900/40 cursor-help transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-            aria-label="About optimization styles"
-          >
-            <Info className="h-3.5 w-3.5 text-blue-500/70 dark:text-blue-400/70" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent 
-          side="right" 
-          align="start" 
-          className="max-w-xs bg-blue-50/95 dark:bg-blue-900/90 border-blue-100 dark:border-blue-800/40 text-blue-900 dark:text-blue-100"
-          role="tooltip"
-        >
-          <div className="space-y-2 p-1">
-            <h4 className="font-medium text-blue-800 dark:text-blue-300 text-sm">About Optimization Styles</h4>
-            <p className="text-xs text-blue-700/90 dark:text-blue-300/90 leading-relaxed">
-              Your optimization style determines how your PTO days will be distributed throughout the year. 
-              Choose based on your personal preferences - whether you enjoy frequent short breaks, 
-              longer weekends, or extended vacations. Each style creates a different pattern of time off.
-            </p>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    <StepTitleWithInfo
+      title="Pick Your Perfect Style"
+      colorScheme="blue"
+      tooltip={{
+        title: "About Optimization Styles",
+        description: "Your optimization style determines how your PTO days will be distributed throughout the year. Choose based on your personal preferences - whether you enjoy frequent short breaks, longer weekends, or extended vacations. Each style creates a different pattern of time off.",
+        ariaLabel: "About optimization styles"
+      }}
+    />
   );
 
   return (
