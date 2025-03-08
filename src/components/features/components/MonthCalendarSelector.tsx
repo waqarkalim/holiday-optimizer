@@ -28,6 +28,7 @@ const NavigationIcon = ({ ariaLabel, Icon, className, colorScheme, ...props }: N
   <span
     {...props}
     aria-label={ariaLabel}
+    tabIndex={0}
     className={cn(
       'flex items-center justify-center',
       'rounded-md',

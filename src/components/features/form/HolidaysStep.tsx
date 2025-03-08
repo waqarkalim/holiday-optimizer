@@ -99,6 +99,7 @@ export function HolidaysStep() {
           variant="outline"
           size="sm"
           type="button"
+          tabIndex={0}
           className="w-full bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2"
           aria-label={`Find public holidays in your location for ${selectedYear}`}
         >

@@ -14,10 +14,7 @@ export interface DateListItemProps {
   isGrouped?: boolean;
 }
 
-export function DateListItem({
-                               item,
-                               isGrouped = false,
-                             }: DateListItemProps) {
+export function DateListItem({ item, isGrouped = false }: DateListItemProps) {
   const {
     selectedDates,
     setSelectedDates,
