@@ -64,9 +64,9 @@ const HomePage = () => {
     <OptimizerProvider>
       <PageLayout>
         <PageHeader>
-          <PageTitle>Plan Your Time Off</PageTitle>
+          <PageTitle>Optimize Your Time Off</PageTitle>
           <PageDescription>
-            Optimize your CTO days for {selectedYear}, making every day off count
+            Make the most of your paid time off in {selectedYear} with smart scheduling
           </PageDescription>
         </PageHeader>
 
@@ -104,8 +104,8 @@ const HomePage = () => {
                   <Card variant="neutral" className="p-8 flex flex-col items-center justify-center min-h-[300px]">
                     <LoadingSpinner 
                       variant="primary"
-                      label="Creating Your Perfect Schedule"
-                      description={`Optimizing your time off for ${selectedYear} for maximum enjoyment...`}
+                      label="Creating Your Optimal Schedule"
+                      description={`Finding the best way to use your time off in ${selectedYear}...`}
                     />
                   </Card>
                 ) : optimizationResult && (

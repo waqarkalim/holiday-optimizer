@@ -29,27 +29,27 @@ export const OPTIMIZATION_STRATEGIES: StrategyOption[] = [
   {
     id: 'balanced',
     label: 'Balanced Mix',
-    description: 'A balanced mix of long weekends and longer breaks',
+    description: 'A smart blend of short breaks and longer vacations',
   },
   {
     id: 'longWeekends',
     label: 'Long Weekends',
-    description: `Maximize the number of ${BREAK_LENGTHS.LONG_WEEKEND.MIN}-${BREAK_LENGTHS.LONG_WEEKEND.MAX} day weekends`,
+    description: `More ${BREAK_LENGTHS.LONG_WEEKEND.MIN}-${BREAK_LENGTHS.LONG_WEEKEND.MAX} day weekends throughout the year`,
   },
   {
     id: 'miniBreaks',
     label: 'Mini Breaks',
-    description: `Spread out days into shorter ${BREAK_LENGTHS.MINI_BREAK.MIN}-${BREAK_LENGTHS.MINI_BREAK.MAX} day breaks`,
+    description: `Several shorter ${BREAK_LENGTHS.MINI_BREAK.MIN}-${BREAK_LENGTHS.MINI_BREAK.MAX} day breaks spread across the year`,
   },
   {
     id: 'weekLongBreaks',
     label: 'Week-long Breaks',
-    description: `Focus on creating ${BREAK_LENGTHS.WEEK_LONG.MIN}-${BREAK_LENGTHS.WEEK_LONG.MAX} day breaks`,
+    description: `Focused on ${BREAK_LENGTHS.WEEK_LONG.MIN}-${BREAK_LENGTHS.WEEK_LONG.MAX} day breaks for more substantial time off`,
   },
   {
     id: 'extendedVacations',
     label: 'Extended Vacations',
-    description: `Combine days for longer vacations (${BREAK_LENGTHS.EXTENDED.MIN}-${BREAK_LENGTHS.EXTENDED.MAX} days)`,
+    description: `Longer ${BREAK_LENGTHS.EXTENDED.MIN}-${BREAK_LENGTHS.EXTENDED.MAX} day vacations for deeper relaxation`,
   },
 ];
 

@@ -32,8 +32,8 @@ export function CompanyDaysStep() {
       colorScheme={colorScheme}
       badge={{ label: "Optional" }}
       tooltip={{
-        title: "About Company Days Off",
-        description: "Company days off are special non-working days your company provides that don't count against your PTO (e.g., Summer Fridays, company holidays, or gifted days off). Unlike company retreats or team events where you still have work obligations, these are true days off where you're not required to work at all. Adding these helps the optimizer avoid suggesting PTO on days you already have free.",
+        title: "Company Days Off",
+        description: "These are non-working days your company provides that don't count against your PTO, such as company holidays or special days off. Adding these helps avoid scheduling PTO on days you already have free.",
         ariaLabel: "About company days off"
       }}
     />
@@ -46,7 +46,7 @@ export function CompanyDaysStep() {
       <StepHeader
         number={4}
         title={titleWithInfo}
-        description={`Select your company's special non-working days for ${selectedYear} (like Summer Fridays or company holidays) that don't count against your PTO. Group and rename multiple dates together for easier management.`}
+        description={`Add your company's special non-working days for ${selectedYear} that don't count against your PTO.`}
         colorScheme={colorScheme}
         id="company-days-heading"
       />

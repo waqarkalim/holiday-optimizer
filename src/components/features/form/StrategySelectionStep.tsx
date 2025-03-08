@@ -24,11 +24,11 @@ export function StrategySelectionStep() {
   // Using the new StepTitleWithInfo component
   const titleWithInfo = (
     <StepTitleWithInfo
-      title="Pick Your Perfect Style"
+      title="Choose Your Style"
       colorScheme="blue"
       tooltip={{
-        title: "About Optimization Styles",
-        description: "Your optimization style determines how your PTO days will be distributed throughout the year. Choose based on your personal preferences - whether you enjoy frequent short breaks, longer weekends, or extended vacations. Each style creates a different pattern of time off.",
+        title: "Optimization Styles",
+        description: "Your selected style determines how your days will be distributed throughout the year. Each option creates a different pattern of time off based on your preferences - from short breaks to longer vacations.",
         ariaLabel: "About optimization styles"
       }}
     />
@@ -39,7 +39,7 @@ export function StrategySelectionStep() {
       <StepHeader
         number={2}
         title={titleWithInfo}
-        description="Select how you want to distribute your time off. This will determine the pattern and length of your breaks throughout the year."
+        description="Select how you'd like to distribute your time off. This affects the length and frequency of your breaks throughout the year."
         colorScheme="blue"
         id="strategy-heading"
       />

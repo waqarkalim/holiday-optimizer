@@ -20,7 +20,7 @@ const Footer = () => (
               textSize('small'),
               'text-gray-500 dark:text-gray-400 max-w-md',
             )}>
-              A smart tool to help you plan and optimize your CTO days for the best possible breaks throughout the year.
+              A smart tool to help you plan and optimize your time off for the best possible breaks throughout the year.
             </p>
           </article>
 

@@ -13,11 +13,11 @@ export function DaysInputStep() {
   // Using the new StepTitleWithInfo component
   const titleWithInfo = (
     <StepTitleWithInfo
-      title="Start with Your Days"
+      title="Enter Your Days"
       colorScheme="teal"
       tooltip={{
-        title: "About Your PTO Days",
-        description: "Enter the number of paid time off days you have available to use. This is the total number of workdays you can take off while still getting paid. The optimizer will help you make the most of these days.",
+        title: "Your Available PTO",
+        description: "Enter how many paid time off days you have available. These are workdays you can take off while still getting paid. The optimizer will distribute them strategically.",
         ariaLabel: "About your PTO days"
       }}
     />
@@ -39,7 +39,7 @@ export function DaysInputStep() {
       <StepHeader
         number={1}
         title={titleWithInfo}
-        description="How many paid time off days do you have? We'll optimize your days from today until the end of the year, making every single one count."
+        description="Enter how many paid time off days you have available. The app will optimize their use from today through the end of the year."
         colorScheme="teal"
         id="days-heading"
       />

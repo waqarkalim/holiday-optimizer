@@ -50,8 +50,8 @@ export function HolidaysStep() {
       title="Public Holidays"
       colorScheme={colorScheme}
       tooltip={{
-        title: "Why Public Holidays Matter",
-        description: "Public holidays affect how your time off is optimized. They're automatically excluded from potential time-off dates since you'll already have those days off. Including holidays ensures your optimizer creates the most efficient schedule possible.",
+        title: "About Public Holidays",
+        description: "Public holidays are already non-working days, so you don't need to use PTO for them. Adding them helps create an optimized schedule that accounts for these days when planning your time off.",
         ariaLabel: "Why public holidays matter"
       }}
     />
@@ -64,7 +64,7 @@ export function HolidaysStep() {
       <StepHeader
         number={3}
         title={titleWithInfo}
-        description={`Find holidays in your area for ${selectedYear}, or pick specific dates from the calendar. Select multiple dates to rename them together.`}
+        description={`Add public holidays for ${selectedYear} by using auto-detection or selecting dates from the calendar.`}
         colorScheme={colorScheme}
         id="holidays-heading"
       />
@@ -82,7 +82,7 @@ export function HolidaysStep() {
           aria-label={`Find public holidays in your location for ${selectedYear}`}
         >
           <MapPin className="h-3.5 w-3.5 mr-2 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-          Find {selectedYear} Holidays
+          Auto-Detect Holidays
         </Button>
 
         <div className="space-y-6">
