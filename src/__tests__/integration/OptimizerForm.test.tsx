@@ -67,6 +67,10 @@ jest.mock('lucide-react', () => ({
   AlertCircle: () => <div data-testid="alert-circle-icon" />,
   Save: () => <div data-testid="save-icon" />,
   ArrowRight: () => <div data-testid="arrow-right-icon" />,
+  HelpCircle: () => <div data-testid="help-circle-icon" />,
+  CheckCircle: () => <div data-testid="check-circle-icon" />,
+  ExternalLink: () => <div data-testid="external-link-icon" />,
+  PartyPopper: () => <div data-testid="party-popper-icon" />,
 }));
 
 // Mock useLocalStorage hook
@@ -100,44 +104,6 @@ jest.mock('sonner', () => ({
     success: jest.fn(),
     error: jest.fn(),
   },
-}));
-
-// Mock all onboarding-related components to avoid issues in tests
-jest.mock('@/components/features/onboarding/HelpButton', () => ({
-  HelpButton: () => <button data-testid="mocked-help-button">Help</button>
-}));
-
-jest.mock('@/components/features/onboarding/OnboardingOverlay', () => ({
-  OnboardingOverlay: () => <div data-testid="mocked-onboarding-overlay"></div>
-}));
-
-jest.mock('@/components/features/onboarding/OnboardingTooltip', () => ({
-  OnboardingTooltip: () => <div data-testid="mocked-onboarding-tooltip"></div>
-}));
-
-jest.mock('@/components/features/onboarding/OnboardingComplete', () => ({
-  OnboardingComplete: () => <div data-testid="mocked-onboarding-complete"></div>
-}));
-
-jest.mock('@/components/features/onboarding/OnboardingProgressBar', () => ({
-  OnboardingProgressBar: () => <div data-testid="mocked-onboarding-progress-bar"></div>
-}));
-
-// Also mock the entire context with a simplified version
-jest.mock('@/contexts/OnboardingContext', () => ({
-  OnboardingProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useOnboarding: () => ({
-    isOnboardingVisible: false,
-    hasCompletedOnboarding: true,
-    currentStep: 'intro',
-    totalSteps: 5,
-    startOnboarding: jest.fn(),
-    dismissOnboarding: jest.fn(),
-    goToNextStep: jest.fn(),
-    goToPrevStep: jest.fn(),
-    goToStep: jest.fn(),
-    isCurrentStep: () => false,
-  }),
 }));
 
 describe('OptimizerForm Integration Tests', () => {
