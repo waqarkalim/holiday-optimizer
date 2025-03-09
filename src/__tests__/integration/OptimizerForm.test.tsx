@@ -7,6 +7,7 @@ import { OptimizerProvider } from '@/contexts/OptimizerContext';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { toast } from 'sonner';
+import { OnboardingProvider } from '@/contexts/OnboardingContext';
 
 // Mock window.scrollTo since it's not implemented in jsdom
 window.scrollTo = jest.fn();
@@ -101,6 +102,44 @@ jest.mock('sonner', () => ({
   },
 }));
 
+// Mock all onboarding-related components to avoid issues in tests
+jest.mock('@/components/features/onboarding/HelpButton', () => ({
+  HelpButton: () => <button data-testid="mocked-help-button">Help</button>
+}));
+
+jest.mock('@/components/features/onboarding/OnboardingOverlay', () => ({
+  OnboardingOverlay: () => <div data-testid="mocked-onboarding-overlay"></div>
+}));
+
+jest.mock('@/components/features/onboarding/OnboardingTooltip', () => ({
+  OnboardingTooltip: () => <div data-testid="mocked-onboarding-tooltip"></div>
+}));
+
+jest.mock('@/components/features/onboarding/OnboardingComplete', () => ({
+  OnboardingComplete: () => <div data-testid="mocked-onboarding-complete"></div>
+}));
+
+jest.mock('@/components/features/onboarding/OnboardingProgressBar', () => ({
+  OnboardingProgressBar: () => <div data-testid="mocked-onboarding-progress-bar"></div>
+}));
+
+// Also mock the entire context with a simplified version
+jest.mock('@/contexts/OnboardingContext', () => ({
+  OnboardingProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useOnboarding: () => ({
+    isOnboardingVisible: false,
+    hasCompletedOnboarding: true,
+    currentStep: 'intro',
+    totalSteps: 5,
+    startOnboarding: jest.fn(),
+    dismissOnboarding: jest.fn(),
+    goToNextStep: jest.fn(),
+    goToPrevStep: jest.fn(),
+    goToStep: jest.fn(),
+    isCurrentStep: () => false,
+  }),
+}));
+
 describe('OptimizerForm Integration Tests', () => {
   let mockOnSubmitAction: jest.Mock;
   let user: ReturnType<typeof userEvent.setup>;
@@ -112,9 +151,11 @@ describe('OptimizerForm Integration Tests', () => {
     render(
       <ThemeProvider>
         <TooltipProvider>
-          <OptimizerProvider>
-            <OptimizerForm onSubmitAction={mockOnSubmitAction} />
-          </OptimizerProvider>
+          <OnboardingProvider>
+            <OptimizerProvider>
+              <OptimizerForm onSubmitAction={mockOnSubmitAction} />
+            </OptimizerProvider>
+          </OnboardingProvider>
         </TooltipProvider>
       </ThemeProvider>,
     );
