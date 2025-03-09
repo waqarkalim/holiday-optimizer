@@ -129,7 +129,7 @@ export function MonthCalendarSelector({
           <li>Use arrow keys to move between days</li>
           <li>Press Space or Enter to select a date</li>
           <li>Use Page Up/Down to move between months</li>
-          <li>Use the "Previous month" and "Next month" buttons to navigate between months</li>
+          <li>Use the &ldquo;Previous month&rdquo; and &ldquo;Next month&rdquo; buttons to navigate between months</li>
           <li>Press Tab to reach the month navigation buttons and Space or Enter to activate them</li>
         </ul>
       </div>

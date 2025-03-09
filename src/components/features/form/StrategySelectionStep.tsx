@@ -49,7 +49,7 @@ export function StrategySelectionStep() {
         role="radiogroup"
       >
         <legend className="sr-only">Select optimization strategy</legend>
-        {OPTIMIZATION_STRATEGIES.map((strategyOption, index) => {
+        {OPTIMIZATION_STRATEGIES.map((strategyOption) => {
           const Icon = STRATEGY_ICONS[strategyOption.id as OptimizationStrategy];
           const isSelected = strategy === strategyOption.id;
 

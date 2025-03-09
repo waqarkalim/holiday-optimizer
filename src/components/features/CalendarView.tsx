@@ -2,7 +2,7 @@ import { OptimizationStats, OptimizedDay } from '@/types';
 import { CalendarLegend } from '@/components/features/components/CalendarLegend';
 import { MONTHS } from '@/constants';
 import { MonthCalendar } from '@/components/features/components/MonthCalendar';
-import { Calendar, AlertCircle } from 'lucide-react';
+import { AlertCircle, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { SectionCard } from '@/components/ui/section-card';
 
@@ -47,7 +47,7 @@ export const CalendarView = ({ stats, optimizedDays, selectedYear }: CalendarVie
           <div>
             <p className="font-medium">Planning for {selectedYear}</p>
             <p className="text-xs mt-1 text-green-700 dark:text-green-300">
-              You're viewing the optimization for the entire {selectedYear} calendar year. Plan ahead by selecting the most advantageous days for your time off.
+              You&apos;re viewing the optimization for the entire {selectedYear} calendar year. Plan ahead by selecting the most advantageous days for your time off.
             </p>
           </div>
         </div>
