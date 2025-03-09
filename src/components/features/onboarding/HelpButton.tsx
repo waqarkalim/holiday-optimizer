@@ -2,18 +2,14 @@
 
 import { HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 
 interface HelpButtonProps {
   className?: string;
 }
 
-export function HelpButton({ className }: HelpButtonProps) {
+export const HelpButton = ({ className }: HelpButtonProps) => {
   const { startOnboarding } = useOnboarding();
 
   return (
@@ -35,4 +31,4 @@ export function HelpButton({ className }: HelpButtonProps) {
       </TooltipContent>
     </Tooltip>
   );
-} 
+};
