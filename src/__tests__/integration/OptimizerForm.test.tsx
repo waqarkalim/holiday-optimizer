@@ -994,7 +994,7 @@ describe('Onboarding Flow Integration Tests', () => {
     expect(within(introOverlay).getByRole('heading', { level: 2 })).toHaveTextContent('Welcome to Holiday Optimizer');
     
     // Start the tour
-    const startTourButton = within(introOverlay).getByRole('button', { name: /start tour/i });
+    const startTourButton = within(introOverlay).getByRole('button', { name: /start onboarding tour/i });
     await user.click(startTourButton);
     
     // Verify we've moved to the first step (days input)
@@ -1004,7 +1004,7 @@ describe('Onboarding Flow Integration Tests', () => {
   });
 
   test('should allow user to skip the onboarding tour from intro screen', async () => {
-    const skipTourButton = screen.getByRole('button', { name: /skip tour/i });
+    const skipTourButton = screen.getByRole('button', { name: /skip onboarding tour/i });
     await user.click(skipTourButton);
     
     // Intro dialog should be gone
@@ -1021,7 +1021,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should show each onboarding step in sequence when navigating with Next button', async () => {
     // Start tour
-    const startTourButton = screen.getByRole('button', { name: /start tour/i });
+    const startTourButton = screen.getByRole('button', { name: /start onboarding tour/i });
     await user.click(startTourButton);
     
     // Step 1: Days Input
@@ -1054,7 +1054,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should allow navigating back to previous steps using Previous button', async () => {
     // Start tour and navigate to Step 2
-    await user.click(screen.getByRole('button', { name: /start tour/i }));
+    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
     
     // Verify we're on Step 2
@@ -1072,7 +1072,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should show progress bar with correct progress during onboarding', async () => {
     // Start tour
-    await user.click(screen.getByRole('button', { name: /start tour/i }));
+    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
     
     // Check initial progress
     let progressBar = screen.getByRole('progressbar');
@@ -1088,7 +1088,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should allow dismissing onboarding from any step', async () => {
     // Start tour and go to step 2
-    await user.click(screen.getByRole('button', { name: /start tour/i }));
+    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
     
     // Dismiss from step 2
@@ -1101,7 +1101,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should display completion screen with working "Get Started" button', async () => {
     // Navigate through all steps to completion
-    await user.click(screen.getByRole('button', { name: /start tour/i }));
+    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
     
     // Go through all steps
     for (let i = 0; i < 4; i++) {
@@ -1122,7 +1122,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should save "don\'t show again" preference correctly', async () => {
     // On completion screen, check the "don't show again" checkbox
-    await user.click(screen.getByRole('button', { name: /start tour/i }));
+    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
     
     // Go through all steps
     for (let i = 0; i < 4; i++) {
@@ -1148,7 +1148,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should allow reopening onboarding using help button after dismissal', async () => {
     // First dismiss onboarding
-    await user.click(screen.getByRole('button', { name: /skip tour/i }));
+    await user.click(screen.getByRole('button', { name: /skip onboarding tour/i }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     
     // Now click help button to reopen
@@ -1163,7 +1163,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
   test('should show tooltips positioned correctly relative to form sections', async () => {
     // Start tour to get to steps
-    await user.click(screen.getByRole('button', { name: /start tour/i }));
+    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
     
     // Check days input tooltip position
     const daysInputSection = screen.getByRole('region', { name: /enter your days/i });
