@@ -53,7 +53,7 @@ export function BreakDetails({ breaks }: BreakDetailsProps) {
               No Breaks Planned Yet
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md">
-              Adjust your CTO days and preferences to see optimized break suggestions
+              Adjust your PTO days and preferences to see optimized break suggestions
             </p>
           </div>
         ) : (

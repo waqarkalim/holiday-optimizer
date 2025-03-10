@@ -13,8 +13,8 @@ import { UMAMI_WEBSITE_ID } from '@/constants';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CTO Days Optimizer',
-  description: 'Optimize your Compensatory Time Off days to maximize your time off throughout the year.',
+  title: 'Holiday Optimizer',
+  description: 'Optimize your Paid Time Off days to maximize your time off throughout the year.',
 };
 
 export const viewport: Viewport = {

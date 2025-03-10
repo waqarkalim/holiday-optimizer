@@ -38,7 +38,7 @@ const getDayTypeGroup = (dayType: DayType): DayTypeGroup => {
       return 'holiday';
     case 'weekend': 
       return 'weekend';
-    case 'cto':
+    case 'pto':
       return 'time-off';
     default:
       return 'weekend';
@@ -46,7 +46,7 @@ const getDayTypeGroup = (dayType: DayType): DayTypeGroup => {
 };
 
 interface CalendarLegendProps {
-  hasCTODays?: boolean
+  hasPTODays?: boolean
   hasHolidays?: boolean
   hasCompanyDaysOff?: boolean
   hasExtendedWeekends?: boolean
@@ -54,7 +54,7 @@ interface CalendarLegendProps {
 }
 
 export function CalendarLegend({ 
-  hasCTODays = false,
+  hasPTODays = false,
   hasHolidays = false,
   hasCompanyDaysOff = false,
   hasExtendedWeekends = false,
@@ -62,9 +62,9 @@ export function CalendarLegend({
 }: CalendarLegendProps) {
   // Define legend items with priority for importance-based visual hierarchy
   const legendItems: LegendItemProps[] = [
-    hasCTODays && {
-      dayType: 'cto',
-      label: "CTO Day",
+    hasPTODays && {
+      dayType: 'pto',
+      label: "PTO Day",
       priority: 4
     },
     hasHolidays && {

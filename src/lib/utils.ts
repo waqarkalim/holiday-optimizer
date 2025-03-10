@@ -9,11 +9,11 @@ export function cn(...inputs: ClassValue[]) {
 export const isProd = () => process.env.NODE_ENV === 'production';
 
 // Utility function to get day type colors
-export type DayType = 'cto' | 'publicHoliday' | 'companyDayOff' | 'weekend' | 'extendedWeekend' | 'default';
+export type DayType = 'pto' | 'publicHoliday' | 'companyDayOff' | 'weekend' | 'extendedWeekend' | 'default';
 
 // Mapping from day types to color schemes
 export const dayTypeToColorScheme: Record<DayType, PossibleColors> = {
-  cto: 'fuchsia',
+  pto: 'fuchsia',
   publicHoliday: 'amber',
   companyDayOff: 'violet',
   weekend: 'orange',

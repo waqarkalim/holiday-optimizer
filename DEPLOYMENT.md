@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide explains how to set up and deploy the CTO Planner application.
+This guide explains how to set up and deploy the Holiday Optimizer application.
 
 ## Infrastructure Overview
 
@@ -61,7 +61,7 @@ The application uses a serverless architecture on AWS:
    terraform init
    terraform apply \
      -var="github_org=your-github-username" \
-     -var="github_repo=cto-planner"
+     -var="github_repo=holiday-optimizer"
 
    # Save the role ARN output for GitHub Actions
    ```

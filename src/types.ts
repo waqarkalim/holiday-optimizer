@@ -5,7 +5,7 @@ export type OptimizationStrategy = 'balanced' | 'miniBreaks' | 'longWeekends' | 
 export interface OptimizedDay {
     date: string;
     isWeekend: boolean;
-    isCTO: boolean;
+    isPTO: boolean;
     isPartOfBreak: boolean;
     isPublicHoliday: boolean;
     publicHolidayName?: string;
@@ -18,14 +18,14 @@ export interface Break {
     endDate: string;
     days: OptimizedDay[];
     totalDays: number;
-    ctoDays: number;
+    ptoDays: number;
     publicHolidays: number;
     weekends: number;
     companyDaysOff: number;
 }
 
 export interface OptimizationStats {
-    totalCTODays: number;
+    totalPTODays: number;
     totalPublicHolidays: number;
     totalNormalWeekends: number;
     totalExtendedWeekends: number;

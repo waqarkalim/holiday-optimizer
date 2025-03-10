@@ -21,16 +21,16 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           icon={<CalendarDays className="h-5 w-5" />}
           value={stats.totalDaysOff}
           label="Total Days Off"
-          tooltip="Total number of days off including weekends, holidays, and CTO days"
+          tooltip="Total number of days off including weekends, holidays, and PTO days"
           colorScheme="blue"
         />
 
-        {/* CTO Days */}
+        {/* PTO Days */}
         <StatCard
           icon={<Calendar className="h-5 w-5" />}
-          value={stats.totalCTODays}
-          label="CTO Days"
-          tooltip="Number of CTO days used in the optimization"
+          value={stats.totalPTODays}
+          label="PTO Days"
+          tooltip="Number of PTO days used in the optimization"
           colorScheme="green"
         />
 

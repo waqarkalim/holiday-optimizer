@@ -25,7 +25,7 @@ interface CalendarDayProps {
   day: OptimizedDay;
   dayInfo: ReturnType<(day: OptimizedDay) => {
     date: Date;
-    dayType: 'default' | 'companyDayOff' | 'weekend' | 'cto' | 'publicHoliday' | 'extendedWeekend';
+    dayType: 'default' | 'companyDayOff' | 'weekend' | 'pto' | 'publicHoliday' | 'extendedWeekend';
     tooltipText: string;
     bgClass: string;
     textClass: string;
@@ -47,14 +47,12 @@ const getDayColorScheme = (day: OptimizedDay, date: Date, isCurrentDay: boolean,
   // Determine day type based on properties
   let dayType: DayType = 'default';
   
-  if (day.isCTO) {
-    dayType = 'cto';
+  if (day.isPTO) {
+    dayType = 'pto';
   } else if (day.isPublicHoliday) {
     dayType = 'publicHoliday';
   } else if (day.isCompanyDayOff) {
     dayType = 'companyDayOff';
-  } else if (day.isWeekend && day.isPartOfBreak) {
-    dayType = 'extendedWeekend';
   } else if (day.isWeekend) {
     dayType = 'weekend';
   }
@@ -162,7 +160,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
 
   // Check if any day types exist in the data
   const dayTypeFlags = {
-    hasCTODays: days.some(day => day.isCTO),
+    hasPTODays: days.some(day => day.isPTO),
     hasPublicHoliday: days.some(day => day.isPublicHoliday),
     hasCompanyDaysOff: days.some(day => day.isCompanyDayOff),
     hasExtendedWeekends: days.some(day => day.isPartOfBreak && day.isWeekend),
@@ -184,7 +182,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     calendarDays[startingDayIndex + index] = day || {
       date: dateStr,
       isWeekend: getDay(date) === 0 || getDay(date) === 6,
-      isCTO: false,
+      isPTO: false,
       isPartOfBreak: false,
       isPublicHoliday: false,
       isCompanyDayOff: false,
@@ -209,7 +207,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     } else if (isCurrentDay) {
       tooltipText = 'Today';
     } else {
-      // Order of precedence: Company Days > Public Holidays > Extended Weekends > CTO Days > Regular Weekends
+      // Order of precedence: Company Days > Public Holidays > Extended Weekends > PTO Days > Regular Weekends
       if (dayTypeFlags.hasCompanyDaysOff && day.isCompanyDayOff) {
         dayType = 'companyDayOff';
         tooltipText = day.companyDayName || 'Company Day Off';
@@ -219,9 +217,9 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       } else if (dayTypeFlags.hasExtendedWeekends && day.isPartOfBreak && day.isWeekend) {
         dayType = 'extendedWeekend';
         tooltipText = 'Extended Weekend';
-      } else if (dayTypeFlags.hasCTODays && day.isCTO) {
-        dayType = 'cto';
-        tooltipText = 'CTO Day';
+      } else if (dayTypeFlags.hasPTODays && day.isPTO) {
+        dayType = 'pto';
+        tooltipText = 'PTO Day';
       } else if (day.isPartOfBreak) {
         // Add specific tooltip for break days that aren't weekends or holidays
         tooltipText = 'Part of Break Period';

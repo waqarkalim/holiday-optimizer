@@ -54,7 +54,7 @@ export const CalendarView = ({ stats, optimizedDays, selectedYear }: CalendarVie
       )}
 
       <CalendarLegend
-        hasCTODays={stats.totalCTODays > 0}
+        hasPTODays={stats.totalPTODays > 0}
         hasHolidays={stats.totalPublicHolidays > 0}
         hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
         hasExtendedWeekends={stats.totalExtendedWeekends > 0}

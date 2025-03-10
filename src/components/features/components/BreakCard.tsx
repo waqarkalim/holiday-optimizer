@@ -41,12 +41,12 @@ const getBreakStyles = (totalDays: number) => {
 };
 
 /**
- * Determines the type of day (CTO, public holiday, company day off, weekend, or default)
+ * Determines the type of day (PTO, public holiday, company day off, weekend, or default)
  * @param day - A day object from the break period
  * @returns The day type as a DayType enum value
  */
 const getDayType = (day: Break['days'][0]): DayType => {
-  if (day.isCTO) return 'cto';
+  if (day.isPTO) return 'pto';
   if (day.isPublicHoliday) return 'publicHoliday';
   if (day.isCompanyDayOff) return 'companyDayOff';
   if (day.isWeekend) return 'weekend';
@@ -59,7 +59,7 @@ const getDayType = (day: Break['days'][0]): DayType => {
  * @returns A string describing the day type
  */
 const getDayDescription = (day: Break['days'][0]): string => {
-  if (day.isCTO) return 'CTO Day';
+  if (day.isPTO) return 'PTO Day';
   if (day.isPublicHoliday) return day.publicHolidayName || 'Holiday';
   if (day.isCompanyDayOff) return day.companyDayName || 'Company Day Off';
   if (day.isWeekend) return 'Weekend';
@@ -92,7 +92,7 @@ const DayCount = ({ count, icon, label }: DayCountProps) => (
 /**
  * DayCountsGrid Component
  *
- * Displays a grid of day type counts (CTO days, public holidays, etc.)
+ * Displays a grid of day type counts (PTO days, public holidays, etc.)
  */
 interface DayCountsGridProps {
   breakPeriod: Break;
@@ -102,15 +102,15 @@ const iconSize = 'h-3.5 w-3.5';
 
 const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
   <div className="mt-3 grid grid-cols-4 gap-2">
-    {/* CTO Days count */}
-    {breakPeriod.ctoDays > 0 && (
+    {/* PTO Days count */}
+    {breakPeriod.ptoDays > 0 && (
       <DayCount
-        count={breakPeriod.ctoDays}
+        count={breakPeriod.ptoDays}
         icon={<Calendar className={cn(
           iconSize,
-          COLOR_SCHEMES[dayTypeToColorScheme.cto].icon.text
+          COLOR_SCHEMES[dayTypeToColorScheme.pto].icon.text
         )} />}
-        label={breakPeriod.ctoDays === 1 ? 'CTO Day' : 'CTO Days'}
+        label={breakPeriod.ptoDays === 1 ? 'PTO Day' : 'PTO Days'}
       />
     )}
 

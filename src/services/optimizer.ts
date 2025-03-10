@@ -55,8 +55,8 @@ interface CandidateSegment {
   startIdx: number;
   endIdx: number;
   totalDays: number;
-  ctoUsed: number;
-  efficiency: number; // = totalDays / ctoUsed
+  ptoUsed: number;
+  efficiency: number; // = totalDays / ptoUsed
   startDate: string;
   endDate: string;
   segmentDays: OptimizedDay[];
@@ -151,16 +151,18 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
       }
     }
 
-    calendar.push({
-      date: dateStr,
+    const day: OptimizedDay = {
+      date: formatDate(d),
       isWeekend,
       isPublicHoliday,
       publicHolidayName,
       isCompanyDayOff,
       companyDayName,
-      isCTO: false,
+      isPTO: false,
       isPartOfBreak: false,
-    });
+    };
+
+    calendar.push(day);
   }
   return calendar;
 };
@@ -180,21 +182,21 @@ const generateCandidateSegments = (
     for (let L = minBreak; L <= maxBreak; L++) {
       if (i + L - 1 >= totalDays) break;
       const segmentDays: OptimizedDay[] = [];
-      let ctoUsed = 0;
+      let ptoUsed = 0;
       for (let j = i; j < i + L; j++) {
         const day = calendar[j];
         if (!isFixedOff(day)) {
-          ctoUsed++;
+          ptoUsed++;
         }
         segmentDays.push(day);
       }
-      if (ctoUsed > 0) {
+      if (ptoUsed > 0) {
         candidates.push({
           startIdx: i,
           endIdx: i + L - 1,
           totalDays: L,
-          ctoUsed,
-          efficiency: L / ctoUsed,
+          ptoUsed,
+          efficiency: L / ptoUsed,
           startDate: calendar[i].date,
           endDate: calendar[i + L - 1].date,
           segmentDays: [...segmentDays],
@@ -207,10 +209,10 @@ const generateCandidateSegments = (
 
 const pruneCandidateSegments = (
   segments: CandidateSegment[],
-  availableCTO: number
+  availablePTO: number
 ): CandidateSegment[] => {
-  // Filter out segments that exceed available CTO days.
-  const filtered = segments.filter(seg => seg.ctoUsed <= availableCTO);
+  // Filter out segments that exceed available PTO days.
+  const filtered = segments.filter(seg => seg.ptoUsed <= availablePTO);
   const grouped = new Map<number, CandidateSegment[]>();
   for (const seg of filtered) {
     const group = grouped.get(seg.startIdx) || [];
@@ -225,10 +227,10 @@ const pruneCandidateSegments = (
       for (const other of group) {
         if (other === seg) continue;
         // One segment dominates another if it ends later,
-        // uses fewer or equal CTO days, and provides equal or greater total days off.
+        // uses fewer or equal PTO days, and provides equal or greater total days off.
         if (
           other.endIdx >= seg.endIdx &&
-          other.ctoUsed <= seg.ctoUsed &&
+          other.ptoUsed <= seg.ptoUsed &&
           other.totalDays >= seg.totalDays
         ) {
           dominated = true;
@@ -264,7 +266,7 @@ const binarySearch = (
 interface DPSolution {
   totalDaysOff: number;
   segments: CandidateSegment[];
-  totalCTOUsed: number;
+  totalPTOUsed: number;
 }
 
 /* -----------------------------
@@ -272,7 +274,7 @@ interface DPSolution {
 ----------------------------- */
 const dpExhaustiveSearch = (
   candidates: CandidateSegment[],
-  availableCTO: number,
+  availablePTO: number,
   spacing: number
 ): DPSolution => {
   const memo = new Map<string, DPSolution>();
@@ -280,27 +282,27 @@ const dpExhaustiveSearch = (
   const dp = (
     idx: number,
     lastEnd: number,
-    usedCTO: number
+    usedPTO: number
   ): DPSolution => {
-    if (idx >= candidates.length) return { totalDaysOff: 0, segments: [], totalCTOUsed: 0 };
-    const key = `${idx}-${lastEnd}-${usedCTO}`;
+    if (idx >= candidates.length) return { totalDaysOff: 0, segments: [], totalPTOUsed: 0 };
+    const key = `${idx}-${lastEnd}-${usedPTO}`;
     if (memo.has(key)) return memo.get(key)!;
 
     const requiredStart = lastEnd + spacing;
     const nextIdx = binarySearch(candidates, requiredStart, idx);
-    let best: DPSolution = { totalDaysOff: 0, segments: [], totalCTOUsed: 0 };
+    let best: DPSolution = { totalDaysOff: 0, segments: [], totalPTOUsed: 0 };
 
     for (let i = nextIdx; i < candidates.length; i++) {
       const candidate = candidates[i];
       if (candidate.startIdx < requiredStart) continue;
-      if (usedCTO + candidate.ctoUsed > availableCTO) continue;
-      const res = dp(i + 1, candidate.endIdx, usedCTO + candidate.ctoUsed);
+      if (usedPTO + candidate.ptoUsed > availablePTO) continue;
+      const res = dp(i + 1, candidate.endIdx, usedPTO + candidate.ptoUsed);
       const total = candidate.totalDays + res.totalDaysOff;
       if (total > best.totalDaysOff) {
         best = {
           totalDaysOff: total,
           segments: [candidate, ...res.segments],
-          totalCTOUsed: candidate.ctoUsed + res.totalCTOUsed,
+          totalPTOUsed: candidate.ptoUsed + res.totalPTOUsed,
         };
       }
     }
@@ -317,21 +319,21 @@ const dpExhaustiveSearch = (
 const forceExtendSegments = (
   calendar: OptimizedDay[],
   breaks: Break[],
-  remainingCTO: number
+  remainingPTO: number
 ): number => {
   const totalDays = calendar.length;
   for (const brk of breaks) {
     let endIdx = calendar.findIndex(day => day.date === brk.endDate);
-    while (remainingCTO > 0 && endIdx < totalDays - 1) {
+    while (remainingPTO > 0 && endIdx < totalDays - 1) {
       const nextDay = calendar[endIdx + 1];
       if (nextDay.isPartOfBreak) break;
       if (!isFixedOff(nextDay)) {
-        nextDay.isCTO = true;
+        nextDay.isPTO = true;
         nextDay.isPartOfBreak = true;
         brk.days.push(nextDay);
         brk.totalDays++;
-        brk.ctoDays++;
-        remainingCTO--;
+        brk.ptoDays++;
+        remainingPTO--;
         endIdx++;
         brk.endDate = nextDay.date;
       } else {
@@ -339,25 +341,25 @@ const forceExtendSegments = (
       }
     }
   }
-  return remainingCTO;
+  return remainingPTO;
 };
 
 const addForcedSegments = (
   calendar: OptimizedDay[],
-  remainingCTO: number,
+  remainingPTO: number,
 ): Break[] => {
   const forcedBreaks: Break[] = [];
   const totalDays = calendar.length;
   let i = 0;
-  while (i < totalDays && remainingCTO > 0) {
+  while (i < totalDays && remainingPTO > 0) {
     if (!calendar[i].isPartOfBreak && !isFixedOff(calendar[i])) {
       const forcedSegment: OptimizedDay[] = [];
-      while (i < totalDays && !calendar[i].isPartOfBreak && remainingCTO > 0) {
+      while (i < totalDays && !calendar[i].isPartOfBreak && remainingPTO > 0) {
         if (!isFixedOff(calendar[i])) {
-          calendar[i].isCTO = true;
+          calendar[i].isPTO = true;
           calendar[i].isPartOfBreak = true;
           forcedSegment.push(calendar[i]);
-          remainingCTO--;
+          remainingPTO--;
         }
         i++;
       }
@@ -367,7 +369,7 @@ const addForcedSegments = (
           endDate: forcedSegment[forcedSegment.length - 1].date,
           days: forcedSegment,
           totalDays: forcedSegment.length,
-          ctoDays: forcedSegment.length,
+          ptoDays: forcedSegment.length,
           publicHolidays: forcedSegment.filter(day => day.isPublicHoliday).length,
           weekends: forcedSegment.filter(day => day.isWeekend).length,
           companyDaysOff: forcedSegment.filter(day => day.isCompanyDayOff).length,
@@ -386,7 +388,7 @@ const addForcedSegments = (
 export const optimizeDays = (params: OptimizationParams): OptimizationResult => {
   // 1. Get strategy parameters.
   const { minBreak, maxBreak } = getStrategyParams(params.strategy);
-  const availableCTO = params.numberOfDays;
+  const availablePTO = params.numberOfDays;
   const spacing = getDynamicSpacing(params.strategy);
 
   // 2. Build the calendar (from today to Dec 31 if in current year).
@@ -406,10 +408,10 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
   candidateSegments.sort((a, b) => a.startIdx - b.startIdx);
 
   // 4. Prune candidate segments.
-  candidateSegments = pruneCandidateSegments(candidateSegments, availableCTO);
+  candidateSegments = pruneCandidateSegments(candidateSegments, availablePTO);
 
   // 5. Run the DP-based exhaustive search.
-  const bestSolution = dpExhaustiveSearch(candidateSegments, availableCTO, spacing);
+  const bestSolution = dpExhaustiveSearch(candidateSegments, availablePTO, spacing);
 
   // 6. Mark the chosen candidate segments and build break segments.
   const breaks: Break[] = [];
@@ -417,7 +419,7 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
     for (let idx = seg.startIdx; idx <= seg.endIdx; idx++) {
       calendar[idx].isPartOfBreak = true;
       if (!isFixedOff(calendar[idx])) {
-        calendar[idx].isCTO = true;
+        calendar[idx].isPTO = true;
       }
     }
     breaks.push({
@@ -425,34 +427,34 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
       endDate: seg.endDate,
       days: seg.segmentDays.slice(),
       totalDays: seg.totalDays,
-      ctoDays: seg.ctoUsed,
+      ptoDays: seg.ptoUsed,
       publicHolidays: seg.segmentDays.filter(d => d.isPublicHoliday).length,
       weekends: seg.segmentDays.filter(d => d.isWeekend).length,
       companyDaysOff: seg.segmentDays.filter(d => d.isCompanyDayOff).length,
     });
   }
 
-  // 7. Forced extension: repeatedly extend segments and add forced segments until all CTO days are used.
-  let usedCTO = breaks.reduce((acc, br) => acc + br.ctoDays, 0);
-  let remainingCTO = availableCTO - usedCTO;
-  let prevRemainingCTO = remainingCTO + 1;
-  while (remainingCTO > 0 && remainingCTO < prevRemainingCTO) {
-    prevRemainingCTO = remainingCTO;
-    remainingCTO = forceExtendSegments(calendar, breaks, remainingCTO);
-    const forcedBreaks = addForcedSegments(calendar, remainingCTO);
+  // 7. Forced extension: repeatedly extend segments and add forced segments until all PTO days are used.
+  let usedPTO = breaks.reduce((acc, br) => acc + br.ptoDays, 0);
+  let remainingPTO = availablePTO - usedPTO;
+  let prevRemainingPTO = remainingPTO + 1;
+  while (remainingPTO > 0 && remainingPTO < prevRemainingPTO) {
+    prevRemainingPTO = remainingPTO;
+    remainingPTO = forceExtendSegments(calendar, breaks, remainingPTO);
+    const forcedBreaks = addForcedSegments(calendar, remainingPTO);
     forcedBreaks.forEach(brk => breaks.push(brk));
-    usedCTO = breaks.reduce((acc, br) => acc + br.ctoDays, 0);
-    remainingCTO = availableCTO - usedCTO;
+    usedPTO = breaks.reduce((acc, br) => acc + br.ptoDays, 0);
+    remainingPTO = availablePTO - usedPTO;
   }
 
   // 8. Compute final statistics.
   const stats: OptimizationStats = {
-    totalCTODays: breaks.reduce((acc, br) => acc + br.ctoDays, 0),
+    totalPTODays: breaks.reduce((acc, br) => acc + br.ptoDays, 0),
     totalPublicHolidays: breaks.reduce((acc, br) => acc + br.publicHolidays, 0),
     totalNormalWeekends: breaks.reduce((acc, br) => acc + br.weekends, 0),
     totalCompanyDaysOff: breaks.reduce((acc, br) => acc + br.companyDaysOff, 0),
     totalDaysOff: breaks.reduce((acc, br) => acc + br.totalDays, 0),
-    totalExtendedWeekends: breaks.reduce((acc, br) => acc + br.ctoDays, 0),
+    totalExtendedWeekends: breaks.reduce((acc, br) => acc + br.ptoDays, 0),
   };
 
   return {

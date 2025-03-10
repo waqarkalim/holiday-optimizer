@@ -1,4 +1,4 @@
-# CTO Planner
+# Holiday Optimizer
 
 A static web application that helps professionals optimize their vacation days. Built with Next.js and hosted on AWS.
 
@@ -50,7 +50,7 @@ The application uses AWS for hosting and GitHub Actions for CI/CD. Here's how to
    terraform init
    terraform apply \
      -var="github_org=your-github-username" \
-     -var="github_repo=cto-planner"
+     -var="github_repo=holiday-optimizer"
    
    # Save the role ARN from the output
    # After this, switch to regular development credentials
