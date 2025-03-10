@@ -7,9 +7,10 @@ import { useOnboarding } from '@/contexts/OnboardingContext';
 
 interface HelpButtonProps {
   className?: string;
+  dataTestId?: string;
 }
 
-export const HelpButton = ({ className }: HelpButtonProps) => {
+export const HelpButton = ({ className, dataTestId }: HelpButtonProps) => {
   const { startOnboarding } = useOnboarding();
 
   return (
@@ -22,6 +23,7 @@ export const HelpButton = ({ className }: HelpButtonProps) => {
           onClick={startOnboarding}
           className={className}
           aria-label="Show onboarding guide"
+          data-testid={dataTestId}
         >
           <HelpCircle className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </Button>

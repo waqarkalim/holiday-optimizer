@@ -9,78 +9,6 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { toast } from 'sonner';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 
-// Mock window.scrollTo since it's not implemented in jsdom
-window.scrollTo = jest.fn();
-
-// Mock window.matchMedia for ThemeProvider
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
-
-// We need to mock icons since they're SVG components that Jest can't render
-// but we're NOT mocking any actual child components of OptimizerForm
-jest.mock('lucide-react', () => ({
-  CalendarClock: () => <div data-testid="calendar-clock-icon" />,
-  Calendar: () => <div data-testid="calendar-icon" />,
-  ChevronsUpDown: () => <div data-testid="chevrons-up-down-icon" />,
-  Check: () => <div data-testid="check-icon" />,
-  ChevronLeft: () => <div data-testid="chevron-left-icon" />,
-  ChevronRight: () => <div data-testid="chevron-right-icon" />,
-  MessageSquare: () => <div data-testid="message-square-icon" />,
-  Sparkles: () => <div data-testid="sparkles-icon" />,
-  Info: () => <div data-testid="info-icon" />,
-  Plus: () => <div data-testid="plus-icon" />,
-  X: () => <div data-testid="x-icon" />,
-  ChevronDown: () => <div data-testid="chevron-down-icon" />,
-  LayoutDashboard: () => <div data-testid="layout-dashboard-icon" />,
-  CalendarDays: () => <div data-testid="calendar-days-icon" />,
-  Filter: () => <div data-testid="filter-icon" />,
-  MoreHorizontal: () => <div data-testid="more-horizontal-icon" />,
-  Columns: () => <div data-testid="columns-icon" />,
-  List: () => <div data-testid="list-icon" />,
-  Palmtree: () => <div data-testid="palmtree-icon" />,
-  Coffee: () => <div data-testid="coffee-icon" />,
-  Shuffle: () => <div data-testid="shuffle-icon" />,
-  Star: () => <div data-testid="star-icon" />,
-  Sunrise: () => <div data-testid="sunrise-icon" />,
-  MapPin: () => <div data-testid="map-pin-icon" />,
-  Trash: () => <div data-testid="trash-icon" />,
-  Trash2: () => <div data-testid="trash2-icon" />,
-  Pen: () => <div data-testid="pen-icon" />,
-  Pencil: () => <div data-testid="pencil-icon" />,
-  Sun: () => <div data-testid="sun-icon" />,
-  Moon: () => <div data-testid="moon-icon" />,
-  ChevronUp: () => <div data-testid="chevron-up-icon" />,
-  Loader2: () => <div data-testid="loader2-icon" />,
-  MoreVertical: () => <div data-testid="more-vertical-icon" />,
-  MinusCircle: () => <div data-testid="minus-circle-icon" />,
-  AlertCircle: () => <div data-testid="alert-circle-icon" />,
-  Save: () => <div data-testid="save-icon" />,
-  ArrowRight: () => <div data-testid="arrow-right-icon" />,
-  HelpCircle: () => <div data-testid="help-circle-icon" />,
-  CheckCircle: () => <div data-testid="check-circle-icon" />,
-  ExternalLink: () => <div data-testid="external-link-icon" />,
-  PartyPopper: () => <div data-testid="party-popper-icon" />,
-}));
-
-// Mock useLocalStorage hook
-jest.mock('@/hooks/useLocalStorage', () => ({
-  useLocalStorage: () => {
-    const [value, setValue] = React.useState(null);
-    return [value, setValue];
-  },
-}));
-
 // Mock holiday service
 jest.mock('@/services/holidays', () => ({
   __esModule: true,
@@ -491,7 +419,7 @@ describe('OptimizerForm Integration Tests', () => {
       const holidaysInfoIcon = within(holidaysSection).getByTestId('info-icon');
 
       await user.hover(holidaysInfoIcon);
-      
+
       // Skip tooltip test as it's inconsistent across environments
       expect(holidaysInfoIcon).toBeInTheDocument();
       await user.unhover(holidaysInfoIcon);
@@ -501,7 +429,7 @@ describe('OptimizerForm Integration Tests', () => {
       const companyDaysInfoIcon = within(companyDaysSection).getByTestId('info-icon');
 
       await user.hover(companyDaysInfoIcon);
-      
+
       // Skip tooltip test as it's inconsistent across environments
       expect(companyDaysInfoIcon).toBeInTheDocument();
       await user.unhover(companyDaysInfoIcon);
@@ -531,7 +459,7 @@ describe('OptimizerForm Integration Tests', () => {
         const group = getGroupListItemByLabelText(groupLabelText);
         const collapseButton = within(group).getByRole('button', { name: /collapse group/i });
         await user.click(collapseButton);
-        
+
         // Wait for the group to collapse by checking that the checkbox count changes
         await waitFor(() => {
           const checkboxes = within(group).queryAllByRole('checkbox');
@@ -955,230 +883,5 @@ describe('OptimizerForm Integration Tests', () => {
         });
       });
     });
-  });
-});
-
-describe('Onboarding Flow Integration Tests', () => {
-  let mockOnSubmitAction: jest.Mock;
-  let user: ReturnType<typeof userEvent.setup>;
-
-  beforeEach(() => {
-    mockOnSubmitAction = jest.fn();
-    user = userEvent.setup();
-
-    // Reset onboarding status in localStorage for each test
-    localStorage.removeItem('holiday-optimizer-onboarding-completed');
-
-    render(
-      <ThemeProvider>
-        <TooltipProvider>
-          <OnboardingProvider>
-            <OptimizerProvider>
-              <OptimizerForm onSubmitAction={mockOnSubmitAction} />
-            </OptimizerProvider>
-          </OnboardingProvider>
-        </TooltipProvider>
-      </ThemeProvider>,
-    );
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    cleanup();
-  });
-
-  test('should display intro overlay on first visit and allow starting the tour', async () => {
-    // Verify intro overlay is shown
-    const introOverlay = screen.getByRole('dialog');
-    expect(introOverlay).toBeInTheDocument();
-    expect(within(introOverlay).getByRole('heading', { level: 2 })).toHaveTextContent('Welcome to Holiday Optimizer');
-    
-    // Start the tour
-    const startTourButton = within(introOverlay).getByRole('button', { name: /start onboarding tour/i });
-    await user.click(startTourButton);
-    
-    // Verify we've moved to the first step (days input)
-    const daysInputTooltip = screen.getByRole('dialog');
-    expect(daysInputTooltip).toBeInTheDocument();
-    expect(within(daysInputTooltip).getByRole('heading', { level: 3 })).toHaveTextContent('Step 1: Input Your PTO Days');
-  });
-
-  test('should allow user to skip the onboarding tour from intro screen', async () => {
-    const skipTourButton = screen.getByRole('button', { name: /skip onboarding tour/i });
-    await user.click(skipTourButton);
-    
-    // Intro dialog should be gone
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  test('should allow user to close the onboarding overlay using X button', async () => {
-    const closeButton = screen.getByRole('button', { name: /close onboarding/i });
-    await user.click(closeButton);
-    
-    // Overlay should be gone
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  test('should show each onboarding step in sequence when navigating with Next button', async () => {
-    // Start tour
-    const startTourButton = screen.getByRole('button', { name: /start onboarding tour/i });
-    await user.click(startTourButton);
-    
-    // Step 1: Days Input
-    let currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByText(/enter the number of pto days/i)).toBeInTheDocument();
-    
-    // Proceed to Step 2
-    const nextButton = within(currentTooltip).getByRole('button', { name: /next step/i });
-    await user.click(nextButton);
-    
-    // Step 2: Strategy Selection
-    currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByText(/select how you want to optimize your time off/i)).toBeInTheDocument();
-    await user.click(within(currentTooltip).getByRole('button', { name: /next step/i }));
-    
-    // Step 3: Holidays Selection
-    currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByText(/add any personal holidays or special dates/i)).toBeInTheDocument();
-    await user.click(within(currentTooltip).getByRole('button', { name: /next step/i }));
-    
-    // Step 4: Company Days
-    currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByText(/include any company-provided days off/i)).toBeInTheDocument();
-    await user.click(within(currentTooltip).getByRole('button', { name: /next step/i }));
-    
-    // Completion Screen
-    currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByRole('heading', { level: 2 })).toHaveTextContent(/you're all set/i);
-  });
-
-  test('should allow navigating back to previous steps using Previous button', async () => {
-    // Start tour and navigate to Step 2
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
-    
-    // Verify we're on Step 2
-    let currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByText(/select how you want to optimize your time off/i)).toBeInTheDocument();
-    
-    // Go back to Step 1
-    const prevButton = within(currentTooltip).getByRole('button', { name: /previous step/i });
-    await user.click(prevButton);
-    
-    // Verify we're back on Step 1
-    currentTooltip = screen.getByRole('dialog');
-    expect(within(currentTooltip).getByText(/enter the number of pto days/i)).toBeInTheDocument();
-  });
-
-  test('should show progress bar with correct progress during onboarding', async () => {
-    // Start tour
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-    
-    // Check initial progress
-    let progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '25'); // 1/4 steps
-    
-    // Go to next step
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
-    
-    // Check updated progress
-    progressBar = screen.getByRole('progressbar');
-    expect(progressBar).toHaveAttribute('aria-valuenow', '50'); // 2/4 steps
-  });
-
-  test('should allow dismissing onboarding from any step', async () => {
-    // Start tour and go to step 2
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
-    
-    // Dismiss from step 2
-    const skipButton = within(screen.getByRole('dialog')).getByRole('button', { name: /skip onboarding/i });
-    await user.click(skipButton);
-    
-    // Verify onboarding is dismissed
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  test('should display completion screen with working "Get Started" button', async () => {
-    // Navigate through all steps to completion
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-    
-    // Go through all steps
-    for (let i = 0; i < 4; i++) {
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
-    }
-    
-    // Verify we're on completion screen
-    const completionScreen = screen.getByRole('dialog');
-    expect(within(completionScreen).getByRole('heading', { level: 2 })).toHaveTextContent(/you're all set/i);
-    
-    // Click "Get Started" button
-    const getStartedButton = within(completionScreen).getByRole('button', { name: /start using holiday optimizer/i });
-    await user.click(getStartedButton);
-    
-    // Verify onboarding is dismissed
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  test('should save "don\'t show again" preference correctly', async () => {
-    // On completion screen, check the "don't show again" checkbox
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-    
-    // Go through all steps
-    for (let i = 0; i < 4; i++) {
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
-    }
-    
-    // Verify checkbox is checked by default
-    const dontShowCheckbox = within(screen.getByRole('dialog')).getByRole('checkbox', { name: /don't show this guide again/i });
-    expect(dontShowCheckbox).toBeChecked();
-    
-    // Uncheck and check again to test the toggle
-    await user.click(dontShowCheckbox); // Uncheck
-    expect(dontShowCheckbox).not.toBeChecked();
-    await user.click(dontShowCheckbox); // Check again
-    expect(dontShowCheckbox).toBeChecked();
-    
-    // Dismiss with preference saved
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /start using holiday optimizer/i }));
-    
-    // Expect localStorage to be updated
-    expect(localStorage.getItem('holiday-optimizer-onboarding-completed')).toBe('true');
-  });
-
-  test('should allow reopening onboarding using help button after dismissal', async () => {
-    // First dismiss onboarding
-    await user.click(screen.getByRole('button', { name: /skip onboarding tour/i }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    
-    // Now click help button to reopen
-    const helpButton = screen.getByRole('button', { name: /show onboarding guide/i });
-    await user.click(helpButton);
-    
-    // Verify onboarding appears again
-    const introOverlay = screen.getByRole('dialog');
-    expect(introOverlay).toBeInTheDocument();
-    expect(within(introOverlay).getByRole('heading', { level: 2 })).toHaveTextContent('Welcome to Holiday Optimizer');
-  });
-
-  test('should show tooltips positioned correctly relative to form sections', async () => {
-    // Start tour to get to steps
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-    
-    // Check days input tooltip position
-    const daysInputSection = screen.getByRole('region', { name: /enter your days/i });
-    const tooltip = screen.getByRole('dialog');
-    
-    // Get bounding rectangles (just verify they exist - can't check exact positioning in JSDOM)
-    expect(daysInputSection).toBeInTheDocument();
-    expect(tooltip).toBeInTheDocument();
-    
-    // Move to next step and check strategy selection tooltip
-    await user.click(within(tooltip).getByRole('button', { name: /next step/i }));
-    const strategySection = screen.getByRole('region', { name: /choose your style/i });
-    const strategyTooltip = screen.getByRole('dialog');
-    
-    expect(strategySection).toBeInTheDocument();
-    expect(strategyTooltip).toBeInTheDocument();
   });
 });

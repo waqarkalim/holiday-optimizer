@@ -457,7 +457,6 @@ export function OnboardingTooltip({
         style={{
           top: tooltipPosition.top,
           left: tooltipPosition.left,
-          pointerEvents: isPositioned ? 'auto' : 'none', // Disable interactions until positioned
         }}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ 

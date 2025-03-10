@@ -34,7 +34,7 @@ const defaultContext: OnboardingContextType = {
   isOnboardingVisible: false,
   hasCompletedOnboarding: false,
   currentStep: 'intro',
-  totalSteps: 5, // 5 steps including intro, excluding complete
+  totalSteps: 4, // 4 steps excluding intro and complete
   startOnboarding: () => {},
   dismissOnboarding: () => {},
   goToNextStep: () => {},
@@ -72,7 +72,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     isOnboardingVisible: false,
     hasCompletedOnboarding: false,
     currentStep: 'intro',
-    totalSteps: STEPS_ORDER.length - 1, // exclude 'complete' from count
+    totalSteps: STEPS_ORDER.length - 2, // exclude 'intro' and 'complete' from count
   });
 
   // Check local storage on mount

@@ -36,8 +36,12 @@ export function OnboardingProgressBar({ className }: OnboardingProgressBarProps)
   
   // Calculate progress percentage
   const currentIndex = PROGRESS_STEPS.indexOf(currentStep);
-  const progressPercentage = (currentIndex / (totalSteps)) * 100;
-  const currentStepNumber = currentIndex + 1;
+  const progressPercentage = currentStep === 'intro' || currentStep === 'complete' 
+    ? (currentStep === 'intro' ? 0 : 100) 
+    : ((PROGRESS_STEPS.indexOf(currentStep) - 1) / totalSteps) * 100;
+  const currentStepNumber = currentStep === 'intro' 
+    ? 0 
+    : (currentStep === 'complete' ? totalSteps : currentIndex - 1);
   
   const progressBarContent = (
     <div 
@@ -58,11 +62,13 @@ export function OnboardingProgressBar({ className }: OnboardingProgressBarProps)
         transition={{ duration: 0.3 }}
       />
 
-      {/* Numeric step indicator for larger screens */}
-      <div className="hidden sm:flex absolute top-0 right-4 -translate-y-full mb-2 text-xs font-medium bg-white dark:bg-gray-900 px-2 py-1 rounded-t-md border border-b-0 border-gray-200 dark:border-gray-700 shadow-sm pointer-events-none select-none">
-        <span className="text-teal-600 dark:text-teal-400">{currentStepNumber}</span>
-        <span className="text-gray-500 dark:text-gray-400">/{totalSteps}</span>
-      </div>
+      {/* Numeric step indicator for larger screens - only show for main steps */}
+      {currentStep !== 'intro' && currentStep !== 'complete' && (
+        <div className="hidden sm:flex absolute top-0 right-4 -translate-y-full mb-2 text-xs font-medium bg-white dark:bg-gray-900 px-2 py-1 rounded-t-md border border-b-0 border-gray-200 dark:border-gray-700 shadow-sm pointer-events-none select-none">
+          <span className="text-teal-600 dark:text-teal-400">{currentStepNumber}</span>
+          <span className="text-gray-500 dark:text-gray-400">/{totalSteps}</span>
+        </div>
+      )}
       
       {/* Hidden but accessible text for screen readers */}
       <span className="sr-only">

@@ -13,8 +13,7 @@ import { OptimizationStrategy } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { TooltipProvider } from './ui/tooltip';
 import { useYearSelection } from '@/hooks/useOptimizer';
-import { HelpButton } from './features/onboarding';
-import { OnboardingContainer } from './features/onboarding';
+import { HelpButton, OnboardingContainer } from './features/onboarding';
 
 // Update to use dynamic calculation based on current year
 const AVAILABLE_YEARS = Array.from({ length: 5 }, (_, index) => new Date().getFullYear() + index);
@@ -80,7 +79,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
                   <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-300" aria-hidden="true" />
                   Plan Your Year
                 </CardTitle>
-                <HelpButton className="md:hidden" />
+                <HelpButton className="md:hidden" dataTestId="help-button-mobile" />
               </div>
 
               <div className="flex items-center gap-3">
@@ -113,7 +112,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
                     </div>
                   </div>
                 </div>
-                <HelpButton className="hidden md:inline-flex" />
+                <HelpButton className="hidden md:inline-flex" dataTestId="help-button-desktop" />
               </div>
             </div>
             <CardDescription>
