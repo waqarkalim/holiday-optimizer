@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useReducer } from 'react';
 
 // Constants for local storage
 const ONBOARDING_COMPLETED_KEY = 'holiday-optimizer-onboarding-completed';
@@ -13,6 +13,16 @@ export type OnboardingStep =
   | 'holidays-selection' 
   | 'company-days' 
   | 'complete';
+
+// The order of onboarding steps
+const STEPS_ORDER: OnboardingStep[] = [
+  'intro',
+  'days-input',
+  'strategy-selection',
+  'holidays-selection',
+  'company-days',
+  'complete'
+];
 
 interface OnboardingState {
   isOnboardingVisible: boolean;
@@ -30,11 +40,61 @@ interface OnboardingContextType extends OnboardingState {
   isCurrentStep: (step: OnboardingStep) => boolean;
 }
 
-const defaultContext: OnboardingContextType = {
+type OnboardingAction = 
+  | { type: 'START_ONBOARDING' }
+  | { type: 'DISMISS_ONBOARDING'; dontShowAgain: boolean }
+  | { type: 'GO_TO_NEXT_STEP' }
+  | { type: 'GO_TO_PREV_STEP' }
+  | { type: 'GO_TO_STEP'; step: OnboardingStep }
+  | { type: 'SET_COMPLETED_STATUS'; isCompleted: boolean };
+
+const initialState: OnboardingState = {
   isOnboardingVisible: false,
   hasCompletedOnboarding: false,
   currentStep: 'intro',
-  totalSteps: 4, // 4 steps excluding intro and complete
+  totalSteps: STEPS_ORDER.length - 2, // exclude 'intro' and 'complete' from count
+};
+
+function onboardingReducer(state: OnboardingState, action: OnboardingAction): OnboardingState {
+  switch (action.type) {
+    case 'START_ONBOARDING':
+      return { 
+        ...state, 
+        isOnboardingVisible: true,
+        currentStep: 'intro'
+      };
+    case 'DISMISS_ONBOARDING':
+      return { 
+        ...state, 
+        isOnboardingVisible: false,
+        hasCompletedOnboarding: action.dontShowAgain
+      };
+    case 'GO_TO_NEXT_STEP': {
+      const currentIndex = STEPS_ORDER.indexOf(state.currentStep);
+      if (currentIndex < STEPS_ORDER.length - 1) {
+        return { ...state, currentStep: STEPS_ORDER[currentIndex + 1] };
+      }
+      return state;
+    }
+    case 'GO_TO_PREV_STEP': {
+      const currentIndex = STEPS_ORDER.indexOf(state.currentStep);
+      if (currentIndex > 0) {
+        return { ...state, currentStep: STEPS_ORDER[currentIndex - 1] };
+      }
+      return state;
+    }
+    case 'GO_TO_STEP':
+      return { ...state, currentStep: action.step };
+    case 'SET_COMPLETED_STATUS':
+      return { ...state, hasCompletedOnboarding: action.isCompleted };
+    default:
+      return state;
+  }
+}
+
+// Default context value
+const defaultContext: OnboardingContextType = {
+  ...initialState,
   startOnboarding: () => {},
   dismissOnboarding: () => {},
   goToNextStep: () => {},
@@ -55,35 +115,20 @@ export function useOnboarding() {
   return context;
 }
 
-// The order of onboarding steps
-const STEPS_ORDER: OnboardingStep[] = [
-  'intro',
-  'days-input',
-  'strategy-selection',
-  'holidays-selection',
-  'company-days',
-  'complete'
-];
-
 // Provider component
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  // State
-  const [state, setState] = useState<OnboardingState>({
-    isOnboardingVisible: false,
-    hasCompletedOnboarding: false,
-    currentStep: 'intro',
-    totalSteps: STEPS_ORDER.length - 2, // exclude 'intro' and 'complete' from count
-  });
+  const [state, dispatch] = useReducer(onboardingReducer, initialState);
 
   // Check local storage on mount
   useEffect(() => {
     try {
       const hasCompleted = localStorage.getItem(ONBOARDING_COMPLETED_KEY) === 'true';
-      setState(prev => ({ ...prev, hasCompletedOnboarding: hasCompleted }));
+      
+      dispatch({ type: 'SET_COMPLETED_STATUS', isCompleted: hasCompleted });
       
       // Auto-start onboarding for first-time visitors
       if (!hasCompleted) {
-        setState(prev => ({ ...prev, isOnboardingVisible: true }));
+        dispatch({ type: 'START_ONBOARDING' });
       }
     } catch (error) {
       console.error('Failed to access localStorage:', error);
@@ -92,20 +137,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   // Start onboarding
   const startOnboarding = () => {
-    setState(prev => ({ 
-      ...prev, 
-      isOnboardingVisible: true,
-      currentStep: 'intro'
-    }));
+    dispatch({ type: 'START_ONBOARDING' });
   };
 
   // Dismiss onboarding
   const dismissOnboarding = (dontShowAgain: boolean) => {
-    setState(prev => ({ 
-      ...prev, 
-      isOnboardingVisible: false,
-      hasCompletedOnboarding: dontShowAgain
-    }));
+    dispatch({ type: 'DISMISS_ONBOARDING', dontShowAgain });
 
     // If user doesn't want to see onboarding again, save to local storage
     if (dontShowAgain) {
@@ -119,29 +156,17 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   // Navigate to next step
   const goToNextStep = () => {
-    setState(prev => {
-      const currentIndex = STEPS_ORDER.indexOf(prev.currentStep);
-      if (currentIndex < STEPS_ORDER.length - 1) {
-        return { ...prev, currentStep: STEPS_ORDER[currentIndex + 1] };
-      }
-      return prev;
-    });
+    dispatch({ type: 'GO_TO_NEXT_STEP' });
   };
 
   // Navigate to previous step
   const goToPrevStep = () => {
-    setState(prev => {
-      const currentIndex = STEPS_ORDER.indexOf(prev.currentStep);
-      if (currentIndex > 0) {
-        return { ...prev, currentStep: STEPS_ORDER[currentIndex - 1] };
-      }
-      return prev;
-    });
+    dispatch({ type: 'GO_TO_PREV_STEP' });
   };
 
   // Go to a specific step
   const goToStep = (step: OnboardingStep) => {
-    setState(prev => ({ ...prev, currentStep: step }));
+    dispatch({ type: 'GO_TO_STEP', step });
   };
 
   // Check if a step is the current one
