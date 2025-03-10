@@ -10,6 +10,7 @@ import {
 } from '@/components/features/onboarding';
 import userEvent from '@testing-library/user-event';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { OnboardingStep } from '@/contexts/OnboardingContext';
 
 // Mock the imports that are causing problems
 jest.mock('@/contexts/OnboardingContext', () => ({
@@ -112,7 +113,7 @@ describe('Onboarding Integration Tests', () => {
   describe('OnboardingTooltip', () => {
     test('should render tooltip with step-specific content and navigation buttons', () => {
       // Render a mock tooltip with proper accessibility attributes
-      render(<OnboardingCoachMark step={'strategy-selection' as OnboardingCoachMark} title="Choose Your Strategy"
+      render(<OnboardingCoachMark step={'strategy-selection' as OnboardingStep} title="Choose Your Strategy"
                                   description="Select how you want to optimize your time off."
                                   targetSelector="#strategy-selection-container" />);
 

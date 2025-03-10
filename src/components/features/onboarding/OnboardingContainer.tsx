@@ -17,7 +17,7 @@ export const OnboardingContainer = () => (
       title="Step 1: Input Your PTO Days"
       description="Enter the number of PTO days you have available to use. The optimizer will strategically place these days to maximize your time off."
       colorScheme="teal"
-      position="bottom"
+      position="right"
       showPrevButton={false}
       scrollOffset={100}
     />
@@ -28,7 +28,7 @@ export const OnboardingContainer = () => (
       title="Step 2: Choose Your Strategy"
       description="Select how you want to optimize your time off. Each strategy offers a different approach to using your PTO days."
       colorScheme="blue"
-      position="bottom"
+      position="right"
       scrollOffset={120}
     />
 
@@ -38,7 +38,7 @@ export const OnboardingContainer = () => (
       title="Step 3: Select Holidays"
       description="Add any personal holidays or special dates you want to include in your optimization. The calendar lets you click on dates to add them."
       colorScheme="amber"
-      position="bottom"
+      position="right"
       scrollOffset={130}
     />
 
@@ -48,7 +48,7 @@ export const OnboardingContainer = () => (
       title="Step 4: Add Company Days Off"
       description="Include any company-provided days off that don't count against your PTO. This helps the optimizer avoid scheduling PTO on days you already have free."
       colorScheme="violet"
-      position="bottom"
+      position="right"
       showNextButton={true}
       scrollOffset={150}
     />
