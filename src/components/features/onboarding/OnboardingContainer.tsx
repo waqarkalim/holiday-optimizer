@@ -1,7 +1,7 @@
 'use client';
 
 import { OnboardingOverlay } from './OnboardingOverlay';
-import { OnboardingTooltip } from './OnboardingTooltip';
+import { OnboardingStep } from './OnboardingStep';
 import { OnboardingProgressBar } from './OnboardingProgressBar';
 import { OnboardingComplete } from './OnboardingComplete';
 
@@ -11,7 +11,7 @@ export const OnboardingContainer = () => (
     <OnboardingOverlay step="intro" />
 
     {/* Main Form Step Tooltips - mobile-friendly positioning */}
-    <OnboardingTooltip
+    <OnboardingStep
       step="days-input"
       targetSelector="#days-input-container"
       title="Step 1: Input Your PTO Days"
@@ -22,7 +22,7 @@ export const OnboardingContainer = () => (
       scrollOffset={100}
     />
 
-    <OnboardingTooltip
+    <OnboardingStep
       step="strategy-selection"
       targetSelector="#strategy-selection-container"
       title="Step 2: Choose Your Strategy"
@@ -32,7 +32,7 @@ export const OnboardingContainer = () => (
       scrollOffset={120}
     />
 
-    <OnboardingTooltip
+    <OnboardingStep
       step="holidays-selection"
       targetSelector="#holidays-container"
       title="Step 3: Select Holidays"
@@ -42,7 +42,7 @@ export const OnboardingContainer = () => (
       scrollOffset={130}
     />
 
-    <OnboardingTooltip
+    <OnboardingStep
       step="company-days"
       targetSelector="#company-days-container"
       title="Step 4: Add Company Days Off"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { Calendar, CheckCircle, ChevronRight, Sparkles, X } from 'lucide-react';
@@ -103,9 +103,8 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
 
   const overlayContent = (
     <AnimatePresence mode="wait">
-      <div 
+      <dialog
         className="fixed inset-0 z-[9998] overflow-hidden flex flex-col"
-        role="dialog"
         aria-modal="true"
       >
         {/* Backdrop */}
@@ -255,7 +254,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
             </div>
           </footer>
         </motion.div>
-      </div>
+      </dialog>
     </AnimatePresence>
   );
   

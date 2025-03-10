@@ -5,7 +5,7 @@ import { CheckCircle, PartyPopper, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { OnboardingStep, useOnboarding } from '@/contexts/OnboardingContext';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 
@@ -103,9 +103,8 @@ export function OnboardingComplete({ step, className }: OnboardingCompleteProps)
 
   const completeContent = (
     <AnimatePresence mode="wait">
-      <div 
+      <dialog
         className="fixed inset-0 z-[9998] overflow-hidden flex flex-col"
-        role="dialog"
         aria-modal="true"
       >
         {/* Backdrop */}
@@ -231,7 +230,7 @@ export function OnboardingComplete({ step, className }: OnboardingCompleteProps)
             </Button>
           </footer>
         </motion.div>
-      </div>
+      </dialog>
     </AnimatePresence>
   );
   

@@ -6,7 +6,7 @@ import {
   OnboardingComplete,
   OnboardingOverlay,
   OnboardingProgressBar,
-  OnboardingTooltip,
+  OnboardingStep,
 } from '@/components/features/onboarding';
 import { OnboardingStep } from '@/contexts/OnboardingContext';
 import userEvent from '@testing-library/user-event';
@@ -113,9 +113,9 @@ describe('Onboarding Integration Tests', () => {
   describe('OnboardingTooltip', () => {
     test('should render tooltip with step-specific content and navigation buttons', () => {
       // Render a mock tooltip with proper accessibility attributes
-      render(<OnboardingTooltip step={'strategy-selection' as OnboardingStep} title="Choose Your Strategy"
-                                description="Select how you want to optimize your time off."
-                                targetSelector="#strategy-selection-container" />);
+      render(<OnboardingStep step={'strategy-selection' as OnboardingStep} title="Choose Your Strategy"
+                             description="Select how you want to optimize your time off."
+                             targetSelector="#strategy-selection-container" />);
 
       // Verify dialog is present with correct attributes
       const tooltip = screen.getByRole('dialog');
