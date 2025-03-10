@@ -173,7 +173,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  <span>Generate Optimal Schedule</span>
+                  <span>Generate</span>
                 </span>
               )}
             </Button>

@@ -76,7 +76,7 @@ describe('OptimizerForm Integration Tests', () => {
   };
 
   const findAndClickSubmitButton = async () => {
-    const submitButton = screen.getByRole('button', { name: /Generate Optimal Schedule/i });
+    const submitButton = screen.getByRole('button', { name: /Generate/i });
     if (!submitButton.hasAttribute('disabled')) {
       await user.click(submitButton);
     }
@@ -162,7 +162,7 @@ describe('OptimizerForm Integration Tests', () => {
     });
 
     it('should have the correct submit button disabled by default', () => {
-      const submitButton = screen.getByRole('button', { name: /Generate Optimal Schedule/i });
+      const submitButton = screen.getByRole('button', { name: /Generate/i });
       expect(submitButton).toBeInTheDocument();
       expect(submitButton).toBeDisabled();
     });
@@ -173,7 +173,7 @@ describe('OptimizerForm Integration Tests', () => {
     it('should render the days input with proper validation and enable submit button when valid', async () => {
       const daysInputSection = getDaysInputSection();
       const daysInput = within(daysInputSection).getByRole('spinbutton');
-      const submitButton = screen.getByRole('button', { name: /Generate Optimal Schedule/i });
+      const submitButton = screen.getByRole('button', { name: /Generate/i });
 
       // Verify initial state
       expect(submitButton).toBeDisabled();
@@ -676,7 +676,7 @@ describe('OptimizerForm Integration Tests', () => {
       await fillDaysInput('10');
 
       // Find the submit button
-      const submitButton = screen.getByRole('button', { name: /Generate Optimal Schedule/i });
+      const submitButton = screen.getByRole('button', { name: /Generate/i });
 
       // Create a delay to ensure we can observe loading state
       let resolvePromise: () => void;
@@ -822,7 +822,7 @@ describe('OptimizerForm Integration Tests', () => {
       await clearDaysInput();
 
       // Verify submit button is disabled
-      const submitButton = screen.getByRole('button', { name: /Generate Optimal Schedule/i });
+      const submitButton = screen.getByRole('button', { name: /Generate/i });
       expect(submitButton).toBeDisabled();
 
       // Add days back and verify dates are still maintained
@@ -844,7 +844,7 @@ describe('OptimizerForm Integration Tests', () => {
       await fillDaysInput('10');
 
       // Verify submit button is enabled but don't submit yet
-      const submitButton = screen.getByRole('button', { name: /Generate Optimal Schedule/i });
+      const submitButton = screen.getByRole('button', { name: /Generate/i });
       expect(submitButton).not.toBeDisabled();
 
       // Select a strategy
