@@ -8,7 +8,6 @@ import {
   OnboardingOverlay,
   OnboardingProgressBar,
 } from '@/components/features/onboarding';
-import userEvent from '@testing-library/user-event';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { OnboardingStep } from '@/contexts/OnboardingContext';
 
@@ -97,8 +96,6 @@ describe('Onboarding Integration Tests', () => {
       expect(within(thirdFeatureCard).getByRole('heading', { level: 4 })).toHaveTextContent('Get your plan');
       expect(within(thirdFeatureCard).getByText('See the optimal schedule and maximize your breaks.')).toBeInTheDocument();
 
-      expect(within(overlay).getByRole('checkbox', { name: 'Don\'t show this guide again' })).toBeInTheDocument();
-
       expect(within(overlay).getAllByRole('button')).toHaveLength(3);
 
       expect(within(overlay).getByRole('button', { name: 'Skip onboarding tour' })).toBeInTheDocument();
@@ -157,17 +154,6 @@ describe('Onboarding Integration Tests', () => {
       expect(within(completionScreen).getAllByRole('listitem').at(2)).toHaveTextContent('Add any personal holidays');
       expect(within(completionScreen).getAllByRole('listitem').at(3)).toHaveTextContent('Include company days off');
       expect(within(completionScreen).getAllByRole('listitem').at(4)).toHaveTextContent('Generate your optimized schedule');
-
-      expect(within(completionScreen).getByRole('checkbox', { name: 'Don\'t show this guide again' })).toBeInTheDocument();
-      expect(within(completionScreen).getByRole('checkbox', { name: 'Don\'t show this guide again' })).toBeChecked();
-
-      await userEvent.click(within(completionScreen).getByRole('checkbox', { name: 'Don\'t show this guide again' }));
-
-      expect(within(completionScreen).getByRole('checkbox', { name: 'Don\'t show this guide again' })).not.toBeChecked();
-
-      await userEvent.click(within(completionScreen).getByRole('checkbox', { name: 'Don\'t show this guide again' }));
-
-      expect(within(completionScreen).getByRole('checkbox', { name: 'Don\'t show this guide again' })).toBeChecked();
 
       expect(within(completionScreen).getByRole('button', { name: 'Start using Holiday Optimizer' })).toBeInTheDocument();
       expect(within(completionScreen).getByRole('button', { name: 'Start using Holiday Optimizer' })).toHaveTextContent('Get Started');

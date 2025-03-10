@@ -1,21 +1,18 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 import { OnboardingStep, useOnboarding } from '@/contexts/OnboardingContext';
 
 interface UseOnboardingOverlayProps {
   step: OnboardingStep;
   primaryButtonRef?: RefObject<HTMLButtonElement>;
-  onDismiss?: (dontShow: boolean) => void;
-  initialDontShowAgain?: boolean;
+  onDismiss?: () => void;
 }
 
 export const useOnboardingOverlay = ({
   step,
   primaryButtonRef,
   onDismiss,
-  initialDontShowAgain = false
 }: UseOnboardingOverlayProps) => {
   const { isOnboardingVisible, isCurrentStep, dismissOnboarding } = useOnboarding();
-  const [dontShowAgain, setDontShowAgain] = useState(initialDontShowAgain);
   const overlayRef = useRef<HTMLDivElement>(undefined);
 
   // Focus management
@@ -76,9 +73,9 @@ export const useOnboardingOverlay = ({
 
   const handleDismiss = () => {
     if (onDismiss) {
-      onDismiss(dontShowAgain);
+      onDismiss();
     } else {
-      dismissOnboarding(dontShowAgain);
+      dismissOnboarding();
     }
   };
 
@@ -86,8 +83,6 @@ export const useOnboardingOverlay = ({
   const shouldRender = isOnboardingVisible && isCurrentStep(step);
 
   return {
-    dontShowAgain,
-    setDontShowAgain,
     overlayRef,
     shouldRender,
     handleDismiss

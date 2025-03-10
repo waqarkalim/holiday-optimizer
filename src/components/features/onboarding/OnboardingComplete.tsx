@@ -29,15 +29,12 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
   const getStartedButtonRef = useRef<HTMLButtonElement>(null);
 
   const {
-    dontShowAgain,
-    setDontShowAgain,
     overlayRef,
     shouldRender,
     handleDismiss
   } = useOnboardingOverlay({
     step,
     primaryButtonRef: getStartedButtonRef as RefObject<HTMLButtonElement>,
-    initialDontShowAgain: true
   });
 
   if (!shouldRender) return null;
@@ -107,14 +104,10 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
       </main>
 
       {/* Footer with action */}
-      <OnboardingFooter
-        dontShowAgain={dontShowAgain}
-        onDontShowAgainChange={setDontShowAgain}
-        checkboxId="dont-show-complete-again"
-      >
+      <OnboardingFooter>
         <Button
           ref={getStartedButtonRef}
-          onClick={() => dismissOnboarding(dontShowAgain)}
+          onClick={() => dismissOnboarding()}
           className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
           aria-label="Start using Holiday Optimizer"
           type="button"

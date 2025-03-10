@@ -1,23 +1,16 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 interface OnboardingFooterProps {
   children: ReactNode;
-  dontShowAgain: boolean;
-  onDontShowAgainChange: (checked: boolean) => void;
   className?: string;
-  checkboxId: string;
 }
 
 export const OnboardingFooter = ({
   children,
-  dontShowAgain,
-  onDontShowAgainChange,
   className,
-  checkboxId
 }: OnboardingFooterProps) => {
   return (
     <footer
@@ -31,21 +24,6 @@ export const OnboardingFooter = ({
         className
       )}
     >
-      {/* Checkbox for not showing again */}
-      <div className="flex items-center space-x-2 mb-3 sm:mb-4">
-        <Checkbox
-          id={checkboxId}
-          checked={dontShowAgain}
-          onCheckedChange={(checked) => onDontShowAgainChange(checked as boolean)}
-        />
-        <label
-          htmlFor={checkboxId}
-          className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
-        >
-          Don&apos;t show this guide again
-        </label>
-      </div>
-      
       {/* Action buttons */}
       {children}
     </footer>

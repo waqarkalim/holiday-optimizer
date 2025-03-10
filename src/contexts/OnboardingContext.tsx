@@ -33,7 +33,7 @@ interface OnboardingState {
 
 interface OnboardingContextType extends OnboardingState {
   startOnboarding: () => void;
-  dismissOnboarding: (dontShowAgain: boolean) => void;
+  dismissOnboarding: () => void;
   goToNextStep: () => void;
   goToPrevStep: () => void;
   goToStep: (step: OnboardingStep) => void;
@@ -42,7 +42,7 @@ interface OnboardingContextType extends OnboardingState {
 
 type OnboardingAction =
   | { type: 'START_ONBOARDING' }
-  | { type: 'DISMISS_ONBOARDING'; dontShowAgain: boolean }
+  | { type: 'DISMISS_ONBOARDING' }
   | { type: 'GO_TO_NEXT_STEP' }
   | { type: 'GO_TO_PREV_STEP' }
   | { type: 'GO_TO_STEP'; step: OnboardingStep }
@@ -67,7 +67,7 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
       return {
         ...state,
         isOnboardingVisible: false,
-        hasCompletedOnboarding: action.dontShowAgain,
+        hasCompletedOnboarding: true, // Always mark as completed when dismissed
       };
     case 'GO_TO_NEXT_STEP': {
       const currentIndex = STEPS_ORDER.indexOf(state.currentStep);
@@ -137,13 +137,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   };
 
   // Dismiss onboarding
-  const dismissOnboarding = (dontShowAgain: boolean) => {
-    dispatch({ type: 'DISMISS_ONBOARDING', dontShowAgain });
-
-    // If user doesn't want to see onboarding again, save to local storage
-    if (dontShowAgain) {
-      localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
-    }
+  const dismissOnboarding = () => {
+    dispatch({ type: 'DISMISS_ONBOARDING' });
+    
+    // Always save to localStorage as completed (don't show again is always true)
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
   };
 
   // Navigate to next step

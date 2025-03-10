@@ -190,32 +190,6 @@ describe('Onboarding Flow Integration Tests', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  test('should save "don\'t show again" preference correctly', async () => {
-    // On completion screen, check the "don't show again" checkbox
-    await user.click(screen.getByRole('button', { name: /start onboarding tour/i }));
-
-    // Go through all steps
-    for (let i = 0; i < 4; i++) {
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /next step/i }));
-    }
-
-    // Verify checkbox is checked by default
-    const dontShowCheckbox = within(screen.getByRole('dialog')).getByRole('checkbox', { name: /don't show this guide again/i });
-    expect(dontShowCheckbox).toBeChecked();
-
-    // Uncheck and check again to test the toggle
-    await user.click(dontShowCheckbox); // Uncheck
-    expect(dontShowCheckbox).not.toBeChecked();
-    await user.click(dontShowCheckbox); // Check again
-    expect(dontShowCheckbox).toBeChecked();
-
-    // Dismiss with preference saved
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /start using holiday optimizer/i }));
-
-    // Expect localStorage to be updated
-    expect(localStorage.getItem('holiday-optimizer-onboarding-completed')).toBe('true');
-  });
-
   test('should allow reopening onboarding using help button after dismissal', async () => {
     // First dismiss onboarding
     await user.click(screen.getByRole('button', { name: /skip onboarding tour/i }));

@@ -29,8 +29,6 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
   const startButtonRef = useRef<HTMLButtonElement>(undefined);
   
   const {
-    dontShowAgain,
-    setDontShowAgain,
     overlayRef,
     shouldRender,
     handleDismiss
@@ -119,11 +117,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
       </main>
       
       {/* Footer with actions */}
-      <OnboardingFooter
-        dontShowAgain={dontShowAgain}
-        onDontShowAgainChange={setDontShowAgain}
-        checkboxId="dont-show-again"
-      >
+      <OnboardingFooter>
         <div className={cn(
           // Mobile layout - stacked buttons
           "flex gap-3",
@@ -132,7 +126,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
         )}>
           <Button
             variant="outline"
-            onClick={() => dismissOnboarding(dontShowAgain)}
+            onClick={() => dismissOnboarding()}
             aria-label="Skip onboarding tour"
             type="button"
             className="flex-1 sm:flex-initial"

@@ -294,7 +294,7 @@ export function OnboardingCoachMark({
       
       switch (e.key) {
         case 'Escape':
-          dismissOnboarding(false);
+          dismissOnboarding();
           break;
         case 'ArrowRight':
           if (showNextButton) {
@@ -336,7 +336,7 @@ export function OnboardingCoachMark({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             aria-hidden="true"
-            onClick={() => dismissOnboarding(false)}
+            onClick={dismissOnboarding}
           />
           
           {/* Bottom sheet */}
@@ -403,7 +403,7 @@ export function OnboardingCoachMark({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => dismissOnboarding(false)}
+                      onClick={dismissOnboarding}
                       tabIndex={0}
                       className="h-9 px-3 text-sm"
                       aria-label="Skip onboarding"
@@ -480,7 +480,7 @@ export function OnboardingCoachMark({
           {/* Close button */}
           {showCloseButton && (
             <button 
-              onClick={() => dismissOnboarding(false)}
+              onClick={dismissOnboarding}
               className="absolute top-2 right-2 p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               aria-label="Close onboarding tooltip"
               type="button"
@@ -529,7 +529,7 @@ export function OnboardingCoachMark({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => dismissOnboarding(false)}
+                  onClick={dismissOnboarding}
                   tabIndex={0}
                   className="h-9 px-3 py-2 text-sm"
                   aria-label="Skip onboarding"
