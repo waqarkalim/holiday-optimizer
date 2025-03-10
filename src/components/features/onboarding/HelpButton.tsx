@@ -28,7 +28,7 @@ export const HelpButton = ({ className, dataTestId }: HelpButtonProps) => {
           <HelpCircle className="h-5 w-5 text-teal-600 dark:text-teal-400" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
+      <TooltipContent side="bottom" className="bg-white dark:bg-gray-900 font-medium">
         <p>Show onboarding guide</p>
       </TooltipContent>
     </Tooltip>
