@@ -74,7 +74,6 @@ export function OnboardingCoachMark({
   const { isOnboardingVisible, isCurrentStep, goToNextStep, goToPrevStep, dismissOnboarding } = useOnboarding();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isExtraSmall, setIsExtraSmall] = useState(false);
   
   // Handle client-side only rendering for createPortal
   useEffect(() => {
@@ -83,8 +82,7 @@ export function OnboardingCoachMark({
     const checkScreenSize = () => {
       const width = window.innerWidth;
       setIsMobile(width < 640); // sm breakpoint
-      setIsExtraSmall(width < 380); // Very small mobile screens
-      
+
       // Automatically use bottom sheet on very small screens
       setUseBottomSheet(width < 380);
     };

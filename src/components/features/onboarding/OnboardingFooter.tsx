@@ -42,7 +42,7 @@ export const OnboardingFooter = ({
           htmlFor={checkboxId}
           className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
         >
-          Don't show this guide again
+          Don&apos;t show this guide again
         </label>
       </div>
       

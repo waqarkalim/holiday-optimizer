@@ -75,7 +75,7 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
           </div>
         </div>
         <h2 id="onboarding-complete-title" className="text-xl sm:text-2xl font-semibold text-center">
-          You're All Set!
+          You&apos;re All Set!
         </h2>
       </header>
 
@@ -87,8 +87,8 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
       )}>
         <div className="space-y-4 sm:space-y-6 pb-24 sm:pb-0">
           <p id="onboarding-complete-description" className="text-sm sm:text-base text-gray-700 dark:text-gray-300 text-center">
-            Now you're ready to create your optimized holiday schedule.
-            Fill in the form and hit "Generate" to see your personalized plan.
+            Now you&apos;re ready to create your optimized holiday schedule.
+            Fill in the form and hit &ldquo;Generate&rdquo; to see your personalized plan.
           </p>
 
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">

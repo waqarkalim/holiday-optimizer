@@ -77,7 +77,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
               Welcome to Holiday Optimizer
             </h2>
             <p id="onboarding-description" className="text-sm sm:text-base text-white/90 line-clamp-2 mt-0.5">
-              Let's optimize your time off to get the most out of your PTO days.
+              Let&apos;s optimize your time off to get the most out of your PTO days.
             </p>
           </div>
         </div>
