@@ -53,7 +53,7 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
     >
       {/* Header - Success Banner */}
       <header className={cn(
-        "relative bg-gradient-to-r from-teal-600 to-green-600 text-white",
+        "relative bg-green-600 text-white",
         // Mobile header styling
         "flex flex-col items-center justify-center p-4 pt-8 pb-6",
         // Desktop header styling
@@ -115,7 +115,7 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
         <Button
           ref={getStartedButtonRef}
           onClick={() => dismissOnboarding(dontShowAgain)}
-          className="w-full bg-gradient-to-r from-teal-600 to-green-600 hover:from-teal-700 hover:to-green-700 text-white h-11"
+          className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
           aria-label="Start using Holiday Optimizer"
           type="button"
         >

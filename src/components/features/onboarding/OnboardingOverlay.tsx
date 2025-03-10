@@ -52,7 +52,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
     >
       {/* Header */}
       <header className={cn(
-        "relative bg-gradient-to-r from-teal-600 to-blue-600 text-white",
+        "relative bg-sky-600 text-white",
         // Mobile header styling
         "flex items-center p-4",
         // Desktop header styling
@@ -105,7 +105,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
               description="Tell us how many PTO days you have available to use."
             />
             <FeatureCard 
-              icon={<Sparkles className="h-5 w-5 text-blue-600" />}
+              icon={<Sparkles className="h-5 w-5 text-indigo-600" />}
               title="Choose a strategy"
               description="Select how you want to optimize your time off."
             />
@@ -142,7 +142,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
           <Button 
             ref={startButtonRef as RefObject<HTMLButtonElement>}
             onClick={goToNextStep}
-            className="flex-1 sm:flex-initial bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white"
+            className="flex-1 sm:flex-initial bg-sky-600 hover:bg-sky-700 text-white"
             aria-label="Start onboarding tour"
             type="button"
           >
