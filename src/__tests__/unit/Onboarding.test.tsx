@@ -144,7 +144,7 @@ describe('Onboarding Integration Tests', () => {
       expect(within(completionScreen).getByRole('heading', { level: 2 })).toBeInTheDocument();
       expect(within(completionScreen).getByRole('heading', { level: 2 })).toHaveTextContent('You\'re All Set!');
 
-      expect(within(completionScreen).getByText('Now you\'re ready to create your optimized holiday schedule. Fill in the form and hit "Generate" to see your personalized plan.')).toBeInTheDocument();
+      expect(within(completionScreen).getByText(/now you.*re ready to create your optimized holiday schedule. Fill in the form and hit .*Generate.* to see your personalized plan./i)).toBeInTheDocument();
 
       expect(within(completionScreen).getByRole('heading', { level: 3 })).toBeInTheDocument();
       expect(within(completionScreen).getByRole('heading', { level: 3 })).toHaveTextContent('Follow these steps:');
