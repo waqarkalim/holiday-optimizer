@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { RefObject, useRef } from 'react';
 import { Calendar, CheckCircle, ChevronRight, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { OnboardingStep, useOnboarding } from '@/contexts/OnboardingContext';
@@ -36,7 +36,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
     handleDismiss
   } = useOnboardingOverlay({
     step,
-    primaryButtonRef: startButtonRef
+    primaryButtonRef: startButtonRef as RefObject<HTMLButtonElement>,
   });
   
   if (!shouldRender) return null;
@@ -45,7 +45,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
     <OnboardingDialog
       isOpen={shouldRender}
       className={className}
-      overlayRef={overlayRef}
+      overlayRef={overlayRef as RefObject<HTMLDivElement>}
       maxWidth="lg"
       labelledBy="onboarding-title"
       describedBy="onboarding-description"
@@ -139,7 +139,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
             Skip tour
           </Button>
           <Button 
-            ref={startButtonRef}
+            ref={startButtonRef as RefObject<HTMLButtonElement>}
             onClick={goToNextStep}
             className="flex-1 sm:flex-initial bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white"
             aria-label="Start onboarding tour"

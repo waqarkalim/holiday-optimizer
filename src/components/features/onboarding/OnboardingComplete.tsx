@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { RefObject, useRef } from 'react';
 import { CheckCircle, PartyPopper, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { OnboardingStep, useOnboarding } from '@/contexts/OnboardingContext';
@@ -36,7 +36,7 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
     handleDismiss
   } = useOnboardingOverlay({
     step,
-    primaryButtonRef: getStartedButtonRef,
+    primaryButtonRef: getStartedButtonRef as RefObject<HTMLButtonElement>,
     initialDontShowAgain: true
   });
 
@@ -46,7 +46,7 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
     <OnboardingDialog
       isOpen={shouldRender}
       className={className}
-      overlayRef={overlayRef}
+      overlayRef={overlayRef as RefObject<HTMLDivElement>}
       maxWidth="md"
       labelledBy="onboarding-complete-title"
       describedBy="onboarding-complete-description"
