@@ -103,8 +103,9 @@ export function OnboardingComplete({ step, className }: OnboardingCompleteProps)
 
   const completeContent = (
     <AnimatePresence mode="wait">
-      <dialog
+      <div
         className="fixed inset-0 z-[9998] overflow-hidden flex flex-col"
+        role="dialog"
         aria-modal="true"
       >
         {/* Backdrop */}
@@ -230,7 +231,7 @@ export function OnboardingComplete({ step, className }: OnboardingCompleteProps)
             </Button>
           </footer>
         </motion.div>
-      </dialog>
+      </div>
     </AnimatePresence>
   );
   

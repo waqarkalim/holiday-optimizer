@@ -103,8 +103,9 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
 
   const overlayContent = (
     <AnimatePresence mode="wait">
-      <dialog
+      <div
         className="fixed inset-0 z-[9998] overflow-hidden flex flex-col"
+        role="dialog"
         aria-modal="true"
       >
         {/* Backdrop */}
@@ -254,7 +255,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
             </div>
           </footer>
         </motion.div>
-      </dialog>
+      </div>
     </AnimatePresence>
   );
   

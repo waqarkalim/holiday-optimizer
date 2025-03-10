@@ -3,12 +3,11 @@ import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {
   HelpButton,
+  OnboardingCoachMark,
   OnboardingComplete,
   OnboardingOverlay,
   OnboardingProgressBar,
-  OnboardingStep,
 } from '@/components/features/onboarding';
-import { OnboardingStep } from '@/contexts/OnboardingContext';
 import userEvent from '@testing-library/user-event';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -113,9 +112,9 @@ describe('Onboarding Integration Tests', () => {
   describe('OnboardingTooltip', () => {
     test('should render tooltip with step-specific content and navigation buttons', () => {
       // Render a mock tooltip with proper accessibility attributes
-      render(<OnboardingStep step={'strategy-selection' as OnboardingStep} title="Choose Your Strategy"
-                             description="Select how you want to optimize your time off."
-                             targetSelector="#strategy-selection-container" />);
+      render(<OnboardingCoachMark step={'strategy-selection' as OnboardingCoachMark} title="Choose Your Strategy"
+                                  description="Select how you want to optimize your time off."
+                                  targetSelector="#strategy-selection-container" />);
 
       // Verify dialog is present with correct attributes
       const tooltip = screen.getByRole('dialog');

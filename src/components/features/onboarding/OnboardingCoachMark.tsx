@@ -53,7 +53,7 @@ const COLORS = {
   },
 };
 
-export function OnboardingStep({
+export function OnboardingCoachMark({
   targetSelector,
   title,
   description,
