@@ -125,9 +125,10 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
         checkboxId="dont-show-again"
       >
         <div className={cn(
+          // Mobile layout - stacked buttons
           "flex gap-3",
-          // Mobile full-width buttons
-          "sm:w-auto"
+          // Desktop layout - buttons on opposite sides
+          "sm:flex sm:justify-between sm:w-full"
         )}>
           <Button
             variant="outline"
