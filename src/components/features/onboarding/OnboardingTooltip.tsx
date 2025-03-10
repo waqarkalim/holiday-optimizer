@@ -299,11 +299,16 @@ export function OnboardingTooltip({
           dismissOnboarding(false);
           break;
         case 'ArrowRight':
-        case 'Enter':
-          if (showNextButton) goToNextStep();
+          if (showNextButton) {
+            e.preventDefault();
+            goToNextStep();
+          }
           break;
         case 'ArrowLeft':
-          if (showPrevButton) goToPrevStep();
+          if (showPrevButton) {
+            e.preventDefault();
+            goToPrevStep();
+          }
           break;
       }
     };
