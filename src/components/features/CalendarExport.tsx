@@ -33,7 +33,11 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
     setActiveExport('ical');
     
     try {
-      const result = await exportToICS({ breaks, stats, selectedYear });
+      const result = await exportToICS({ 
+        breaks, 
+        stats, 
+        selectedYear
+      });
       
       if (result.success) {
         toast.success("Export Successful", {
@@ -54,7 +58,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
     }
   };
 
-// Keyboard event handler for info button
+  // Keyboard event handler for info button
   const handleInfoKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault(); // Prevent default behavior (scrolling) for space key
@@ -124,7 +128,10 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <p className="text-xs">
-                Download as iCal file for Google Calendar, Apple Calendar, Outlook, and other calendar applications
+                Download as iCal file for Google Calendar, Apple Calendar, Outlook, and other calendar applications. 
+                <span className="block mt-1 text-blue-500 dark:text-blue-400">
+                  Events will show on their actual dates regardless of timezone.
+                </span>
               </p>
             </TooltipContent>
           </Tooltip>

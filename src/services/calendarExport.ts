@@ -6,18 +6,40 @@ interface CalendarExportOptions {
   breaks: Break[];
   stats: OptimizationStats;
   selectedYear: number;
+  timezone?: string; // Optional timezone parameter (e.g., 'America/New_York')
 }
 
 /**
  * Converts a date string in format 'yyyy-MM-dd' to a Date array [year, month, day]
- * for use with the ics library
+ * for use with the ics library, preserving the same date regardless of timezone
  */
 const dateStringToArray = (dateString: string): DateArray => {
-  const date = new Date(dateString);
+  // Parse the date string directly to avoid timezone issues
+  const [year, month, day] = dateString.split('-').map(Number);
+  
   return [
-    date.getFullYear(),
-    date.getMonth() + 1, // ics uses 1-indexed months
-    date.getDate(),
+    year,
+    month,
+    day,
+    0, // hours
+    0, // minutes
+  ];
+};
+
+/**
+ * Adds one day to a date and handles month/year boundaries correctly
+ * Returns a DateArray [year, month, day, hour, minute]
+ */
+const addDayWithRollover = (dateString: string): DateArray => {
+  // Create a Date object temporarily just for rollover calculation
+  // We'll use UTC methods to avoid timezone issues
+  const date = new Date(`${dateString}T12:00:00Z`); // Use noon UTC to avoid DST issues
+  date.setUTCDate(date.getUTCDate() + 1); // Add one day
+  
+  return [
+    date.getUTCFullYear(),
+    date.getUTCMonth() + 1, // Convert 0-based month to 1-based
+    date.getUTCDate(),
     0, // hours
     0, // minutes
   ];
@@ -43,6 +65,8 @@ const generateEventDescription = (breakItem: Break, stats: OptimizationStats): s
 
 /**
  * Exports calendar events to iCal (.ics) format
+ * Uses floating time approach to ensure dates appear on the intended day
+ * regardless of the user's timezone
  */
 export const exportToICS = async (options: CalendarExportOptions): Promise<{ success: boolean; message: string }> => {
   try {
@@ -50,17 +74,17 @@ export const exportToICS = async (options: CalendarExportOptions): Promise<{ suc
     
     // Format breaks as events for ics
     const events: EventAttributes[] = breaks.map((breakItem) => {
-      // Create a start date array for ics
+      // Create start date array - parse directly from date string
       const startDate = dateStringToArray(breakItem.startDate);
       
-      // Create an end date array for ics
-      // For calendar events, the end date should be the day after the last day
-      const endDateObj = new Date(breakItem.endDate);
-      endDateObj.setDate(endDateObj.getDate() + 1); // Add one day for exclusive end date
-      const endDate = dateStringToArray(endDateObj.toISOString().split('T')[0]);
+      // Create end date array with proper rollover handling
+      // ICS end dates are exclusive, so we add one day to the end date
+      const endDate = addDayWithRollover(breakItem.endDate);
       
       return {
         start: startDate,
+        // Floating time (no UTC designation) ensures dates appear on the correct day
+        // regardless of the user's timezone
         end: endDate,
         title: 'PTO - Holiday Optimizer',
         description: generateEventDescription(breakItem, stats),
@@ -84,7 +108,7 @@ export const exportToICS = async (options: CalendarExportOptions): Promise<{ suc
     
     return { 
       success: true, 
-      message: 'Calendar exported successfully! You can now import this file into your calendar application.' 
+      message: 'Calendar exported successfully! Your events will appear on the correct dates in your calendar.' 
     };
     
   } catch (error) {
