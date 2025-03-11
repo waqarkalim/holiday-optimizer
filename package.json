@@ -21,7 +21,8 @@
     "tf:plan": "cd terraform && terraform plan",
     "tf:apply": "cd terraform && terraform apply",
     "tf:destroy": "cd terraform && terraform destroy",
-    "deploy": "./deploy.sh"
+    "deploy": "./deploy.sh",
+    "prepare": "husky"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -88,6 +89,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^15.1.6",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",

@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Get the current branch name
+branch="$(git symbolic-ref --short HEAD)"
+
+# Only run the checks if pushing to master
+if [ "$branch" = "master" ]; then
+  echo "Pushing to master branch. Running checks..."
+  pnpm lint && pnpm build && pnpm test || exit 1
+fi 
