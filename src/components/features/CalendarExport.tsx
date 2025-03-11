@@ -104,7 +104,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
                 onClick={handleExportToICS}
                 disabled={isExporting}
                 className="h-8 px-3 text-xs focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                aria-label="Export to iCal format for Apple Calendar, Outlook, and other calendar applications"
+                aria-label="Export to iCal format for Google Calendar, Apple Calendar, Outlook, and other calendar applications"
                 tabIndex={0}
               >
                 {activeExport === 'ical' ? (
@@ -124,7 +124,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <p className="text-xs">
-                Download as iCal file for Apple Calendar, Outlook, and other calendar applications
+                Download as iCal file for Google Calendar, Apple Calendar, Outlook, and other calendar applications
               </p>
             </TooltipContent>
           </Tooltip>

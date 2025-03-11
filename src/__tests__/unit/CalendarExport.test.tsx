@@ -160,7 +160,7 @@ describe('CalendarExport Component', () => {
     
     // Check that export buttons have accessible names
     const icalButton = screen.getByRole('button', { 
-      name: /Export to iCal format for Apple Calendar, Outlook, and other calendar applications/i 
+      name: /Export to iCal format for Google Calendar, Apple Calendar, Outlook, and other calendar applications/i 
     });
     expect(icalButton).toBeInTheDocument();
   });
