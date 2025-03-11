@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CalendarExport } from '@/components/features/CalendarExport';
-import { exportToGoogleCalendar, exportToICS } from '@/services/calendarExport';
+import { exportToICS } from '@/services/calendarExport';
 import { toast } from 'sonner';
 import { Break, OptimizationStats } from '@/types';
 
@@ -69,7 +69,6 @@ describe('CalendarExport Component', () => {
     
     // Check that both export buttons are rendered
     expect(screen.getByRole('button', { name: /iCal/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Google Calendar/i })).toBeInTheDocument();
   });
 
   it('should call exportToICS when iCal button is clicked', async () => {
@@ -94,33 +93,6 @@ describe('CalendarExport Component', () => {
     
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith('Export Successful', {
-        description: 'Export successful',
-      });
-    });
-  });
-
-  it('should call exportToGoogleCalendar when Google Calendar button is clicked', async () => {
-    const user = userEvent.setup();
-    
-    render(
-      <CalendarExport 
-        breaks={mockBreaks} 
-        stats={mockStats} 
-        selectedYear={mockYear} 
-      />
-    );
-    
-    const googleButton = screen.getByRole('button', { name: /Google Calendar/i });
-    await user.click(googleButton);
-    
-    expect(exportToGoogleCalendar).toHaveBeenCalledWith({
-      breaks: mockBreaks,
-      stats: mockStats,
-      selectedYear: mockYear,
-    });
-    
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('Google Calendar Export', {
         description: 'Export successful',
       });
     });
@@ -191,8 +163,5 @@ describe('CalendarExport Component', () => {
       name: /Export to iCal format for Apple Calendar, Outlook, and other calendar applications/i 
     });
     expect(icalButton).toBeInTheDocument();
-    
-    const googleButton = screen.getByRole('button', { name: /Export to Google Calendar/i });
-    expect(googleButton).toBeInTheDocument();
   });
 }); 

@@ -1,12 +1,12 @@
 'use client';
 
 import { KeyboardEvent, useState } from 'react';
-import { exportToGoogleCalendar, exportToICS } from '@/services/calendarExport';
+import { exportToICS } from '@/services/calendarExport';
 import { Break, OptimizationStats } from '@/types';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { Calendar, Download, ExternalLink, InfoIcon, Sparkles } from 'lucide-react';
+import { Calendar, Download, InfoIcon, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SectionCard } from '@/components/ui/section-card';
 
@@ -54,41 +54,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
     }
   };
 
-  // Handle export to Google Calendar
-  const handleExportToGoogle = () => {
-    if (breaks.length === 0) {
-      toast.error("No breaks to export", {
-        description: "There are no vacation breaks to export to calendar."
-      });
-      return;
-    }
-
-    setIsExporting(true);
-    setActiveExport('google');
-    
-    try {
-      const result = exportToGoogleCalendar({ breaks, stats, selectedYear });
-      
-      if (result.success) {
-        toast.success("Google Calendar Export", {
-          description: result.message
-        });
-      } else {
-        toast.error("Export Failed", {
-          description: result.message
-        });
-      }
-    } catch (error) {
-      toast.error("Export Failed", {
-        description: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
-      });
-    } finally {
-      setIsExporting(false);
-      setActiveExport(null);
-    }
-  };
-
-  // Keyboard event handler for info button
+// Keyboard event handler for info button
   const handleInfoKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault(); // Prevent default behavior (scrolling) for space key
@@ -159,41 +125,6 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
             <TooltipContent className="max-w-xs">
               <p className="text-xs">
                 Download as iCal file for Apple Calendar, Outlook, and other calendar applications
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportToGoogle}
-                disabled={isExporting}
-                className="h-8 px-3 text-xs focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                aria-label="Export to Google Calendar"
-                tabIndex={0}
-              >
-                {activeExport === 'google' ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="mr-1.5"
-                    aria-hidden="true"
-                  >
-                    <Sparkles className="h-3 w-3" />
-                  </motion.div>
-                ) : (
-                  <ExternalLink className="h-3 w-3 mr-1.5" aria-hidden="true" />
-                )}
-                <span>Google Calendar</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              <p className="text-xs">
-                Open each break as an event in Google Calendar. You'll need to save each event individually.
               </p>
             </TooltipContent>
           </Tooltip>

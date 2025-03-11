@@ -2,8 +2,9 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
-import { exportToICS, exportToGoogleCalendar } from '@/services/calendarExport';
+import { exportToICS } from '@/services/calendarExport';
 import { toast } from 'sonner';
+import { Break, OptimizationStats, OptimizedDay } from '@/types';
 
 // Mock the export service functions
 jest.mock('@/services/calendarExport', () => ({
@@ -35,15 +36,8 @@ jest.mock('@/components/ui/section-card', () => ({
   ),
 }));
 
-// Mock window.open for Google Calendar tests
-const mockWindowOpen = jest.fn();
-Object.defineProperty(window, 'open', {
-  writable: true,
-  value: mockWindowOpen,
-});
-
 // Create test data
-const mockOptimizedDays = [
+const mockOptimizedDays: OptimizedDay[] = [
   {
     date: '2023-07-01',
     isWeekend: true,
@@ -70,7 +64,7 @@ const mockOptimizedDays = [
   },
 ];
 
-const mockBreaks = [
+const mockBreaks: Break[] = [
   {
     startDate: '2023-07-01',
     endDate: '2023-07-07',
@@ -83,7 +77,7 @@ const mockBreaks = [
   },
 ];
 
-const mockStats = {
+const mockStats: OptimizationStats = {
   totalPTODays: 5,
   totalPublicHolidays: 0,
   totalNormalWeekends: 2,
@@ -161,64 +155,6 @@ describe('CalendarExport Integration', () => {
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith('Export Successful', {
         description: 'Export successful',
-      });
-    });
-  });
-
-  it('should export to Google Calendar when button is clicked in ResultsDisplay', async () => {
-    const user = userEvent.setup();
-    
-    render(
-      <ResultsDisplay 
-        optimizedDays={mockOptimizedDays} 
-        breaks={mockBreaks} 
-        stats={mockStats} 
-        selectedYear={mockYear} 
-      />
-    );
-    
-    // Find and click the Google Calendar export button
-    const googleButton = screen.getByRole('button', { name: /Google Calendar/i });
-    await user.click(googleButton);
-    
-    // Verify that the export function was called with the correct params
-    expect(exportToGoogleCalendar).toHaveBeenCalledWith({
-      breaks: mockBreaks,
-      stats: mockStats,
-      selectedYear: mockYear,
-    });
-    
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('Google Calendar Export', {
-        description: 'Export successful',
-      });
-    });
-  });
-
-  it('should handle Google Calendar export errors correctly', async () => {
-    // Set up the mock to return an error for this test
-    (exportToGoogleCalendar as jest.Mock).mockReturnValueOnce({ 
-      success: false, 
-      message: 'Export failed' 
-    });
-    
-    const user = userEvent.setup();
-    
-    render(
-      <ResultsDisplay 
-        optimizedDays={mockOptimizedDays} 
-        breaks={mockBreaks} 
-        stats={mockStats} 
-        selectedYear={mockYear} 
-      />
-    );
-    
-    const googleButton = screen.getByRole('button', { name: /Google Calendar/i });
-    await user.click(googleButton);
-    
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Export Failed', {
-        description: 'Export failed',
       });
     });
   });
