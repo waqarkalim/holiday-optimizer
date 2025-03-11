@@ -26,14 +26,6 @@ jest.mock('@/services/holidays', () => ({
   ]),
 }));
 
-// Mock toast
-jest.mock('sonner', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
-
 describe('OptimizerForm Integration Tests', () => {
   let mockOnSubmitAction: jest.Mock;
   let user: ReturnType<typeof userEvent.setup>;

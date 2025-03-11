@@ -82,6 +82,8 @@ jest.mock('lucide-react', () => ({
   CheckCircle: () => <div data-testid="check-circle-icon" />,
   ExternalLink: () => <div data-testid="external-link-icon" />,
   PartyPopper: () => <div data-testid="party-popper-icon" />,
+  Download: () => <div data-testid="download-icon">Download Icon</div>,
+  InfoIcon: () => <div data-testid="info-icon">Info Icon</div>,
 }));
 
 // Mock useLocalStorage hook
@@ -89,6 +91,14 @@ jest.mock('@/hooks/useLocalStorage', () => ({
   useLocalStorage: () => {
     const [value, setValue] = React.useState(null);
     return [value, setValue];
+  },
+}));
+
+// Mock the toast notifications
+jest.mock('sonner', () => ({
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
   },
 }));
 
