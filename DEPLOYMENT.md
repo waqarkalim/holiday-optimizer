@@ -1,211 +1,88 @@
 # Deployment Guide
 
-This guide explains how to set up and deploy the Holiday Optimizer application.
+This guide explains how to deploy the Holiday Optimizer application to Cloudflare Pages.
 
 ## Infrastructure Overview
 
-The application uses a serverless architecture on AWS:
-- Static files hosted on S3
-- CloudFront for CDN and HTTPS
-- Route53 for DNS management
-- ACM for SSL certificates
-- Terraform for infrastructure as code
-- GitHub Actions for CI/CD
+The application uses Cloudflare Pages for hosting:
+- Automatic builds and deployments directly from GitHub
+- Global CDN for fast content delivery
+- Automatic HTTPS/SSL
+- Scalable hosting with no infrastructure management
 
-## Initial Setup
+## Deployment Setup
 
-### 1. Domain Setup
-1. Purchase or transfer your domain to AWS Route53
-2. Note the domain name for terraform configuration
+### 1. Cloudflare Account Setup
+1. Create a Cloudflare account if you don't have one
+2. Navigate to the Cloudflare Dashboard > Pages
 
-### 2. AWS Account Setup
-1. Create an AWS account if you don't have one
-2. Create an IAM user with programmatic access
-3. Create two sets of credentials:
-   a. **Bootstrap Admin Credentials** (one-time setup only):
-      - AmazonS3FullAccess
-      - CloudFrontFullAccess
-      - AmazonRoute53FullAccess
-      - AWSCertificateManagerFullAccess
-      - IAMFullAccess
-   b. **Local Development Credentials** (day-to-day use):
-      - Same as above EXCEPT IAMFullAccess
+### 2. Connect to GitHub
+1. Click "Create a project" in Cloudflare Pages
+2. Choose "Connect to Git"
+3. Authorize Cloudflare to access your GitHub repositories
+4. Select the "holiday-optimizer" repository
 
-### 3. Local Environment
-1. Install required tools:
-   ```bash
-   # Install Node.js 20
-   # Install pnpm 8.15.1
-   # Install Terraform 1.7.2
-   # Install AWS CLI
-   ```
+### 3. Configure Build Settings
+1. Configure the build settings:
+   - **Project name**: holiday-optimizer (or your preferred name)
+   - **Production branch**: master
+   - **Framework preset**: Next.js
+   - **Build command**: npm run build
+   - **Build output directory**: out
+   - **Environment variables** (if needed):
+     - NODE_VERSION: 20
+     - PNPM_VERSION: 10.6.3
 
-### 4. Bootstrap Infrastructure (Manual One-Time Setup)
+2. Click "Save and Deploy"
 
-⚠️ **IMPORTANT**: This is a manual, one-time setup that should NOT be automated or included in CI/CD:
-- Requires admin-level AWS permissions
-- Creates the foundation for all other infrastructure
-- Must be completed before any CI/CD can work
-- Should be performed by a trusted administrator
+## Development Workflow
 
-1. Use bootstrap admin credentials:
-   ```bash
-   export AWS_ACCESS_KEY_ID="bootstrap_admin_access_key"
-   export AWS_SECRET_ACCESS_KEY="bootstrap_admin_secret_key"
-   export AWS_DEFAULT_REGION="us-east-1"
-   ```
+1. Make changes to your codebase
+2. Push to GitHub
+3. Cloudflare automatically:
+   - Detects the changes
+   - Builds the application
+   - Deploys to Cloudflare Pages
+   - Issues a unique preview URL for each commit/PR
 
-2. Create the bootstrap infrastructure:
-   ```bash
-   cd terraform/bootstrap
-   terraform init
-   terraform apply \
-     -var="github_org=your-github-username" \
-     -var="github_repo=holiday-optimizer"
+## Advanced Configuration
 
-   # Save the role ARN output for GitHub Actions
-   ```
+### Custom Domains
+1. In the Cloudflare Pages project:
+   - Go to "Custom domains"
+   - Click "Set up a custom domain"
+   - Enter your domain name
+   - Follow the verification steps
 
-3. What this creates:
-   - S3 bucket for Terraform state
-   - DynamoDB table for state locking
-   - OIDC provider for GitHub Actions
-   - IAM role for GitHub Actions
+### Environment Variables
+1. For environment-specific settings:
+   - Go to "Settings" > "Environment variables"
+   - Add variables for Production and Preview environments
 
-4. After bootstrap:
-   - ✅ Securely store the bootstrap admin credentials
-   - ✅ Use regular development credentials for day-to-day work
-   - ❌ Never include bootstrap credentials in CI/CD
-   - ❌ Never run bootstrap as part of automation
-
-### 5. GitHub Repository Setup
-
-1. Create a new repository
-2. Configure repository settings:
-   - Settings > Actions > General
-     - ✅ Allow GitHub Actions to create and approve pull requests
-     - ✅ Read and write permissions
-   - Settings > Secrets and Variables > Actions
-     - Add `AWS_ROLE_ARN` (from bootstrap output)
-
-## Deployment Process
-
-### Automatic Deployment (Recommended)
-
-1. Push changes to the `main` branch
-2. GitHub Actions will:
-   - Install dependencies
-   - Run tests
-   - Build the application
-   - Apply infrastructure changes
-   - Upload static files to S3
-   - Invalidate CloudFront cache
-
-### Manual Deployment
-
-```bash
-# Full deployment
-./deploy.sh
-
-# Or step by step:
-pnpm install
-pnpm test
-pnpm build
-cd terraform
-terraform init
-terraform apply
-```
-
-## Infrastructure Details
-
-### Bootstrap (`terraform/bootstrap/`)
-- Terraform state backend (S3 + DynamoDB)
-- OIDC provider for GitHub Actions
-- IAM role and policies
-
-### Main Infrastructure (`terraform/`)
-- S3 bucket for static hosting
-- CloudFront distribution
-- Route53 DNS records
-- ACM certificate
-- Security configurations
+### Build Configuration
+1. For more control over the build process:
+   - Create a `wrangler.toml` file in the root
+   - Specify detailed build configuration
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **OIDC Authentication Failure**
-   - Verify AWS_ROLE_ARN in GitHub secrets
+1. **Build Failures**
+   - Check the build logs in Cloudflare Pages
+   - Ensure all dependencies are correctly installed
+   - Verify build commands match your project setup
+
+2. **Node.js Version Mismatch**
+   - Set NODE_VERSION environment variable in Cloudflare
+   - Ensure compatibility with your code
+
+3. **Preview Deployment Issues**
    - Check GitHub repository permissions
-   - Ensure bootstrap was applied with correct variables
+   - Verify webhook is properly configured
 
-2. **Terraform State Issues**
-   - Check S3 bucket permissions
-   - Verify DynamoDB table exists
-   - Clear local terraform state if necessary
+## Monitoring and Maintenance
 
-3. **Deployment Failures**
-   - Check AWS credentials
-   - Verify all required variables are set
-   - Review GitHub Actions logs
-
-### Useful Commands
-
-```bash
-# Check terraform state
-terraform state list
-
-# Verify AWS configuration
-aws configure list
-
-# Test S3 access
-aws s3 ls
-
-# Check CloudFront distribution
-aws cloudfront list-distributions
-
-# Force CloudFront invalidation
-aws cloudfront create-invalidation --distribution-id $ID --paths "/*"
-```
-
-## Security Considerations
-
-- Bootstrap credentials need high privileges (IAM access)
-- Regular deployments use limited-scope OIDC role
-- S3 bucket is private, accessed through CloudFront
-- SSL/TLS is enforced through CloudFront
-- GitHub Actions secrets are encrypted
-
-## Maintenance
-
-### Regular Tasks
-- Review and update dependencies
-- Monitor AWS costs
-- Check CloudFront logs
-- Update SSL certificates (automatic through ACM)
-
-### Infrastructure Updates
-- Use terraform plan to review changes
-- Apply changes during low-traffic periods
-- Always backup terraform state
-- Test changes in a staging environment first
-
-## Rollback Procedure
-
-1. **Application Rollback**
-   ```bash
-   git checkout <previous-commit>
-   ./deploy.sh
-   ```
-
-2. **Infrastructure Rollback**
-   ```bash
-   cd terraform
-   terraform plan -target=resource.name
-   terraform apply -target=resource.name
-   ```
-
-3. **Emergency Rollback**
-   - Revert to previous CloudFront distribution
-   - Restore S3 bucket from backup
-   - Update DNS if necessary 
+- Monitor build and deployment status in Cloudflare Dashboard
+- Check analytics for traffic patterns and errors
+- Regular dependency updates through normal development workflow 

@@ -6,12 +6,11 @@ alwaysApply: false
 You're helping a frontend developer who uses:
 - TypeScript and React 19 (functional components only)
 - TailwindCSS and Shadcn (not Radix UI directly)
-- Golang with Gin for microservice backends deployed on AWS Lambda
-- Terraform for resource provisioning
-- AWS services (S3, CloudFront, Lambda, DynamoDB, etc.)
+- Golang with Gin for microservice backends deployed on serverless platforms
+- Cloudflare Pages for web hosting and deployment
 - GitHub Actions for CI/CD pipelines
 
-IMPORTANT: Cost optimization is a top priority. Keep AWS costs minimal or free when possible. The developer has used the 12-month free tier already, so focus on always-free tier services or solutions that cost only a few cents per month.
+IMPORTANT: Cost optimization is a top priority. Keep costs minimal or free when possible.
 
 Frontend guidelines:
 - Always use functional components, never class components
@@ -57,72 +56,39 @@ Backend guidelines:
 - Implement health check endpoints for all services
 - Consider implementing CQRS pattern for complex domains
 
-AWS cost optimization:
-- Always prefer AWS Free Tier "always free" services
-- Keep Lambda functions within free tier limits (1M requests/month)
-- Use Lambda provisioned concurrency only when absolutely necessary
-- Use ARM64 architecture for Lambda when possible (cheaper)
-- Minimize Lambda memory allocation to reduce costs
-- Keep S3 storage minimal and implement lifecycle policies
-- Use CloudFront Distributions sparingly due to data transfer costs
-- Implement proper cache control to reduce API calls
-- Use DynamoDB on-demand capacity to avoid paying for unused capacity
-- Keep DynamoDB usage within free tier limits (25GB storage, 25 WCU/RCU)
-- Avoid provisioned DynamoDB capacity unless absolutely necessary
-- Avoid or minimize use of NAT Gateways (they are expensive)
-- Use AppSync or API Gateway only when necessary due to costs
-- Avoid AWS services with no free tier (like RDS, Elasticache)
-- Prefer ECR public repository to avoid ECR storage costs
-- Set up CloudWatch billing alarms and budgets
-- Implement auto-scaling with proper minimum instances (0 or 1)
-- Use EFS only when absolutely necessary (expensive)
-- Delete unused resources immediately (snapshots, AMIs, volumes)
-- Use AWS Lambda for scheduled tasks instead of EC2
-
-AWS guidelines:
-- Deploy frontend to S3 with CloudFront (stay within free tier limits)
-- Use Lambda for backend microservices (stay within free tier)
-- Use DynamoDB for storage with single-table design principles (free tier conscious)
-- Avoid niche or expensive AWS services
-- Use latest AWS SDK versions for efficiency
-- Implement proper IAM permissions following least privilege
-- Use API Gateway with Lambda integration cautiously (monitor costs)
-- Implement proper error handling for AWS service calls
-- Use X-Ray for distributed tracing only when essential (costs money)
-- Set up CloudWatch alarms for cost monitoring
-- Implement proper retry logic for AWS API calls
-- Use SQS for async processing when needed (stay within free tier)
-- Use SSM Parameter Store (standard tier, not advanced) for configurations
-- Implement proper S3 bucket policies and CORS settings
-- Use CloudFront functions sparingly due to costs
-- Consider Step Functions only for critical workflows (costs money)
-- Avoid RDS unless absolutely necessary (no free tier after 12 months)
-- Implement proper DynamoDB TTL for temporary data to save storage
-- Use CloudWatch Logs Insights judiciously (costs money)
-- Consider EventBridge only for critical event-driven needs
+Cloudflare guidelines:
+- Use Cloudflare Pages for static site hosting
+- Implement proper caching strategies with Cloudflare Cache
+- Use Cloudflare Workers for edge computing when needed
+- Configure proper security headers
+- Set up proper redirects and rewrites
+- Implement proper CORS settings
+- Use Cloudflare Access for authentication if needed
+- Implement proper environment variables in Cloudflare Pages
+- Use wrangler.toml for Cloudflare Workers/Pages configuration
+- Set up custom domains properly
+- Use preview deployments for testing
+- Implement proper HTTP headers for security
+- Configure proper caching rules
+- Use proper analytics for monitoring
+- Implement proper error pages
 
 Infrastructure guidelines:
-- Use Terraform modules for organization
-- Implement remote state management (use S3 within free tier limits)
+- Use infrastructure as code principles
+- Implement proper environment separation
 - Validate input variables
 - Document outputs
 - Use workspaces for environment separation
-- Implement proper state locking (use DynamoDB with minimal capacity)
-- Use provider versioning
 - Implement proper tagging strategy for resources and cost allocation
 - Use data sources over resources when possible
-- Structure Terraform code in logical modules
+- Structure code in logical modules
 - Implement proper dependency management
-- Use count or for_each for resource iteration
 - Document module inputs and outputs thoroughly
 - Use locals for repeated values
-- Implement proper error handling in Terraform scripts
-- Use terraform-docs for automated documentation
-- Implement pre-commit hooks for Terraform validation
 - Use dynamic blocks for repeated configurations
-- Consider using Terragrunt for DRY configurations
-- Set up cost estimation in Terraform workflow
-- Create Terraform modules that follow cost-effective patterns
+- Consider using DRY configurations
+- Set up cost estimation workflows
+- Create modules that follow cost-effective patterns
 
 CI/CD guidelines:
 - Use GitHub Actions for CI/CD pipelines (stay within free tier)
@@ -152,10 +118,8 @@ Performance optimization:
 - Optimize images and assets to reduce bandwidth costs
 - Implement proper caching strategies to reduce API calls
 - Use CDN efficiently with proper cache headers to reduce origin requests
-- Optimize Lambda cold starts
+- Optimize serverless function cold starts
 - Use connection pooling in database connections
-- Implement proper indexing in DynamoDB to reduce RCUs
-- Minimize API calls and batch when possible to stay within free tiers
 - Implement proper pagination for large data sets
 - Use windowing libraries for long lists (react-window)
 - Implement resource hints (preload, prefetch)
@@ -174,7 +138,7 @@ Security best practices:
 - Implement proper CORS settings
 - Use HTTPS everywhere
 - Implement proper secrets management
-- Follow least privilege principle for IAM roles
+- Follow least privilege principle for roles
 - Implement proper error handling without leaking sensitive info
 - Use Content Security Policy headers
 - Implement proper session management
@@ -186,7 +150,6 @@ Security best practices:
 - Implement proper password hashing if applicable
 - Use security headers (X-Content-Type-Options, X-Frame-Options, etc.)
 - Implement proper rate limiting
-- Use AWS WAF only when necessary (costs money)
 - Consider implementing JWTs with proper expiration
 - Use OAuth2 flows correctly
 - Implement proper token validation
@@ -224,10 +187,8 @@ Debugging and monitoring:
 - Use debugging tools effectively
 - Set up performance monitoring (cautious of costs)
 - Implement proper logging levels
-- Use CloudWatch Logs Insights sparingly due to costs
 - Set up proper metrics collection within free tier limits
 - Implement proper correlation IDs for request tracing
-- Use AWS X-Ray only for critical services (costs money)
 - Consider implementing feature flags for easier debugging
 - Set up proper development environment with debugging tools
 - Document common debugging workflows
@@ -248,8 +209,3 @@ Data handling:
 - Use proper data access patterns
 - Consider data consistency requirements
 - Implement proper data versioning if needed
-- Keep data storage minimal to reduce costs
-- Implement data cleanup routines to manage storage costs
-- Use compression for stored data when appropriate
-- Ensure efficient querying to minimize read/write units
-- Consider local caching to reduce AWS service calls

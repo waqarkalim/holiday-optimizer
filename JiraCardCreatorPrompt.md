@@ -1,114 +1,150 @@
-# Holiday Optimizer - Jira Card Creator Prompt
+# Jira Card Creator Prompt
 
-## Overview
-This prompt helps you create standardized Jira cards for the Holiday Optimizer project. The Holiday Optimizer is a Next.js application that helps professionals optimize their vacation days by suggesting the most efficient ways to use their limited time off.
+This is a prompt for creating Jira cards related to our Holiday Optimizer application.
 
-## Card Types
-When creating cards, specify one of the following types:
+## General Structure
+
+```
+Title: [Clear, concise title describing the task]
+
+Description:
+[Detailed description of the task, including context and requirements]
+
+Acceptance Criteria:
+- [Criterion 1]
+- [Criterion 2]
+- ...
+
+Technical Details:
+[Any technical information that would help implementation]
+
+Design Resources:
+[Links to designs or mockups if applicable]
+
+Dependencies:
+[Any dependencies on other tasks]
+
+Estimation:
+[Story point estimate or time estimate]
+```
+
+## Labels to Use
+
+- `Frontend`: React, Next.js, UI components, styling
+- `Backend`: API endpoints, data processing, server logic
+- `DevOps`: CI/CD, deployment, hosting, Cloudflare Pages configuration
+- `UX/UI`: Design implementation, animations, responsive design
+- `Testing`: Unit tests, integration tests, E2E tests
+- `Documentation`: User guides, API docs, codebase documentation
+- `Bug`: Issue that needs to be fixed
 - `Feature`: New functionality
-- `Enhancement`: Improvements to existing features
-- `Bug`: Issues that need fixing
-- `Task`: General development tasks
-- `Refactor`: Code improvements without changing functionality
-- `Documentation`: Updates to documentation
-- `Test`: Testing-related tasks
-
-## Components
-Specify which component the work relates to:
-- `Frontend`: UI/UX elements and client-side logic
-- `Optimization Engine`: Core holiday optimization algorithm
-- `Data Management`: How user data is stored and managed
-- `Infrastructure`: AWS, Terraform, and deployment concerns
-- `Testing`: Test suite improvements or additions
-- `Documentation`: README, inline comments, etc.
-
-## Key Areas
-Reference specific areas of the application:
-- `Form`: The vacation day input form components
-- `Calendar`: Calendar visualization components
-- `Optimization Strategies`: Logic for different break patterns (balanced, long weekends, etc.)
-- `Holiday Management`: Public holiday and company day off handling
-- `Results Display`: How optimization results are presented
+- `Tech Debt`: Refactoring, code quality improvements
+- `Performance`: Optimization work
+- `Security`: Security-related issues
 - `Accessibility`: A11y improvements
-- `Performance`: Speed and optimization concerns
-- `Mobile Responsiveness`: Mobile UI improvements
 
-## Template
+## Epic Categories
+
+- `User Authentication`: Login, signup, password management
+- `Trip Planning`: Creating and managing trip plans
+- `Optimization`: Algorithm and recommendation features
+- `Calendar Integration`: Calendar features and integrations
+- `Sharing`: Collaboration and sharing capabilities
+- `Reporting`: Analytics and reports for users
+- `Admin`: Admin panel and management features
+- `Infrastructure`: Hosting, deployment, monitoring
+- `Onboarding`: User onboarding and tutorials
+- `Mobile Responsiveness`: Mobile-specific features and improvements
+
+## Task Types
+
+- **Feature Development**: New functionality implementation
+- **Bug Fix**: Resolving issues
+- **Enhancement**: Improving existing functionality
+- **Tech Debt**: Refactoring and cleanup
+- **Documentation**: Creating or updating documentation
+- **Design Implementation**: Implementing UI designs
+- **Testing**: Creating tests or testing framework
+- **Performance Optimization**: Improving application performance
+- **Security Enhancement**: Addressing security concerns
+- **Accessibility Improvement**: Making the app more accessible
+
+## Priority Levels
+
+- **Highest**: Critical items that must be addressed immediately
+- **High**: Important items for the current sprint
+- **Medium**: Important but not urgent
+- **Low**: Nice to have, not time-sensitive
+- **Lowest**: Can be deferred to future sprints
+
+## Template Examples
+
+### Feature Card Example
 
 ```
-Type: [Feature/Enhancement/Bug/Task/Refactor/Documentation/Test]
-Component: [Frontend/Optimization Engine/Data Management/Infrastructure/Testing/Documentation]
-Area: [Form/Calendar/Optimization Strategies/Holiday Management/Results Display/Accessibility/Performance/Mobile Responsiveness]
+Title: Implement Calendar Day Selection Component
 
-## Title
-[Brief, descriptive title]
+Description:
+Create a reusable calendar day selection component that allows users to select 
+dates for their holiday planning. The component should highlight selected 
+dates, show date ranges, and mark holidays and weekends differently.
 
-## Description
-[Detailed description of the work to be done]
+Acceptance Criteria:
+- Component allows selecting individual dates
+- Component allows selecting date ranges
+- Selected dates are visually highlighted
+- Weekends have distinct styling
+- Public holidays are marked with a special indicator
+- Component is keyboard accessible
+- Component works across all supported browsers
 
-## Acceptance Criteria
-- [ ] [Criteria 1]
-- [ ] [Criteria 2]
-- [ ] [Criteria 3]
+Technical Details:
+- Use React with TypeScript
+- Implement as a controlled component
+- Should support all standard date formats
+- Must be responsive for mobile devices
 
-## Technical Details
-[Any technical considerations, implementation notes, or architecture decisions]
+Design Resources:
+- [Link to Figma design]
 
-## Dependencies
-[List any dependencies on other cards or external factors]
-
-## Effort Estimate
-[S/M/L/XL]
-
-## Priority
-[High/Medium/Low]
-
-## Affected Files
-[List of files likely to be affected, if known]
-```
-
-## Example Card
-
-```
-Type: Feature
-Component: Frontend
-Area: Calendar
-
-## Title
-Implement Drag-and-Drop for Calendar Break Selection
-
-## Description
-Add drag-and-drop functionality to the calendar view allowing users to select date ranges for custom breaks by dragging across calendar days. This should provide a more intuitive interface for creating custom breaks compared to the current click-based selection.
-
-## Acceptance Criteria
-- [ ] Users can click and drag to select a range of days on the calendar
-- [ ] Selected days visually highlight during the drag operation
-- [ ] Upon release, the selected range is treated as a custom break
-- [ ] Selection respects weekends and holidays (visually differentiating them)
-- [ ] Mobile touch interactions are supported
-- [ ] Keyboard accessibility is maintained
-- [ ] Animation is smooth with no performance issues
-
-## Technical Details
-- Use React DnD or a similar library for drag interactions
-- Ensure state management correctly tracks selected ranges
-- Optimize for performance with many calendar days
-- Implement proper touch events for mobile support
-
-## Dependencies
+Dependencies:
 - None
 
-## Effort Estimate
-M
+Estimation:
+5 story points
+```
 
-## Priority
-Medium
+### Bug Fix Example
 
-## Affected Files
-- src/components/features/Calendar.tsx
-- src/components/features/CalendarView.tsx
-- src/hooks/useOptimizer.ts
-- src/contexts/OptimizerContext.tsx
+```
+Title: Fix Date Selection Bug in Safari
+
+Description:
+Users on Safari browsers are reporting that selecting dates on the calendar 
+sometimes selects an adjacent date instead of the one clicked. This appears 
+to be a browser-specific issue with event handling.
+
+Acceptance Criteria:
+- Date selection works correctly on Safari
+- Existing functionality on Chrome and Firefox is unchanged
+- Add automated tests to verify correct behavior
+
+Technical Details:
+- Issue seems related to click event coordinates in Safari
+- Check for Safari-specific event handling differences
+- May need to use pointer events instead of click events
+
+Steps to Reproduce:
+1. Open the application in Safari
+2. Navigate to the trip planning page
+3. Try to select a date on the calendar
+4. Note that the highlighted date is sometimes adjacent to the clicked date
+
+Dependencies:
+- None
+
+Estimation:
+3 story points
 ```
 
 ## Additional Notes for Card Creation

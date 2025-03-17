@@ -1,158 +1,122 @@
 # Holiday Optimizer
 
-A static web application that helps professionals optimize their vacation days. Built with Next.js and hosted on AWS.
+A web application for optimizing holiday travel planning.
 
-## 🚀 Quick Start
+## Overview
 
-```bash
-# Install dependencies
-pnpm install
+Holiday Optimizer is a web application that helps users plan their holidays efficiently. By analyzing travel routes, costs, and optimal scheduling, the application provides recommendations for maximizing travel experiences while minimizing expenses and travel time.
 
-# Run development server
-pnpm dev
+## Features
 
-# Run tests
-pnpm test
+- Interactive calendar visualization
+- Cost comparison between different travel options
+- Automatic optimization of travel routes
+- Shareable trip itineraries
+- Weather forecast integration
+- Accommodation recommendations
+- Local attraction suggestions
 
-# Build for production
-pnpm build
-```
+## Technology Stack
 
-## 🏗️ Deployment Setup
+This project is built with:
 
-The application uses AWS for hosting and GitHub Actions for CI/CD. Here's how to set it up:
+- **Frontend**: Next.js, React, TypeScript, TailwindCSS
+- **UI Components**: Shadcn UI
+- **Styling**: TailwindCSS
+- **Testing**: Jest, React Testing Library
+- **Deployment**: Cloudflare Pages
+- **CI/CD**: GitHub Actions for testing and quality assurance
+
+## Getting Started
 
 ### Prerequisites
 
-- AWS Account
-- GitHub Account
 - Node.js 20+
-- pnpm 8.15.1+
-- Terraform 1.7.2+
+- pnpm 10+
 
-### First-Time Setup
+### Installation
 
-⚠️ **IMPORTANT**: The bootstrap setup is a one-time, manual process that must be performed by an administrator. It creates the foundation for CI/CD and should never be automated.
-
-1. **Create AWS Credentials**
-   - Create bootstrap admin credentials (one-time setup)
-   - Create regular development credentials (day-to-day use)
+1. Clone the repository:
    ```bash
-   # Use bootstrap admin credentials for initial setup only
-   export AWS_ACCESS_KEY_ID="bootstrap_admin_access_key"
-   export AWS_SECRET_ACCESS_KEY="bootstrap_admin_secret_key"
+   git clone https://github.com/yourusername/holiday-optimizer.git
+   cd holiday-optimizer
    ```
 
-2. **Set Up Infrastructure Backend**
+2. Install dependencies:
    ```bash
-   # One-time bootstrap setup (requires admin credentials)
-   cd terraform/bootstrap
-   terraform init
-   terraform apply \
-     -var="github_org=your-github-username" \
-     -var="github_repo=holiday-optimizer"
-   
-   # Save the role ARN from the output
-   # After this, switch to regular development credentials
+   pnpm install
    ```
 
-3. **Configure GitHub Repository**
-   - Go to Settings > Actions > General
-     - Enable "Allow GitHub Actions to create and approve pull requests"
-     - Set "Workflow permissions" to "Read and write permissions"
-   - Go to Settings > Secrets and Variables > Actions
-     - Add `AWS_ROLE_ARN` secret with the value from step 2
+3. Start the development server:
+   ```bash
+   pnpm dev
+   ```
 
-### Deployment
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-#### Automatic Deployment
-Push to the `main` branch to trigger automatic deployment via GitHub Actions.
+## Deployment
 
-#### Manual Deployment
-```bash
-# Run full deployment (including infrastructure)
-./deploy.sh
-```
+This application is deployed to Cloudflare Pages. For deployment details, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-## 🏛️ Architecture
-
-- **Frontend**: Next.js static site
-- **Hosting**: AWS S3 + CloudFront
-- **DNS**: Route53
-- **SSL**: AWS Certificate Manager
-- **CI/CD**: GitHub Actions
-- **IaC**: Terraform
-
-### Infrastructure Components
-
-- S3 bucket for static hosting
-- CloudFront distribution
-- Route53 DNS management
-- ACM SSL certificate
-- OIDC authentication for GitHub Actions
-
-## 📁 Project Structure
+## Project Structure
 
 ```
-.
-├── src/                  # Application source code
-├── terraform/           # Main infrastructure
-│   ├── bootstrap/      # Backend & OIDC setup
-│   └── main.tf         # Main infrastructure
-├── .github/
-│   └── workflows/      # GitHub Actions workflows
-├── deploy.sh           # Deployment script
-└── next.config.js      # Next.js configuration
+holiday-optimizer/
+├── .github/            # GitHub Actions workflows
+├── .husky/             # Git hooks
+├── public/             # Static assets
+├── src/                # Application source code
+│   ├── app/            # Next.js app router
+│   ├── components/     # React components
+│   ├── lib/            # Utility functions and shared logic
+│   ├── styles/         # Global styles
+│   └── types/          # TypeScript type definitions
+└── tests/              # Test files
 ```
 
-## 🔧 Development
+## Development Workflow
+
+### Running Tests
 
 ```bash
-# Start development server
-pnpm dev
-
-# Run tests
+# Run all tests
 pnpm test
 
-# Lint code
-pnpm lint
+# Run tests in watch mode
+pnpm test:watch
 
-# Build for production
-pnpm build
+# Run specific test categories
+pnpm test:unit
+pnpm test:integration
+pnpm test:e2e
+
+# Generate test coverage report
+pnpm test:coverage
 ```
 
-## 🛠️ Infrastructure Management
+### Linting and Formatting
 
 ```bash
-# Initialize Terraform
-pnpm run tf:init
+# Run linter
+pnpm lint
 
-# Plan changes
-pnpm run tf:plan
-
-# Apply changes
-pnpm run tf:apply
-
-# Destroy infrastructure
-pnpm run tf:destroy
+# Format code
+pnpm format
 ```
 
-## 📝 Notes
+## Contributing
 
-- The application is completely static and runs entirely in the browser
-- No data collection or external API calls
-- Infrastructure changes should be made through Terraform
-- Bootstrap infrastructure (OIDC, state backend) is set up once manually
-- Regular deployments handle only the main infrastructure and application code
+1. Create a feature branch from `main`.
+2. Make changes and ensure tests pass.
+3. Submit a pull request.
 
-## 🤝 Contributing
+### Guidelines
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+- Follow the existing code style and naming conventions.
+- Write tests for new features and bug fixes.
+- Keep pull requests focused on a single feature or fix.
+- Document new features or changes in behavior.
 
-## 📜 License
+## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

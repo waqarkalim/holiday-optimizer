@@ -42,43 +42,51 @@ next-env.d.ts
 
 .idea
 
-# Terraform
-# Local .terraform directories
-**/.terraform/*
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# .tfstate files
-*.tfstate
-*.tfstate.*
+node_modules
+dist
+dist-ssr
+*.local
 
-# Crash log files
-crash.log
-crash.*.log
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Exclude all .tfvars files, which are likely to contain sensitive data, such as
-# password, private keys, and other secrets. These should not be part of version
-# control as they are data points which are potentially sensitive and subject
-# to change depending on the environment.
-*.tfvars
-*.tfvars.json
+# Next.js build output
+.next/
+out/
+build
+*.tsbuildinfo
+next-env.d.ts
 
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+# Testing
+coverage
 
-# Ignore transient lock info files created by terraform apply
-.terraform.tfstate.lock.info
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
+# Cloudflare
+.wrangler/
+.dev.vars
 
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-
-# Ignore CLI configuration files
-.terraformrc
-terraform.rc
-
-screenshots/
+# TypeScript
+*.tsbuildinfo

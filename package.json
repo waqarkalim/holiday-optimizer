@@ -13,15 +13,6 @@
     "test:integration": "jest src/__tests__/integration",
     "test:e2e": "jest src/__tests__/e2e",
     "test:coverage": "jest --coverage",
-    "tf:bootstrap:init": "cd terraform/bootstrap && terraform init",
-    "tf:bootstrap:plan": "cd terraform/bootstrap && terraform plan",
-    "tf:bootstrap:apply": "cd terraform/bootstrap && terraform apply",
-    "tf:bootstrap:destroy": "cd terraform/bootstrap && terraform destroy",
-    "tf:init": "cd terraform && terraform init",
-    "tf:plan": "cd terraform && terraform plan",
-    "tf:apply": "cd terraform && terraform apply",
-    "tf:destroy": "cd terraform && terraform destroy",
-    "deploy": "./deploy.sh",
     "prepare": "husky"
   },
   "dependencies": {
