@@ -98,5 +98,9 @@
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
   }
 }
