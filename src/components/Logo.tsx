@@ -2,13 +2,25 @@ import { PROJECT_NAME } from '@/constants';
 import Link from 'next/link';
 
 export const Logo = () =>
-  <Link href="/" tabIndex={0}>
+  <Link href="/" tabIndex={0} aria-label="Holiday Optimizer Home">
     <div className="flex items-center space-x-2">
       <div
         className="p-1.5 bg-blue-500 dark:bg-blue-400 rounded-lg shadow-sm">
-        <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <svg 
+          className="h-5 w-5 text-white" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+          aria-hidden="true"
+          role="img"
+        >
+          <title>Calendar Icon</title>
+          <path 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+          />
         </svg>
       </div>
       <div>
