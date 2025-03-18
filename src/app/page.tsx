@@ -73,10 +73,13 @@ const HomePage = () => {
           </PageHeader>
 
           <PageContent>
-            <div className={cn(
-              "grid gap-6 mx-auto max-w-[1400px]",
-              isOptimizing || optimizationResult ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''
-            )}>
+            <section 
+              className={cn(
+                "grid gap-6 mx-auto max-w-[1400px]",
+                isOptimizing || optimizationResult ? 'lg:grid-cols-[minmax(480px,1fr),minmax(480px,2fr)]' : ''
+              )}
+              aria-label="Time Off Optimizer Tool"
+            >
               {/* Form Section - Always visible */}
               <div className={cn(
                 "space-y-4",
@@ -84,6 +87,7 @@ const HomePage = () => {
                   ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl' 
                   : 'max-w-xl mx-auto w-full'
               )}>
+                <h2 className="sr-only">Optimization Form</h2>
                 <OptimizerForm
                   onSubmitAction={({ days, strategy, companyDaysOff, holidays, selectedYear }) => {
                     const newFormState = {
@@ -102,6 +106,7 @@ const HomePage = () => {
               {/* Results Section with Loading State */}
               {(isOptimizing || (optimizationResult && optimizationResult.days.length > 0)) && (
                 <div className="space-y-4 min-w-0 max-w-4xl w-full">
+                  <h2 className="sr-only">Optimization Results</h2>
                   {isOptimizing ? (
                     <Card variant="neutral" className="p-8 flex flex-col items-center justify-center min-h-[300px]">
                       <LoadingSpinner 
@@ -111,17 +116,20 @@ const HomePage = () => {
                       />
                     </Card>
                   ) : optimizationResult && (
-                    <ResultsDisplay
-                      ref={resultsRef}
-                      optimizedDays={optimizationResult.days}
-                      breaks={optimizationResult.breaks}
-                      stats={optimizationResult.stats}
-                      selectedYear={selectedYear}
-                    />
+                    <div itemScope itemType="https://schema.org/Event">
+                      <meta itemProp="name" content={`Optimized Time Off Schedule for ${selectedYear}`} />
+                      <ResultsDisplay
+                        ref={resultsRef}
+                        optimizedDays={optimizationResult.days}
+                        breaks={optimizationResult.breaks}
+                        stats={optimizationResult.stats}
+                        selectedYear={selectedYear}
+                      />
+                    </div>
                   )}
                 </div>
               )}
-            </div>
+            </section>
           </PageContent>
         </PageLayout>
       </OnboardingProvider>

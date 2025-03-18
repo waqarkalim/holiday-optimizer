@@ -11,6 +11,9 @@ export default function robots(): MetadataRoute.Robots {
         // Allow major search engines with specific directives
         userAgent: [
           'Googlebot', 
+          'Googlebot-Image',
+          'Googlebot-News',
+          'Googlebot-Video',
           'Bingbot', 
           'DuckDuckBot', 
           'Slurp',
@@ -19,7 +22,8 @@ export default function robots(): MetadataRoute.Robots {
           'facebookexternalhit', // Facebook crawler
           'LinkedInBot',  // LinkedIn crawler
           'Twitterbot',   // Twitter crawler
-          'Applebot'      // Apple's web crawler
+          'Applebot',      // Apple's web crawler
+          'Pinterestbot',  // Pinterest crawler
         ],
         allow: '/',
         disallow: [
@@ -34,14 +38,24 @@ export default function robots(): MetadataRoute.Robots {
         crawlDelay: 2,  // Rate limiting for crawlers
       },
       {
-        // Specific rules for AI crawlers
-        userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'Anthropic-AI', 'Claude-Web', 'Cohere-AI'],
+        // Specific rules for AI crawlers - you can adjust this if you want visibility in AI tools
+        userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'Anthropic-AI', 'Claude-Web', 'Cohere-AI', 'CCBot'],
         disallow: '/',  // Block AI crawlers entirely (or customize as needed)
       },
       {
         // Block all other bots
         userAgent: '*',
-        disallow: '/',
+        disallow: [
+          '/api/',
+          '/_next/',
+          '/static/',
+          '/admin/',
+          '/*.json$',
+          '/*.xml$',
+          '/debug/',
+        ],
+        allow: '/', // Allow indexing for everything else
+        crawlDelay: 5, // Higher delay for unknown bots
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`, // Add sitemap for search engines
