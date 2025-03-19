@@ -18,6 +18,8 @@ describe('Onboarding Flow Integration Tests', () => {
     // Reset onboarding status in localStorage for each test
     localStorage.removeItem('holiday-optimizer-onboarding-completed');
 
+    window.HTMLElement.prototype.scrollIntoView = jest.fn()
+
     render(
       <ThemeProvider>
         <TooltipProvider>

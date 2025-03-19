@@ -31,11 +31,33 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
   const {
     overlayRef,
     shouldRender,
-    handleDismiss
+    handleDismiss,
   } = useOnboardingOverlay({
     step,
     primaryButtonRef: getStartedButtonRef as RefObject<HTMLButtonElement>,
   });
+
+  const handleGetStarted = () => {
+    dismissOnboarding();
+
+    // Scroll to the days input field after modal closes
+    const daysInputElement = document.getElementById('days-input-container');
+    if (daysInputElement) {
+      // Improved scroll with better positioning
+      daysInputElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      // Add a small delay before focusing to ensure scroll completes
+      setTimeout(() => {
+        const inputField = document.getElementById('days');
+        if (inputField) {
+          inputField.focus();
+        }
+      }, 300);
+    }
+  };
 
   if (!shouldRender) return null;
 
@@ -50,11 +72,11 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
     >
       {/* Header - Success Banner */}
       <header className={cn(
-        "relative bg-green-600 text-white",
+        'relative bg-green-600 text-white',
         // Mobile header styling
-        "flex flex-col items-center justify-center p-4 pt-8 pb-6",
+        'flex flex-col items-center justify-center p-4 pt-8 pb-6',
         // Desktop header styling
-        "sm:p-6 sm:pt-8 sm:pb-6"
+        'sm:p-6 sm:pt-8 sm:pb-6',
       )}>
         <button
           onClick={() => handleDismiss()}
@@ -78,12 +100,13 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
 
       {/* Content - Scrollable area */}
       <main className={cn(
-        "flex-1 overflow-y-auto p-4 sm:p-6",
+        'flex-1 overflow-y-auto p-4 sm:p-6',
         // Add iOS-style momentum scrolling
-        "overscroll-y-contain"
+        'overscroll-y-contain',
       )}>
         <div className="space-y-4 sm:space-y-6 pb-24 sm:pb-0">
-          <p id="onboarding-complete-description" className="text-sm sm:text-base text-gray-700 dark:text-gray-300 text-center">
+          <p id="onboarding-complete-description"
+             className="text-sm sm:text-base text-gray-700 dark:text-gray-300 text-center">
             Now you&apos;re ready to create your optimized holiday schedule.
             Fill in the form and hit &ldquo;Generate&rdquo; to see your personalized plan.
           </p>
@@ -107,7 +130,7 @@ export const OnboardingComplete = ({ step, className }: OnboardingCompleteProps)
       <OnboardingFooter>
         <Button
           ref={getStartedButtonRef}
-          onClick={() => dismissOnboarding()}
+          onClick={handleGetStarted}
           className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
           aria-label="Start using Holiday Optimizer"
           type="button"
