@@ -663,6 +663,42 @@ describe('OptimizerForm Integration Tests', () => {
       });
     });
 
+    it('should track form submission with Umami when form is submitted', async () => {
+      // Mock window.umami object
+      const mockUmamiTrack = jest.fn();
+      Object.defineProperty(window, 'umami', {
+        value: { track: mockUmamiTrack },
+        writable: true,
+        configurable: true
+      });
+
+      // Fill in days
+      await fillDaysInput('15');
+
+      // Select a strategy
+      await selectAndAssertStrategySelection(1);
+
+      // Submit the form
+      await findAndClickSubmitButton();
+
+      // Verify Umami tracking was called with correct data
+      await waitFor(() => {
+        expect(mockUmamiTrack).toHaveBeenCalledWith(
+          'Form Submitted!',
+          expect.objectContaining({
+            days: 15,
+            strategy: expect.any(String),
+            year: expect.any(Number),
+            companyDaysCount: 0,
+            holidaysCount: 0
+          })
+        );
+      });
+
+      // Clean up the mock
+      delete window.umami;
+    });
+
     it('should show loading state during form submission and handle empty submission gracefully', async () => {
       // Fill in required fields
       await fillDaysInput('10');

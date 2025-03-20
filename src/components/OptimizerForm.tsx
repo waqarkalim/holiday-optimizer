@@ -53,8 +53,19 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       strategy,
       companyDaysOff,
       holidays,
-      selectedYear
+      selectedYear,
     };
+
+    // Track form submission with Umami
+    if (typeof window !== 'undefined' && window.umami) {
+      window.umami.track('Form Submitted!', {
+        days: numDays,
+        strategy,
+        year: selectedYear,
+        companyDaysCount: companyDaysOff.length,
+        holidaysCount: holidays.length
+      });
+    }
 
     onSubmitAction(formData);
   };
@@ -69,7 +80,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     <>
       {/* Onboarding Components */}
       <OnboardingContainer />
-      
+
       <Card variant="primary">
         <form onSubmit={handleSubmit} className="space-y-4" aria-labelledby="form-title">
           <CardHeader className="pb-0">
@@ -83,8 +94,10 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex items-center overflow-hidden rounded-md border border-teal-200 dark:border-teal-800 shadow-sm focus-within:ring-2 focus-within:ring-teal-500/70 dark:focus-within:ring-teal-400/70 focus-within:border-transparent">
-                  <div className="flex h-9 items-center border-r border-teal-200 bg-white px-3 text-xs font-medium text-gray-500 dark:border-teal-800 dark:bg-teal-950/50 dark:text-gray-400">
+                <div
+                  className="flex items-center overflow-hidden rounded-md border border-teal-200 dark:border-teal-800 shadow-sm focus-within:ring-2 focus-within:ring-teal-500/70 dark:focus-within:ring-teal-400/70 focus-within:border-transparent">
+                  <div
+                    className="flex h-9 items-center border-r border-teal-200 bg-white px-3 text-xs font-medium text-gray-500 dark:border-teal-800 dark:bg-teal-950/50 dark:text-gray-400">
                     Year:
                   </div>
                   <div className="relative">
@@ -105,8 +118,10 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
                         </option>
                       ))}
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2" aria-hidden="true">
-                      <svg className="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                         aria-hidden="true">
+                      <svg className="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24"
+                           stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
@@ -130,23 +145,23 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               >
                 <DaysInputStep />
               </fieldset>
-              <fieldset 
-                className="border-0 m-0 p-0" 
-                id="strategy-selection-container" 
+              <fieldset
+                className="border-0 m-0 p-0"
+                id="strategy-selection-container"
                 data-onboarding-target="strategy-selection"
               >
                 <StrategySelectionStep />
               </fieldset>
-              <fieldset 
-                className="border-0 m-0 p-0" 
-                id="holidays-container" 
+              <fieldset
+                className="border-0 m-0 p-0"
+                id="holidays-container"
                 data-onboarding-target="holidays-selection"
               >
                 <HolidaysStep />
               </fieldset>
-              <fieldset 
-                className="border-0 m-0 p-0" 
-                id="company-days-container" 
+              <fieldset
+                className="border-0 m-0 p-0"
+                id="company-days-container"
                 data-onboarding-target="company-days"
               >
                 <CompanyDaysStep />
@@ -166,7 +181,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <path className="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   <span>Optimizing your schedule...</span>
                 </span>
