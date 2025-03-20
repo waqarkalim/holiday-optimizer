@@ -1,5 +1,12 @@
-// Optimization Types
+declare global {
+  interface Window {
+    umami?: {
+      track: (eventName: string, eventData?: Record<string, unknown>) => void;
+    };
+  }
+}
 
+// Optimization Types
 export type OptimizationStrategy = 'balanced' | 'miniBreaks' | 'longWeekends' | 'weekLongBreaks' | 'extendedVacations';
 
 export interface OptimizedDay {
@@ -102,4 +109,4 @@ interface ColorSchemeDefinition {
 
 export type PossibleColors = TailwindColor | SpecialColor | AppSpecificColorScheme;
 // The complete COLOR_SCHEMES object type
-export type ColorSchemes = Record<PossibleColors, ColorSchemeDefinition>;
+export type ColorSchemes = Record<PossibleColors, ColorSchemeDefinition>; // Declare Umami tracking type for TypeScript
