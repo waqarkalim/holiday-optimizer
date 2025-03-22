@@ -3,26 +3,28 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: `Privacy Policy | ${PROJECT_NAME}`,
-  description: `Privacy policy for ${PROJECT_NAME} - Learn how we protect and handle your data.`,
+  description: `Privacy policy for ${PROJECT_NAME} - Learn how your data is protected and handled.`,
 };
 
 export default function PrivacyPolicy() {
+  const lastUpdated = '2025-03-21'
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
       <div
         className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
         <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Privacy Policy</h1>
         <div className="prose dark:prose-invert max-w-none text-sm">
-          <p className="text-base mb-4 text-gray-600 dark:text-gray-400">Last
-            updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-base mb-4 text-gray-600 dark:text-gray-400">Last updated: {lastUpdated}</p>
 
           <section className="mb-6">
             <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
               <span className="text-base">👋</span> Overview
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              {PROJECT_NAME} is a web application that helps you optimize your holiday planning. While the core functionality
-              runs in your browser, we do utilize some external services and local storage to enhance your experience.
+              {PROJECT_NAME} is a web application that helps optimize holiday planning. While the core functionality
+              runs in your browser, some external services and local storage are utilized to enhance the experience.
+              This privacy policy explains what information is collected, how it is used, and the measures taken to
+              protect your privacy.
             </p>
           </section>
 
@@ -31,17 +33,18 @@ export default function PrivacyPolicy() {
               <span className="text-base">🔒</span> Data Usage and Storage
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Here&apos;s how we handle your data:
+              Here&apos;s how your data is handled:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li>We use local storage to save your preferences and holiday planning data</li>
+              <li>Local storage is used to save your preferences and holiday planning data</li>
               <li>All locally stored data remains on your device and is under your control</li>
-              <li>You can clear this data at any time by clearing your browser&apos;s local storage</li>
-              <li>We make API calls to external services for holiday data and calculations</li>
-              <li>No personal information is shared with third parties without your consent</li>
+              <li>This data can be cleared at any time by clearing your browser&apos;s local storage</li>
+              <li>API calls are made to external services for holiday data and calculations</li>
+              <li>Some basic data (like country codes, coordinates) is shared with external APIs as necessary for core functionality</li>
+              <li>No sensitive personal information such as names, emails, or identifiers is intentionally collected</li>
             </ul>
             <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
-              Your privacy is important to us - we only store what&apos;s necessary for the app to function effectively.
+              Your privacy is important - only what&apos;s necessary for the app to function effectively is processed.
             </p>
           </section>
 
@@ -50,7 +53,7 @@ export default function PrivacyPolicy() {
               <span className="text-base">🌐</span> External Services & Browser APIs
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              We utilize the following services and browser features:
+              The following services and browser features are utilized:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
               <li>Browser&apos;s Geolocation API - Used to detect your current location (with your permission)</li>
@@ -58,21 +61,21 @@ export default function PrivacyPolicy() {
               <li>BigDataCloud API - Used for location and timezone data to enhance holiday planning accuracy</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              These services and features are essential for providing accurate holiday and location data. When using these services:
+              When using the application:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
               <li>Your browser will ask for permission before accessing your location</li>
-              <li>Location data is only used temporarily and is not stored permanently</li>
-              <li>Only necessary location data is shared with BigDataCloud for timezone and location lookup</li>
-              <li>Only country codes and years are shared with Nager.Date for holiday data retrieval</li>
-              <li>No personal or identifying information is ever shared with these services</li>
+              <li>Granting location permission enables the app to use that data for holiday planning features</li>
+              <li>Each third-party service has its own privacy policy regarding how your data is processed</li>
             </ul>
-            <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
-              For more information about these services&apos; privacy policies, you can visit their respective websites:
-              <a href="https://www.bigdatacloud.com/privacy-and-cookie-policy" className="text-blue-500 hover:text-blue-600 ml-1">BigDataCloud Privacy Policy</a>,
-              <a href="https://date.nager.at/Legal/Privacy" className="text-blue-500 hover:text-blue-600 ml-1">Nager.Date Imprint</a>, and
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API#privacy" className="text-blue-500 hover:text-blue-600 ml-1">MDN Geolocation Privacy</a>.
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              For information about how these services handle your data, please refer to their respective privacy policies:
             </p>
+            <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
+              <li><a href="https://www.bigdatacloud.com/privacy-and-cookie-policy" className="text-blue-500 hover:text-blue-600">BigDataCloud Privacy Policy</a></li>
+              <li><a href="https://date.nager.at/Legal/Privacy" className="text-blue-500 hover:text-blue-600">Nager.Date Imprint</a></li>
+              <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API#privacy" className="text-blue-500 hover:text-blue-600">MDN Geolocation Privacy Information</a></li>
+            </ul>
           </section>
 
           <section className="mb-6">
@@ -80,17 +83,10 @@ export default function PrivacyPolicy() {
               <span className="text-base">📊</span> Analytics
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              We use Umami Analytics, a privacy-focused analytics platform, to understand how our application is used:
-            </p>
-            <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li>Umami is cookie-free and fully GDPR compliant</li>
-              <li>No personal information is collected</li>
-              <li>Data collected includes: page views, referral sources, and country of origin</li>
-              <li>All data is anonymized and cannot be traced back to individuals</li>
-              <li>The analytics script is lightweight (less than 1KB) and doesn&apos;t impact site performance</li>
-            </ul>
-            <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
-              For more information about Umami&apos;s privacy practices, visit their <a href="https://umami.is/privacy" className="text-blue-500 hover:text-blue-600">Privacy Policy</a>.
+              Umami Analytics is used to understand how the application is used and improve the user experience.
+              Umami describes itself as a privacy-focused analytics platform. For detailed information about 
+              what data Umami collects and how it is used, please refer to 
+              <a href="https://umami.is/privacy" className="text-blue-500 hover:text-blue-600 ml-1">Umami&apos;s Privacy Policy</a>.
             </p>
           </section>
 
@@ -99,9 +95,9 @@ export default function PrivacyPolicy() {
               <span className="text-base">☁️</span> Hosting Infrastructure
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              The application is hosted on AWS as a static website. Standard server logs may be
-              maintained by AWS for operational purposes, but these logs do not contain any
-              personal information or usage data.
+              The application is hosted on Cloudflare Pages. Cloudflare may collect and process certain information
+              as part of providing their hosting services. For details about what information Cloudflare collects and
+              how they use it, please refer to <a href="https://www.cloudflare.com/privacypolicy/" className="text-blue-500 hover:text-blue-600">Cloudflare&apos;s Privacy Policy</a>.
             </p>
           </section>
 
@@ -111,7 +107,7 @@ export default function PrivacyPolicy() {
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
               This is an open-source project, and its complete source code is available for review.
-              You can verify my privacy practices by examining the code in my public repository.
+              Privacy practices can be verified by examining the code in the public repository.
             </p>
           </section>
 
@@ -120,8 +116,9 @@ export default function PrivacyPolicy() {
               <span className="text-base">🔄</span> Updates
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              While I don&apos;t anticipate significant changes to this privacy policy (since I don&apos;t
-              collect data), any updates will be reflected in the &ldquo;Last updated&rdquo; date above.
+              This privacy policy may be updated occasionally to reflect changes in how data is handled.
+              Any updates will be reflected in the &ldquo;Last updated&rdquo; date at the top of this page.
+              Users are encouraged to review this policy periodically.
             </p>
           </section>
         </div>
