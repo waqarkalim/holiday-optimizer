@@ -8,6 +8,7 @@ const Header = () => (
     'sticky top-0 z-40 w-full',
     'bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm',
     'border-b border-gray-200/60 dark:border-gray-700/30',
+    'pt-[env(safe-area-inset-top)]',
   )}>
     <div className={cn(
       'mx-auto max-w-7xl',
