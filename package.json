@@ -55,7 +55,7 @@
     "ics": "^3.8.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.474.0",
-    "next": "15.1.6",
+    "next": "15.2.3",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-day-picker": "8.10.1",
