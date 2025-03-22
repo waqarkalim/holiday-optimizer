@@ -116,7 +116,3 @@ pnpm format
 - Write tests for new features and bug fixes.
 - Keep pull requests focused on a single feature or fix.
 - Document new features or changes in behavior.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
