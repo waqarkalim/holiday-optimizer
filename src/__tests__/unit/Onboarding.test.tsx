@@ -23,7 +23,6 @@ jest.mock('@/contexts/OnboardingContext', () => ({
     dismissOnboarding: jest.fn(),
     goToNextStep: jest.fn(),
     goToPrevStep: jest.fn(),
-    goToStep: jest.fn(),
     isCurrentStep: () => true,
   }),
 }));

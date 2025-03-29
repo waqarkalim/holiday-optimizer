@@ -36,7 +36,6 @@ interface OnboardingContextType extends OnboardingState {
   dismissOnboarding: () => void;
   goToNextStep: () => void;
   goToPrevStep: () => void;
-  goToStep: (step: OnboardingStep) => void;
   isCurrentStep: (step: OnboardingStep) => boolean;
 }
 
@@ -45,7 +44,6 @@ type OnboardingAction =
   | { type: 'DISMISS_ONBOARDING' }
   | { type: 'GO_TO_NEXT_STEP' }
   | { type: 'GO_TO_PREV_STEP' }
-  | { type: 'GO_TO_STEP'; step: OnboardingStep }
   | { type: 'SET_COMPLETED_STATUS'; isCompleted: boolean };
 
 const initialState: OnboardingState = {
@@ -64,27 +62,44 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
         currentStep: 'intro',
       };
     case 'DISMISS_ONBOARDING':
+      // Track onboarding dismissal
+      if (typeof window !== 'undefined' && window.umami) {
+        window.umami.track('Onboarding dismissed');
+      }
+
       return {
         ...state,
         isOnboardingVisible: false,
         hasCompletedOnboarding: true, // Always mark as completed when dismissed
       };
     case 'GO_TO_NEXT_STEP': {
-      const currentIndex = STEPS_ORDER.indexOf(state.currentStep);
-      if (currentIndex < STEPS_ORDER.length - 1) {
-        return { ...state, currentStep: STEPS_ORDER[currentIndex + 1] };
+      const currentStep = STEPS_ORDER.indexOf(state.currentStep);
+      if (currentStep < STEPS_ORDER.length - 1) {
+        const nextStep = STEPS_ORDER[currentStep + 1];
+
+        // Track user going to the next step in the onboarding flow
+        if (typeof window !== 'undefined' && window.umami) {
+          window.umami.track('GO_TO_NEXT_STEP', { currentStep, nextStep });
+        }
+
+        return { ...state, currentStep: nextStep };
       }
       return state;
     }
     case 'GO_TO_PREV_STEP': {
-      const currentIndex = STEPS_ORDER.indexOf(state.currentStep);
-      if (currentIndex > 0) {
-        return { ...state, currentStep: STEPS_ORDER[currentIndex - 1] };
+      const currentStep = STEPS_ORDER.indexOf(state.currentStep);
+      if (currentStep > 0) {
+        const prevStep = STEPS_ORDER[currentStep - 1];
+
+        // Track user going to the next step in the onboarding flow
+        if (typeof window !== 'undefined' && window.umami) {
+          window.umami.track('GO_TO_NEXT_STEP', { currentStep, prevStep });
+        }
+
+        return { ...state, currentStep: prevStep };
       }
       return state;
     }
-    case 'GO_TO_STEP':
-      return { ...state, currentStep: action.step };
     case 'SET_COMPLETED_STATUS':
       return { ...state, hasCompletedOnboarding: action.isCompleted };
     default:
@@ -99,7 +114,6 @@ const defaultContext: OnboardingContextType = {
   dismissOnboarding: () => undefined,
   goToNextStep: () => undefined,
   goToPrevStep: () => undefined,
-  goToStep: () => undefined,
   isCurrentStep: () => false,
 };
 
@@ -132,14 +146,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Start onboarding
-  const startOnboarding = () => {
-    dispatch({ type: 'START_ONBOARDING' });
-  };
+  const startOnboarding = () => dispatch({ type: 'START_ONBOARDING' });
 
   // Dismiss onboarding
   const dismissOnboarding = () => {
     dispatch({ type: 'DISMISS_ONBOARDING' });
-    
+
     // Always save to localStorage as completed (don't show again is always true)
     localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
   };
@@ -149,9 +161,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   // Navigate to previous step
   const goToPrevStep = () => dispatch({ type: 'GO_TO_PREV_STEP' });
-
-  // Go to a specific step
-  const goToStep = (step: OnboardingStep) => dispatch({ type: 'GO_TO_STEP', step });
 
   // Check if a step is the current one
   const isCurrentStep = (step: OnboardingStep) => state.currentStep === step;
@@ -163,7 +172,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     dismissOnboarding,
     goToNextStep,
     goToPrevStep,
-    goToStep,
     isCurrentStep,
   };
 

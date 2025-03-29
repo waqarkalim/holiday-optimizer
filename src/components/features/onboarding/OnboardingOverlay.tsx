@@ -31,7 +31,6 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
   const {
     overlayRef,
     shouldRender,
-    handleDismiss
   } = useOnboardingOverlay({
     step,
     primaryButtonRef: startButtonRef as RefObject<HTMLButtonElement>,
@@ -57,7 +56,7 @@ export function OnboardingOverlay({ step, className }: OnboardingOverlayProps) {
         "sm:p-6"
       )}>
         <button
-          onClick={() => handleDismiss()}
+          onClick={dismissOnboarding}
           className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
           aria-label="Close onboarding"
           type="button"
