@@ -56,6 +56,11 @@ const initialState: OnboardingState = {
 function onboardingReducer(state: OnboardingState, action: OnboardingAction): OnboardingState {
   switch (action.type) {
     case 'START_ONBOARDING':
+      // Track onboarding starting
+      if (typeof window !== 'undefined' && window.umami) {
+        window.umami.track('Onboarding started');
+      }
+
       return {
         ...state,
         isOnboardingVisible: true,
