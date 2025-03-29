@@ -22,6 +22,11 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
 
   // Handle export to ICS (iCal)
   const handleExportToICS = async () => {
+    // Track onboarding dismissal
+    if (typeof window !== 'undefined' && window.umami) {
+      window.umami.track('Calendar exported');
+    }
+
     if (breaks.length === 0) {
       toast.error("No breaks to export", {
         description: "There are no vacation breaks to export to calendar."
