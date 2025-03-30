@@ -44,6 +44,15 @@ jest.mock('@/components/ui/section-card', () => ({
   ),
 }));
 
+// Mock lucide-react icons
+jest.mock('lucide-react', () => ({
+  Calendar: () => <div data-testid="calendar-icon" />,
+  Download: () => <div data-testid="download-icon" />,
+  FileText: () => <div data-testid="file-text-icon" />,
+  InfoIcon: () => <div data-testid="info-icon" />,
+  Sparkles: () => <div data-testid="sparkles-icon" />,
+}));
+
 // Create test data
 const mockOptimizedDays: OptimizedDay[] = [
   {

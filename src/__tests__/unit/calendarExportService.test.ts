@@ -22,6 +22,21 @@ const mockAppendChild = jest.fn();
 const mockRemoveChild = jest.fn();
 const mockClick = jest.fn();
 
+// Mock Response class
+class MockResponse {
+  constructor(private body: Blob) {}
+  async text() {
+    return `PTO Days Export for 2023
+Total PTO Days: 5
+
+Break 1 (Jul 1 - Jul 7):
+  - July 3, 2023
+
+`;
+  }
+}
+global.Response = MockResponse as any;
+
 beforeAll(() => {
   // Setup window.URL mock
   global.URL.createObjectURL = mockCreateObjectURL;
