@@ -151,6 +151,7 @@ export function MonthCalendarSelector({
           'p-3.5 sm:p-4',
           'ring-1 ring-black/5 dark:ring-white/10'
         )}
+        fixedWeeks={true}
         pagedNavigation
         modifiersClassNames={{
           selected: 'selected-day',
@@ -261,7 +262,7 @@ export function MonthCalendarSelector({
             'shadow-sm'
           ),
           day_outside: cn(
-            'text-gray-500 dark:text-gray-500 opacity-50 hover:opacity-70',
+            'text-gray-500 dark:text-gray-500 opacity-30 hover:opacity-70',
             'transition-opacity duration-200'
           ),
           day_disabled: cn(
