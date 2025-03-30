@@ -1,12 +1,12 @@
 'use client';
 
 import { KeyboardEvent, useState } from 'react';
-import { exportToICS } from '@/services/calendarExport';
+import { exportToICS, exportToPTOText } from '@/services/calendarExport';
 import { Break, OptimizationStats } from '@/types';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { Calendar, Download, InfoIcon, Sparkles } from 'lucide-react';
+import { Calendar, Download, FileText, InfoIcon, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SectionCard } from '@/components/ui/section-card';
 
@@ -18,7 +18,7 @@ interface CalendarExportProps {
 
 export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportProps) => {
   const [isExporting, setIsExporting] = useState(false);
-  const [activeExport, setActiveExport] = useState<'ical' | 'google' | null>(null);
+  const [activeExport, setActiveExport] = useState<'ical' | 'text' | 'google' | null>(null);
 
   // Handle export to ICS (iCal)
   const handleExportToICS = async () => {
@@ -39,6 +39,44 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
     
     try {
       const result = await exportToICS({ 
+        breaks, 
+        stats, 
+        selectedYear
+      });
+      
+      if (result.success) {
+        toast.success("Export Successful", {
+          description: result.message
+        });
+      } else {
+        toast.error("Export Failed", {
+          description: result.message
+        });
+      }
+    } catch (error) {
+      toast.error("Export Failed", {
+        description: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
+      });
+    } finally {
+      setIsExporting(false);
+      setActiveExport(null);
+    }
+  };
+
+  // Handle export to text file
+  const handleExportToText = async () => {
+    if (breaks.length === 0) {
+      toast.error("No breaks to export", {
+        description: "There are no PTO days to export."
+      });
+      return;
+    }
+
+    setIsExporting(true);
+    setActiveExport('text');
+    
+    try {
+      const result = await exportToPTOText({ 
         breaks, 
         stats, 
         selectedYear
@@ -136,6 +174,44 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
                 Download as iCal file for Google Calendar, Apple Calendar, Outlook, and other calendar applications. 
                 <span className="block mt-1 text-blue-500 dark:text-blue-400">
                   Events will show on their actual dates regardless of timezone.
+                </span>
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportToText}
+                disabled={isExporting}
+                className="h-8 px-3 text-xs focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                aria-label="Export PTO days to text file"
+                tabIndex={0}
+              >
+                {activeExport === 'text' ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="mr-1.5"
+                    aria-hidden="true"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                  </motion.div>
+                ) : (
+                  <FileText className="h-3 w-3 mr-1.5" aria-hidden="true" />
+                )}
+                <span>Text (.txt)</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <p className="text-xs">
+                Export your PTO days as a simple text file listing all dates.
+                <span className="block mt-1 text-blue-500 dark:text-blue-400">
+                  Perfect for sharing with HR or keeping a simple record.
                 </span>
               </p>
             </TooltipContent>
