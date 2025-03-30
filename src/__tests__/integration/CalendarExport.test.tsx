@@ -2,14 +2,22 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ResultsDisplay } from '@/components/features/ResultsDisplay';
-import { exportToICS } from '@/services/calendarExport';
+import { exportToICS, exportToPTOText } from '@/services/calendarExport';
 import { toast } from 'sonner';
 import { Break, OptimizationStats, OptimizedDay } from '@/types';
 
 // Mock the export service functions
 jest.mock('@/services/calendarExport', () => ({
   exportToICS: jest.fn().mockResolvedValue({ success: true, message: 'Export successful' }),
-  exportToGoogleCalendar: jest.fn().mockReturnValue({ success: true, message: 'Export successful' }),
+  exportToPTOText: jest.fn().mockResolvedValue({ success: true, message: 'Export successful' }),
+}));
+
+// Mock toast
+jest.mock('sonner', () => ({
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
 }));
 
 // Mock the child components to simplify testing
@@ -108,6 +116,10 @@ describe('CalendarExport Integration', () => {
     expect(screen.getByTestId('break-details')).toBeInTheDocument();
     expect(screen.getByTestId('calendar-view')).toBeInTheDocument();
     expect(screen.getByText('Export Calendar')).toBeInTheDocument();
+    
+    // Check that both export buttons are rendered
+    expect(screen.getByRole('button', { name: /iCal/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /text/i })).toBeInTheDocument();
   });
 
   it('should not render CalendarExport when there are no breaks', () => {
@@ -147,6 +159,36 @@ describe('CalendarExport Integration', () => {
     
     // Verify that the export function was called with the correct params
     expect(exportToICS).toHaveBeenCalledWith({
+      breaks: mockBreaks,
+      stats: mockStats,
+      selectedYear: mockYear,
+    });
+    
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Export Successful', {
+        description: 'Export successful',
+      });
+    });
+  });
+
+  it('should export to text when button is clicked in ResultsDisplay', async () => {
+    const user = userEvent.setup();
+    
+    render(
+      <ResultsDisplay 
+        optimizedDays={mockOptimizedDays} 
+        breaks={mockBreaks} 
+        stats={mockStats} 
+        selectedYear={mockYear} 
+      />
+    );
+    
+    // Find and click the text export button
+    const textButton = screen.getByRole('button', { name: /text/i });
+    await user.click(textButton);
+    
+    // Verify that the export function was called with the correct params
+    expect(exportToPTOText).toHaveBeenCalledWith({
       breaks: mockBreaks,
       stats: mockStats,
       selectedYear: mockYear,
