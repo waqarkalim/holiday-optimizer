@@ -77,11 +77,6 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
       if (currentStep < STEPS_ORDER.length - 1) {
         const nextStep = STEPS_ORDER[currentStep + 1];
 
-        // Track user going to the next step in the onboarding flow
-        if (typeof window !== 'undefined' && window.umami) {
-          window.umami.track('GO_TO_NEXT_STEP', { currentStep, nextStep });
-        }
-
         return { ...state, currentStep: nextStep };
       }
       return state;
@@ -90,11 +85,6 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
       const currentStep = STEPS_ORDER.indexOf(state.currentStep);
       if (currentStep > 0) {
         const prevStep = STEPS_ORDER[currentStep - 1];
-
-        // Track user going to the next step in the onboarding flow
-        if (typeof window !== 'undefined' && window.umami) {
-          window.umami.track('GO_TO_NEXT_STEP', { currentStep, prevStep });
-        }
 
         return { ...state, currentStep: prevStep };
       }
