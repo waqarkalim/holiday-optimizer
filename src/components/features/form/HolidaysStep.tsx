@@ -313,9 +313,8 @@ export function HolidaysStep() {
                       value={subdivision.code}
                       className="transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-center">
                         <span>{getSubdivisionName(subdivision.code)}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{subdivision.code}</span>
                       </div>
                     </SelectItem>
                   ))}
