@@ -74,7 +74,10 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     setSelectedYear(parseInt(value));
   };
 
-  const isFormValid = days && parseInt(days) > 0;
+  // Check if form is valid - requires both days and country/holidays selection
+  const isDaysValid = days && parseInt(days) > 0;
+  const areHolidaysValid = holidays.length > 0;
+  const isFormValid = isDaysValid && areHolidaysValid;
 
   return (
     <>
@@ -176,6 +179,11 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               disabled={isLoading || !isFormValid}
               aria-busy={isLoading}
               tabIndex={0}
+              title={!isDaysValid 
+                ? "Please enter the number of PTO days" 
+                : !areHolidaysValid 
+                  ? "Please select your country to load holidays" 
+                  : "Generate your optimized schedule"}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">

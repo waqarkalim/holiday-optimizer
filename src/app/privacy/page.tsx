@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPolicy() {
-  const lastUpdated = '2025-03-21'
+  const lastUpdated = 'April 5, 2025'
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
       <div
@@ -39,8 +39,8 @@ export default function PrivacyPolicy() {
               <li>Local storage is used to save your preferences and holiday planning data</li>
               <li>All locally stored data remains on your device and is under your control</li>
               <li>This data can be cleared at any time by clearing your browser&apos;s local storage</li>
-              <li>API calls are made to external services for holiday data and calculations</li>
-              <li>Some basic data (like country codes, coordinates) is shared with external APIs as necessary for core functionality</li>
+              <li>API calls are made to external services for holiday data</li>
+              <li>Some basic data (like country codes) is shared with external APIs as necessary for core functionality</li>
               <li>No sensitive personal information such as names, emails, or identifiers is intentionally collected</li>
             </ul>
             <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
@@ -50,31 +50,22 @@ export default function PrivacyPolicy() {
 
           <section className="mb-6">
             <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <span className="text-base">🌐</span> External Services & Browser APIs
+              <span className="text-base">🌐</span> External Services
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              The following services and browser features are utilized:
+              The following services are utilized:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li>Browser&apos;s Geolocation API - Used to detect your current location (with your permission)</li>
               <li>Nager.Date API - Used to fetch public holiday information for different countries</li>
-              <li>BigDataCloud API - Used for location and timezone data to enhance holiday planning accuracy</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              When using the application:
+              Each third-party service has its own privacy policy regarding how your data is processed.
             </p>
-            <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li>Your browser will ask for permission before accessing your location</li>
-              <li>Granting location permission enables the app to use that data for holiday planning features</li>
-              <li>Each third-party service has its own privacy policy regarding how your data is processed</li>
-            </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               For information about how these services handle your data, please refer to their respective privacy policies:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li><a href="https://www.bigdatacloud.com/privacy-and-cookie-policy" className="text-blue-500 hover:text-blue-600">BigDataCloud Privacy Policy</a></li>
               <li><a href="https://date.nager.at/Legal/Privacy" className="text-blue-500 hover:text-blue-600">Nager.Date Imprint</a></li>
-              <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API#privacy" className="text-blue-500 hover:text-blue-600">MDN Geolocation Privacy Information</a></li>
             </ul>
           </section>
 

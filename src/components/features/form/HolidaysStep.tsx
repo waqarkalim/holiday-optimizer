@@ -1,5 +1,4 @@
 import { DateList } from '@/components/features/HolidaysDateList';
-import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useHolidays } from '@/hooks/useOptimizer';
@@ -33,7 +32,7 @@ export function HolidaysStep() {
   const [countries, setCountries] = useState<NagerCountry[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
-  
+
   // States for subdivision selection
   const [subdivisions, setSubdivisions] = useState<CountrySubdivision[]>([]);
   const [selectedSubdivision, setSelectedSubdivision] = useState<string>('all');
@@ -42,6 +41,11 @@ export function HolidaysStep() {
 
   // Ref to track if initial location load has been attempted
   const initialLoadAttemptedRef = useRef(false);
+
+  // Helper function to get country name from country code
+  const getCountryName = useCallback((countryCode: string): string => {
+    return countries.find(c => c.countryCode === countryCode)?.name || countryCode;
+  }, [countries]);
 
   // Handle country selection with useCallback
   const handleCountryChange = useCallback(async (countryCode: string, isInitialLoad = false) => {
@@ -90,7 +94,7 @@ export function HolidaysStep() {
       storeLocationData(countryCode, subdivisionToUse, selectedYear);
 
       if (!isInitialLoad) {
-        const countryName = countries.find(c => c.countryCode === countryCode)?.name || countryCode;
+        const countryName = getCountryName(countryCode);
         toast.success('Holidays loaded', {
           description: `Loaded ${filteredHolidays.length} public holidays for ${countryName} in ${selectedYear}.`,
         });
@@ -103,7 +107,7 @@ export function HolidaysStep() {
     } finally {
       setIsLoadingHolidays(false);
     }
-  }, [selectedCountry, selectedYear, countries, dispatch, setDetectedHolidays]);
+  }, [selectedCountry, selectedYear, countries, dispatch, setDetectedHolidays, getCountryName]);
 
   // Reset initialLoadAttempted when year changes
   useEffect(() => {
@@ -169,7 +173,7 @@ export function HolidaysStep() {
     // Save to localStorage
     storeLocationData(selectedCountry, subdivisionCode, selectedYear);
 
-    const countryName = countries.find(c => c.countryCode === selectedCountry)?.name || selectedCountry;
+    const countryName = getCountryName(selectedCountry);
     const locationDescription = actualSubdivisionCode
       ? `${countryName} (${getSubdivisionName(actualSubdivisionCode)})`
       : countryName;
@@ -177,18 +181,7 @@ export function HolidaysStep() {
     toast.success('Holidays filtered', {
       description: `Showing ${filteredHolidays.length} public holidays for ${locationDescription} in ${selectedYear}.`,
     });
-  }, [selectedSubdivision, selectedCountry, countryHolidays, countries, selectedYear, dispatch, setDetectedHolidays]);
-
-  const handleHolidaySelect = (date: Date) => {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    const isSelected = holidays.some(day => day.date === formattedDate);
-
-    if (isSelected) {
-      removeHoliday(formattedDate);
-    } else {
-      addHoliday(formattedDate, format(date, 'MMMM d, yyyy'));
-    }
-  };
+  }, [selectedSubdivision, selectedCountry, countryHolidays, selectedYear, dispatch, setDetectedHolidays, getCountryName]);
 
   // Using the new StepTitleWithInfo component
   const titleWithInfo = (
@@ -202,8 +195,6 @@ export function HolidaysStep() {
       }}
     />
   );
-
-  const selectedDates = holidays.map(holiday => parse(holiday.date, 'yyyy-MM-dd', new Date()));
 
   return (
     <FormSection colorScheme={colorScheme} headingId="holidays-heading">
@@ -240,7 +231,7 @@ export function HolidaysStep() {
                 {selectedCountry && countries.length > 0 ? (
                   <div className="flex items-center">
                     <span className="mr-2 text-lg">{getCountryFlag(selectedCountry)}</span>
-                    <span>{countries.find(c => c.countryCode === selectedCountry)?.name || selectedCountry}</span>
+                    <span>{getCountryName(selectedCountry)}</span>
                   </div>
                 ) : isLoadingCountries ? (
                   <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
@@ -255,8 +246,8 @@ export function HolidaysStep() {
                 className="max-h-80 bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800 rounded-md shadow-lg animate-in fade-in-80 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
                 <div className="py-1">
                   {countries.map((country) => (
-                    <SelectItem 
-                      key={country.countryCode} 
+                    <SelectItem
+                      key={country.countryCode}
                       value={country.countryCode}
                       className="transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
                     >
@@ -301,15 +292,15 @@ export function HolidaysStep() {
                 </SelectTrigger>
                 <SelectContent
                   className="max-h-80 bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800 rounded-md shadow-lg animate-in fade-in-80 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
-                  <SelectItem 
-                    value="all" 
+                  <SelectItem
+                    value="all"
                     className="border-b border-amber-100 dark:border-amber-800 mt-1 transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
                   >
                     All regions (nationwide holidays only)
                   </SelectItem>
                   {subdivisions.map((subdivision) => (
-                    <SelectItem 
-                      key={subdivision.code} 
+                    <SelectItem
+                      key={subdivision.code}
                       value={subdivision.code}
                       className="transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
                     >
@@ -338,7 +329,7 @@ export function HolidaysStep() {
               These holidays are automatically detected based on your country and region selection.
             </p>
           </div>
-          
+
           <DateList title={title} colorScheme={colorScheme} />
         </div>
       </fieldset>
