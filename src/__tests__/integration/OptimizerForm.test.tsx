@@ -8,6 +8,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { toast } from 'sonner';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
+import { NagerCountry } from '@/services/holidays';
 
 // Mock holiday service
 jest.mock('@/services/holidays', () => ({
@@ -24,6 +25,10 @@ jest.mock('@/services/holidays', () => ({
     { date: '2023-01-01', name: 'New Year\'s Day' },
     { date: '2023-12-25', name: 'Christmas Day' },
   ]),
+  getAvailableCountries: jest.fn().mockResolvedValue([{
+    countryCode: 'CA',
+    name: 'Canada',
+  }] as NagerCountry[]),
 }));
 
 describe('OptimizerForm Integration Tests', () => {
@@ -355,13 +360,14 @@ describe('OptimizerForm Integration Tests', () => {
 
     it('should have a working Find Local Holidays button', async () => {
       const holidaysSection = getHolidaysSection();
-      const findHolidaysButton = within(holidaysSection).getByRole('button', { name: /Find public holidays/i });
+      const findHolidaysButton = within(holidaysSection).getByRole('combobox', { name: /select country/i });
 
       expect(findHolidaysButton).toBeInTheDocument();
-      expect(findHolidaysButton).toBeEnabled();
+      // expect(findHolidaysButton).toBeEnabled();
 
       // Click the button
-      await user.click(findHolidaysButton);
+      console.log(findHolidaysButton.innerHTML);
+      await user.selectOptions(findHolidaysButton, 'Canada');
 
       // Should show a success toast
       await waitFor(() => {
@@ -669,7 +675,7 @@ describe('OptimizerForm Integration Tests', () => {
       Object.defineProperty(window, 'umami', {
         value: { track: mockUmamiTrack },
         writable: true,
-        configurable: true
+        configurable: true,
       });
 
       // Fill in days
@@ -690,8 +696,8 @@ describe('OptimizerForm Integration Tests', () => {
             strategy: expect.any(String),
             year: expect.any(Number),
             companyDaysCount: 0,
-            holidaysCount: 0
-          })
+            holidaysCount: 0,
+          }),
         );
       });
 

@@ -94,6 +94,10 @@ jest.mock('@/hooks/useLocalStorage', () => ({
   },
 }));
 
+jest.mock('iso-3166', () => ({
+  // ...jest.requireActual('iso-3166'),
+}));
+
 // Mock the toast notifications
 jest.mock('sonner', () => ({
   toast: {

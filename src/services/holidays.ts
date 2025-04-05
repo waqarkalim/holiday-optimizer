@@ -1,39 +1,6 @@
-interface LocalityInfoItem {
-  name: string;
-  description?: string;
-  isoName?: string;
-  order: number;
-  adminLevel?: number;
-  isoCode?: string;
-  wikidataId?: string;
-  geonameId?: number;
-}
+import { ISO31662Entry } from 'iso-3166';
 
-interface LocalityInfo {
-  administrative: LocalityInfoItem[];
-  informative: LocalityInfoItem[];
-}
-
-interface GeoLocationResponse {
-  latitude: number;
-  lookupSource: string;
-  longitude: number;
-  localityLanguageRequested: string;
-  continent: string;
-  continentCode: string;
-  countryName: string;
-  countryCode: string;
-  principalSubdivision: string;
-  principalSubdivisionCode: string;
-  city: string;
-  locality: string;
-  postcode: string;
-  plusCode: string;
-  csdCode: string;
-  localityInfo: LocalityInfo;
-}
-
-interface HolidayResponse {
+export interface HolidayResponse {
   date: string;
   localName: string;
   name: string;
@@ -50,58 +17,98 @@ export interface DetectedHoliday {
   name: string;
 }
 
-const getCountryFromCoordinates = async (latitude: number, longitude: number): Promise<GeoLocationResponse> => {
+// Country interface for Nager API
+export interface NagerCountry {
+  countryCode: string;
+  name: string;
+}
+
+// Interface for subdivision/state/province
+export interface CountrySubdivision {
+  code: ISO31662Entry['code'];
+  name: ISO31662Entry['name'];
+}
+/**
+ * Fetches all available countries from Nager API
+ */
+export const getAvailableCountries = async (): Promise<NagerCountry[]> => {
   try {
-    const response = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
-    );
+    const response = await fetch('https://date.nager.at/api/v3/AvailableCountries');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch available countries');
+    }
+    
     return await response.json();
   } catch (error) {
-    console.error('Error getting country from coordinates:', error);
-    throw new Error('Failed to detect country from location');
+    console.error('Error fetching available countries:', error);
+    throw error;
   }
 };
 
-export const detectPublicHolidays = async (year?: number): Promise<DetectedHoliday[]> => {
+/**
+ * Fetches public holidays for a specific country
+ */
+export const getPublicHolidaysByCountry = async (
+  countryCode: string, 
+  year: number = new Date().getUTCFullYear()
+): Promise<HolidayResponse[]> => {
   try {
-    // Get user's location
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by your browser'));
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-
-    // Get country code from coordinates
-    const { countryCode, principalSubdivisionCode } = await getCountryFromCoordinates(
-      position.coords.latitude,
-      position.coords.longitude,
-    );
-
-    // Use provided year or default to current year
-    const targetYear = year || new Date().getUTCFullYear();
-
-    // Fetch holidays from Nager.Date API
     const response = await fetch(
-      `https://date.nager.at/api/v3/PublicHolidays/${targetYear}/${countryCode}`,
+      `https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`
     );
-
+    
     if (!response.ok) {
-      throw new Error('Failed to fetch holidays');
+      throw new Error(`Failed to fetch holidays for ${countryCode}`);
     }
-
-    const holidays: HolidayResponse[] = await response.json();
-
-    const filteredHolidays = holidays.filter((holiday) => holiday.global || holiday.counties?.includes(principalSubdivisionCode));
-
-    // Transform the response to match our app's format
-    return filteredHolidays.map(holiday => ({
-      date: holiday.date,
-      name: holiday.localName || holiday.name,
-    }));
+    
+    return await response.json();
   } catch (error) {
-    console.error('Error detecting public holidays:', error);
+    console.error(`Error fetching holidays for ${countryCode}:`, error);
     throw error;
   }
+};
+
+/**
+ * Extract subdivisions (provinces/states) from holiday data
+ */
+export const extractSubdivisions = (holidays: HolidayResponse[]): CountrySubdivision[] => {
+  const subdivisionMap = new Map<string, string>();
+  
+  // Collect all unique subdivision codes from holidays
+  holidays.forEach(holiday => {
+    if (holiday.counties && holiday.counties.length > 0) {
+      holiday.counties.forEach(code => {
+        // Use code as both key and name initially
+        if (!subdivisionMap.has(code)) {
+          subdivisionMap.set(code, code);
+        }
+      });
+    }
+  });
+  
+  // Convert to array of CountrySubdivision objects
+  return Array.from(subdivisionMap.entries()).map(([code, name]) => ({
+    code,
+    name
+  }));
+};
+
+/**
+ * Get holidays filtered by subdivision
+ */
+export const getHolidaysBySubdivision = (
+  holidays: HolidayResponse[], 
+  subdivisionCode?: string
+): DetectedHoliday[] => {
+  // If no subdivision specified, return all global holidays
+  const filteredHolidays = subdivisionCode 
+    ? holidays.filter(holiday => holiday.global || holiday.counties?.includes(subdivisionCode))
+    : holidays.filter(holiday => holiday.global);
+  
+  // Transform to app format
+  return filteredHolidays.map(holiday => ({
+    date: holiday.date,
+    name: holiday.localName || holiday.name,
+  }));
 };

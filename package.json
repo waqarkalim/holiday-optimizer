@@ -54,6 +54,7 @@
     "framer-motion": "^12.0.11",
     "ics": "^3.8.1",
     "input-otp": "^1.4.2",
+    "iso-3166": "^4.3.0",
     "lucide-react": "^0.474.0",
     "next": "15.2.3",
     "next-themes": "^0.4.4",
