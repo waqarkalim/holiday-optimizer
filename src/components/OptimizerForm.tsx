@@ -16,7 +16,7 @@ import { useYearSelection } from '@/hooks/useOptimizer';
 import { HelpButton, OnboardingContainer } from './features/onboarding';
 
 // Update to use dynamic calculation based on current year
-const AVAILABLE_YEARS = Array.from({ length: 5 }, (_, index) => new Date().getFullYear() + index);
+const AVAILABLE_YEARS = Array.from({ length: 2 }, (_, index) => new Date().getFullYear() + index);
 
 interface FormData {
   days: number;

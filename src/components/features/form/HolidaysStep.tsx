@@ -14,58 +14,119 @@ import {
 import { toast } from 'sonner';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 import { useOptimizer } from '@/contexts/OptimizerContext';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { getStoredLocationData, storeLocationData } from '@/lib/storage/location';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getSubdivisionName } from '@/lib/utils/iso-codes';
 import { getCountryFlag } from '@/lib/utils/country-flags';
 import { Loader2 } from 'lucide-react';
 
+// Define the state interface
+interface HolidaysState {
+  countries: NagerCountry[];
+  selectedCountry: string;
+  isLoadingCountries: boolean;
+  subdivisions: CountrySubdivision[];
+  selectedSubdivision: string;
+  isLoadingHolidays: boolean;
+  countryHolidays: HolidayResponse[];
+}
+
+// Define the initial state
+const initialState: HolidaysState = {
+  countries: [],
+  selectedCountry: '',
+  isLoadingCountries: false,
+  subdivisions: [],
+  selectedSubdivision: 'all',
+  isLoadingHolidays: false,
+  countryHolidays: [],
+};
+
+// Define action types
+type Action =
+  | { type: 'SET_COUNTRIES'; payload: NagerCountry[] }
+  | { type: 'SET_SELECTED_COUNTRY'; payload: string }
+  | { type: 'SET_LOADING_COUNTRIES'; payload: boolean }
+  | { type: 'SET_SUBDIVISIONS'; payload: CountrySubdivision[] }
+  | { type: 'SET_SELECTED_SUBDIVISION'; payload: string }
+  | { type: 'SET_LOADING_HOLIDAYS'; payload: boolean }
+  | { type: 'SET_COUNTRY_HOLIDAYS'; payload: HolidayResponse[] }
+  | { type: 'RESET_SUBDIVISION' }
+  | { type: 'RESET_SELECTED_VALUES' };
+
+// Define the reducer function
+function holidaysReducer(state: HolidaysState, action: Action): HolidaysState {
+  switch (action.type) {
+    case 'SET_COUNTRIES':
+      return { ...state, countries: action.payload };
+    case 'SET_SELECTED_COUNTRY':
+      return { ...state, selectedCountry: action.payload };
+    case 'SET_LOADING_COUNTRIES':
+      return { ...state, isLoadingCountries: action.payload };
+    case 'SET_SUBDIVISIONS':
+      return { ...state, subdivisions: action.payload };
+    case 'SET_SELECTED_SUBDIVISION':
+      return { ...state, selectedSubdivision: action.payload };
+    case 'SET_LOADING_HOLIDAYS':
+      return { ...state, isLoadingHolidays: action.payload };
+    case 'SET_COUNTRY_HOLIDAYS':
+      return { ...state, countryHolidays: action.payload };
+    case 'RESET_SUBDIVISION':
+      return { ...state, selectedSubdivision: 'all' };
+    case 'RESET_SELECTED_VALUES':
+      return { ...state, selectedCountry: initialState.selectedCountry, selectedSubdivision: initialState.selectedSubdivision };
+    default:
+      return state;
+  }
+}
+
 export function HolidaysStep() {
   const title = 'Public Holidays for Your Location';
   const colorScheme = 'amber';
   const { holidays, addHoliday, removeHoliday, setDetectedHolidays } = useHolidays();
-  const { state, dispatch } = useOptimizer();
-  const { selectedYear } = state;
+  const { state: optimizerState, dispatch: optimizerDispatch } = useOptimizer();
+  const { selectedYear } = optimizerState;
 
-  // States for country selection and loading
-  const [countries, setCountries] = useState<NagerCountry[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
-  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
-
-  // States for subdivision selection
-  const [subdivisions, setSubdivisions] = useState<CountrySubdivision[]>([]);
-  const [selectedSubdivision, setSelectedSubdivision] = useState<string>('all');
-  const [isLoadingHolidays, setIsLoadingHolidays] = useState(false);
-  const [countryHolidays, setCountryHolidays] = useState<HolidayResponse[]>([]);
+  // Use the reducer
+  const [state, dispatch] = useReducer(holidaysReducer, initialState);
+  const {
+    countries,
+    selectedCountry,
+    isLoadingCountries,
+    subdivisions,
+    selectedSubdivision,
+    isLoadingHolidays,
+    countryHolidays,
+  } = state;
 
   // Ref to track if initial location load has been attempted
   const initialLoadAttemptedRef = useRef(false);
 
   // Helper function to get country name from country code
-  const getCountryName = useCallback((countryCode: string): string => {
+  const getCountryName = (countryCode: string) => {
     return countries.find(c => c.countryCode === countryCode)?.name || countryCode;
-  }, [countries]);
+  };
 
-  // Handle country selection with useCallback
-  const handleCountryChange = useCallback(async (countryCode: string, isInitialLoad = false) => {
+  // Handle country selection
+  const handleCountryChange = async (countryCode: string, isInitialLoad = false) => {
     if (countryCode === selectedCountry && !isInitialLoad) return;
 
-    setSelectedCountry(countryCode);
-    setIsLoadingHolidays(true);
+    dispatch({ type: 'SET_SELECTED_COUNTRY', payload: countryCode });
+    dispatch({ type: 'SET_LOADING_HOLIDAYS', payload: true });
 
     // Set default subdivision if not loading a stored one
     if (!isInitialLoad) {
-      setSelectedSubdivision('all');
+      dispatch({ type: 'RESET_SUBDIVISION' });
     }
 
     try {
       const holidays = await getPublicHolidaysByCountry(countryCode, selectedYear);
-      setCountryHolidays(holidays);
+      dispatch({ type: 'SET_COUNTRY_HOLIDAYS', payload: holidays });
 
       // Extract subdivisions from holidays
       const extractedSubdivisions = extractSubdivisions(holidays);
-      setSubdivisions(extractedSubdivisions);
+      dispatch({ type: 'SET_SUBDIVISIONS', payload: extractedSubdivisions });
 
       // If it's the initial load, try to restore the saved subdivision
       const storedLocation = isInitialLoad ? getStoredLocationData(selectedYear) : null;
@@ -74,11 +135,11 @@ export function HolidaysStep() {
         : 'all';
 
       // Clear existing holidays and set new ones
-      dispatch({ type: 'CLEAR_HOLIDAYS' });
+      optimizerDispatch({ type: 'CLEAR_HOLIDAYS' });
 
       // Set subdivision if it exists in the stored data
       if (isInitialLoad && storedLocation && storedLocation.subdivision) {
-        setSelectedSubdivision(storedLocation.subdivision);
+        dispatch({ type: 'SET_SELECTED_SUBDIVISION', payload: storedLocation.subdivision });
       }
 
       // Filter based on the selected subdivision
@@ -105,14 +166,25 @@ export function HolidaysStep() {
         toast.error(`Failed to fetch holidays for ${countryCode}`);
       }
     } finally {
-      setIsLoadingHolidays(false);
+      dispatch({ type: 'SET_LOADING_HOLIDAYS', payload: false });
     }
-  }, [selectedCountry, selectedYear, countries, dispatch, setDetectedHolidays, getCountryName]);
+  };
 
   // Reset initialLoadAttempted when year changes
   useEffect(() => {
+    dispatch({ type: 'RESET_SELECTED_VALUES' });
     initialLoadAttemptedRef.current = false;
   }, [selectedYear]);
+
+  // Refetch holidays when year changes if country is already selected
+  useEffect(() => {
+    // Skip if no country is selected
+    if (!selectedCountry) return;
+
+    // Refetch holidays for the selected country with the new year
+    handleCountryChange(selectedCountry);
+
+  }, [selectedYear, selectedCountry]);
 
   // Load stored location data when component mounts or year changes
   useEffect(() => {
@@ -129,22 +201,22 @@ export function HolidaysStep() {
       // Load the stored country
       handleCountryChange(storedLocation.country, true);
     }
-  }, [selectedYear, countries, handleCountryChange]);
+  }, [selectedYear, countries]);
 
   // Fetch available countries on component mount
   useEffect(() => {
     async function fetchCountries() {
-      setIsLoadingCountries(true);
+      dispatch({ type: 'SET_LOADING_COUNTRIES', payload: true });
       try {
         const availableCountries = await getAvailableCountries();
         console.log(availableCountries);
         const sortedCountries = availableCountries.sort((a, b) => a.name.localeCompare(b.name));
-        setCountries(sortedCountries);
+        dispatch({ type: 'SET_COUNTRIES', payload: sortedCountries });
       } catch (error) {
         console.error('Error fetching countries:', error);
         toast.error('Failed to fetch available countries');
       } finally {
-        setIsLoadingCountries(false);
+        dispatch({ type: 'SET_LOADING_COUNTRIES', payload: false });
       }
     }
 
@@ -152,15 +224,15 @@ export function HolidaysStep() {
   }, []);
 
   // Handle subdivision selection
-  const handleSubdivisionChange = useCallback((subdivisionCode: string) => {
+  const handleSubdivisionChange = (subdivisionCode: string) => {
     if (subdivisionCode === selectedSubdivision) return;
 
-    setSelectedSubdivision(subdivisionCode);
+    dispatch({ type: 'SET_SELECTED_SUBDIVISION', payload: subdivisionCode });
 
     if (!selectedCountry || !countryHolidays.length) return;
 
     // Clear existing holidays first
-    dispatch({ type: 'CLEAR_HOLIDAYS' });
+    optimizerDispatch({ type: 'CLEAR_HOLIDAYS' });
 
     const actualSubdivisionCode = subdivisionCode === 'all' ? undefined : subdivisionCode;
     const filteredHolidays = getHolidaysBySubdivision(
@@ -181,7 +253,7 @@ export function HolidaysStep() {
     toast.success('Holidays filtered', {
       description: `Showing ${filteredHolidays.length} public holidays for ${locationDescription} in ${selectedYear}.`,
     });
-  }, [selectedSubdivision, selectedCountry, countryHolidays, selectedYear, dispatch, setDetectedHolidays, getCountryName]);
+  };
 
   // Using the new StepTitleWithInfo component
   const titleWithInfo = (

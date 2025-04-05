@@ -270,7 +270,7 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
 
     case 'SET_SELECTED_YEAR': {
       return {
-        ...state,
+        ...initialState,
         selectedYear: action.payload
       };
     }
