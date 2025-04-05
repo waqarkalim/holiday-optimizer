@@ -1,4 +1,3 @@
-import { MonthCalendarSelector } from '../components/MonthCalendarSelector';
 import { DateList } from '@/components/features/HolidaysDateList';
 import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
@@ -24,7 +23,7 @@ import { getCountryFlag } from '@/lib/utils/country-flags';
 import { Loader2 } from 'lucide-react';
 
 export function HolidaysStep() {
-  const title = 'Selected Holidays';
+  const title = 'Public Holidays for Your Location';
   const colorScheme = 'amber';
   const { holidays, addHoliday, removeHoliday, setDetectedHolidays } = useHolidays();
   const { state, dispatch } = useOptimizer();
@@ -327,14 +326,20 @@ export function HolidaysStep() {
         </div>
 
         <div className="space-y-6">
-          <MonthCalendarSelector
-            id="holidays-calendar"
-            selectedDates={selectedDates}
-            onDateSelect={handleHolidaySelect}
-            colorScheme={colorScheme}
-            year={selectedYear}
-          />
-
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Automatically Detected Holidays
+              </label>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {holidays.length} {holidays.length === 1 ? 'holiday' : 'holidays'} found
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              These holidays are automatically detected based on your country and region selection.
+            </p>
+          </div>
+          
           <DateList title={title} colorScheme={colorScheme} />
         </div>
       </fieldset>

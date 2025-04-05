@@ -1,24 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { Calendar, Trash2 } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { colorStyles } from '../constants/styles';
 import { useDateList } from '../context/DateListContext';
 
 export function ListHeader() {
-  const {
-    headingId: id,
-    title,
-    itemCount,
-    colorScheme,
-    onClearAllAction: onClearAll
-  } = useDateList();
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClearAll();
-    }
-  };
+  const { headingId: id, title, itemCount, colorScheme } = useDateList();
 
   return (
     <div className="mb-4 space-y-2">
@@ -40,32 +26,6 @@ export function ListHeader() {
             </p>
           </div>
         </div>
-
-        {/* Clear All button - Individual operation, not bulk */}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onClearAll}
-          onKeyDown={handleKeyDown}
-          className={cn(
-            'h-7 px-2.5 gap-1.5',
-            'border transition-all duration-200',
-            colorStyles[colorScheme].border,
-            colorStyles[colorScheme].hover,
-            colorStyles[colorScheme].active,
-            'hover:border-opacity-100',
-            'group',
-          )}
-          tabIndex={0}
-          aria-label={`Clear all ${title.toLowerCase()}`}
-          data-clear-button="true"
-        >
-          <Trash2 className={cn('h-3.5 w-3.5', 'transition-colors duration-200', colorStyles[colorScheme].accent)} />
-          <span className={cn('text-xs font-medium', colorStyles[colorScheme].text)}>
-            Clear All
-          </span>
-        </Button>
       </div>
     </div>
   );
