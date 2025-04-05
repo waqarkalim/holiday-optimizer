@@ -5,276 +5,123 @@ import { useHolidays } from '@/hooks/useOptimizer';
 import {
   CountrySubdivision,
   extractSubdivisions,
-  getAvailableCountries,
   getHolidaysBySubdivision,
-  getPublicHolidaysByCountry,
   HolidayResponse,
-  NagerCountry,
 } from '@/services/holidays';
 import { toast } from 'sonner';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 import { useOptimizer } from '@/contexts/OptimizerContext';
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { getStoredLocationData, storeLocationData } from '@/lib/storage/location';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getSubdivisionName } from '@/lib/utils/iso-codes';
 import { getCountryFlag } from '@/lib/utils/country-flags';
 import { Loader2 } from 'lucide-react';
-
-// Define the state interface
-interface HolidaysState {
-  countries: NagerCountry[];
-  selectedCountry: string;
-  isLoadingCountries: boolean;
-  subdivisions: CountrySubdivision[];
-  selectedSubdivision: string;
-  isLoadingHolidays: boolean;
-  countryHolidays: HolidayResponse[];
-}
-
-// Define the initial state
-const initialState: HolidaysState = {
-  countries: [],
-  selectedCountry: '',
-  isLoadingCountries: false,
-  subdivisions: [],
-  selectedSubdivision: 'all',
-  isLoadingHolidays: false,
-  countryHolidays: [],
-};
-
-// Define action types
-type Action =
-  | { type: 'SET_COUNTRIES'; payload: NagerCountry[] }
-  | { type: 'SET_SELECTED_COUNTRY'; payload: string }
-  | { type: 'SET_LOADING_COUNTRIES'; payload: boolean }
-  | { type: 'SET_SUBDIVISIONS'; payload: CountrySubdivision[] }
-  | { type: 'SET_SELECTED_SUBDIVISION'; payload: string }
-  | { type: 'SET_LOADING_HOLIDAYS'; payload: boolean }
-  | { type: 'SET_COUNTRY_HOLIDAYS'; payload: HolidayResponse[] }
-  | { type: 'RESET_SUBDIVISION' }
-  | { type: 'RESET_SELECTED_VALUES' };
-
-// Define the reducer function
-function holidaysReducer(state: HolidaysState, action: Action): HolidaysState {
-  switch (action.type) {
-    case 'SET_COUNTRIES':
-      return { ...state, countries: action.payload };
-    case 'SET_SELECTED_COUNTRY':
-      return { ...state, selectedCountry: action.payload };
-    case 'SET_LOADING_COUNTRIES':
-      return { ...state, isLoadingCountries: action.payload };
-    case 'SET_SUBDIVISIONS':
-      return { ...state, subdivisions: action.payload };
-    case 'SET_SELECTED_SUBDIVISION':
-      return { ...state, selectedSubdivision: action.payload };
-    case 'SET_LOADING_HOLIDAYS':
-      return { ...state, isLoadingHolidays: action.payload };
-    case 'SET_COUNTRY_HOLIDAYS':
-      return { ...state, countryHolidays: action.payload };
-    case 'RESET_SUBDIVISION':
-      return { ...state, selectedSubdivision: 'all' };
-    case 'RESET_SELECTED_VALUES':
-      return { ...state, selectedCountry: initialState.selectedCountry, selectedSubdivision: initialState.selectedSubdivision };
-    default:
-      return state;
-  }
-}
+import { useCountries, useHolidaysByCountry } from '@/hooks/useHolidayQueries';
 
 export function HolidaysStep() {
-  const title = 'Public Holidays for Your Location';
-  const colorScheme = 'amber';
-  const { holidays, addHoliday, removeHoliday, setDetectedHolidays } = useHolidays();
+  const { holidays, setDetectedHolidays } = useHolidays();
   const { state: optimizerState, dispatch: optimizerDispatch } = useOptimizer();
   const { selectedYear } = optimizerState;
+  
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedSubdivision, setSelectedSubdivision] = useState('all');
+  const [subdivisions, setSubdivisions] = useState<CountrySubdivision[]>([]);
 
-  // Use the reducer
-  const [state, dispatch] = useReducer(holidaysReducer, initialState);
-  const {
-    countries,
-    selectedCountry,
-    isLoadingCountries,
-    subdivisions,
-    selectedSubdivision,
-    isLoadingHolidays,
-    countryHolidays,
-  } = state;
+  const { data: countries = [], isLoading: isLoadingCountries } = useCountries();
+  
+  const { 
+    data: holidaysData,
+    isLoading: isLoadingHolidays,
+    isFetching: isFetchingHolidays,
+  } = useHolidaysByCountry(selectedCountry, selectedYear);
 
-  // Ref to track if initial location load has been attempted
-  const initialLoadAttemptedRef = useRef(false);
-
-  // Helper function to get country name from country code
-  const getCountryName = (countryCode: string) => {
-    return countries.find(c => c.countryCode === countryCode)?.name || countryCode;
-  };
-
-  // Handle country selection
-  const handleCountryChange = async (countryCode: string, isInitialLoad = false) => {
-    if (countryCode === selectedCountry && !isInitialLoad) return;
-
-    dispatch({ type: 'SET_SELECTED_COUNTRY', payload: countryCode });
-    dispatch({ type: 'SET_LOADING_HOLIDAYS', payload: true });
-
-    // Set default subdivision if not loading a stored one
-    if (!isInitialLoad) {
-      dispatch({ type: 'RESET_SUBDIVISION' });
-    }
-
-    try {
-      const holidays = await getPublicHolidaysByCountry(countryCode, selectedYear);
-      dispatch({ type: 'SET_COUNTRY_HOLIDAYS', payload: holidays });
-
-      // Extract subdivisions from holidays
-      const extractedSubdivisions = extractSubdivisions(holidays);
-      dispatch({ type: 'SET_SUBDIVISIONS', payload: extractedSubdivisions });
-
-      // If it's the initial load, try to restore the saved subdivision
-      const storedLocation = isInitialLoad ? getStoredLocationData(selectedYear) : null;
-      const subdivisionToUse = storedLocation && storedLocation.subdivision
-        ? storedLocation.subdivision
-        : 'all';
-
-      // Clear existing holidays and set new ones
-      optimizerDispatch({ type: 'CLEAR_HOLIDAYS' });
-
-      // Set subdivision if it exists in the stored data
-      if (isInitialLoad && storedLocation && storedLocation.subdivision) {
-        dispatch({ type: 'SET_SELECTED_SUBDIVISION', payload: storedLocation.subdivision });
-      }
-
-      // Filter based on the selected subdivision
-      const actualSubdivisionCode = subdivisionToUse === 'all' ? undefined : subdivisionToUse;
-      const filteredHolidays = getHolidaysBySubdivision(
-        holidays,
-        actualSubdivisionCode,
-      );
-
-      setDetectedHolidays(filteredHolidays);
-
-      // Save to localStorage (but don't show toast on initial load)
-      storeLocationData(countryCode, subdivisionToUse, selectedYear);
-
-      if (!isInitialLoad) {
-        const countryName = getCountryName(countryCode);
-        toast.success('Holidays loaded', {
-          description: `Loaded ${filteredHolidays.length} public holidays for ${countryName} in ${selectedYear}.`,
-        });
-      }
-    } catch (error) {
-      console.error(`Error fetching holidays for ${countryCode}:`, error);
-      if (!isInitialLoad) {
-        toast.error(`Failed to fetch holidays for ${countryCode}`);
-      }
-    } finally {
-      dispatch({ type: 'SET_LOADING_HOLIDAYS', payload: false });
-    }
-  };
-
-  // Reset initialLoadAttempted when year changes
+  // Reset selections when year changes
   useEffect(() => {
-    dispatch({ type: 'RESET_SELECTED_VALUES' });
-    initialLoadAttemptedRef.current = false;
+    setSelectedCountry('');
+    setSelectedSubdivision('all');
   }, [selectedYear]);
 
-  // Refetch holidays when year changes if country is already selected
+  // Load stored location data on initial load
   useEffect(() => {
-    // Skip if no country is selected
-    if (!selectedCountry) return;
-
-    // Refetch holidays for the selected country with the new year
-    handleCountryChange(selectedCountry);
-
-  }, [selectedYear, selectedCountry]);
-
-  // Load stored location data when component mounts or year changes
-  useEffect(() => {
-    // Only attempt to load if countries are available
-    if (countries.length === 0) return;
-
-    // Avoid repeated loading attempts
-    if (initialLoadAttemptedRef.current) return;
-
-    initialLoadAttemptedRef.current = true;
+    if (countries.length === 0 || selectedCountry) return;
 
     const storedLocation = getStoredLocationData(selectedYear);
-    if (storedLocation && storedLocation.country) {
-      // Load the stored country
-      handleCountryChange(storedLocation.country, true);
-    }
-  }, [selectedYear, countries]);
-
-  // Fetch available countries on component mount
-  useEffect(() => {
-    async function fetchCountries() {
-      dispatch({ type: 'SET_LOADING_COUNTRIES', payload: true });
-      try {
-        const availableCountries = await getAvailableCountries();
-        console.log(availableCountries);
-        const sortedCountries = availableCountries.sort((a, b) => a.name.localeCompare(b.name));
-        dispatch({ type: 'SET_COUNTRIES', payload: sortedCountries });
-      } catch (error) {
-        console.error('Error fetching countries:', error);
-        toast.error('Failed to fetch available countries');
-      } finally {
-        dispatch({ type: 'SET_LOADING_COUNTRIES', payload: false });
+    if (storedLocation?.country) {
+      setSelectedCountry(storedLocation.country);
+      
+      if (storedLocation.subdivision) {
+        setSelectedSubdivision(storedLocation.subdivision);
       }
     }
+  }, [countries, selectedYear, selectedCountry]);
 
-    fetchCountries();
-  }, []);
+  // Process holidays when data changes
+  useEffect(() => {
+    if (!holidaysData) return;
+    
+    const extractedSubdivisions = extractSubdivisions(holidaysData);
+    setSubdivisions(extractedSubdivisions);
+    
+    applyHolidaySelection(holidaysData, selectedSubdivision);
+  }, [holidaysData, selectedSubdivision]);
 
-  // Handle subdivision selection
-  const handleSubdivisionChange = (subdivisionCode: string) => {
-    if (subdivisionCode === selectedSubdivision) return;
+  function getCountryName(countryCode: string): string | undefined {
+    return countries.find(c => c.countryCode === countryCode)?.name;
+  }
 
-    dispatch({ type: 'SET_SELECTED_SUBDIVISION', payload: subdivisionCode });
-
-    if (!selectedCountry || !countryHolidays.length) return;
-
-    // Clear existing holidays first
+  function applyHolidaySelection(holidays: HolidayResponse[], subdivisionCode: string): void {
     optimizerDispatch({ type: 'CLEAR_HOLIDAYS' });
 
     const actualSubdivisionCode = subdivisionCode === 'all' ? undefined : subdivisionCode;
-    const filteredHolidays = getHolidaysBySubdivision(
-      countryHolidays,
-      actualSubdivisionCode,
-    );
+    const filteredHolidays = getHolidaysBySubdivision(holidays, actualSubdivisionCode);
 
     setDetectedHolidays(filteredHolidays);
-
-    // Save to localStorage
     storeLocationData(selectedCountry, subdivisionCode, selectedYear);
+  }
+
+  function handleCountryChange(countryCode: string): void {
+    if (countryCode === selectedCountry) return;
+
+    setSelectedCountry(countryCode);
+    setSelectedSubdivision('all');
+    storeLocationData(countryCode, 'all', selectedYear);
+
+    toast.success('Loading holidays', {
+      description: `Loading public holidays for ${getCountryName(countryCode)} in ${selectedYear}...`,
+    });
+  }
+
+  function handleSubdivisionChange(subdivisionCode: string): void {
+    if (subdivisionCode === selectedSubdivision || !holidaysData) return;
+
+    setSelectedSubdivision(subdivisionCode);
+    applyHolidaySelection(holidaysData, subdivisionCode);
 
     const countryName = getCountryName(selectedCountry);
-    const locationDescription = actualSubdivisionCode
+    const actualSubdivisionCode = subdivisionCode === 'all' ? undefined : subdivisionCode;
+    const locationDisplay = actualSubdivisionCode
       ? `${countryName} (${getSubdivisionName(actualSubdivisionCode)})`
       : countryName;
 
     toast.success('Holidays filtered', {
-      description: `Showing ${filteredHolidays.length} public holidays for ${locationDescription} in ${selectedYear}.`,
+      description: `Showing public holidays for ${locationDisplay} in ${selectedYear}.`,
     });
+  }
+
+  const publicHolidaysTooltip = {
+    title: 'About Public Holidays',
+    description: 'Public holidays are already non-working days, so you don\'t need to use PTO for them. Adding them helps create an optimized schedule that accounts for these days when planning your time off.',
+    ariaLabel: 'Why public holidays matter',
   };
 
-  // Using the new StepTitleWithInfo component
-  const titleWithInfo = (
-    <StepTitleWithInfo
-      title="Public Holidays"
-      colorScheme={colorScheme}
-      tooltip={{
-        title: 'About Public Holidays',
-        description: 'Public holidays are already non-working days, so you don\'t need to use PTO for them. Adding them helps create an optimized schedule that accounts for these days when planning your time off.',
-        ariaLabel: 'Why public holidays matter',
-      }}
-    />
-  );
-
   return (
-    <FormSection colorScheme={colorScheme} headingId="holidays-heading">
+    <FormSection colorScheme="amber" headingId="holidays-heading">
       <StepHeader
         number={3}
-        title={titleWithInfo}
+        title={<StepTitleWithInfo title="Public Holidays" colorScheme="amber" tooltip={publicHolidaysTooltip} />}
         description={`Add public holidays for ${selectedYear} by selecting your country and region.`}
-        colorScheme={colorScheme}
+        colorScheme="amber"
         id="holidays-heading"
       />
 
@@ -334,14 +181,14 @@ export function HolidaysStep() {
             </Select>
           </div>
 
-          {/* Subdivision Selector - Only show if country is selected and subdivisions exist */}
+          {/* Subdivision Selector */}
           {selectedCountry && subdivisions.length > 0 && (
             <div className="space-y-1.5">
               <label htmlFor="subdivision-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Select Region/Province
               </label>
               <Select
-                disabled={isLoadingHolidays}
+                disabled={isLoadingHolidays || isFetchingHolidays}
                 value={selectedSubdivision}
                 onValueChange={handleSubdivisionChange}
               >
@@ -353,7 +200,7 @@ export function HolidaysStep() {
                   disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
                   active:bg-amber-200/60 dark:active:bg-amber-800/50"
                 >
-                  {isLoadingHolidays ? (
+                  {isLoadingHolidays || isFetchingHolidays ? (
                     <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span>Loading regions...</span>
@@ -402,7 +249,7 @@ export function HolidaysStep() {
             </p>
           </div>
 
-          <DateList title={title} colorScheme={colorScheme} />
+          <DateList title="Public Holidays for Your Location" colorScheme="amber" />
         </div>
       </fieldset>
     </FormSection>

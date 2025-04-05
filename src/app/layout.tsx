@@ -1,15 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from '@/components/ThemeProvider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import React from 'react';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from 'sonner';
 import Script from 'next/script';
 import { UMAMI_WEBSITE_ID } from '@/constants';
 import { SoftwareApplicationJsonLd, WebsiteJsonLd, FAQPageJsonLd, HowToJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd';
+import { Providers } from './Providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -67,12 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
     <Script defer src="https://cloud.umami.is/script.js" data-website-id={UMAMI_WEBSITE_ID} />
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      forcedTheme="light"
-      disableTransitionOnChange
-    >
+    <Providers>
       <WebsiteJsonLd
         url={baseUrl}
         name="Holiday Optimizer"
@@ -147,17 +140,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }
         ]}
       />
-      <TooltipProvider>
-        <div className="relative min-h-screen flex flex-col">
-          <Header />
-          <main id="main-content" className="flex-grow bg-gray-50 dark:bg-gray-900" role="main">
-            {children}
-          </main>
-          <Footer />
-        </div>
-      </TooltipProvider>
-      <Toaster richColors closeButton position="bottom-right" />
-    </ThemeProvider>
+      <div className="relative min-h-screen flex flex-col">
+        <Header />
+        <main id="main-content" className="flex-grow bg-gray-50 dark:bg-gray-900" role="main">
+          {children}
+        </main>
+        <Footer />
+      </div>
+    </Providers>
     </body>
     </html>
   );

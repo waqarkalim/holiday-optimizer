@@ -83,6 +83,7 @@ export default function TermsOfService() {
               <li><strong>Nager.Date API</strong> - For holiday data</li>
               <li><strong>Umami Analytics</strong> - For anonymous usage statistics</li>
               <li><strong>Cloudflare Pages</strong> - For website hosting</li>
+              <li><strong>Cloudflare Analytics</strong> - For basic site performance and usage metrics</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               Each of these services has its own terms of service and privacy policies. By using {PROJECT_NAME}, 

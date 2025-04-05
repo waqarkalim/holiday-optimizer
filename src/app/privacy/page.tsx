@@ -79,6 +79,14 @@ export default function PrivacyPolicy() {
               what data Umami collects and how it is used, please refer to 
               <a href="https://umami.is/privacy" className="text-blue-500 hover:text-blue-600 ml-1">Umami&apos;s Privacy Policy</a>.
             </p>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Additionally, Cloudflare provides basic analytics as part of their hosting service. This includes 
+              aggregated data about site visits, page views, and general usage patterns. Cloudflare's analytics 
+              are designed to respect user privacy while providing essential insights for site maintenance and 
+              improvement. For more information, please see 
+              <a href="https://www.cloudflare.com/web-analytics/" className="text-blue-500 hover:text-blue-600 ml-1">Cloudflare Web Analytics</a> and 
+              <a href="https://www.cloudflare.com/privacypolicy/" className="text-blue-500 hover:text-blue-600 ml-1">Cloudflare&apos;s Privacy Policy</a>.
+            </p>
           </section>
 
           <section className="mb-6">
