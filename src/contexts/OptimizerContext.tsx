@@ -73,7 +73,7 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
   switch (action.type) {
     case 'SET_DAYS': {
       const daysNum = parseInt(action.payload)
-      if (action.payload === "" || (daysNum >= 0 && daysNum <= 365)) {
+      if (action.payload === "" || (daysNum >= 1 && daysNum <= 365)) {
         return {
           ...state,
           days: action.payload,
@@ -82,7 +82,7 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       }
       return {
         ...state,
-        errors: { ...state.errors, days: "Please enter a number between 0 and 365" }
+        errors: { ...state.errors, days: "Please enter a number between 1 and 365" }
       }
     }
 
@@ -209,47 +209,15 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'SET_DETECTED_HOLIDAYS': {
-      // Create a map to group holidays by date
-      const holidayMap = new Map<string, Holiday>();
-      
-      // Process existing holidays first
-      state.holidays.forEach(holiday => {
-        holidayMap.set(holiday.date, {
-          date: holiday.date,
-          name: holiday.name,
-          alternateNames: holiday.alternateNames || []
-        });
-      });
-
-      // Process new holidays
-      action.payload.forEach(newHoliday => {
-        const existing = holidayMap.get(newHoliday.date);
-        if (!existing) {
-          holidayMap.set(newHoliday.date, {
-            date: newHoliday.date,
-            name: newHoliday.name,
-            alternateNames: []
-          });
-        } else {
-          // Don't add duplicate names
-          const allNames = [existing.name, ...(existing.alternateNames || [])];
-          if (!allNames.includes(newHoliday.name)) {
-            existing.alternateNames = [...(existing.alternateNames || []), existing.name];
-            existing.name = newHoliday.name;
-          }
-        }
-      });
-
-      // Convert map back to array and format names
-      const updatedHolidays = Array.from(holidayMap.values()).map(holiday => ({
+      // Simplify: Directly set holidays from the payload
+      const updatedHolidays = action.payload.map(holiday => ({
         date: holiday.date,
-        name: holiday.alternateNames?.length 
-          ? `${holiday.name} (+${holiday.alternateNames.length} other names)`
-          : holiday.name,
-        alternateNames: holiday.alternateNames
+        name: holiday.name,
+        // Ensure alternateNames is initialized if needed, though likely not relevant for direct setting
+        alternateNames: [] 
       }));
 
-      // Update selectedDates to match the holidays
+      // Update selectedDates to match the new holidays
       const updatedSelectedDates = updatedHolidays.map(
         holiday => parse(holiday.date, 'yyyy-MM-dd', new Date())
       );
@@ -257,7 +225,9 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         holidays: updatedHolidays,
-        selectedDates: updatedSelectedDates
+        selectedDates: updatedSelectedDates,
+        // Clear any potential holiday errors when setting new ones
+        errors: { ...state.errors, holiday: undefined }
       };
     }
 

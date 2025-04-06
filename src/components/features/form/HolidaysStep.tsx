@@ -13,9 +13,7 @@ import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { useEffect, useState } from 'react';
 import { getStoredLocationData, storeLocationData } from '@/lib/storage/location';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getSubdivisionName } from '@/lib/utils/iso-codes';
-import { getCountryFlag } from '@/lib/utils/country-flags';
 import { Loader2 } from 'lucide-react';
 import { useCountries, useHolidaysByCountry } from '@/hooks/useHolidayQueries';
 
@@ -134,51 +132,39 @@ export function HolidaysStep() {
             <label htmlFor="country-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Select Country
             </label>
-            <Select
-              disabled={isLoadingCountries}
-              value={selectedCountry}
-              onValueChange={handleCountryChange}
-            >
-              <SelectTrigger
+            <div className="relative">
+              <select
                 id="country-select"
-                className="w-full transition-all duration-200 bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 
-                hover:bg-amber-100 dark:hover:bg-amber-800/40 hover:border-amber-300 dark:hover:border-amber-700
-                focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2
-                disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
-                active:bg-amber-200/60 dark:active:bg-amber-800/50"
+                value={selectedCountry}
+                onChange={(e) => handleCountryChange(e.target.value)}
+                disabled={isLoadingCountries}
+                className="w-full h-10 px-3 py-2 rounded-md transition-all duration-200 
+                  bg-amber-50/50 dark:bg-amber-900/20 
+                  border border-amber-200 dark:border-amber-800 
+                  text-amber-900 dark:text-amber-100
+                  hover:bg-amber-100 dark:hover:bg-amber-800/40 
+                  hover:border-amber-300 dark:hover:border-amber-700
+                  focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2
+                  focus:outline-none
+                  disabled:opacity-70 disabled:cursor-not-allowed 
+                  disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
+                  appearance-none"
               >
-                {selectedCountry && countries.length > 0 ? (
-                  <div className="flex items-center">
-                    <span className="mr-2 text-lg">{getCountryFlag(selectedCountry)}</span>
-                    <span>{getCountryName(selectedCountry)}</span>
-                  </div>
-                ) : isLoadingCountries ? (
-                  <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading countries...</span>
-                  </div>
-                ) : (
-                  <SelectValue placeholder="Select a country" />
-                )}
-              </SelectTrigger>
-              <SelectContent
-                className="max-h-80 bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800 rounded-md shadow-lg animate-in fade-in-80 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
-                <div className="py-1">
-                  {countries.map((country) => (
-                    <SelectItem
-                      key={country.countryCode}
-                      value={country.countryCode}
-                      className="transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
-                    >
-                      <div className="flex items-center">
-                        <span className="mr-2 text-lg">{getCountryFlag(country.countryCode)}</span>
-                        <span>{country.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </div>
-              </SelectContent>
-            </Select>
+                <option value="" disabled>
+                  {isLoadingCountries ? 'Loading countries...' : 'Select a country'}
+                </option>
+                {countries.map((country) => (
+                  <option key={country.countryCode} value={country.countryCode}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Subdivision Selector */}
@@ -187,49 +173,48 @@ export function HolidaysStep() {
               <label htmlFor="subdivision-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Select Region/Province
               </label>
-              <Select
-                disabled={isLoadingHolidays || isFetchingHolidays}
-                value={selectedSubdivision}
-                onValueChange={handleSubdivisionChange}
-              >
-                <SelectTrigger
+              <div className="relative">
+                <select
                   id="subdivision-select"
-                  className="w-full transition-all duration-200 bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 
-                  hover:bg-amber-100 dark:hover:bg-amber-800/40 hover:border-amber-300 dark:hover:border-amber-700
-                  focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2
-                  disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
-                  active:bg-amber-200/60 dark:active:bg-amber-800/50"
+                  value={selectedSubdivision}
+                  onChange={(e) => handleSubdivisionChange(e.target.value)}
+                  disabled={isLoadingHolidays || isFetchingHolidays}
+                  className="w-full h-10 px-3 py-2 rounded-md transition-all duration-200 
+                    bg-amber-50/50 dark:bg-amber-900/20 
+                    border border-amber-200 dark:border-amber-800 
+                    text-amber-900 dark:text-amber-100
+                    hover:bg-amber-100 dark:hover:bg-amber-800/40 
+                    hover:border-amber-300 dark:hover:border-amber-700
+                    focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2
+                    focus:outline-none
+                    disabled:opacity-70 disabled:cursor-not-allowed 
+                    disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
+                    appearance-none"
                 >
                   {isLoadingHolidays || isFetchingHolidays ? (
-                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Loading regions...</span>
-                    </div>
+                    <option value="" disabled>Loading regions...</option>
                   ) : (
-                    <SelectValue placeholder="Select a region (optional)" />
+                    <>
+                      <option value="all">All regions (nationwide holidays only)</option>
+                      {subdivisions.map((subdivision) => (
+                        <option key={subdivision.code} value={subdivision.code}>
+                          {getSubdivisionName(subdivision.code)}
+                        </option>
+                      ))}
+                    </>
                   )}
-                </SelectTrigger>
-                <SelectContent
-                  className="max-h-80 bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800 rounded-md shadow-lg animate-in fade-in-80 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
-                  <SelectItem
-                    value="all"
-                    className="border-b border-amber-100 dark:border-amber-800 mt-1 transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
-                  >
-                    All regions (nationwide holidays only)
-                  </SelectItem>
-                  {subdivisions.map((subdivision) => (
-                    <SelectItem
-                      key={subdivision.code}
-                      value={subdivision.code}
-                      className="transition-colors duration-150 cursor-pointer data-[highlighted]:bg-amber-100 data-[highlighted]:dark:bg-amber-800/40 data-[highlighted]:text-amber-900 data-[highlighted]:dark:text-amber-50"
-                    >
-                      <div className="flex items-center justify-center">
-                        <span>{getSubdivisionName(subdivision.code)}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                {isLoadingHolidays || isFetchingHolidays ? (
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Loader2 className="h-4 w-4 animate-spin text-amber-800 dark:text-amber-300" />
+                  </div>
+                ) : null}
+              </div>
             </div>
           )}
         </div>

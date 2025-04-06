@@ -6,6 +6,8 @@ import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { OptimizerProvider } from '@/contexts/OptimizerContext';
 import { OptimizerForm } from '@/components/OptimizerForm';
 import React from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/app/Providers';
 
 describe('Onboarding Flow Integration Tests', () => {
   let mockOnSubmitAction: jest.Mock;
@@ -18,18 +20,20 @@ describe('Onboarding Flow Integration Tests', () => {
     // Reset onboarding status in localStorage for each test
     localStorage.removeItem('holiday-optimizer-onboarding-completed');
 
-    window.HTMLElement.prototype.scrollIntoView = jest.fn()
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
     render(
-      <ThemeProvider>
-        <TooltipProvider>
-          <OnboardingProvider>
-            <OptimizerProvider>
-              <OptimizerForm onSubmitAction={mockOnSubmitAction} />
-            </OptimizerProvider>
-          </OnboardingProvider>
-        </TooltipProvider>
-      </ThemeProvider>,
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <TooltipProvider>
+            <OnboardingProvider>
+              <OptimizerProvider>
+                <OptimizerForm onSubmitAction={mockOnSubmitAction} />
+              </OptimizerProvider>
+            </OnboardingProvider>
+          </TooltipProvider>
+        </ThemeProvider>,
+      </QueryClientProvider>,
     );
   });
 
@@ -198,7 +202,7 @@ describe('Onboarding Flow Integration Tests', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     // Now click help button to reopen
-    const helpButton = screen.getByTestId("help-button-desktop");
+    const helpButton = screen.getByTestId('help-button-desktop');
     await user.click(helpButton);
 
     // Verify onboarding appears again

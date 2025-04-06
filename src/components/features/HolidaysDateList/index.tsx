@@ -27,6 +27,7 @@ function DateListContent() {
   const {
     colorScheme,
     headingId,
+    title
   } = useDateList();
 
   return (
@@ -42,7 +43,7 @@ function DateListContent() {
         colorStyles[colorScheme].container,
         colorStyles[colorScheme].border,
       )}
-      aria-labelledby={headingId}
+      aria-label={title}
     >
       <ListHeader />
 
