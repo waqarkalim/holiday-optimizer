@@ -21,14 +21,14 @@ export function HolidaysStep() {
   const { holidays, setDetectedHolidays } = useHolidays();
   const { state: optimizerState, dispatch: optimizerDispatch } = useOptimizer();
   const { selectedYear } = optimizerState;
-  
+
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedSubdivision, setSelectedSubdivision] = useState('all');
   const [subdivisions, setSubdivisions] = useState<CountrySubdivision[]>([]);
 
   const { data: countries = [], isLoading: isLoadingCountries } = useCountries();
-  
-  const { 
+
+  const {
     data: holidaysData,
     isLoading: isLoadingHolidays,
     isFetching: isFetchingHolidays,
@@ -47,7 +47,7 @@ export function HolidaysStep() {
     const storedLocation = getStoredLocationData(selectedYear);
     if (storedLocation?.country) {
       setSelectedCountry(storedLocation.country);
-      
+
       if (storedLocation.subdivision) {
         setSelectedSubdivision(storedLocation.subdivision);
       }
@@ -57,10 +57,10 @@ export function HolidaysStep() {
   // Process holidays when data changes
   useEffect(() => {
     if (!holidaysData) return;
-    
+
     const extractedSubdivisions = extractSubdivisions(holidaysData);
     setSubdivisions(extractedSubdivisions);
-    
+
     applyHolidaySelection(holidaysData, selectedSubdivision);
   }, [holidaysData, selectedSubdivision]);
 
@@ -117,7 +117,8 @@ export function HolidaysStep() {
     <FormSection colorScheme="amber" headingId="holidays-heading">
       <StepHeader
         number={3}
-        title={<StepTitleWithInfo title="Public Holidays" colorScheme="amber" tooltip={publicHolidaysTooltip} />}
+        title={<StepTitleWithInfo title="Public Holidays" badge={{ label: 'Required' }} colorScheme="amber"
+                                  tooltip={publicHolidaysTooltip} />}
         description={`Add public holidays for ${selectedYear} by selecting your country and region.`}
         colorScheme="amber"
         id="holidays-heading"
@@ -160,7 +161,8 @@ export function HolidaysStep() {
                 ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -205,7 +207,8 @@ export function HolidaysStep() {
                   )}
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24"
+                       stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>

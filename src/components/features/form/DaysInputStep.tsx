@@ -15,6 +15,7 @@ export function DaysInputStep() {
     <StepTitleWithInfo
       title="Enter Your Days"
       colorScheme="teal"
+      badge={{ label: "Required" }}
       tooltip={{
         title: "Your Available PTO",
         description: "Enter how many paid time off days you have available. These are workdays you can take off while still getting paid. The optimizer will distribute them strategically.",
