@@ -1,31 +1,35 @@
 # Holiday Optimizer
 
-A web application for optimizing holiday travel planning.
+A web application for optimizing Paid Time Off (PTO) usage.
 
 ## Overview
 
-Holiday Optimizer is a web application that helps users plan their holidays efficiently. By analyzing travel routes, costs, and optimal scheduling, the application provides recommendations for maximizing travel experiences while minimizing expenses and travel time.
+Holiday Optimizer helps users maximize their time off by intelligently planning PTO days around public and company holidays. By inputting your available PTO and selecting your location, the application generates an optimized schedule suggesting the best days to take off to create longer breaks throughout the year.
 
 ## Features
 
-- Interactive calendar visualization
-- Cost comparison between different travel options
-- Automatic optimization of travel routes
-- Shareable trip itineraries
-- Weather forecast integration
-- Accommodation recommendations
-- Local attraction suggestions
+- Input your total available Paid Time Off (PTO) days.
+- Select your country (and region/province, where applicable) to automatically fetch public holidays for a chosen year.
+- Add custom company-specific non-working days.
+- Choose an optimization strategy (e.g., maximize long weekends, distribute evenly).
+- Generate a visual schedule highlighting suggested PTO days and resulting time-off blocks.
+- Plan for the current or upcoming year.
+- Responsive design for use on various devices.
 
 ## Technology Stack
 
 This project is built with:
 
-- **Frontend**: Next.js, React, TypeScript, TailwindCSS
-- **UI Components**: Shadcn UI
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **UI Library**: React
 - **Styling**: TailwindCSS
-- **Testing**: Jest, React Testing Library
+- **UI Components**: Shadcn UI
+- **Data Fetching**: React Query (TanStack Query)
+- **Notifications**: Sonner (Toasts)
+- **Testing**: Jest, React Testing Library (Planned/Setup)
 - **Deployment**: Cloudflare Pages
-- **CI/CD**: GitHub Actions for testing and quality assurance
+- **CI/CD**: GitHub Actions
 
 ## Getting Started
 
@@ -103,3 +107,7 @@ pnpm lint
 # Format code
 pnpm format
 ```
+
+## License
+
+This project is currently unlicensed. All rights reserved.
