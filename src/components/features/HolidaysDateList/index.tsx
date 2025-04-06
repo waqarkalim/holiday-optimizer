@@ -24,11 +24,7 @@ export const DateList = ({ title, colorScheme }: DateListProps) => {
 
 // Separated content component that consumes the context
 function DateListContent() {
-  const {
-    colorScheme,
-    headingId,
-    title
-  } = useDateList();
+  const { colorScheme, title } = useDateList();
 
   return (
     <motion.section

@@ -81,7 +81,7 @@ export default function PrivacyPolicy() {
             </p>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               Additionally, Cloudflare provides basic analytics as part of their hosting service. This includes 
-              aggregated data about site visits, page views, and general usage patterns. Cloudflare's analytics 
+              aggregated data about site visits, page views, and general usage patterns. Cloudflare&apos;s analytics
               are designed to respect user privacy while providing essential insights for site maintenance and 
               improvement. For more information, please see 
               <a href="https://www.cloudflare.com/web-analytics/" className="text-blue-500 hover:text-blue-600 ml-1">Cloudflare Web Analytics</a> and 
