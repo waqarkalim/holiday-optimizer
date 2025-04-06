@@ -103,16 +103,3 @@ pnpm lint
 # Format code
 pnpm format
 ```
-
-## Contributing
-
-1. Create a feature branch from `main`.
-2. Make changes and ensure tests pass.
-3. Submit a pull request.
-
-### Guidelines
-
-- Follow the existing code style and naming conventions.
-- Write tests for new features and bug fixes.
-- Keep pull requests focused on a single feature or fix.
-- Document new features or changes in behavior.
