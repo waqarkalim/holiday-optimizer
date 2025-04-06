@@ -2,7 +2,7 @@
 
 import { FormEvent, useRef } from 'react';
 import { Button } from './ui/button';
-import { Calendar, Sparkles } from 'lucide-react';
+import { Calendar, Sparkles, AlertCircle } from 'lucide-react';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { DaysInputStep } from './features/form/DaysInputStep';
 import { StrategySelectionStep } from './features/form/StrategySelectionStep';
@@ -172,7 +172,19 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             </TooltipProvider>
           </CardContent>
 
-          <CardFooter className="flex justify-end">
+          <CardFooter className="flex flex-col items-end gap-1.5">
+            {!isLoading && !isFormValid && (
+                <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400 text-right w-full justify-end">
+                  <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>
+                    {!isDaysValid && !areHolidaysValid 
+                      ? "Please enter PTO days and select holidays." 
+                      : !isDaysValid 
+                        ? "Please enter the number of PTO days." 
+                        : "Please select holidays."}
+                  </span>
+                </div>
+            )}
             <Button
               type="submit"
               variant="primary-action"
