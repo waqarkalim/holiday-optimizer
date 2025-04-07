@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, ReactNode, useContext, useEffect, useReducer } from 'react';
+import { trackEvent } from '@/utils/tracking';
 
 // Constants for local storage
 const ONBOARDING_COMPLETED_KEY = 'holiday-optimizer-onboarding-completed';
@@ -63,9 +64,7 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
       };
     case 'DISMISS_ONBOARDING':
       // Track onboarding dismissal
-      if (typeof window !== 'undefined' && window.umami) {
-        window.umami.track('Onboarding dismissed');
-      }
+      trackEvent('Onboarding dismissed');
 
       return {
         ...state,

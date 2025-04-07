@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Download, InfoIcon, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SectionCard } from '@/components/ui/section-card';
+import { trackEvent } from '@/utils/tracking';
 
 interface CalendarExportProps {
   breaks: Break[];
@@ -23,39 +24,37 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
   // Handle export to ICS (iCal)
   const handleExportToICS = async () => {
     // Track onboarding dismissal
-    if (typeof window !== 'undefined' && window.umami) {
-      window.umami.track('Calendar exported');
-    }
+    trackEvent('Calendar exported');
 
     if (breaks.length === 0) {
-      toast.error("No breaks to export", {
-        description: "There are no vacation breaks to export to calendar."
+      toast.error('No breaks to export', {
+        description: 'There are no vacation breaks to export to calendar.',
       });
       return;
     }
 
     setIsExporting(true);
     setActiveExport('ical');
-    
+
     try {
-      const result = await exportToICS({ 
-        breaks, 
-        stats, 
-        selectedYear
+      const result = await exportToICS({
+        breaks,
+        stats,
+        selectedYear,
       });
-      
+
       if (result.success) {
-        toast.success("Export Successful", {
-          description: result.message
+        toast.success('Export Successful', {
+          description: result.message,
         });
       } else {
-        toast.error("Export Failed", {
-          description: result.message
+        toast.error('Export Failed', {
+          description: result.message,
         });
       }
     } catch (error) {
-      toast.error("Export Failed", {
-        description: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
+      toast.error('Export Failed', {
+        description: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`,
       });
     } finally {
       setIsExporting(false);
@@ -84,8 +83,8 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button 
-                className="inline-flex h-6 w-6 items-center justify-center rounded-full text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 hover:bg-blue-200 dark:hover:bg-blue-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" 
+              <button
+                className="inline-flex h-6 w-6 items-center justify-center rounded-full text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 hover:bg-blue-200 dark:hover:bg-blue-800/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 tabIndex={0}
                 aria-label="View export information"
                 onKeyDown={handleInfoKeyDown}
@@ -95,7 +94,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
             </TooltipTrigger>
             <TooltipContent side="left" className="max-w-xs">
               <p className="text-xs">
-                Export your optimized vacation plan to your preferred calendar application. 
+                Export your optimized vacation plan to your preferred calendar application.
                 Your {breaks.length} breaks use {stats.totalPTODays} PTO days for {stats.totalDaysOff} total days off.
               </p>
             </TooltipContent>
@@ -119,7 +118,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
                 {activeExport === 'ical' ? (
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                     className="mr-1.5"
                     aria-hidden="true"
                   >
@@ -133,7 +132,7 @@ export const CalendarExport = ({ breaks, stats, selectedYear }: CalendarExportPr
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <p className="text-xs">
-                Download as iCal file for Google Calendar, Apple Calendar, Outlook, and other calendar applications. 
+                Download as iCal file for Google Calendar, Apple Calendar, Outlook, and other calendar applications.
                 <span className="block mt-1 text-blue-500 dark:text-blue-400">
                   Events will show on their actual dates regardless of timezone.
                 </span>

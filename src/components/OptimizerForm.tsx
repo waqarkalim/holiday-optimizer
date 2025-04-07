@@ -2,7 +2,7 @@
 
 import { FormEvent, useRef } from 'react';
 import { Button } from './ui/button';
-import { Calendar, Sparkles, AlertCircle } from 'lucide-react';
+import { AlertCircle, Calendar, Sparkles } from 'lucide-react';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { DaysInputStep } from './features/form/DaysInputStep';
 import { StrategySelectionStep } from './features/form/StrategySelectionStep';
@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { TooltipProvider } from './ui/tooltip';
 import { useYearSelection } from '@/hooks/useOptimizer';
 import { HelpButton, OnboardingContainer } from './features/onboarding';
+import { trackEvent } from '@/utils/tracking';
 
 // Update to use dynamic calculation based on current year
 const AVAILABLE_YEARS = Array.from({ length: 2 }, (_, index) => new Date().getFullYear() + index);
@@ -57,15 +58,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     };
 
     // Track form submission with Umami
-    if (typeof window !== 'undefined' && window.umami) {
-      window.umami.track('Form Submitted!', {
-        days: numDays,
-        strategy,
-        year: selectedYear,
-        companyDaysCount: companyDaysOff.length,
-        holidaysCount: holidays.length
-      });
-    }
+    trackEvent('Form Submitted!', {
+      days: numDays,
+      strategy,
+      year: selectedYear,
+      companyDaysCount: companyDaysOff.length,
+      holidaysCount: holidays.length,
+    });
 
     onSubmitAction(formData);
   };
@@ -174,16 +173,17 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
 
           <CardFooter className="flex flex-col items-end gap-1.5">
             {!isLoading && !isFormValid && (
-                <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400 text-right w-full justify-end">
-                  <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>
-                    {!isDaysValid && !areHolidaysValid 
-                      ? "Please enter PTO days and select holidays." 
-                      : !isDaysValid 
-                        ? "Please enter the number of PTO days." 
-                        : "Please select holidays."}
+              <div
+                className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400 text-right w-full justify-end">
+                <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>
+                    {!isDaysValid && !areHolidaysValid
+                      ? 'Please enter PTO days and select holidays.'
+                      : !isDaysValid
+                        ? 'Please enter the number of PTO days.'
+                        : 'Please select holidays.'}
                   </span>
-                </div>
+              </div>
             )}
             <Button
               type="submit"
@@ -191,11 +191,11 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               disabled={isLoading || !isFormValid}
               aria-busy={isLoading}
               tabIndex={0}
-              title={!isDaysValid 
-                ? "Please enter the number of PTO days" 
-                : !areHolidaysValid 
-                  ? "Please select your country to load holidays" 
-                  : "Generate your optimized schedule"}
+              title={!isDaysValid
+                ? 'Please enter the number of PTO days'
+                : !areHolidaysValid
+                  ? 'Please select your country to load holidays'
+                  : 'Generate your optimized schedule'}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
