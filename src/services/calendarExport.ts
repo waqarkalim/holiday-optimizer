@@ -1,6 +1,7 @@
 import { Break, OptimizationStats } from '@/types';
 import { createEvents, DateArray, EventAttributes } from 'ics';
 import { saveAs } from 'file-saver';
+import { format } from 'date-fns';
 
 interface CalendarExportOptions {
   breaks: Break[];
@@ -8,6 +9,13 @@ interface CalendarExportOptions {
   selectedYear: number;
   timezone?: string; // Optional timezone parameter (e.g., 'America/New_York')
 }
+
+interface ExportResult {
+  success: boolean;
+  message: string;
+}
+
+type ExportParams = CalendarExportOptions;
 
 /**
  * Converts a date string in format 'yyyy-MM-dd' to a Date array [year, month, day]
@@ -116,6 +124,53 @@ export const exportToICS = async (options: CalendarExportOptions): Promise<{ suc
     return { 
       success: false, 
       message: `An error occurred while exporting the calendar: ${error instanceof Error ? error.message : String(error)}` 
+    };
+  }
+};
+
+export const exportToPTOText = async ({ breaks, stats, selectedYear }: ExportParams): Promise<ExportResult> => {
+  try {
+    // Create text content
+    let content = `PTO Days Export for ${selectedYear}\n`;
+    content += `Total PTO Days: ${stats.totalPTODays}\n\n`;
+    
+    // Sort breaks by start date
+    const sortedBreaks = [...breaks].sort((a, b) => 
+      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    );
+
+    // Add each break's PTO days
+    sortedBreaks.forEach((breakPeriod, index) => {
+      const ptoDays = breakPeriod.days.filter(day => day.isPTO);
+      if (ptoDays.length > 0) {
+        content += `Break ${index + 1} (${format(new Date(breakPeriod.startDate), 'MMM d')} - ${format(new Date(breakPeriod.endDate), 'MMM d')}):\n`;
+        ptoDays.forEach(day => {
+          content += `  - ${format(new Date(day.date), 'MMMM d, yyyy')}\n`;
+        });
+        content += '\n';
+      }
+    });
+
+    // Create and download the file
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pto-days-${selectedYear}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    return {
+      success: true,
+      message: 'PTO days have been exported to a text file.'
+    };
+  } catch (error) {
+    console.error('Error exporting PTO days:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An unknown error occurred while exporting PTO days.'
     };
   }
 };
