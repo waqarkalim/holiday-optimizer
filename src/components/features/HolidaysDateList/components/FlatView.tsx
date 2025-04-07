@@ -17,7 +17,7 @@ export function FlatView() {
     <>
       {sortedItems.map((item, index) => (
         <motion.li
-          key={item.date}
+          key={`${item.date}-${index}`}
           {...ANIMATION_CONFIG}
           data-list-item="true"
           data-list-index={index}
