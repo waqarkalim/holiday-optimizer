@@ -139,13 +139,13 @@ export function HolidaysStep() {
                 value={selectedCountry}
                 onChange={(e) => handleCountryChange(e.target.value)}
                 disabled={isLoadingCountries}
-                className="w-full h-10 px-3 py-2 rounded-md transition-all duration-200 
+                className="w-full h-9 px-3 py-1.5 rounded-md transition-all duration-200 
                   bg-amber-50/50 dark:bg-amber-900/20 
                   border border-amber-200 dark:border-amber-800 
-                  text-amber-900 dark:text-amber-100
+                  text-amber-900 dark:text-amber-100 text-sm font-medium
                   hover:bg-amber-100 dark:hover:bg-amber-800/40 
-                  hover:border-amber-300 dark:hover:border-amber-700
-                  focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2
+                  hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-sm
+                  focus:ring-1 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-1
                   focus:outline-none
                   disabled:opacity-70 disabled:cursor-not-allowed 
                   disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
@@ -160,8 +160,8 @@ export function HolidaysStep() {
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24"
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none">
+                <svg className="h-4 w-4 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24"
                      stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -181,13 +181,13 @@ export function HolidaysStep() {
                   value={selectedSubdivision}
                   onChange={(e) => handleSubdivisionChange(e.target.value)}
                   disabled={isLoadingHolidays || isFetchingHolidays}
-                  className="w-full h-10 px-3 py-2 rounded-md transition-all duration-200 
+                  className="w-full h-9 px-3 py-1.5 rounded-md transition-all duration-200 
                     bg-amber-50/50 dark:bg-amber-900/20 
                     border border-amber-200 dark:border-amber-800 
-                    text-amber-900 dark:text-amber-100
+                    text-amber-900 dark:text-amber-100 text-sm font-medium
                     hover:bg-amber-100 dark:hover:bg-amber-800/40 
-                    hover:border-amber-300 dark:hover:border-amber-700
-                    focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-2
+                    hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-sm
+                    focus:ring-1 focus:ring-amber-400 dark:focus:ring-amber-300 focus:ring-offset-1
                     focus:outline-none
                     disabled:opacity-70 disabled:cursor-not-allowed 
                     disabled:hover:bg-amber-50/50 disabled:hover:border-amber-200
@@ -206,8 +206,8 @@ export function HolidaysStep() {
                     </>
                   )}
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <svg className="h-5 w-5 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24"
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none">
+                  <svg className="h-4 w-4 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24"
                        stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
