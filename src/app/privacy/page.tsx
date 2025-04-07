@@ -107,7 +107,7 @@ export default function PrivacyPolicy() {
               <li>Location information</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              This information is used to display relevant advertisements tailored to your interests. You can learn more about Google's data practices and manage your ad preferences through the <a href="https://policies.google.com/privacy" className="text-blue-500 hover:text-blue-600">Google Privacy Policy</a> and <a href="https://adssettings.google.com" className="text-blue-500 hover:text-blue-600">Google Ad Settings</a>.
+              This information is used to display relevant advertisements tailored to your interests. You can learn more about Google&apos;s data practices and manage your ad preferences through the <a href="https://policies.google.com/privacy" className="text-blue-500 hover:text-blue-600">Google Privacy Policy</a> and <a href="https://adssettings.google.com" className="text-blue-500 hover:text-blue-600">Google Ad Settings</a>.
             </p>
           </section>
 
