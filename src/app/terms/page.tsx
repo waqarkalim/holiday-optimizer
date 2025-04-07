@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsOfService() {
-  const lastUpdated = 'April 5, 2025'
+  const lastUpdated = 'April 7, 2025'
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
       <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
@@ -84,6 +84,7 @@ export default function TermsOfService() {
               <li><strong>Umami Analytics</strong> - For anonymous usage statistics</li>
               <li><strong>Cloudflare Pages</strong> - For website hosting</li>
               <li><strong>Cloudflare Analytics</strong> - For basic site performance and usage metrics</li>
+              <li><strong>Google AdSense</strong> - For displaying advertisements</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               Each of these services has its own terms of service and privacy policies. By using {PROJECT_NAME}, 
@@ -132,6 +133,7 @@ export default function TermsOfService() {
               <li>Any consequential impacts on your holiday planning</li>
               <li>Changes in third-party service policies or availability</li>
               <li>Any direct, indirect, incidental, or consequential damages arising from use of the service</li>
+              <li>Content or advertisements displayed through third-party services like Google AdSense</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               <strong>Due Diligence Required:</strong> As {PROJECT_NAME} is an educational side project, users are explicitly 

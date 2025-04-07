@@ -64,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
     <Script defer src="https://cloud.umami.is/script.js" data-website-id={UMAMI_WEBSITE_ID} />
+    <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6295400781172674" crossOrigin="anonymous" />
     <body className={`${inter.className} antialiased bg-white dark:bg-gray-950 transition-colors duration-200`}>
     <Providers>
       <WebsiteJsonLd

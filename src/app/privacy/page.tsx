@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPolicy() {
-  const lastUpdated = 'April 5, 2025'
+  const lastUpdated = 'April 7, 2025'
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
       <div
@@ -86,6 +86,28 @@ export default function PrivacyPolicy() {
               improvement. For more information, please see 
               <a href="https://www.cloudflare.com/web-analytics/" className="text-blue-500 hover:text-blue-600 ml-1">Cloudflare Web Analytics</a> and 
               <a href="https://www.cloudflare.com/privacypolicy/" className="text-blue-500 hover:text-blue-600 ml-1">Cloudflare&apos;s Privacy Policy</a>.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <span className="text-base">🔍</span> Advertising
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Google AdSense is used to display advertisements on this website. Google AdSense may use cookies and web beacons to collect data about your visit to this website and other websites to provide personalized advertising.
+            </p>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Google AdSense may collect information such as:
+            </p>
+            <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
+              <li>Cookie identifiers</li>
+              <li>IP addresses</li>
+              <li>Usage data</li>
+              <li>Browsing activity</li>
+              <li>Location information</li>
+            </ul>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              This information is used to display relevant advertisements tailored to your interests. You can learn more about Google's data practices and manage your ad preferences through the <a href="https://policies.google.com/privacy" className="text-blue-500 hover:text-blue-600">Google Privacy Policy</a> and <a href="https://adssettings.google.com" className="text-blue-500 hover:text-blue-600">Google Ad Settings</a>.
             </p>
           </section>
 
