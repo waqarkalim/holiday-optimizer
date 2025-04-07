@@ -33,10 +33,20 @@ const XFollowPopup: React.FC<XFollowPopupProps> = ({
     window.open(`https://twitter.com/intent/follow?screen_name=${twitterHandle}`, '_blank', 'noopener,noreferrer');
     setIsDismissed(true);
     localStorage.setItem('xFollowPopupDismissed', 'true');
+
+    if (typeof window !== 'undefined' && window.umami) {
+      window.umami.track('X Popup Follow Clicked');
+    }
+    
   };
 
   const handleDismiss = () => {
     setIsVisible(false);
+    
+    // Track dismissal with Umami
+    if (typeof window !== 'undefined' && window.umami) {
+      window.umami.track('X Popup Dismissed');
+    }
     
     // Animate out before completely removing
     setTimeout(() => {
