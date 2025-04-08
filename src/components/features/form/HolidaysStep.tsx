@@ -238,7 +238,7 @@ export function HolidaysStep() {
                       <option value="all">All regions (nationwide holidays only)</option>
                       {subdivisions.map((subdivision) => (
                         <option key={subdivision.code} value={subdivision.code}>
-                          {getSubdivisionName(subdivision.code)}
+                          {subdivision.name}
                         </option>
                       ))}
                     </>
