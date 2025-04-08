@@ -56,16 +56,16 @@ export default function PrivacyPolicy() {
               The following services are utilized:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li>Nager.Date API - Used to fetch public holiday information for different countries</li>
+              <li>date-holidays package - Used to fetch public holiday information for different countries</li>
             </ul>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               Each third-party service has its own privacy policy regarding how your data is processed.
             </p>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              For information about how these services handle your data, please refer to their respective privacy policies:
+              For information about how these services handle your data, please refer to their respective documentation:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li><a href="https://date.nager.at/Legal/Privacy" className="text-blue-500 hover:text-blue-600">Nager.Date Imprint</a></li>
+              <li><a href="https://github.com/commenthol/date-holidays" className="text-blue-500 hover:text-blue-600">date-holidays GitHub Repository</a></li>
             </ul>
           </section>
 

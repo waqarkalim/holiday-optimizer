@@ -11,6 +11,9 @@ export const colorStyles = {
     divider: 'border-amber-200/30 dark:border-amber-800/30',
     highlight: 'bg-amber-100/50 dark:bg-amber-900/40',
     input: 'border-amber-200 dark:border-amber-800 focus:border-amber-400 dark:focus:border-amber-600',
+    removeButton: 'hover:bg-amber-200/80 dark:hover:bg-amber-800/80 text-amber-600 dark:text-amber-400',
+    removeButtonFocus: 'focus:ring-amber-400/50 dark:focus:ring-amber-300/50',
+    removeButtonIcon: 'text-amber-600/90 dark:text-amber-400/90',
   },
   violet: {
     container: 'bg-gradient-to-br from-violet-50/80 to-violet-100/30 dark:from-violet-900/20 dark:to-violet-900/10',
@@ -24,5 +27,8 @@ export const colorStyles = {
     divider: 'border-violet-200/30 dark:border-violet-800/30',
     highlight: 'bg-violet-100/50 dark:bg-violet-900/40',
     input: 'border-violet-200 dark:border-violet-800 focus:border-violet-400 dark:focus:border-violet-600',
+    removeButton: 'hover:bg-violet-200/80 dark:hover:bg-violet-800/80 text-violet-600 dark:text-violet-400',
+    removeButtonFocus: 'focus:ring-violet-400/50 dark:focus:ring-violet-300/50',
+    removeButtonIcon: 'text-violet-600/90 dark:text-violet-400/90',
   },
 } as const; 
