@@ -144,7 +144,7 @@ export const getPublicHolidaysByCountry = async (
     const holidaysInstance = createHolidaysInstance(countryCode);
 
     // Get holidays for the specified year
-    const holidayData = holidaysInstance.getHolidays(year);
+    const holidayData = holidaysInstance.getHolidays(year, 'en');
 
     // Filter to only include public holidays
     const publicHolidays = holidayData.filter(holiday =>
@@ -203,7 +203,7 @@ export const getHolidaysBySubdivision = (
 
       // Get holidays for the current year
       const year = new Date().getUTCFullYear();
-      const regionalHolidays = holidaysInstance.getHolidays(year);
+      const regionalHolidays = holidaysInstance.getHolidays(year, 'en');
 
       // Filter to only include public holidays
       const publicHolidays = regionalHolidays.filter(holiday =>
