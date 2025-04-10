@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Circle -->
+  <circle cx="256" cy="256" r="240" stroke="#6366F1" stroke-width="3" stroke-opacity="0.5" fill="none"/>
+  <circle cx="256" cy="256" r="200" stroke="#6366F1" stroke-width="2" stroke-opacity="0.4" fill="none"/>
+  
+  <!-- Cardinal Direction Lines -->
+  <line x1="256" y1="16" x2="256" y2="496" stroke="#6366F1" stroke-width="3" stroke-opacity="0.6"/>
+  <line x1="16" y1="256" x2="496" y2="256" stroke="#6366F1" stroke-width="3" stroke-opacity="0.6"/>
+  
+  <!-- Diagonal Lines -->
+  <line x1="76" y1="76" x2="436" y2="436" stroke="#6366F1" stroke-width="2" stroke-opacity="0.4"/>
+  <line x1="436" y1="76" x2="76" y2="436" stroke="#6366F1" stroke-width="2" stroke-opacity="0.4"/>
+  
+  <!-- Cardinal Direction Points -->
+  <!-- North -->
+  <path d="M256 40 L266 70 L256 60 L246 70 Z" fill="#6366F1" fill-opacity="0.8"/>
+  <!-- East -->
+  <path d="M472 256 L442 266 L452 256 L442 246 Z" fill="#6366F1" fill-opacity="0.8"/>
+  <!-- South -->
+  <path d="M256 472 L246 442 L256 452 L266 442 Z" fill="#6366F1" fill-opacity="0.8"/>
+  <!-- West -->
+  <path d="M40 256 L70 246 L60 256 L70 266 Z" fill="#6366F1" fill-opacity="0.8"/>
+  
+  <!-- Cardinal Direction Labels -->
+  <text x="256" y="30" font-family="sans-serif" font-size="14" fill="#6366F1" text-anchor="middle">N</text>
+  <text x="483" y="260" font-family="sans-serif" font-size="14" fill="#6366F1" text-anchor="middle">E</text>
+  <text x="256" y="490" font-family="sans-serif" font-size="14" fill="#6366F1" text-anchor="middle">S</text>
+  <text x="30" y="260" font-family="sans-serif" font-size="14" fill="#6366F1" text-anchor="middle">W</text>
+  
+  <!-- Decorative Star in Center -->
+  <path d="M256 256 L280 130 M256 256 L382 280 M256 256 L232 382 M256 256 L130 232" stroke="#8B5CF6" stroke-width="4" stroke-opacity="0.7"/>
+  <path d="M256 256 L340 172 M256 256 L340 340 M256 256 L172 340 M256 256 L172 172" stroke="#8B5CF6" stroke-width="3" stroke-opacity="0.6"/>
+  
+  <!-- Center Point -->
+  <circle cx="256" cy="256" r="8" fill="#8B5CF6" fill-opacity="0.9"/>
+</svg>
