@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/components/layout/PageLayout';
-import { Home, HelpCircle, ExternalLink } from 'lucide-react';
+import { ExternalLink, HelpCircle, Home } from 'lucide-react';
 import Image from 'next/image';
 
 export default function NotFound() {
@@ -11,7 +11,7 @@ export default function NotFound() {
       <PageHeader className="bg-gradient-to-b from-purple-50 to-indigo-100/30 dark:from-purple-950 dark:to-indigo-900/20">
         <PageTitle className="text-indigo-800 dark:text-indigo-200">Oops! Page Not Found</PageTitle>
         <PageDescription className="text-indigo-600 dark:text-indigo-400">
-          Looks like you've wandered off the holiday map
+          Looks like you&apos;ve wandered off the holiday map
         </PageDescription>
       </PageHeader>
 
@@ -36,11 +36,11 @@ export default function NotFound() {
             </div>
             
             <h2 id="error-message" className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200">
-              This destination isn't on our holiday map
+              This destination isn&apos;t on our holiday map
             </h2>
             
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto text-lg">
-              Even the best explorers get lost sometimes. Let's get you back on track.
+              Even the best explorers get lost sometimes. Let&apos;s get you back on track.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto mt-8">
