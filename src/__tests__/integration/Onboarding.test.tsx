@@ -9,41 +9,6 @@ import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/app/Providers';
 
-jest.mock('lucide-react', () => ({
-  __esModule: true,
-  RefreshCw: () => <div data-testid="refresh-cw-icon" />,
-  Calendar: () => <div data-testid="calendar-icon" />,
-  AlertCircle: () => <div data-testid="alert-circle" />,
-  X: () => <div data-testid="x-icon" />,
-  ChevronLeft: () => <div data-testid="chevron-left-icon" />,
-  ChevronRight: () => <div data-testid="chevron-right-icon" />,
-  Info: () => <div data-testid="info-icon" />,
-  Check: () => <div data-testid="check-icon" />,
-  Settings: () => <div data-testid="settings-icon" />,
-  Moon: () => <div data-testid="moon-icon" />,
-  Sun: () => <div data-testid="sun-icon" />,
-  Laptop: () => <div data-testid="laptop-icon" />,
-  Github: () => <div data-testid="github-icon" />,
-  Twitter: () => <div data-testid="twitter-icon" />,
-  Linkedin: () => <div data-testid="linkedin-icon" />,
-  ArrowRight: () => <div data-testid="arrow-right-icon" />,
-  HelpCircle: () => <div data-testid="help-circle-icon" />,
-  Sparkles: () => <div data-testid="sparkles-icon" />,
-  Loader2: () => <div data-testid="loader2-icon" />,
-  ChevronDown: () => <div data-testid="chevron-down-icon" />,
-  Plus: () => <div data-testid="plus-icon" />,
-  Minus: () => <div data-testid="minus-icon" />,
-  Sunrise: () => <div data-testid="sunrise-icon" />,
-  CalendarDays: () => <div data-testid="calendar-days-icon" />,
-  CalendarRange: () => <div data-testid="calendar-range-icon" />,
-  Palmtree: () => <div data-testid="palm-tree-icon" />,
-  Shuffle: () => <div data-testid="shuffle-icon" />,
-  Star: () => <div data-testid="star-icon" />,
-  Coffee: () => <div data-testid="coffee-icon" />,
-  CheckCircle: () => <div data-testid="check-circle-icon" />,
-  PartyPopper: () => <div data-testid="party-popper-icon" />,
-}))
-
 describe('Onboarding Flow Integration Tests', () => {
   let mockOnSubmitAction: jest.Mock;
   let user: ReturnType<typeof userEvent.setup>;
