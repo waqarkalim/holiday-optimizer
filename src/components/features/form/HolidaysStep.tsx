@@ -293,7 +293,7 @@ export function HolidaysStep() {
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </span>
-              icon to remove holidays that don&apos;t apply to you.
+              icon to remove holidays that don't apply to you.
             </p>
           </div>
 
