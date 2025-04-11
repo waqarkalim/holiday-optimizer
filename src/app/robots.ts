@@ -25,13 +25,7 @@ export default function robots(): MetadataRoute.Robots {
           'Applebot',      // Apple's web crawler
           'Pinterestbot',  // Pinterest crawler
         ],
-        allow: [
-          '/',
-          '/how-it-works',
-          '/terms',
-          '/privacy',
-          '/sitemap.xml',
-        ],
+        allow: '/',
         disallow: [
           '/api/',      // Protect API routes
           '/_next/',    // Protect Next.js system files
@@ -60,12 +54,7 @@ export default function robots(): MetadataRoute.Robots {
           '/*.xml$',
           '/debug/',
         ],
-        allow: [
-          '/',
-          '/how-it-works',
-          '/terms',
-          '/privacy',
-        ],
+        allow: '/', // Allow indexing for everything else
         crawlDelay: 5, // Higher delay for unknown bots
       },
     ],

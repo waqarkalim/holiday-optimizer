@@ -34,20 +34,6 @@ interface SoftwareApplicationJsonLdProps {
   description: string;
   applicationCategory: string;
   operatingSystem: string;
-  offers?: {
-    '@type': string;
-    price: string;
-    priceCurrency: string;
-    availability: string;
-  };
-  aggregateRating?: {
-    '@type': string;
-    ratingValue: string;
-    ratingCount: string;
-    reviewCount: string;
-    bestRating: string;
-    worstRating: string;
-  };
 }
 
 export const SoftwareApplicationJsonLd = (props: SoftwareApplicationJsonLdProps) => (
