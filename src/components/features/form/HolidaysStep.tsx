@@ -14,9 +14,8 @@ import { useOptimizer } from '@/contexts/OptimizerContext';
 import { useEffect, useState } from 'react';
 import { getStoredLocationData, storeLocationData } from '@/lib/storage/location';
 import { getSubdivisionName } from '@/lib/utils/iso-codes';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useCountries, useHolidaysByCountry } from '@/hooks/useHolidayQueries';
-import { clearSessionRemovedHolidaysForRegion, isHolidayRemoved } from '@/lib/storage/holidays';
 
 export function HolidaysStep() {
   const { holidays, setDetectedHolidays } = useHolidays();
@@ -74,27 +73,13 @@ export function HolidaysStep() {
 
     const actualSubdivisionCode = subdivisionCode === 'all' ? undefined : subdivisionCode;
     const filteredHolidays = getHolidaysBySubdivision(holidays, actualSubdivisionCode);
-    
-    // Get the region code for filtering removed holidays
-    const regionIdentifier = `${selectedCountry}-${subdivisionCode}`;
-    
-    // Filter out holidays that have been manually removed by the user for this specific region
-    const nonRemovedHolidays = filteredHolidays.filter(holiday => 
-      !isHolidayRemoved(holiday.date, selectedYear, regionIdentifier)
-    );
 
-    setDetectedHolidays(nonRemovedHolidays);
+    setDetectedHolidays(filteredHolidays);
     storeLocationData(selectedCountry, subdivisionCode, selectedYear);
   }
 
   function handleCountryChange(countryCode: string): void {
     if (countryCode === selectedCountry) return;
-
-    // Clear any session-removed holidays for the previous region
-    if (selectedCountry) {
-      const oldRegionIdentifier = `${selectedCountry}-${selectedSubdivision}`;
-      clearSessionRemovedHolidaysForRegion(oldRegionIdentifier);
-    }
 
     setSelectedCountry(countryCode);
     setSelectedSubdivision('all');
@@ -108,10 +93,6 @@ export function HolidaysStep() {
   function handleSubdivisionChange(subdivisionCode: string): void {
     if (subdivisionCode === selectedSubdivision || !holidaysData) return;
 
-    // Clear any session-removed holidays for the previous region
-    const oldRegionIdentifier = `${selectedCountry}-${selectedSubdivision}`;
-    clearSessionRemovedHolidaysForRegion(oldRegionIdentifier);
-
     setSelectedSubdivision(subdivisionCode);
     applyHolidaySelection(holidaysData, subdivisionCode);
 
@@ -123,25 +104,6 @@ export function HolidaysStep() {
 
     toast.success('Holidays filtered', {
       description: `Showing public holidays for ${locationDisplay} in ${selectedYear}.`,
-    });
-  }
-
-  // Add function to refresh holidays for the current region
-  function handleRefreshHolidays() {
-    if (!selectedCountry || !holidaysData) return;
-    
-    // Create region identifier
-    const regionIdentifier = `${selectedCountry}-${selectedSubdivision}`;
-    
-    // Clear removed holidays for this region
-    clearSessionRemovedHolidaysForRegion(regionIdentifier);
-    
-    // Re-apply holiday selection to get fresh list
-    applyHolidaySelection(holidaysData, selectedSubdivision);
-    
-    // Show success toast
-    toast.success('Holidays refreshed', {
-      description: 'All previously removed holidays have been restored.',
     });
   }
 
@@ -266,34 +228,12 @@ export function HolidaysStep() {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Automatically Detected Holidays
               </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleRefreshHolidays}
-                  disabled={!selectedCountry || isLoadingHolidays}
-                  className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
-                  aria-label="Refresh holidays list"
-                >
-                  <RefreshCw size={12} className="inline" />
-                  <span>Refresh</span>
-                </button>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {holidays.length} {holidays.length === 1 ? 'holiday' : 'holidays'} found
-                </span>
-              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {holidays.length} {holidays.length === 1 ? 'holiday' : 'holidays'} found
+              </span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               These holidays are automatically detected based on your country and region selection.
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
-              Not all holidays may apply to your specific situation. Hover over any holiday and click the
-              <span className="inline-block mx-1">
-                <svg className="h-3 w-3 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </span>
-              icon to remove holidays that don't apply to you.
             </p>
           </div>
 

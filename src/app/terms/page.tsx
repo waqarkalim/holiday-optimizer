@@ -80,7 +80,7 @@ export default function TermsOfService() {
               Third-party services used by the application include:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li><strong>date-holidays</strong> - For holiday data</li>
+              <li><strong>Nager.Date API</strong> - For holiday data</li>
               <li><strong>Umami Analytics</strong> - For anonymous usage statistics</li>
               <li><strong>Cloudflare Pages</strong> - For website hosting</li>
               <li><strong>Cloudflare Analytics</strong> - For basic site performance and usage metrics</li>
