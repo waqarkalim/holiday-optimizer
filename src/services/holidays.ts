@@ -1,4 +1,4 @@
-import { iso31661, ISO31662Entry } from 'iso-3166';
+import { ISO31662Entry } from 'iso-3166';
 import Holidays, { HolidaysTypes } from 'date-holidays';
 
 export interface HolidayResponse {
@@ -41,10 +41,10 @@ const defaultHolidays = new Holidays();
  */
 function createHolidaysInstance(
   countryCode: string,
-  subdivisionCode?: string,
+  subdivisionCode?: string
 ): Holidays {
   const holidaysInstance = new Holidays();
-
+  
   // Initialize with country and state/region if provided
   // By default, only public holidays are included
   if (subdivisionCode) {
@@ -52,7 +52,7 @@ function createHolidaysInstance(
   } else {
     holidaysInstance.init(countryCode);
   }
-
+  
   return holidaysInstance;
 }
 
@@ -115,18 +115,12 @@ export const getAvailableCountries = async (): Promise<Country[]> => {
   try {
     // Get all countries from date-holidays
     const countriesObj = defaultHolidays.getCountries();
-
-    // Transform to the expected format with English names
-    return Object.entries(countriesObj).map(([code, _name]) => {
-      // Find the English name from iso-3166 data
-      const isoCountry = iso31661.find(country => country.alpha2 === code.toUpperCase());
-      const englishName = isoCountry ? isoCountry.name : _name as string;
-
-      return {
-        countryCode: code,
-        name: englishName,
-      };
-    });
+    
+    // Transform to the expected format
+    return Object.entries(countriesObj).map(([code, name]) => ({
+      countryCode: code,
+      name: name as string
+    }));
   } catch (error) {
     return handleHolidayError(error, 'Error fetching available countries');
   }
@@ -136,21 +130,21 @@ export const getAvailableCountries = async (): Promise<Country[]> => {
  * Fetches public holidays for a specific country
  */
 export const getPublicHolidaysByCountry = async (
-  countryCode: string,
-  year: number = new Date().getUTCFullYear(),
+  countryCode: string, 
+  year: number = new Date().getUTCFullYear()
 ): Promise<HolidayResponse[]> => {
   try {
     // Initialize holidays instance with the country
     const holidaysInstance = createHolidaysInstance(countryCode);
-
+    
     // Get holidays for the specified year
     const holidayData = holidaysInstance.getHolidays(year);
-
+    
     // Filter to only include public holidays
-    const publicHolidays = holidayData.filter(holiday =>
-      holiday.type === 'public',
+    const publicHolidays = holidayData.filter(holiday => 
+      holiday.type === 'public'
     );
-
+    
     // Transform to the expected format
     return publicHolidays.map(holiday => formatHoliday(holiday, countryCode));
   } catch (error) {
@@ -166,18 +160,19 @@ export const extractSubdivisions = (holidays: HolidayResponse[]): CountrySubdivi
   // we need to check if the country has states/regions
   try {
     const countryCode = holidays[0]?.countryCode;
-
+    
     if (!countryCode) return [];
-
+    
     // Get states for the country
     const states = defaultHolidays.getStates(countryCode);
-
+    console.log(states);
+    
     if (!states) return [];
-
+    
     // Transform to CountrySubdivision format
     return Object.entries(states).map(([code, name]) => ({
       code,
-      name: name as string,
+      name: name as string
     }));
   } catch (error) {
     console.error('Error extracting subdivisions:', error);
@@ -189,31 +184,31 @@ export const extractSubdivisions = (holidays: HolidayResponse[]): CountrySubdivi
  * Get holidays filtered by subdivision
  */
 export const getHolidaysBySubdivision = (
-  holidays: HolidayResponse[],
-  subdivisionCode?: string,
+  holidays: HolidayResponse[], 
+  subdivisionCode?: string
 ): DetectedHoliday[] => {
   try {
     // If a subdivision is specified, we need to reinitialize the holidays instance
     // with both country and state/region
     if (subdivisionCode && holidays.length > 0) {
       const countryCode = holidays[0].countryCode;
-
+      
       // Initialize with country and state
       const holidaysInstance = createHolidaysInstance(countryCode, subdivisionCode);
-
+      
       // Get holidays for the current year
       const year = new Date().getUTCFullYear();
       const regionalHolidays = holidaysInstance.getHolidays(year);
-
+      
       // Filter to only include public holidays
-      const publicHolidays = regionalHolidays.filter(holiday =>
-        holiday.type === 'public',
+      const publicHolidays = regionalHolidays.filter(holiday => 
+        holiday.type === 'public'
       );
-
+      
       // Transform to app format
       return publicHolidays.map(formatDetectedHoliday);
     }
-
+    
     // If no subdivision, return all holidays
     return holidays.map(holiday => ({
       date: holiday.date,
@@ -221,12 +216,12 @@ export const getHolidaysBySubdivision = (
     }));
   } catch (error) {
     console.error('Error getting holidays by subdivision:', error);
-
+    
     // Fallback to original implementation
-    const filteredHolidays = subdivisionCode
+    const filteredHolidays = subdivisionCode 
       ? holidays.filter(holiday => holiday.global || holiday.counties?.includes(subdivisionCode))
       : holidays.filter(holiday => holiday.global);
-
+    
     return filteredHolidays.map(holiday => ({
       date: holiday.date,
       name: holiday.localName || holiday.name,
@@ -244,29 +239,29 @@ export const getHolidaysBySubdivision = (
 export const isHoliday = (
   date: Date,
   countryCode: string,
-  subdivisionCode?: string,
+  subdivisionCode?: string
 ): { isHoliday: boolean; name?: string; type?: string } => {
   try {
     // Initialize with country and subdivision if provided
     const holidaysInstance = createHolidaysInstance(countryCode, subdivisionCode);
-
+    
     // Check if the date is a holiday
     const holidayCheck = holidaysInstance.isHoliday(date);
-
+    
     if (holidayCheck) {
       // The result is an array of holiday objects
       if (Array.isArray(holidayCheck) && holidayCheck.length > 0) {
         return {
           isHoliday: true,
           name: holidayCheck[0].name,
-          type: holidayCheck[0].type,
+          type: holidayCheck[0].type
         };
       }
-
+      
       // If we can't extract details but it is a holiday
       return { isHoliday: true };
     }
-
+    
     // Not a holiday
     return { isHoliday: false };
   } catch (error) {
