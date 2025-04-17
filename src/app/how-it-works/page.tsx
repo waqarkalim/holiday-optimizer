@@ -44,7 +44,7 @@ export default function HowItWorksPage() {
             ]}
           />
 
-          <div className="flex justify-center mt-10 mb-6">
+          <div className="flex justify-center mb-6">
             <Link
               href="/"
               className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-8 rounded-md font-medium transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
