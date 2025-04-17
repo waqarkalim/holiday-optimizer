@@ -5,7 +5,6 @@ import { Break, OptimizationStats, OptimizedDay } from '@/types';
 import OptimizationStatsComponent from '@/components/features/OptimizationStatsComponent';
 import { BreakDetails } from '@/components/features/BreakDetails';
 import { CalendarView } from '@/components/features/CalendarView';
-import { CalendarExport } from '@/components/features/CalendarExport';
 import { ShareSection } from '@/components/features/ShareSection';
 import { forwardRef } from 'react';
 
@@ -38,14 +37,6 @@ export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
         animate="show"
         variants={container}
       >
-        {/* Calendar Export - Moved to top for better accessibility */}
-        {breaks.length > 0 && (
-          <CalendarExport
-            breaks={breaks}
-            stats={stats}
-            selectedYear={selectedYear}
-          />
-        )}
 
         {/* Share Section */}
         <ShareSection 
