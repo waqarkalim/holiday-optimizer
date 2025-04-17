@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useRef } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Button } from './ui/button';
 import { AlertCircle, Calendar, Sparkles } from 'lucide-react';
 import { useOptimizer } from '@/contexts/OptimizerContext';
@@ -39,14 +39,34 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
 
   // Reference to manage focus flow - moved to dedicated refs for better semantic structure
   const daysInputRef = useRef<HTMLFieldSetElement>(null);
+  const errorMessageRef = useRef<HTMLDivElement>(null);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   // Initialize local storage sync
   useLocalStorage();
 
+  // Check if form is valid - requires both days and country/holidays selection
+  const isDaysValid = Boolean(days) && parseInt(days) > 0;
+  const areHolidaysValid = holidays.length > 0;
+  const isFormValid = isDaysValid && areHolidaysValid;
+
+  // Scroll to the error message when validation fails after submission attempt
+  useEffect(() => {
+    if (attemptedSubmit && !isFormValid && errorMessageRef.current) {
+      errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [attemptedSubmit, isFormValid]);
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const numDays = parseInt(days);
 
+    // Set attempted submit to true regardless of validation result
+    setAttemptedSubmit(true);
+
+    // Don't proceed with form submission if the form is invalid
+    if (!isFormValid) return;
+
+    const numDays = parseInt(days);
     if (numDays <= 0) return;
 
     const formData: FormData = {
@@ -72,11 +92,6 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
   const handleYearChange = (value: string) => {
     setSelectedYear(parseInt(value));
   };
-
-  // Check if form is valid - requires both days and country/holidays selection
-  const isDaysValid = days && parseInt(days) > 0;
-  const areHolidaysValid = holidays.length > 0;
-  const isFormValid = isDaysValid && areHolidaysValid;
 
   return (
     <>
@@ -174,6 +189,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
           <CardFooter className="flex flex-col items-end gap-1.5">
             {!isLoading && !isFormValid && (
               <div
+                ref={errorMessageRef}
                 className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400 text-right w-full justify-end">
                 <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>
@@ -188,9 +204,12 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             <Button
               type="submit"
               variant="primary-action"
-              disabled={isLoading || !isFormValid}
+              disabled={isLoading}
+              className={!isFormValid ? "opacity-50 cursor-not-allowed" : ""}
+              onClick={() => setAttemptedSubmit(true)}
               aria-busy={isLoading}
               tabIndex={0}
+              aria-disabled={!isFormValid}
               title={!isDaysValid
                 ? 'Please enter the number of PTO days'
                 : !areHolidaysValid
