@@ -11,11 +11,6 @@ import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from 
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import dynamic from 'next/dynamic';
-
-const SocialShareButtons = dynamic(() => import('@/components/SocialShareButtons'), {
-  ssr: false
-});
 
 interface FormState {
   numberOfDays: number | null
@@ -130,9 +125,6 @@ const HomePage = () => {
                         stats={optimizationResult.stats}
                         selectedYear={selectedYear}
                       />
-                      <div className="mt-6 flex justify-center">
-                        <SocialShareButtons />
-                      </div>
                     </div>
                   )}
                 </div>

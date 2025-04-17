@@ -6,6 +6,7 @@ import OptimizationStatsComponent from '@/components/features/OptimizationStatsC
 import { BreakDetails } from '@/components/features/BreakDetails';
 import { CalendarView } from '@/components/features/CalendarView';
 import { CalendarExport } from '@/components/features/CalendarExport';
+import { ShareSection } from '@/components/features/ShareSection';
 import { forwardRef } from 'react';
 
 const container = {
@@ -45,6 +46,12 @@ export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
             selectedYear={selectedYear}
           />
         )}
+
+        {/* Share Section */}
+        <ShareSection 
+          stats={stats}
+          selectedYear={selectedYear}
+        />
 
         {/* Summary Section */}
         <OptimizationStatsComponent stats={stats} />
