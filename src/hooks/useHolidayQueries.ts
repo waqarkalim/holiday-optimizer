@@ -1,11 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  CountryInfo,
-  getAvailableCountries,
-  getPublicHolidaysByCountry,
-  getRegions,
-  getStates,
-} from '@/services/holidays';
+import { getAvailableCountries, getPublicHolidaysByCountry, getRegions, getStates } from '@/services/holidays';
+import { CountryInfo } from '@/lib/storage/location';
 
 /**
  * Hook for fetching available countries using React Query

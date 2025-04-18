@@ -6,6 +6,7 @@ import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 import { useOptimizer } from '@/contexts/OptimizerContext';
 import { useEffect, useReducer } from 'react';
 import { useCountries, useHolidaysByCountry, useRegions, useStates } from '@/hooks/useHolidayQueries';
+import { CountryInfo, getStoredLocationData, storeLocationData } from '@/lib/storage/location';
 
 // Define the state interface for the reducer
 interface HolidaysState {
@@ -16,6 +17,7 @@ interface HolidaysState {
 
 // Define action types
 type HolidaysAction =
+  | { type: 'SET_COUNTRY_INFO'; payload: CountryInfo }
   | { type: 'SET_COUNTRY'; payload: string }
   | { type: 'SET_STATE'; payload: string }
   | { type: 'SET_REGION'; payload: string }
@@ -24,6 +26,13 @@ type HolidaysAction =
 // Implement the reducer function
 const holidaysReducer = (state: HolidaysState, action: HolidaysAction): HolidaysState => {
   switch (action.type) {
+    case 'SET_COUNTRY_INFO':
+      return {
+        ...state,
+        selectedCountryCode: action.payload.country,
+        selectedState: action.payload.state!,
+        selectedRegion: action.payload.region!,
+      };
     case 'SET_COUNTRY':
       return {
         ...state,
@@ -70,11 +79,27 @@ export const HolidaysStep = () => {
   const { data: states = [] } = useStates(selectedCountryCode);
   const { data: regions = [] } = useRegions(selectedCountryCode, selectedState !== 'all' ? selectedState : '');
 
-  const { data: holidaysData } = useHolidaysByCountry(selectedYear, {
+  const { data: holidaysData, refetch } = useHolidaysByCountry(selectedYear, {
     country: selectedCountryCode,
     state: selectedState !== 'all' ? selectedState : undefined,
     region: selectedRegion !== 'all' ? selectedRegion : undefined,
   });
+
+  useEffect(() => {
+    const countryInfo = getStoredLocationData(selectedYear);
+    if (countryInfo) {
+      dispatch({ type: 'SET_COUNTRY_INFO', payload: countryInfo });
+    } else {
+      dispatch({ type: 'RESET_SELECTIONS' });
+    }
+  }, [selectedYear]);
+
+  useEffect(() => {
+    if (selectedCountryCode) {
+      const countryInfo: CountryInfo = { country: selectedCountryCode, state: selectedState, region: selectedRegion };
+      storeLocationData(selectedYear, countryInfo);
+    }
+  }, [selectedCountryCode, selectedState, selectedRegion, selectedYear]);
 
   // Process holidays when data changes
   useEffect(() => {
@@ -90,11 +115,6 @@ export const HolidaysStep = () => {
     }));
   }, [holidaysData]);
 
-  // Reset selections when the year changes
-  useEffect(() => {
-    dispatch({ type: 'RESET_SELECTIONS' });
-  }, [selectedYear]);
-
   const handleCountryChange = (countryCode: string): void => {
     dispatch({ type: 'SET_COUNTRY', payload: countryCode });
   };
@@ -106,6 +126,7 @@ export const HolidaysStep = () => {
   const handleRegionChange = (regionCode: string): void => {
     dispatch({ type: 'SET_REGION', payload: regionCode });
   };
+  const handleRefetch = () => refetch();
 
   const publicHolidaysTooltip = {
     title: 'About Public Holidays',
@@ -260,9 +281,28 @@ export const HolidaysStep = () => {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Automatically Detected Holidays
               </label>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {holidays.length} {holidays.length === 1 ? 'holiday' : 'holidays'} found
-              </span>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={handleRefetch}
+                  className={`inline-flex items-center justify-center px-2 py-1 text-xs rounded
+                    transition-all duration-200 ease-in-out
+                    focus:outline-none focus:ring-1 focus:ring-amber-300 dark:focus:ring-amber-400/50
+                    text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 hover:underline`}
+                  aria-label="Refresh holidays"
+                >
+                  <>
+                    <svg className="h-3 w-3 mr-1 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                  </>
+                </button>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {holidays.length} {holidays.length === 1 ? 'holiday' : 'holidays'} found
+                </span>
+              </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               These holidays are automatically detected based on your country, state, and region selection.

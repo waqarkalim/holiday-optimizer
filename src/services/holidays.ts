@@ -1,10 +1,5 @@
 import Holidays, { HolidaysTypes } from 'date-holidays';
-
-export interface CountryInfo {
-  country: string;
-  state?: string;
-  region?: string;
-}
+import { CountryInfo } from '@/lib/storage/location';
 
 const lang = 'en-US'
 
