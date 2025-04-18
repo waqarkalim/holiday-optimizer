@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsOfService() {
-  const lastUpdated = 'April 7, 2025'
+  const lastUpdated = 'April 18, 2025'
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
       <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
@@ -80,7 +80,7 @@ export default function TermsOfService() {
               Third-party services used by the application include:
             </p>
             <ul className="list-disc pl-4 mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-              <li><strong>Nager.Date API</strong> - For holiday data</li>
+              <li><strong>date-holidays package</strong> - For holiday data</li>
               <li><strong>Umami Analytics</strong> - For anonymous usage statistics</li>
               <li><strong>Cloudflare Pages</strong> - For website hosting</li>
               <li><strong>Cloudflare Analytics</strong> - For basic site performance and usage metrics</li>
