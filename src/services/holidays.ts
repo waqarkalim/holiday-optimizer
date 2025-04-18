@@ -1,7 +1,7 @@
 import Holidays, { HolidaysTypes } from 'date-holidays';
 import { CountryInfo } from '@/lib/storage/location';
 
-const lang = 'en-US'
+const lang = 'en';
 
 const options: HolidaysTypes.Options = {
   languages: [lang],
@@ -16,7 +16,7 @@ export const getPublicHolidaysByCountry = async (
   countryInfo: CountryInfo,
 ) => {
   const hd = new Holidays(countryInfo, options);
-  return hd.getHolidays(year);
+  return hd.getHolidays(year, lang);
 };
 
 /**
