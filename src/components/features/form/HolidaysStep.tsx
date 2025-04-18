@@ -15,6 +15,12 @@ interface HolidaysState {
   selectedRegion: string;
 }
 
+const initialState: HolidaysState = {
+  selectedCountryCode: '',
+  selectedState: '',
+  selectedRegion: '',
+};
+
 // Define action types
 type HolidaysAction =
   | { type: 'SET_COUNTRY_INFO'; payload: CountryInfo }
@@ -37,14 +43,14 @@ const holidaysReducer = (state: HolidaysState, action: HolidaysAction): Holidays
       return {
         ...state,
         selectedCountryCode: action.payload,
-        selectedState: 'all',
-        selectedRegion: 'all',
+        selectedState: '',
+        selectedRegion: '',
       };
     case 'SET_STATE':
       return {
         ...state,
         selectedState: action.payload,
-        selectedRegion: 'all',
+        selectedRegion: '',
       };
     case 'SET_REGION':
       return {
@@ -52,20 +58,10 @@ const holidaysReducer = (state: HolidaysState, action: HolidaysAction): Holidays
         selectedRegion: action.payload,
       };
     case 'RESET_SELECTIONS':
-      return {
-        selectedCountryCode: '',
-        selectedState: 'all',
-        selectedRegion: 'all',
-      };
+      return initialState;
     default:
       return state;
   }
-};
-
-const initialState: HolidaysState = {
-  selectedCountryCode: '',
-  selectedState: 'all',
-  selectedRegion: 'all',
 };
 
 export const HolidaysStep = () => {
@@ -77,12 +73,12 @@ export const HolidaysStep = () => {
 
   const { data: countries = [] } = useCountries();
   const { data: states = [] } = useStates(selectedCountryCode);
-  const { data: regions = [] } = useRegions(selectedCountryCode, selectedState !== 'all' ? selectedState : '');
+  const { data: regions = [] } = useRegions(selectedCountryCode, selectedState);
 
   const { data: holidaysData, refetch } = useHolidaysByCountry(selectedYear, {
     country: selectedCountryCode,
-    state: selectedState !== 'all' ? selectedState : undefined,
-    region: selectedRegion !== 'all' ? selectedRegion : undefined,
+    state: selectedState,
+    region: selectedRegion,
   });
 
   useEffect(() => {
@@ -214,7 +210,7 @@ export const HolidaysStep = () => {
                     appearance-none"
                 >
                   <>
-                    <option value="all">All states (nationwide holidays only)</option>
+                    <option value="">All states (nationwide holidays only)</option>
                     {states.map((state) => (
                       <option key={state.code} value={state.code}>
                         {state.name}
@@ -233,7 +229,7 @@ export const HolidaysStep = () => {
           )}
 
           {/* Region Selector */}
-          {selectedCountryCode && selectedState !== 'all' && regions.length > 0 && (
+          {selectedCountryCode && selectedState && regions.length > 0 && (
             <div className="space-y-1.5">
               <label htmlFor="region-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Select Region
@@ -256,7 +252,7 @@ export const HolidaysStep = () => {
                     appearance-none"
                 >
                   <>
-                    <option value="all">All regions</option>
+                    <option value="">All regions</option>
                     {regions.map((region) => (
                       <option key={region.code} value={region.code}>
                         {region.name}
