@@ -67,10 +67,28 @@ export async function generateMetadata(props: { params: Promise<CountryInfo> }):
     };
   }
 
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+
   return {
-    title: `Public Holidays in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name}`,
-    description: `Complete list of public holidays and observances in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} for the current year and upcoming years.`,
-    keywords: `public holidays, ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name}, local holidays, regional holidays, days off, bank holidays`,
+    title: `${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear} | Local Calendar`,
+    description: `Detailed list of public holidays, local observances, and special events in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}. Find local holidays specific to ${regionInfo.name}.`,
+    keywords: `${regionInfo.name} holidays, ${regionInfo.name} ${stateInfo.name} holidays, ${regionInfo.name} local holidays, ${regionInfo.name} public holidays, ${regionInfo.name} observances, ${regionInfo.name} special events, ${currentYear} ${regionInfo.name} holidays, ${nextYear} ${regionInfo.name} holidays`,
+    openGraph: {
+      title: `${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+      description: `Complete list of public holidays and local observances in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`,
+      type: 'website',
+      url: `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}/${region!.toLowerCase()}`,
+      siteName: 'Holiday Optimizer',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+      description: `Complete list of public holidays and local observances in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`,
+    },
+    alternates: {
+      canonical: `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}/${region!.toLowerCase()}`,
+    },
   };
 }
 

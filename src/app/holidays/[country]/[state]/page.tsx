@@ -51,10 +51,28 @@ export async function generateMetadata(props: { params: Promise<CountryInfo> }):
     };
   }
 
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+
   return {
-    title: `Public Holidays in ${stateInfo.name}, ${countryInfo.name}`,
-    description: `Complete list of public holidays and observances in ${stateInfo.name}, ${countryInfo.name} for the current year and upcoming years.`,
-    keywords: `public holidays, ${stateInfo.name}, ${countryInfo.name}, regional holidays, state holidays, days off, bank holidays`,
+    title: `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear} | Regional Calendar`,
+    description: `Official list of public holidays, bank holidays, and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}. Find state-specific holidays and plan your local activities.`,
+    keywords: `${stateInfo.name} holidays, ${stateInfo.name} ${countryInfo.name} public holidays, ${stateInfo.name} regional holidays, ${stateInfo.name} bank holidays, ${stateInfo.name} state holidays, ${stateInfo.name} days off, ${currentYear} ${stateInfo.name} holidays, ${nextYear} ${stateInfo.name} holidays`,
+    openGraph: {
+      title: `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+      description: `Complete list of public holidays and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`,
+      type: 'website',
+      url: `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}`,
+      siteName: 'Holiday Optimizer',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+      description: `Complete list of public holidays and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`,
+    },
+    alternates: {
+      canonical: `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}`,
+    },
   };
 }
 

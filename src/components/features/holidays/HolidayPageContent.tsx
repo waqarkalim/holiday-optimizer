@@ -190,7 +190,8 @@ export default function HolidayPageContent({
   };
 
   // Add schema.org structured data for better SEO
-  const schemaData = {
+  // Create breadcrumb list schema
+  const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
@@ -220,6 +221,70 @@ export default function HolidayPageContent({
       }] : [])
     ]
   };
+
+  // Create webpage schema with enhanced long tail keywords
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": title,
+    "description": `Complete list of official public holidays, bank holidays, and regional observances in ${location.country}${location.state ? `, ${location.state}` : ''}${location.region ? `, ${location.region}` : ''} for ${currentYear} and ${nextYear}. Plan your vacation days, business operations, and travel itinerary with our comprehensive holiday calendar.`,
+    "url": countryCode ? 
+      `https://holidayoptimizer.com/holidays/${countryCode.toLowerCase()}${stateCode ? `/${stateCode.toLowerCase()}` : ''}${regionCode ? `/${regionCode.toLowerCase()}` : ''}` : 
+      "",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": currentYearHolidays.length,
+      "itemListElement": currentYearHolidays.slice(0, 10).map((holiday, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Event",
+          "name": holiday.name,
+          "startDate": holiday.date,
+          "endDate": holiday.date,
+          "location": {
+            "@type": "Place",
+            "name": `${location.country}${location.state ? `, ${location.state}` : ''}${location.region ? `, ${location.region}` : ''}`
+          },
+          "description": `${holiday.name} is a ${holiday.type} holiday in ${location.country}${location.state ? `, ${location.state}` : ''}${location.region ? `, ${location.region}` : ''}. Learn about the cultural significance, local traditions, and how to maximize your time off around this holiday.`,
+          "keywords": `${holiday.name}, ${holiday.type} holiday, ${location.country} holidays${location.state ? `, ${location.state} holidays` : ''}${location.region ? `, ${location.region} holidays` : ''}, ${currentYear} holidays, ${nextYear} holidays, time off planning, vacation days`
+        }
+      }))
+    },
+    "keywords": `${location.country} holidays${location.state ? `, ${location.state} holidays` : ''}${location.region ? `, ${location.region} holidays` : ''}, ${currentYear} holiday calendar, ${nextYear} holiday schedule, official public holidays, bank holidays, school holidays, regional observances, holiday planning guide, vacation planning, time off optimization, long weekend opportunities, business closure dates, cultural celebrations, traditional holidays, holiday travel planning`
+  };
+
+  // Create event schema for upcoming holidays with enhanced long tail keywords
+  const upcomingHolidays = getUpcomingHolidays();
+  const eventSchemas = upcomingHolidays.map(holiday => {
+    const date = new Date(holiday.date);
+    const formattedDate = format(date, 'MMMM d, yyyy');
+    const daysUntil = Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": holiday.name,
+      "startDate": holiday.date,
+      "endDate": holiday.date,
+      "eventStatus": "https://schema.org/EventScheduled",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": `${location.country}${location.state ? `, ${location.state}` : ''}${location.region ? `, ${location.region}` : ''}`
+      },
+      "description": `${holiday.name} (${formattedDate}) is a ${holiday.type} holiday in ${location.country}${location.state ? `, ${location.state}` : ''}${location.region ? `, ${location.region}` : ''}. ${daysUntil <= 30 ? `Coming up in ${daysUntil} days! ` : ''}Plan your time off, discover local traditions, and learn about the cultural significance of this important celebration.`,
+      "organizer": {
+        "@type": "Organization",
+        "name": `Government of ${location.country}`,
+        "url": "https://holidayoptimizer.com"
+      },
+      "keywords": `${holiday.name}, ${formattedDate}, ${holiday.type} holiday, ${location.country} holidays${location.state ? `, ${location.state} holidays` : ''}${location.region ? `, ${location.region} holidays` : ''}, upcoming holidays, holiday planning, time off request, vacation days, long weekend, ${daysUntil <= 30 ? 'upcoming celebration, ' : ''}cultural event, traditional holiday, official observance`
+    };
+  });
+
+  // Combine all schemas
+  const schemaData = [breadcrumbSchema, webPageSchema, ...eventSchemas];
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-5xl" role="main" aria-labelledby="page-title">
@@ -559,35 +624,38 @@ export default function HolidayPageContent({
         </div>
       )}
 
-      {/* 5. ABOUT SECTION - with card styling */}
+      {/* 5. ABOUT SECTION - with card styling and enhanced long tail keywords */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden" role="region" aria-labelledby="about-holidays-heading">
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
           <InfoIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
-          <h2 id="about-holidays-heading" className="text-sm font-medium text-gray-900 dark:text-white">About {regionCode ? 'Regional' : stateCode ? 'State' : 'National'} Holidays</h2>
+          <h2 id="about-holidays-heading" className="text-sm font-medium text-gray-900 dark:text-white">About {regionCode ? 'Regional' : stateCode ? 'State' : 'National'} Holidays in {location.country}{location.state ? `, ${location.state}` : ''}{location.region ? `, ${location.region}` : ''}</h2>
         </div>
 
         <div className="p-4 text-sm text-gray-600 dark:text-gray-300">
           <p className="mb-2">
-            <span className="font-medium text-gray-700 dark:text-gray-300">Public holidays in {location.country}.</span> These are days when most businesses, schools, and government offices are closed.
+            <span className="font-medium text-gray-700 dark:text-gray-300">Official public holidays in {location.country}.</span> These are designated non-working days when most businesses, schools, government offices, and financial institutions are closed. Understanding these holidays is essential for planning business operations, travel itineraries, and personal time off.
           </p>
           {location.state && (
             <p className="mb-2">
-              <span className="font-medium text-gray-700 dark:text-gray-300">{location.state}</span> may have specific regional holidays unique to this part of {location.country}.
+              <span className="font-medium text-gray-700 dark:text-gray-300">{location.state} regional holidays and observances</span> include specific celebrations unique to this part of {location.country}. These state-specific holidays may affect local businesses, transportation, and public services differently than national holidays.
             </p>
           )}
           {location.region && (
             <p className="mb-2">
-              <span className="font-medium text-gray-700 dark:text-gray-300">{location.region}</span> has local observances specific to this area within {location.state}.
+              <span className="font-medium text-gray-700 dark:text-gray-300">{location.region} local holiday traditions</span> feature distinctive cultural celebrations and observances specific to this area within {location.state}. Local festivals, parades, and community events often accompany these special regional holidays.
             </p>
           )}
+          <p className="mb-2">
+            <span className="font-medium text-gray-700 dark:text-gray-300">Holiday planning tips:</span> Consider booking accommodations and transportation well in advance for major holidays. Many locals take extended vacations during key holiday periods, which can affect availability of services and create opportunities for longer breaks by strategically using your vacation days.
+          </p>
           <div className="flex items-center mt-3 text-xs text-gray-400 dark:text-gray-500">
             <InfoIcon className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
-            Dates may vary based on local observations and official announcements
+            Dates may vary based on local observations, official announcements, and regional customs
           </div>
         </div>
       </div>
 
-      {/* Home page link for holiday optimization tool */}
+      {/* Home page link for holiday optimization tool with enhanced long tail keywords */}
       <div className="bg-gradient-to-r from-teal-50 to-blue-50 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg p-5 mt-8 mb-6 border-l-4 border-teal-500 dark:border-teal-600 shadow-sm relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-24 h-24 opacity-10 transform translate-x-8 -translate-y-8">
@@ -597,14 +665,24 @@ export default function HolidayPageContent({
         <div className="flex flex-col md:flex-row items-center text-left">
           <div className="flex-1 mb-4 md:mb-0 md:mr-6 relative z-10">
             <h3 className="text-base md:text-lg font-semibold text-teal-800 dark:text-teal-300 mb-2">
-              Make the Most of {location.country} Holidays
+              Maximize Your Vacation Days with {location.country} Public Holidays {currentYear}-{nextYear}
             </h3>
             <p className="text-sm md:text-base text-teal-700 dark:text-teal-400 mb-3">
-              This tool shows how to combine {currentYearHolidays.filter(holiday => holiday.type === 'public').length} public holidays in {location.country}{location.state ? `, ${location.state}` : ''} with your time off for extended breaks.
+              This strategic holiday planner shows how to combine {currentYearHolidays.filter(holiday => holiday.type === 'public').length} official public holidays in {location.country}{location.state ? `, ${location.state}` : ''}{location.region ? `, ${location.region}` : ''} with your annual leave for extended vacations and long weekends. Create the perfect work-life balance by optimizing your time off around these key dates.
             </p>
-            <div className="flex items-center text-xs text-teal-600 dark:text-teal-400 mb-1">
-              <InfoIcon className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
-              <span>Simple to use • No sign-up needed • 100% free</span>
+            <div className="flex flex-col space-y-1">
+              <div className="flex items-center text-xs text-teal-600 dark:text-teal-400">
+                <InfoIcon className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" aria-hidden="true" />
+                <span>Discover optimal holiday bridges and long weekend opportunities</span>
+              </div>
+              <div className="flex items-center text-xs text-teal-600 dark:text-teal-400">
+                <InfoIcon className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" aria-hidden="true" />
+                <span>Plan your annual leave strategically around public holidays</span>
+              </div>
+              <div className="flex items-center text-xs text-teal-600 dark:text-teal-400">
+                <InfoIcon className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" aria-hidden="true" />
+                <span>Simple to use • No sign-up needed • 100% free vacation optimizer</span>
+              </div>
             </div>
           </div>
 
@@ -612,18 +690,18 @@ export default function HolidayPageContent({
             <Link 
               href="/" 
               className="inline-flex items-center justify-center px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-md text-sm md:text-base font-medium transition-colors shadow-md hover:shadow-lg"
-              aria-label="Try the holiday optimization tool for better vacation planning"
+              aria-label="Try this free holiday optimization tool to maximize your vacation days and plan extended breaks around public holidays"
             >
               <CalendarIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Optimize Your Time Off
+              Optimize Your Annual Leave
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Subtle verification notice */}
+      {/* Subtle verification notice with enhanced long tail keywords */}
       <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6 mb-2">
-        Holiday information may not be complete or up-to-date. Please <Link href="/terms" className="text-teal-600 dark:text-teal-400 hover:underline">verify</Link> with official sources.
+        Holiday information for {location.country}{location.state ? `, ${location.state}` : ''}{location.region ? `, ${location.region}` : ''} may be subject to change. For the most accurate and up-to-date {currentYear}-{nextYear} public holiday calendar, please <Link href="/terms" className="text-teal-600 dark:text-teal-400 hover:underline">verify all dates</Link> with official government sources before finalizing your travel plans or business schedules.
       </div>
 
       {/* Related locations for improved internal linking and SEO */}

@@ -7,9 +7,24 @@ import CountrySearch from '@/components/features/holidays/CountrySearch';
 import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/components/layout/PageLayout';
 
 export const metadata: Metadata = {
-  title: 'Public Holidays Around the World',
-  description: 'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
-  keywords: 'public holidays, national holidays, bank holidays, world holidays, international holidays, days off',
+  title: 'Public Holidays Around the World | Global Holiday Calendar',
+  description: 'Explore public holidays, bank holidays, and national observances for countries worldwide. Find official holiday dates for over 100 countries to plan your international travel, business operations, and cultural events.',
+  keywords: 'public holidays, national holidays, bank holidays, world holidays, international holidays, global holidays, country holidays, official holidays, holiday calendar, days off, vacation planning',
+  openGraph: {
+    title: 'Public Holidays Around the World | Global Holiday Calendar',
+    description: 'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
+    type: 'website',
+    url: 'https://holidayoptimizer.com/holidays',
+    siteName: 'Holiday Optimizer',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Public Holidays Around the World | Global Holiday Calendar',
+    description: 'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
+  },
+  alternates: {
+    canonical: 'https://holidayoptimizer.com/holidays',
+  },
 };
 
 export default async function HolidaysIndexPage() {

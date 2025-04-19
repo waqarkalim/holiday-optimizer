@@ -29,10 +29,28 @@ export async function generateMetadata(props: { params: Promise<CountryInfo> }):
     };
   }
 
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+
   return {
-    title: `Public Holidays in ${countryInfo.name}`,
-    description: `Complete list of public holidays and observances in ${countryInfo.name} for the current year and upcoming years.`,
-    keywords: `public holidays, ${countryInfo.name}, national holidays, ${countryInfo.name} holidays, days off, bank holidays`,
+    title: `${countryInfo.name} Public Holidays ${currentYear}-${nextYear} | Official Calendar`,
+    description: `Complete list of ${countryInfo.name} public holidays, bank holidays, and national observances for ${currentYear} and ${nextYear}. Plan your vacations and business operations with our official holiday calendar.`,
+    keywords: `${countryInfo.name} public holidays, ${countryInfo.name} bank holidays, ${countryInfo.name} national holidays, ${countryInfo.name} holiday calendar, ${countryInfo.name} days off, ${countryInfo.name} official holidays, ${currentYear} holidays, ${nextYear} holidays`,
+    openGraph: {
+      title: `${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+      description: `Complete list of public holidays and observances in ${countryInfo.name} for ${currentYear} and ${nextYear}. Plan your vacations and business operations.`,
+      type: 'website',
+      url: `https://holidayoptimizer.com/holidays/${country.toLowerCase()}`,
+      siteName: 'Holiday Optimizer',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+      description: `Complete list of public holidays and observances in ${countryInfo.name} for ${currentYear} and ${nextYear}.`,
+    },
+    alternates: {
+      canonical: `https://holidayoptimizer.com/holidays/${country.toLowerCase()}`,
+    },
   };
 }
 

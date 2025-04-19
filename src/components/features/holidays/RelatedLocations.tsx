@@ -30,17 +30,17 @@ export default function RelatedLocations({
     const siblingRegions = getRegions(countryCode!, stateCode!)
       .filter(r => r.code.toLowerCase() !== regionCode.toLowerCase())
       .slice(0, maxItems);
-    
+
     const otherStates = getStates(countryCode!)
       .filter(s => s.code.toLowerCase() !== stateCode!.toLowerCase())
       .slice(0, maxItems);
-    
+
     return (
       <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
         <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
           Related Locations
         </h2>
-        
+
         {siblingRegions.length > 0 && (
           <>
             <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -52,8 +52,9 @@ export default function RelatedLocations({
                   <Link 
                     href={`/holidays/${countryCode?.toLowerCase()}/${stateCode?.toLowerCase()}/${region.code.toLowerCase()}`}
                     className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    title={`Public holidays in ${region.name}, ${currentState}, ${currentCountry}`}
                   >
-                    Holidays in {region.name}
+                    Public Holidays in {region.name}, {currentState}
                   </Link>
                 </li>
               ))}
@@ -72,8 +73,9 @@ export default function RelatedLocations({
                   <Link 
                     href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
                     className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    title={`Public holidays in ${state.name}, ${currentCountry}`}
                   >
-                    Holidays in {state.name}
+                    Public Holidays in {state.name}, {currentCountry}
                   </Link>
                 </li>
               ))}
@@ -88,17 +90,17 @@ export default function RelatedLocations({
     // 1. Top regions in this state
     // 2. Sibling states in the same country
     const topRegions = getRegions(countryCode!, stateCode!).slice(0, maxItems);
-    
+
     const siblingStates = getStates(countryCode!)
       .filter(s => s.code.toLowerCase() !== stateCode.toLowerCase())
       .slice(0, maxItems);
-    
+
     return (
       <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
         <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
           Related Locations
         </h2>
-        
+
         {topRegions.length > 0 && (
           <>
             <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -110,8 +112,9 @@ export default function RelatedLocations({
                   <Link 
                     href={`/holidays/${countryCode?.toLowerCase()}/${stateCode.toLowerCase()}/${region.code.toLowerCase()}`}
                     className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    title={`Public holidays in ${region.name}, ${currentState}, ${currentCountry}`}
                   >
-                    Holidays in {region.name}
+                    Public Holidays in {region.name}, {currentState}
                   </Link>
                 </li>
               ))}
@@ -130,8 +133,9 @@ export default function RelatedLocations({
                   <Link 
                     href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
                     className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    title={`Public holidays in ${state.name}, ${currentCountry}`}
                   >
-                    Holidays in {state.name}
+                    Public Holidays in {state.name}, {currentCountry}
                   </Link>
                 </li>
               ))}
@@ -146,17 +150,17 @@ export default function RelatedLocations({
     // 1. Top states in this country
     // 2. Other popular countries
     const topStates = getStates(countryCode).slice(0, maxItems);
-    
+
     const otherCountries = getAvailableCountries()
       .filter(c => c.countryCode.toLowerCase() !== countryCode.toLowerCase())
       .slice(0, maxItems);
-    
+
     return (
       <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
         <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
           Related Locations
         </h2>
-        
+
         {topStates.length > 0 && (
           <>
             <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -168,8 +172,9 @@ export default function RelatedLocations({
                   <Link 
                     href={`/holidays/${countryCode.toLowerCase()}/${state.code.toLowerCase()}`}
                     className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    title={`Public holidays in ${state.name}, ${currentCountry}`}
                   >
-                    Holidays in {state.name}
+                    Public Holidays in {state.name}, {currentCountry}
                   </Link>
                 </li>
               ))}
@@ -188,8 +193,9 @@ export default function RelatedLocations({
                   <Link 
                     href={`/holidays/${country.countryCode.toLowerCase()}`}
                     className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    title={`Public holidays in ${country.name}`}
                   >
-                    Holidays in {country.name}
+                    Public Holidays in {country.name}
                   </Link>
                 </li>
               ))}
@@ -199,7 +205,7 @@ export default function RelatedLocations({
       </div>
     );
   }
-  
+
   // Default empty component if no context matches
   return null;
 } 
