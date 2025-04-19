@@ -84,7 +84,6 @@ export default async function HolidaysIndexPage() {
       {/* Hero section */}
       <PageHeader className="bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-400 via-indigo-500 to-blue-600"></div>
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-30 mix-blend-overlay"></div>
 
         <div className="relative z-10">
           <div className="inline-flex items-center justify-center mb-5 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
