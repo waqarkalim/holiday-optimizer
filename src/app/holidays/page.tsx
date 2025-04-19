@@ -23,7 +23,7 @@ export default async function HolidaysIndexPage() {
   };
 
   const groupedCountries: Record<string, Array<{ countryCode: string; name: string }>> = {};
-  
+
   for (const country of sortedCountries) {
     const group = getCountryGroup(country.countryCode as TCountryCode);
     if (!groupedCountries[group]) {
@@ -35,45 +35,72 @@ export default async function HolidaysIndexPage() {
   // Sort groups by name
   const sortedGroups = Object.keys(groupedCountries).sort();
 
+  // Add schema.org structured data for better SEO
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Public Holidays Around the World",
+    "description": "Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.",
+    "url": "https://holidayoptimizer.com/holidays",
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": sortedGroups.map((group, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": group,
+        "item": {
+          "@type": "Thing",
+          "name": group,
+          "description": `Public holidays in ${group} countries`
+        }
+      }))
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" role="main">
+      {/* Schema.org structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
       {/* Hero section */}
       <section className="relative overflow-hidden bg-gray-900 text-white">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-400 via-indigo-500 to-blue-600"></div>
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-30 mix-blend-overlay"></div>
-        
+
         <div className="container mx-auto px-4 py-20 md:py-32 relative z-10 text-center max-w-5xl">
           <div className="inline-flex items-center justify-center mb-5 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
-            <CalendarIcon className="h-4 w-4 mr-2" />
+            <CalendarIcon className="h-4 w-4 mr-2" aria-hidden="true" />
             <span className="text-sm font-medium">Worldwide Public Holidays</span>
           </div>
-          
+
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Discover Public Holidays <br className="hidden sm:block" />Around the World
           </h1>
-          
+
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
             Find official public holidays for {sortedCountries.length} countries worldwide. 
             Plan your travels, business operations, or simply learn about different cultural celebrations.
           </p>
-          
+
           <div className="flex flex-wrap gap-4 justify-center mb-10">
             <Link 
               href="#browse-countries" 
               className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors flex items-center"
             >
-              <GlobeIcon className="h-5 w-5 mr-2" />
+              <GlobeIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               Browse Countries
             </Link>
             <Link 
               href="/how-it-works" 
               className="px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium rounded-lg transition-colors flex items-center"
             >
-              <CheckCircleIcon className="h-5 w-5 mr-2" />
+              <CheckCircleIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               How It Works
             </Link>
           </div>
-          
+
           <div className="flex flex-wrap gap-2 justify-center">
             <div className="inline-flex items-center px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white/80">
               <span>National Holidays</span>
@@ -113,7 +140,7 @@ export default async function HolidaysIndexPage() {
                   {group}
                 </h3>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 dark:bg-gray-700">
                 {groupedCountries[group].map(({ countryCode, name }) => (
                   <Link
@@ -153,7 +180,7 @@ export default async function HolidaysIndexPage() {
               Our comprehensive public holiday database offers several benefits for travelers, businesses, and the culturally curious.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
               <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4">
@@ -166,7 +193,7 @@ export default async function HolidaysIndexPage() {
                 Access holiday information for {sortedCountries.length} countries worldwide, including regional and local observances.
               </p>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
               <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4">
                 <CalendarIcon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
@@ -178,7 +205,7 @@ export default async function HolidaysIndexPage() {
                 View holidays for both the current and upcoming year to plan ahead for vacations, business operations, and events.
               </p>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
               <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4">
                 <CheckCircleIcon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
@@ -203,7 +230,7 @@ export default async function HolidaysIndexPage() {
               About Public Holidays
             </h2>
           </div>
-          
+
           <div className="p-6 md:p-8 space-y-4 text-gray-600 dark:text-gray-300">
             <p>
               Public holidays, also known as national holidays or legal holidays, are days when most businesses, schools, and government offices are closed. 

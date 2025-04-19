@@ -64,11 +64,11 @@ export default function HolidayPageContent({
   // Count holiday types
   const getHolidayTypeStats = () => {
     const typeCounts: Record<string, number> = {};
-    
+
     currentYearHolidays.forEach(holiday => {
       typeCounts[holiday.type] = (typeCounts[holiday.type] || 0) + 1;
     });
-    
+
     return typeCounts;
   };
 
@@ -188,46 +188,84 @@ export default function HolidayPageContent({
     }
   };
 
+  // Add schema.org structured data for better SEO
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Holidays",
+        "item": "https://holidayoptimizer.com/holidays"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": location.country,
+        "item": countryCode ? `https://holidayoptimizer.com/holidays/${countryCode.toLowerCase()}` : ""
+      },
+      ...(location.state ? [{
+        "@type": "ListItem",
+        "position": 3,
+        "name": location.state,
+        "item": countryCode && stateCode ? `https://holidayoptimizer.com/holidays/${countryCode.toLowerCase()}/${stateCode.toLowerCase()}` : ""
+      }] : []),
+      ...(location.region ? [{
+        "@type": "ListItem",
+        "position": 4,
+        "name": location.region,
+        "item": countryCode && stateCode && regionCode ? `https://holidayoptimizer.com/holidays/${countryCode.toLowerCase()}/${stateCode.toLowerCase()}/${regionCode.toLowerCase()}` : ""
+      }] : [])
+    ]
+  };
+
   return (
-    <div className="container mx-auto py-6 px-4 max-w-5xl">
+    <div className="container mx-auto py-6 px-4 max-w-5xl" role="main" aria-labelledby="page-title">
+      {/* Schema.org structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
       {/* Header with improved styling and mobile optimization */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-5 p-3 sm:p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-5 p-3 sm:p-4" role="banner">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <Link
             href={getParentRoute()}
             className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 dark:text-gray-400 dark:hover:text-teal-400 py-1.5 px-2 -ml-2 rounded-md"
+            aria-label={`Back to ${regionCode ? 'state' : stateCode ? 'country' : 'all countries'} page`}
           >
-            <ArrowLeftIcon className="w-3.5 h-3.5 mr-1.5" />
+            <ArrowLeftIcon className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
             Back
           </Link>
-          
+
           <div className="flex items-center">
             <Badge variant="outline" className="px-2.5 py-1 text-xs flex items-center">
-              <CalendarIcon className="h-3.5 w-3.5 mr-1.5 text-teal-600 dark:text-teal-400" />
+              <CalendarIcon className="h-3.5 w-3.5 mr-1.5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
               <span>{currentYear} - {nextYear}</span>
             </Badge>
           </div>
         </div>
-        
+
         {renderBreadcrumbs()}
-        
+
         <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-          <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-md flex-shrink-0 hidden sm:block">
+          <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-md flex-shrink-0 hidden sm:block" aria-hidden="true">
             {getContextIcon()}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <div className="sm:hidden p-1.5 bg-teal-50 dark:bg-teal-900/20 rounded-md mr-1">
+              <div className="sm:hidden p-1.5 bg-teal-50 dark:bg-teal-900/20 rounded-md mr-1" aria-hidden="true">
                 {getContextIcon()}
               </div>
-              <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
+              <h1 id="page-title" className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
                 {title}
               </h1>
             </div>
-            
+
             <div className="flex flex-wrap gap-2 mb-3">
               <Badge variant="outline" className="px-2.5 py-1 text-xs flex items-center">
-                <GlobeIcon className="h-3.5 w-3.5 mr-1.5 text-teal-600 dark:text-teal-400" />
+                <GlobeIcon className="h-3.5 w-3.5 mr-1.5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
                 <span className="truncate max-w-[200px] sm:max-w-none">
                   {location.country}
                   {location.state && `, ${location.state}`}
@@ -235,19 +273,19 @@ export default function HolidayPageContent({
                 </span>
               </Badge>
             </div>
-            
+
             {/* Stats row for key metrics - mobile optimized */}
             <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
               <div className="flex items-center min-w-[120px]">
-                <CalendarDaysIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+                <CalendarDaysIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   <span className="font-medium">{currentYearHolidays.length}</span> holidays
                 </span>
               </div>
-              
+
               {countryCode && !stateCode && states.length > 0 && (
                 <div className="flex items-center min-w-[120px]">
-                  <MapPinIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+                  <MapPinIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
                   <span className="text-sm text-gray-600 dark:text-gray-300">
                     <span className="font-medium">{states.length}</span> states/regions
                   </span>
@@ -260,22 +298,22 @@ export default function HolidayPageContent({
 
       {/* 1. GEOGRAPHIC NAVIGATION - States/Regions navigation with prominent callout */}
       {(countryCode && !stateCode && states.length > 0) && (
-        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-l-4 border-l-teal-500 dark:border-l-teal-600">
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-l-4 border-l-teal-500 dark:border-l-teal-600" role="region" aria-labelledby="states-heading">
           <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/10 dark:to-transparent flex items-center justify-between">
             <div className="flex items-center">
-              <MapPinIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
-              <h2 className="text-sm font-medium text-gray-900 dark:text-white">Narrow By State/Province</h2>
+              <MapPinIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+              <h2 id="states-heading" className="text-sm font-medium text-gray-900 dark:text-white">Narrow By State/Province</h2>
             </div>
             <Badge variant="outline" className="bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 border-0 text-xs">
               {states.length} available
             </Badge>
           </div>
-          
+
           <div className="p-4">
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               View holidays specific to each state or province in {location.country}. Select one to see more detailed information.
             </p>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {isLoadingStates ? (
                 Array(6).fill(0).map((_, i) => (
@@ -288,13 +326,13 @@ export default function HolidayPageContent({
                     href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
                     className="p-2.5 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-md border border-gray-200 dark:border-gray-700 flex items-center group transition-colors"
                   >
-                    <div className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-2.5 flex-shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-2.5 flex-shrink-0" aria-hidden="true">
                       <MapPinIcon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                     </div>
                     <span className="text-sm text-gray-800 dark:text-gray-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 truncate flex-1 font-medium">
                       {state.name}
                     </span>
-                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 flex-shrink-0" />
+                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 flex-shrink-0" aria-hidden="true" />
                   </Link>
                 ))
               )}
@@ -305,22 +343,22 @@ export default function HolidayPageContent({
 
       {/* 1. GEOGRAPHIC NAVIGATION - Regions navigation with prominent callout */}
       {(countryCode && stateCode && !regionCode && regions.length > 0) && (
-        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-l-4 border-l-teal-500 dark:border-l-teal-600">
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-l-4 border-l-teal-500 dark:border-l-teal-600" role="region" aria-labelledby="regions-heading">
           <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/10 dark:to-transparent flex items-center justify-between">
             <div className="flex items-center">
-              <CompassIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
-              <h2 className="text-sm font-medium text-gray-900 dark:text-white">Narrow By Region</h2>
+              <CompassIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+              <h2 id="regions-heading" className="text-sm font-medium text-gray-900 dark:text-white">Narrow By Region</h2>
             </div>
             <Badge variant="outline" className="bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 border-0 text-xs">
               {regions.length} available
             </Badge>
           </div>
-          
+
           <div className="p-4">
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
               View holidays specific to local regions within {location.state}, {location.country}. Select a region to see more detailed information.
             </p>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {isLoadingRegions ? (
                 Array(6).fill(0).map((_, i) => (
@@ -333,13 +371,13 @@ export default function HolidayPageContent({
                     href={`/holidays/${countryCode?.toLowerCase()}/${stateCode?.toLowerCase()}/${region.code.toLowerCase()}`}
                     className="p-2.5 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-md border border-gray-200 dark:border-gray-700 flex items-center group transition-colors"
                   >
-                    <div className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-2.5 flex-shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-2.5 flex-shrink-0" aria-hidden="true">
                       <CompassIcon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                     </div>
                     <span className="text-sm text-gray-800 dark:text-gray-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 truncate flex-1 font-medium">
                       {region.name}
                     </span>
-                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 flex-shrink-0" />
+                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 flex-shrink-0" aria-hidden="true" />
                   </Link>
                 ))
               )}
@@ -350,20 +388,20 @@ export default function HolidayPageContent({
 
       {/* 2. UPCOMING HOLIDAYS - enhanced design */}
       {getUpcomingHolidays().length > 0 && (
-        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700" role="region" aria-labelledby="upcoming-holidays-heading">
           <div className="px-4 py-3 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/20 dark:to-transparent border-b border-gray-100 dark:border-gray-700 flex items-center">
-            <CalendarDaysIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
-            <h2 className="text-sm font-medium text-gray-900 dark:text-white">Upcoming Holidays</h2>
+            <CalendarDaysIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+            <h2 id="upcoming-holidays-heading" className="text-sm font-medium text-gray-900 dark:text-white">Upcoming Holidays</h2>
           </div>
-          
-          <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+
+          <ul className="divide-y divide-gray-100 dark:divide-gray-700" role="list">
             {getUpcomingHolidays().map((holiday, index) => {
               const date = new Date(holiday.date);
               const formattedDate = format(date, 'MMM d, yyyy');
               const daysUntil = Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
               const month = format(date, 'MMM');
               const day = format(date, 'd');
-              
+
               // Color based on proximity
               let proximityColor = "text-teal-600 dark:text-teal-400";
               if (daysUntil <= 7) {
@@ -372,9 +410,9 @@ export default function HolidayPageContent({
               if (daysUntil <= 1) {
                 proximityColor = "text-red-600 dark:text-red-400";
               }
-              
+
               return (
-                <li key={index} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                <li key={index} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors" role="listitem">
                   <div className="flex items-center px-4 py-3">
                     {/* Calendar-style date indicator */}
                     <div className="flex-shrink-0 mr-4">
@@ -387,22 +425,22 @@ export default function HolidayPageContent({
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Holiday details */}
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white truncate">
                         {holiday.name}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</span>
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                        <time dateTime={holiday.date} className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</time>
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" aria-hidden="true"></span>
                         <span className={`text-xs font-medium ${proximityColor}`}>
                           {daysUntil === 0 ? 'Today' : 
                            daysUntil === 1 ? 'Tomorrow' : 
                            `In ${daysUntil} days`}
                         </span>
                       </div>
-                      
+
                       {/* Holiday type indicator */}
                       {holiday.type && (
                         <span className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs ${
@@ -415,14 +453,14 @@ export default function HolidayPageContent({
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Visual countdown indicator */}
                     <div className="ml-4 flex-shrink-0">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${
                         daysUntil <= 1 ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' :
                         daysUntil <= 7 ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' :
                         'border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20'
-                      }`}>
+                      }`} aria-hidden="true">
                         <span className={`text-sm font-bold ${proximityColor}`}>
                           {daysUntil <= 99 ? daysUntil : '99+'}
                         </span>
@@ -437,12 +475,12 @@ export default function HolidayPageContent({
       )}
 
       {/* 3. HOLIDAY CALENDAR - enhanced */}
-      <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+      <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden" role="region" aria-labelledby="holiday-calendar-heading">
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
-          <CalendarIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
-          <h2 className="text-sm font-medium text-gray-900 dark:text-white">Holiday Calendar</h2>
+          <CalendarIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+          <h2 id="holiday-calendar-heading" className="text-sm font-medium text-gray-900 dark:text-white">Holiday Calendar</h2>
         </div>
-        
+
         <div className="p-4">
           <Tabs defaultValue={currentYear.toString()} className="w-full">
             <TabsList className="w-full flex rounded-md border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800 mb-4">
@@ -450,14 +488,14 @@ export default function HolidayPageContent({
                 value={currentYear.toString()}
                 className="flex-1 rounded-md py-1.5 text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
               >
-                <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
+                <CalendarIcon className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
                 {currentYear}
               </TabsTrigger>
               <TabsTrigger
                 value={nextYear.toString()}
                 className="flex-1 rounded-md py-1.5 text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
               >
-                <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
+                <CalendarIcon className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
                 {nextYear}
               </TabsTrigger>
             </TabsList>
@@ -475,12 +513,12 @@ export default function HolidayPageContent({
 
       {/* 4. HOLIDAY TYPES - summary */}
       {Object.keys(getHolidayTypeStats()).length > 0 && (
-        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden" role="region" aria-labelledby="holiday-types-heading">
           <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
-            <FlagIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
-            <h2 className="text-sm font-medium text-gray-900 dark:text-white">Holiday Types</h2>
+            <FlagIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+            <h2 id="holiday-types-heading" className="text-sm font-medium text-gray-900 dark:text-white">Holiday Types</h2>
           </div>
-          
+
           <div className="p-4">
             <div className="flex flex-wrap gap-2">
               {Object.entries(getHolidayTypeStats()).map(([type, count]) => {
@@ -501,7 +539,7 @@ export default function HolidayPageContent({
                   default:
                     color = 'bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
                 }
-                
+
                 return (
                   <div 
                     key={type} 
@@ -521,12 +559,12 @@ export default function HolidayPageContent({
       )}
 
       {/* 5. ABOUT SECTION - with card styling */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden" role="region" aria-labelledby="about-holidays-heading">
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
-          <InfoIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
-          <h2 className="text-sm font-medium text-gray-900 dark:text-white">About {regionCode ? 'Regional' : stateCode ? 'State' : 'National'} Holidays</h2>
+          <InfoIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+          <h2 id="about-holidays-heading" className="text-sm font-medium text-gray-900 dark:text-white">About {regionCode ? 'Regional' : stateCode ? 'State' : 'National'} Holidays</h2>
         </div>
-        
+
         <div className="p-4 text-sm text-gray-600 dark:text-gray-300">
           <p className="mb-2">
             <span className="font-medium text-gray-700 dark:text-gray-300">Public holidays in {location.country}.</span> These are days when most businesses, schools, and government offices are closed.
@@ -542,7 +580,7 @@ export default function HolidayPageContent({
             </p>
           )}
           <div className="flex items-center mt-3 text-xs text-gray-400 dark:text-gray-500">
-            <InfoIcon className="h-3.5 w-3.5 mr-1.5" />
+            <InfoIcon className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
             Dates may vary based on local observations and official announcements
           </div>
         </div>
@@ -559,11 +597,11 @@ function HolidayList({ holidays }: { holidays: HolidaysTypes.Holiday[] }) {
   holidays.forEach(holiday => {
     const date = new Date(holiday.date);
     const month = format(date, 'MMMM');
-    
+
     if (!holidaysByMonth[month]) {
       holidaysByMonth[month] = [];
     }
-    
+
     holidaysByMonth[month].push(holiday);
   });
 
@@ -599,13 +637,13 @@ function HolidayList({ holidays }: { holidays: HolidaysTypes.Holiday[] }) {
               </span>
             </h3>
           </div>
-          
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700" role="list">
             {monthHolidays.map((holiday, index) => {
               const date = new Date(holiday.date);
               const dayNumber = format(date, 'd');
               const dayName = format(date, 'EEE');
-              
+
               // Type badge styling
               let typeLabel, typeBadgeClass;
               switch (holiday.type) {
@@ -631,22 +669,22 @@ function HolidayList({ holidays }: { holidays: HolidaysTypes.Holiday[] }) {
               }
 
               return (
-                <li key={index} className="flex p-0">
+                <li key={index} className="flex p-0" role="listitem">
                   <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 py-3 px-2 flex flex-col items-center justify-center border-r border-gray-200 dark:border-gray-700">
                     <div className="font-semibold text-gray-900 dark:text-white">{dayNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">{dayName}</div>
                   </div>
-                  
+
                   <div className="flex-1 p-3">
                     <div className="font-medium text-gray-900 dark:text-white">
                       {holiday.name}
                     </div>
-                    
+
                     <div className="flex items-center mt-1.5 space-x-1.5">
                       <Badge className={`px-1.5 py-0.5 text-xs ${typeBadgeClass}`}>
                         {typeLabel}
                       </Badge>
-                      
+
                       {holiday.substitute && (
                         <span className="text-xs text-yellow-600 dark:text-yellow-400 px-1.5 py-0.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-sm">
                           Substitute
