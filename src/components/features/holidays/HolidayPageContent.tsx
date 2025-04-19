@@ -20,6 +20,7 @@ import {
 import Link from 'next/link';
 import { getRegions, getStates } from '@/services/holidays';
 import RelatedLocations from './RelatedLocations';
+import { convertToDateObject } from '@/utils/dates';
 
 interface HolidayPageContentProps {
   title: string;
@@ -724,7 +725,7 @@ function HolidayList({ holidays }: { holidays: HolidaysTypes.Holiday[] }) {
   const holidaysByMonth: Record<string, HolidaysTypes.Holiday[]> = {};
 
   holidays.forEach(holiday => {
-    const date = new Date(holiday.date);
+    const date = convertToDateObject(holiday.date)
     const month = format(date, 'MMMM');
 
     if (!holidaysByMonth[month]) {
@@ -769,7 +770,7 @@ function HolidayList({ holidays }: { holidays: HolidaysTypes.Holiday[] }) {
 
           <ul className="divide-y divide-gray-200 dark:divide-gray-700" role="list">
             {monthHolidays.map((holiday, index) => {
-              const date = new Date(holiday.date);
+              const date = convertToDateObject(holiday.date)
               const dayNumber = format(date, 'd');
               const dayName = format(date, 'EEE');
 
