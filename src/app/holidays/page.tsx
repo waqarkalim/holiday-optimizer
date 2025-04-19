@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getAvailableCountries } from '@/services/holidays';
-import { CalendarIcon, GlobeIcon, MapIcon, ArrowRightIcon, CheckCircleIcon } from 'lucide-react';
+import { ArrowRightIcon, CalendarIcon, CheckCircleIcon, GlobeIcon } from 'lucide-react';
+import { continents, getCountryData, getEmojiFlag, TCountryCode } from 'countries-list';
 
 export const metadata: Metadata = {
   title: 'Public Holidays Around the World',
@@ -17,25 +18,14 @@ export default async function HolidaysIndexPage() {
 
   // Group countries by continent/region for better organization
   // This is a simplified grouping - in a real app, you might want to use actual continent data
-  const getCountryGroup = (country: string): string => {
-    const europeCountries = ['DE', 'FR', 'IT', 'ES', 'GB', 'NL', 'SE', 'NO', 'FI', 'DK', 'CH', 'AT', 'BE', 'PT', 'GR', 'IE', 'PL'];
-    const americasCountries = ['US', 'CA', 'MX', 'BR', 'AR', 'CO', 'CL', 'PE', 'VE'];
-    const asiaCountries = ['CN', 'JP', 'IN', 'KR', 'ID', 'SG', 'MY', 'TH', 'VN', 'PH'];
-    const oceaniaCountries = ['AU', 'NZ', 'FJ'];
-    const africaCountries = ['ZA', 'NG', 'EG', 'MA', 'KE', 'GH', 'ET'];
-
-    if (europeCountries.includes(country)) return 'Europe';
-    if (americasCountries.includes(country)) return 'Americas';
-    if (asiaCountries.includes(country)) return 'Asia';
-    if (oceaniaCountries.includes(country)) return 'Oceania';
-    if (africaCountries.includes(country)) return 'Africa';
-    return 'Other';
+  const getCountryGroup = (country: TCountryCode): string => {
+    return continents[getCountryData(country).continent] || 'Other';
   };
 
   const groupedCountries: Record<string, Array<{ countryCode: string; name: string }>> = {};
   
   for (const country of sortedCountries) {
-    const group = getCountryGroup(country.countryCode);
+    const group = getCountryGroup(country.countryCode as TCountryCode);
     if (!groupedCountries[group]) {
       groupedCountries[group] = [];
     }
@@ -132,7 +122,8 @@ export default async function HolidaysIndexPage() {
                     className="p-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors flex items-center group"
                   >
                     <div className="w-10 h-10 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-4 flex-shrink-0">
-                      <MapIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                      {/*<MapIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />*/}
+                      {getEmojiFlag(countryCode as TCountryCode)}
                     </div>
                     <div className="flex-1">
                       <span className="font-medium text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
