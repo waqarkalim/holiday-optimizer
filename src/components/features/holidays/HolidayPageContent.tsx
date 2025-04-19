@@ -587,6 +587,40 @@ export default function HolidayPageContent({
         </div>
       </div>
 
+      {/* Home page link for holiday optimization tool */}
+      <div className="bg-gradient-to-r from-teal-50 to-blue-50 dark:from-teal-900/30 dark:to-blue-900/30 rounded-lg p-5 mt-8 mb-6 border-l-4 border-teal-500 dark:border-teal-600 shadow-sm relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-24 h-24 opacity-10 transform translate-x-8 -translate-y-8">
+          <CalendarDaysIcon className="w-full h-full text-teal-600" aria-hidden="true" />
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center text-left">
+          <div className="flex-1 mb-4 md:mb-0 md:mr-6 relative z-10">
+            <h3 className="text-base md:text-lg font-semibold text-teal-800 dark:text-teal-300 mb-2">
+              Make the Most of {location.country} Holidays
+            </h3>
+            <p className="text-sm md:text-base text-teal-700 dark:text-teal-400 mb-3">
+              This tool shows how to combine {currentYearHolidays.filter(holiday => holiday.type === 'public').length} public holidays in {location.country}{location.state ? `, ${location.state}` : ''} with your time off for extended breaks.
+            </p>
+            <div className="flex items-center text-xs text-teal-600 dark:text-teal-400 mb-1">
+              <InfoIcon className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
+              <span>Simple to use • No sign-up needed • 100% free</span>
+            </div>
+          </div>
+
+          <div className="flex-shrink-0 relative z-10">
+            <Link 
+              href="/" 
+              className="inline-flex items-center justify-center px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-md text-sm md:text-base font-medium transition-colors shadow-md hover:shadow-lg"
+              aria-label="Try the holiday optimization tool for better vacation planning"
+            >
+              <CalendarIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Optimize Your Time Off
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Subtle verification notice */}
       <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6 mb-2">
         Holiday information may not be complete or up-to-date. Please <Link href="/terms" className="text-teal-600 dark:text-teal-400 hover:underline">verify</Link> with official sources.
