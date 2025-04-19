@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { getRegions, getStates } from '@/services/holidays';
+import RelatedLocations from './RelatedLocations';
 
 interface HolidayPageContentProps {
   title: string;
@@ -585,6 +586,22 @@ export default function HolidayPageContent({
           </div>
         </div>
       </div>
+
+      {/* Subtle verification notice */}
+      <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6 mb-2">
+        Holiday information may not be complete or up-to-date. Please <Link href="/terms" className="text-teal-600 dark:text-teal-400 hover:underline">verify</Link> with official sources.
+      </div>
+
+      {/* Related locations for improved internal linking and SEO */}
+      <RelatedLocations
+        currentCountry={location.country}
+        currentState={location.state}
+        currentRegion={location.region}
+        countryCode={countryCode}
+        stateCode={stateCode}
+        regionCode={regionCode}
+        maxItems={5}
+      />
     </div>
   );
 }

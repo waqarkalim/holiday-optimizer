@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsOfService() {
-  const lastUpdated = 'April 18, 2025'
+  const lastUpdated = 'April 19, 2025'
   return (
     <main className="container mx-auto px-3 py-6 max-w-3xl">
       <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10 p-4">
@@ -148,6 +148,21 @@ export default function TermsOfService() {
             <p className="mt-2 text-xs italic text-gray-500 dark:text-gray-400">
               Users are advised to verify all important dates and decisions with their employers
               and official calendars. Service availability and accuracy depend on browser features and third-party providers.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="text-lg font-medium mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              <span className="text-base">🔍</span> Holiday Data Accuracy
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              {PROJECT_NAME} provides holiday information sourced from third-party libraries and services. 
+              While the data is maintained with care, holidays may vary by region, change yearly, or be affected by special circumstances.
+              Your employer's policy may also differ from official calendars.
+            </p>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              It's recommended to verify all holiday information with official government sources, your employer, 
+              or other authoritative references before making any travel arrangements or planning time off.
             </p>
           </section>
 
