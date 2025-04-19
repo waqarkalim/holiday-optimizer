@@ -6,7 +6,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
-import XFollowPopup from '@/components/XFollowPopup';
 
 // Create a client
 export const queryClient = new QueryClient({
@@ -26,7 +25,6 @@ export const Providers = ({ children }: { children: React.ReactNode }) => (
       <TooltipProvider>
         {children}
         <Toaster position="bottom-right" />
-        <XFollowPopup twitterHandle="waqar_kalim"  />
       </TooltipProvider>
     </ThemeProvider>
     {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
