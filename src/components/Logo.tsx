@@ -1,7 +1,11 @@
 import { PROJECT_NAME } from '@/constants';
 import Link from 'next/link';
 
-export const Logo = () =>
+interface LogoProps {
+  hideTaglineOnMobile?: boolean;
+}
+
+export const Logo = ({ hideTaglineOnMobile = false }: LogoProps) =>
   <Link href="/" tabIndex={0} aria-label="Holiday Optimizer Home">
     <div className="flex items-center space-x-2">
       <div
@@ -28,7 +32,7 @@ export const Logo = () =>
           className="text-base font-semibold text-gray-900 dark:text-white">
           {PROJECT_NAME}
         </h2>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className={`text-xs text-gray-500 dark:text-gray-400 ${hideTaglineOnMobile ? 'hidden sm:block' : ''}`}>
           Maximize your time off in {new Date().getUTCFullYear()}
         </p>
       </div>

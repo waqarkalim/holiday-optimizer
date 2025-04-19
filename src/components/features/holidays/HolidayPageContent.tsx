@@ -27,7 +27,6 @@ interface HolidayPageContentProps {
     state?: string;
     region?: string;
   };
-  // Country, state, and region codes for navigation
   countryCode?: string;
   stateCode?: string;
   regionCode?: string;
@@ -52,15 +51,11 @@ export default function HolidayPageContent({
   const [isLoadingStates, setIsLoadingStates] = useState(false);
   const [isLoadingRegions, setIsLoadingRegions] = useState(false);
 
-  // Get upcoming holidays - next 3 holidays from current date
+  // Get upcoming holidays
   const getUpcomingHolidays = () => {
     const today = new Date();
     const currentHolidays = [...currentYearHolidays];
-    
-    // Sort holidays by date
     currentHolidays.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    
-    // Filter upcoming holidays
     return currentHolidays
       .filter(holiday => new Date(holiday.date) >= today)
       .slice(0, 3);
@@ -111,14 +106,14 @@ export default function HolidayPageContent({
     }
   }, [countryCode, stateCode, regionCode]);
 
-  // Render enhanced breadcrumb navigation
+  // Render breadcrumb navigation
   const renderBreadcrumbs = () => {
     const crumbs = [
-      {
-        name: 'Holidays',
-        href: '/holidays',
-        icon: <GlobeIcon className="w-3.5 h-3.5" />
-      },
+      { 
+        name: 'Holidays', 
+        href: '/holidays', 
+        icon: <GlobeIcon className="w-3.5 h-3.5" /> 
+      }
     ];
 
     if (countryCode) {
@@ -146,186 +141,347 @@ export default function HolidayPageContent({
     }
 
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-4">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center flex-wrap gap-1.5">
-            {crumbs.map((crumb, index) => (
-              <li key={crumb.href} className="inline-flex items-center">
-                {index > 0 && (
-                  <ChevronRightIcon className="w-4 h-4 mx-1 text-gray-400" />
-                )}
-                <Link
-                  href={crumb.href}
-                  className={`inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md ${
-                    index === crumbs.length - 1
-                      ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-750'
-                  }`}
-                >
-                  <span className="mr-1.5">{crumb.icon}</span>
-                  {crumb.name}
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </nav>
-      </div>
+      <nav className="flex mb-4" aria-label="Breadcrumb">
+        <ol className="inline-flex items-center flex-wrap gap-2">
+          {crumbs.map((crumb, index) => (
+            <li key={crumb.href} className="inline-flex items-center">
+              {index > 0 && (
+                <ChevronRightIcon className="w-3.5 h-3.5 mx-1 text-gray-400" />
+              )}
+              <Link
+                href={crumb.href}
+                className={`inline-flex items-center px-2.5 py-1.5 text-sm rounded-md ${
+                  index === crumbs.length - 1
+                    ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                }`}
+              >
+                <span className="mr-1.5">{crumb.icon}</span>
+                {crumb.name}
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </nav>
     );
   };
 
-  // Get context-specific UI elements based on current page type
-  const getPageContext = () => {
-    if (regionCode) {
-      return {
-        icon: <CompassIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />,
-        label: 'Regional Holidays',
-        parentLink: stateCode ? 
-          `/holidays/${countryCode?.toLowerCase()}/${stateCode.toLowerCase()}` : 
-          `/holidays/${countryCode?.toLowerCase()}`,
-        parentLabel: `Back to ${location.state || location.country}`,
-        description: `View public holidays specific to ${location.region} within ${location.state}, ${location.country}.`
-      };
+  // Get parent route for back link
+  const getParentRoute = () => {
+    if (regionCode && stateCode) {
+      return `/holidays/${countryCode?.toLowerCase()}/${stateCode.toLowerCase()}`;
     } else if (stateCode) {
-      return {
-        icon: <MapIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />,
-        label: 'State Holidays',
-        parentLink: countryCode ? `/holidays/${countryCode?.toLowerCase()}` : '/holidays',
-        parentLabel: `Back to ${location.country}`,
-        description: `View public holidays observed in ${location.state}, including national and state-specific holidays.`
-      };
+      return `/holidays/${countryCode?.toLowerCase()}`;
     } else {
-      return {
-        icon: <FlagIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />,
-        label: 'National Holidays',
-        parentLink: '/holidays',
-        parentLabel: 'All Countries',
-        description: `View all public holidays observed in ${location.country} for ${currentYear} and ${nextYear}.`
-      };
+      return '/holidays';
     }
   };
 
-  const pageContext = getPageContext();
+  // Get context icon based on current page type
+  const getContextIcon = () => {
+    if (regionCode) {
+      return <CompassIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />;
+    } else if (stateCode) {
+      return <MapIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />;
+    } else {
+      return <FlagIcon className="h-5 w-5 text-teal-600 dark:text-teal-400" />;
+    }
+  };
 
   return (
-    <div className="container mx-auto py-8 px-4 lg:py-10 max-w-6xl">
-      {/* Enhanced breadcrumb navigation */}
-      {renderBreadcrumbs()}
-
-      {/* Simplified Hero section with context */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden mb-6">
-        <div className="px-6 py-6 md:px-8 md:py-8 border-b border-gray-200 dark:border-gray-700">
-          {/* Back link */}
+    <div className="container mx-auto py-6 px-4 max-w-5xl">
+      {/* Header with improved styling and mobile optimization */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm mb-5 p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <Link
-            href={pageContext.parentLink}
-            className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 dark:text-gray-400 dark:hover:text-teal-400 mb-4"
+            href={getParentRoute()}
+            className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 dark:text-gray-400 dark:hover:text-teal-400 py-1.5 px-2 -ml-2 rounded-md"
           >
             <ArrowLeftIcon className="w-3.5 h-3.5 mr-1.5" />
-            {pageContext.parentLabel}
+            Back
           </Link>
           
-          <div className="flex items-start">
-            <div className="mr-4 mt-1">
-              <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
-                {pageContext.icon}
-              </div>
-            </div>
-            <div>
-              <div className="flex flex-wrap gap-2 mb-2">
-                <Badge variant="outline" className="px-3 py-1.5 text-sm flex items-center">
-                  <GlobeIcon className="h-3.5 w-3.5 mr-2 text-teal-600 dark:text-teal-400" />
-                  <span>{location.country}</span>
-                  {location.state && `, ${location.state}`}
-                  {location.region && `, ${location.region}`}
-                </Badge>
-
-                <Badge variant="outline" className="px-3 py-1.5 text-sm flex items-center">
-                  <CalendarIcon className="h-3.5 w-3.5 mr-2 text-teal-600 dark:text-teal-400" />
-                  <span>{currentYear} - {nextYear}</span>
-                </Badge>
-              </div>
-              
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {title}
-              </h1>
-              
-              <p className="text-gray-600 dark:text-gray-300 text-sm max-w-3xl">
-                {pageContext.description}
-              </p>
-            </div>
-          </div>
-          
-          {/* Stats row */}
-          <div className="flex flex-wrap gap-6 mt-6 pt-5 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center">
-              <CalendarDaysIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-              <div>
-                <span
-                  className="text-lg font-semibold text-gray-900 dark:text-white">{currentYearHolidays.length}</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">Total Holidays</span>
-              </div>
-            </div>
-            
-            {countryCode && !stateCode && (
-              <div className="flex items-center">
-                <MapPinIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-                <div>
-                  <span className="text-lg font-semibold text-gray-900 dark:text-white">{states.length}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">States/Regions</span>
-                </div>
-              </div>
-            )}
-            
-            <div className="flex items-center">
-              <FlagIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-              <div>
-                <span
-                  className="text-lg font-semibold text-gray-900 dark:text-white">{Object.keys(getHolidayTypeStats()).length}</span>
-                <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">Holiday Types</span>
-              </div>
-            </div>
+          <div className="flex items-center">
+            <Badge variant="outline" className="px-2.5 py-1 text-xs flex items-center">
+              <CalendarIcon className="h-3.5 w-3.5 mr-1.5 text-teal-600 dark:text-teal-400" />
+              <span>{currentYear} - {nextYear}</span>
+            </Badge>
           </div>
         </div>
         
-        {/* Upcoming holidays preview - simplified inline version */}
-        {getUpcomingHolidays().length > 0 && (
-          <div className="bg-gray-50 dark:bg-gray-750 px-6 py-4">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Upcoming Holidays</h3>
-            <div className="space-y-2">
-              {getUpcomingHolidays().map((holiday, index) => {
-                const date = new Date(holiday.date);
-                const formattedDate = format(date, 'MMM d, yyyy');
-                const daysUntil = Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                
-                return (
-                  <div key={index} className="flex items-center text-sm">
-                    <div
-                      className="w-8 h-8 bg-white dark:bg-gray-800 rounded-md flex items-center justify-center mr-3 border border-gray-200 dark:border-gray-700">
-                      <span className="font-medium text-gray-900 dark:text-white">{format(date, 'd')}</span>
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-medium text-gray-900 dark:text-white">{holiday.name}</span>
-                      <span className="text-gray-500 dark:text-gray-400 mx-1">·</span>
-                      <span className="text-gray-500 dark:text-gray-400">{formattedDate}</span>
-                    </div>
-                    <div className="text-xs text-teal-600 dark:text-teal-400 font-medium">
-                      {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `In ${daysUntil} days`}
-                    </div>
-                  </div>
-                );
-              })}
+        {renderBreadcrumbs()}
+        
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+          <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-md flex-shrink-0 hidden sm:block">
+            {getContextIcon()}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="sm:hidden p-1.5 bg-teal-50 dark:bg-teal-900/20 rounded-md mr-1">
+                {getContextIcon()}
+              </div>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
+                {title}
+              </h1>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mb-3">
+              <Badge variant="outline" className="px-2.5 py-1 text-xs flex items-center">
+                <GlobeIcon className="h-3.5 w-3.5 mr-1.5 text-teal-600 dark:text-teal-400" />
+                <span className="truncate max-w-[200px] sm:max-w-none">
+                  {location.country}
+                  {location.state && `, ${location.state}`}
+                  {location.region && `, ${location.region}`}
+                </span>
+              </Badge>
+            </div>
+            
+            {/* Stats row for key metrics - mobile optimized */}
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center min-w-[120px]">
+                <CalendarDaysIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-300">
+                  <span className="font-medium">{currentYearHolidays.length}</span> holidays
+                </span>
+              </div>
+              
+              {countryCode && !stateCode && states.length > 0 && (
+                <div className="flex items-center min-w-[120px]">
+                  <MapPinIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+                  <span className="text-sm text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">{states.length}</span> states/regions
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Holiday types - simplified inline */}
-      {Object.keys(getHolidayTypeStats()).length > 0 && (
-        <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-            <FlagIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Holiday Types</h2>
+      {/* 1. GEOGRAPHIC NAVIGATION - States/Regions navigation with prominent callout */}
+      {(countryCode && !stateCode && states.length > 0) && (
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-l-4 border-l-teal-500 dark:border-l-teal-600">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/10 dark:to-transparent flex items-center justify-between">
+            <div className="flex items-center">
+              <MapPinIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+              <h2 className="text-sm font-medium text-gray-900 dark:text-white">Narrow By State/Province</h2>
+            </div>
+            <Badge variant="outline" className="bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 border-0 text-xs">
+              {states.length} available
+            </Badge>
           </div>
-          <div className="px-6 py-4">
+          
+          <div className="p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              View holidays specific to each state or province in {location.country}. Select one to see more detailed information.
+            </p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {isLoadingStates ? (
+                Array(6).fill(0).map((_, i) => (
+                  <div key={i} className="p-2 bg-gray-50 dark:bg-gray-800 animate-pulse h-10 rounded"></div>
+                ))
+              ) : (
+                states.map(state => (
+                  <Link
+                    key={state.code}
+                    href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
+                    className="p-2.5 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-md border border-gray-200 dark:border-gray-700 flex items-center group transition-colors"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-2.5 flex-shrink-0">
+                      <MapPinIcon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                    </div>
+                    <span className="text-sm text-gray-800 dark:text-gray-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 truncate flex-1 font-medium">
+                      {state.name}
+                    </span>
+                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 flex-shrink-0" />
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1. GEOGRAPHIC NAVIGATION - Regions navigation with prominent callout */}
+      {(countryCode && stateCode && !regionCode && regions.length > 0) && (
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border-l-4 border-l-teal-500 dark:border-l-teal-600">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/10 dark:to-transparent flex items-center justify-between">
+            <div className="flex items-center">
+              <CompassIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+              <h2 className="text-sm font-medium text-gray-900 dark:text-white">Narrow By Region</h2>
+            </div>
+            <Badge variant="outline" className="bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400 border-0 text-xs">
+              {regions.length} available
+            </Badge>
+          </div>
+          
+          <div className="p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              View holidays specific to local regions within {location.state}, {location.country}. Select a region to see more detailed information.
+            </p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {isLoadingRegions ? (
+                Array(6).fill(0).map((_, i) => (
+                  <div key={i} className="p-2 bg-gray-50 dark:bg-gray-800 animate-pulse h-10 rounded"></div>
+                ))
+              ) : (
+                regions.map(region => (
+                  <Link
+                    key={region.code}
+                    href={`/holidays/${countryCode?.toLowerCase()}/${stateCode?.toLowerCase()}/${region.code.toLowerCase()}`}
+                    className="p-2.5 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-md border border-gray-200 dark:border-gray-700 flex items-center group transition-colors"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-2.5 flex-shrink-0">
+                      <CompassIcon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                    </div>
+                    <span className="text-sm text-gray-800 dark:text-gray-200 group-hover:text-teal-600 dark:group-hover:text-teal-400 truncate flex-1 font-medium">
+                      {region.name}
+                    </span>
+                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 flex-shrink-0" />
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. UPCOMING HOLIDAYS - enhanced design */}
+      {getUpcomingHolidays().length > 0 && (
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="px-4 py-3 bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-900/20 dark:to-transparent border-b border-gray-100 dark:border-gray-700 flex items-center">
+            <CalendarDaysIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+            <h2 className="text-sm font-medium text-gray-900 dark:text-white">Upcoming Holidays</h2>
+          </div>
+          
+          <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+            {getUpcomingHolidays().map((holiday, index) => {
+              const date = new Date(holiday.date);
+              const formattedDate = format(date, 'MMM d, yyyy');
+              const daysUntil = Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              const month = format(date, 'MMM');
+              const day = format(date, 'd');
+              
+              // Color based on proximity
+              let proximityColor = "text-teal-600 dark:text-teal-400";
+              if (daysUntil <= 7) {
+                proximityColor = "text-amber-600 dark:text-amber-400";
+              }
+              if (daysUntil <= 1) {
+                proximityColor = "text-red-600 dark:text-red-400";
+              }
+              
+              return (
+                <li key={index} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                  <div className="flex items-center px-4 py-3">
+                    {/* Calendar-style date indicator */}
+                    <div className="flex-shrink-0 mr-4">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden shadow-sm border border-gray-200 dark:border-gray-600 flex flex-col">
+                        <div className="bg-teal-600 dark:bg-teal-700 text-white text-xs font-medium py-0.5 text-center">
+                          {month}
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 flex-grow flex items-center justify-center">
+                          <span className="text-lg font-bold text-gray-900 dark:text-white">{day}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Holiday details */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white truncate">
+                        {holiday.name}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</span>
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                        <span className={`text-xs font-medium ${proximityColor}`}>
+                          {daysUntil === 0 ? 'Today' : 
+                           daysUntil === 1 ? 'Tomorrow' : 
+                           `In ${daysUntil} days`}
+                        </span>
+                      </div>
+                      
+                      {/* Holiday type indicator */}
+                      {holiday.type && (
+                        <span className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs ${
+                          holiday.type === 'public' ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 
+                          holiday.type === 'bank' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
+                          holiday.type === 'school' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' :
+                          'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                        }`}>
+                          {holiday.type.charAt(0).toUpperCase() + holiday.type.slice(1)}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Visual countdown indicator */}
+                    <div className="ml-4 flex-shrink-0">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${
+                        daysUntil <= 1 ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' :
+                        daysUntil <= 7 ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' :
+                        'border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20'
+                      }`}>
+                        <span className={`text-sm font-bold ${proximityColor}`}>
+                          {daysUntil <= 99 ? daysUntil : '99+'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      {/* 3. HOLIDAY CALENDAR - enhanced */}
+      <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
+          <CalendarIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+          <h2 className="text-sm font-medium text-gray-900 dark:text-white">Holiday Calendar</h2>
+        </div>
+        
+        <div className="p-4">
+          <Tabs defaultValue={currentYear.toString()} className="w-full">
+            <TabsList className="w-full flex rounded-md border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800 mb-4">
+              <TabsTrigger
+                value={currentYear.toString()}
+                className="flex-1 rounded-md py-1.5 text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
+              >
+                <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
+                {currentYear}
+              </TabsTrigger>
+              <TabsTrigger
+                value={nextYear.toString()}
+                className="flex-1 rounded-md py-1.5 text-sm data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white"
+              >
+                <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
+                {nextYear}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={currentYear.toString()}>
+              <HolidayList holidays={currentYearHolidays} />
+            </TabsContent>
+
+            <TabsContent value={nextYear.toString()}>
+              <HolidayList holidays={nextYearHolidays} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* 4. HOLIDAY TYPES - summary */}
+      {Object.keys(getHolidayTypeStats()).length > 0 && (
+        <div className="mb-5 bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
+            <FlagIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+            <h2 className="text-sm font-medium text-gray-900 dark:text-white">Holiday Types</h2>
+          </div>
+          
+          <div className="p-4">
             <div className="flex flex-wrap gap-2">
               {Object.entries(getHolidayTypeStats()).map(([type, count]) => {
                 let color;
@@ -364,166 +520,30 @@ export default function HolidayPageContent({
         </div>
       )}
 
-      {/* States Navigation - enhanced with contextual header */}
-      {(countryCode && !stateCode && states.length > 0) && (
-        <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-            <MapPinIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">States and Provinces in {location.country}</h2>
-          </div>
-
-          <div className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {isLoadingStates ? (
-                // Skeleton loaders
-                Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="p-3 bg-gray-50 dark:bg-gray-750 rounded-lg flex items-center animate-pulse">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 mr-3"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  </div>
-                ))
-              ) : (
-                // State links with simplified UI
-                states.map(state => (
-                  <Link
-                    key={state.code}
-                    href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
-                    className="p-3 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-lg flex items-center group"
-                  >
-                    <div
-                      className="w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-3 flex-shrink-0">
-                      <MapPinIcon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                    </div>
-                    <div className="flex-1">
-                      <span
-                        className="font-medium text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                        {state.name}
-                      </span>
-                    </div>
-                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 transition-colors" />
-                  </Link>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Navigation to regions - with contextual header */}
-      {(countryCode && stateCode && !regionCode && regions.length > 0) && (
-        <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-            <CompassIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Regions in {location.state}</h2>
-          </div>
-
-          <div className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {isLoadingRegions ? (
-                // Skeleton loaders
-                Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="p-3 bg-gray-50 dark:bg-gray-750 rounded-lg flex items-center animate-pulse">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 mr-3"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  </div>
-                ))
-              ) : (
-                // Region links with simplified UI
-                regions.map(region => (
-                  <Link
-                    key={region.code}
-                    href={`/holidays/${countryCode?.toLowerCase()}/${stateCode?.toLowerCase()}/${region.code.toLowerCase()}`}
-                    className="p-3 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-lg flex items-center group"
-                  >
-                    <div
-                      className="w-8 h-8 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-3 flex-shrink-0">
-                      <MapPinIcon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                    </div>
-                    <div className="flex-1">
-                      <span
-                        className="font-medium text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                        {region.name}
-                      </span>
-                    </div>
-                    <ChevronRightIcon className="h-4 w-4 text-gray-400 group-hover:text-teal-500 transition-colors" />
-                  </Link>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Holiday tabs for years - with contextual header */}
-      <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-          <CalendarIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Holiday Calendar</h2>
+      {/* 5. ABOUT SECTION - with card styling */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center">
+          <InfoIcon className="h-4 w-4 mr-2 text-teal-600 dark:text-teal-400" />
+          <h2 className="text-sm font-medium text-gray-900 dark:text-white">About {regionCode ? 'Regional' : stateCode ? 'State' : 'National'} Holidays</h2>
         </div>
         
-        <div className="p-4">
-          <Tabs defaultValue={currentYear.toString()} className="w-full">
-            <TabsList className="w-full flex rounded-xl p-1 bg-gray-100 dark:bg-gray-800 mb-6">
-              <TabsTrigger
-                value={currentYear.toString()}
-                className="flex-1 rounded-lg py-2 text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm"
-              >
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                {currentYear} Holidays
-              </TabsTrigger>
-              <TabsTrigger
-                value={nextYear.toString()}
-                className="flex-1 rounded-lg py-2 text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm"
-              >
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                {nextYear} Holidays
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value={currentYear.toString()}>
-              <HolidayCalendar holidays={currentYearHolidays} year={currentYear} />
-            </TabsContent>
-
-            <TabsContent value={nextYear.toString()}>
-              <HolidayCalendar holidays={nextYearHolidays} year={nextYear} />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-
-      {/* About section - simplified */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
-          <InfoIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-            About {regionCode ? 'Regional' : stateCode ? 'State' : 'National'} Holidays
-          </h2>
-        </div>
-
-        <div className="p-6">
-          <div className="space-y-4 text-gray-600 dark:text-gray-300 text-sm">
-            <p>
-              Public holidays in <strong>{location.country}</strong> are days when most businesses, schools, and
-              government offices are closed. These holidays commemorate important historical, cultural, or
-              religious events significant to {location.country}'s heritage and identity.
+        <div className="p-4 text-sm text-gray-600 dark:text-gray-300">
+          <p className="mb-2">
+            <span className="font-medium text-gray-700 dark:text-gray-300">Public holidays in {location.country}.</span> These are days when most businesses, schools, and government offices are closed.
+          </p>
+          {location.state && (
+            <p className="mb-2">
+              <span className="font-medium text-gray-700 dark:text-gray-300">{location.state}</span> may have specific regional holidays unique to this part of {location.country}.
             </p>
-            <p>
-              During public holidays, people often celebrate with family gatherings, special
-              meals, or traditional activities. Many cultural events and festivals showcase the unique
-              traditions and customs of {location.country}.
+          )}
+          {location.region && (
+            <p className="mb-2">
+              <span className="font-medium text-gray-700 dark:text-gray-300">{location.region}</span> has local observances specific to this area within {location.state}.
             </p>
-            {location.state && (
-              <p>
-                <strong>{location.state}</strong> may have specific regional holidays that are unique
-                to this part of {location.country}, contributing to the local cultural identity.
-              </p>
-            )}
-            {location.region && (
-              <p>
-                <strong>{location.region}</strong> has unique local observances specific
-                to this area of {location.state}, preserving local cultural heritage.
-              </p>
-            )}
+          )}
+          <div className="flex items-center mt-3 text-xs text-gray-400 dark:text-gray-500">
+            <InfoIcon className="h-3.5 w-3.5 mr-1.5" />
+            Dates may vary based on local observations and official announcements
           </div>
         </div>
       </div>
@@ -531,73 +551,33 @@ export default function HolidayPageContent({
   );
 }
 
-interface HolidayCalendarProps {
-  holidays: HolidaysTypes.Holiday[];
-  year: number;
-}
-
-function HolidayCalendar({ holidays, year }: HolidayCalendarProps) {
+// Enhanced holiday list component
+function HolidayList({ holidays }: { holidays: HolidaysTypes.Holiday[] }) {
   // Group holidays by month
   const holidaysByMonth: Record<string, HolidaysTypes.Holiday[]> = {};
 
   holidays.forEach(holiday => {
     const date = new Date(holiday.date);
     const month = format(date, 'MMMM');
-
+    
     if (!holidaysByMonth[month]) {
       holidaysByMonth[month] = [];
     }
-
+    
     holidaysByMonth[month].push(holiday);
   });
 
-  // Get type label and style
-  const getHolidayTypeBadge = (type: string) => {
-    switch (type) {
-      case 'public':
-        return {
-          label: 'Public Holiday',
-          className: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
-        };
-      case 'bank':
-        return {
-          label: 'Bank Holiday',
-          className: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800/30',
-        };
-      case 'school':
-        return {
-          label: 'School Holiday',
-          className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800/30',
-        };
-      case 'optional':
-        return {
-          label: 'Optional Holiday',
-          className: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800/30',
-        };
-      default:
-        return {
-          label: 'Observance',
-          className: 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600',
-        };
-    }
-  };
-
   if (Object.keys(holidaysByMonth).length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 text-center">
-        <div
-          className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 mx-auto flex items-center justify-center mb-4">
-          <CalendarIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+      <div className="py-6 text-center">
+        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 mx-auto flex items-center justify-center mb-3">
+          <CalendarIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No holidays found</h3>
-        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
-          There are no public holidays available for this location and year.
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">No holidays found for this location and year.</p>
         <Link
           href="/holidays"
-          className="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-block mt-3 text-sm text-teal-600 dark:text-teal-400 hover:underline"
         >
-          <GlobeIcon className="h-4 w-4 mr-2" />
           Explore other countries
         </Link>
       </div>
@@ -605,69 +585,79 @@ function HolidayCalendar({ holidays, year }: HolidayCalendarProps) {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       {Object.entries(holidaysByMonth).map(([month, monthHolidays]) => (
-        <div key={month} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          {/* Month header */}
-          <div
-            className="px-6 py-4 bg-gray-50 dark:bg-gray-750 border-b border-gray-200 dark:border-gray-700 flex items-center">
-            <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-3">
-              <span className="font-medium text-teal-700 dark:text-teal-300">{month.substring(0, 3)}</span>
+        <div key={month} className="bg-gray-50 dark:bg-gray-750 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 flex items-center border-b border-gray-200 dark:border-gray-700">
+            <div className="w-8 h-8 rounded-md bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mr-3">
+              <span className="font-medium text-teal-600 dark:text-teal-400">{month.substring(0, 3)}</span>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{month} {year}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {monthHolidays.length} holiday{monthHolidays.length !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div
-              className="ml-auto text-xs font-semibold rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 w-6 h-6 flex items-center justify-center">
-              {monthHolidays.length}
-            </div>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+              {month}
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-normal ml-1.5">
+                ({monthHolidays.length} {monthHolidays.length === 1 ? 'holiday' : 'holidays'})
+              </span>
+            </h3>
           </div>
-
-          {/* Holiday list */}
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+          
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {monthHolidays.map((holiday, index) => {
               const date = new Date(holiday.date);
               const dayNumber = format(date, 'd');
-              const dayName = format(date, 'EEEE');
-              const { label: typeLabel, className: typeBadgeClass } = getHolidayTypeBadge(holiday.type);
+              const dayName = format(date, 'EEE');
+              
+              // Type badge styling
+              let typeLabel, typeBadgeClass;
+              switch (holiday.type) {
+                case 'public':
+                  typeLabel = 'Public';
+                  typeBadgeClass = 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-0';
+                  break;
+                case 'bank':
+                  typeLabel = 'Bank';
+                  typeBadgeClass = 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-0';
+                  break;
+                case 'school':
+                  typeLabel = 'School';
+                  typeBadgeClass = 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border-0';
+                  break;
+                case 'optional':
+                  typeLabel = 'Optional';
+                  typeBadgeClass = 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 border-0';
+                  break;
+                default:
+                  typeLabel = 'Observance';
+                  typeBadgeClass = 'bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-0';
+              }
 
               return (
-                <div key={index} className="flex p-0">
-                  {/* Date column */}
-                  <div
-                    className="w-20 sm:w-24 py-5 px-4 flex flex-col items-center justify-center border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750">
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{dayNumber}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">{dayName}</span>
+                <li key={index} className="flex p-0">
+                  <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 py-3 px-2 flex flex-col items-center justify-center border-r border-gray-200 dark:border-gray-700">
+                    <div className="font-semibold text-gray-900 dark:text-white">{dayNumber}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{dayName}</div>
                   </div>
-
-                  {/* Holiday details */}
-                  <div className="flex-1 p-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-1">
-                      <h4 className="text-base font-medium text-gray-900 dark:text-white">{holiday.name}</h4>
-                      <Badge variant="outline"
-                             className={`w-fit px-2 py-0.5 text-xs font-medium whitespace-nowrap ${typeBadgeClass}`}>
+                  
+                  <div className="flex-1 p-3">
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {holiday.name}
+                    </div>
+                    
+                    <div className="flex items-center mt-1.5 space-x-1.5">
+                      <Badge className={`px-1.5 py-0.5 text-xs ${typeBadgeClass}`}>
                         {typeLabel}
                       </Badge>
+                      
+                      {holiday.substitute && (
+                        <span className="text-xs text-yellow-600 dark:text-yellow-400 px-1.5 py-0.5 bg-yellow-50 dark:bg-yellow-900/20 rounded-sm">
+                          Substitute
+                        </span>
+                      )}
                     </div>
-
-                    {holiday.substitute && (
-                      <div
-                        className="mt-2 text-xs bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 py-1 px-2 rounded inline-flex items-center">
-                        <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Substitute holiday
-                      </div>
-                    )}
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </div>
       ))}
     </div>

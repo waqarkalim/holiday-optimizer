@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getAvailableCountries, getPublicHolidaysByCountry } from '@/services/holidays';
+import { getAvailableCountries, getAllHolidaysByCountry } from '@/services/holidays';
 import HolidayPageContent from '@/components/features/holidays/HolidayPageContent';
 import { CountryInfo } from '@/lib/storage/location';
 
@@ -50,10 +50,10 @@ export default async function CountryHolidaysPage(props: { params: Promise<Count
 
   // Get holidays for the country
   const currentYear = new Date().getFullYear();
-  const holidays = getPublicHolidaysByCountry(currentYear, { country: countryInfo.countryCode });
+  const holidays = getAllHolidaysByCountry(currentYear, { country: countryInfo.countryCode });
 
   // Get holidays for next year too
-  const nextYearHolidays = getPublicHolidaysByCountry(currentYear + 1, { country: countryInfo.countryCode });
+  const nextYearHolidays = getAllHolidaysByCountry(currentYear + 1, { country: countryInfo.countryCode });
 
   return (
     <HolidayPageContent
