@@ -16,7 +16,6 @@ interface RelatedLocationsProps {
 export default function RelatedLocations({
   currentCountry,
   currentState,
-  currentRegion,
   countryCode,
   stateCode,
   regionCode,

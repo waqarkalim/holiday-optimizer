@@ -158,10 +158,10 @@ export default function TermsOfService() {
             <p className="text-gray-600 dark:text-gray-400">
               {PROJECT_NAME} provides holiday information sourced from third-party libraries and services. 
               While the data is maintained with care, holidays may vary by region, change yearly, or be affected by special circumstances.
-              Your employer's policy may also differ from official calendars.
+              Your employer&apos;s policy may also differ from official calendars.
             </p>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              It's recommended to verify all holiday information with official government sources, your employer, 
+              It&apos;s recommended to verify all holiday information with official government sources, your employer,
               or other authoritative references before making any travel arrangements or planning time off.
             </p>
           </section>
