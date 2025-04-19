@@ -49,6 +49,7 @@
     "@types/file-saver": "^2.0.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "countries-list": "^3.1.1",
     "date-fns": "^4.1.0",
     "date-holidays": "^3.24.1",
     "embla-carousel-react": "^8.5.2",
