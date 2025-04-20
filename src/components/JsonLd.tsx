@@ -140,7 +140,10 @@ export const BreadcrumbJsonLd = (props: BreadcrumbJsonLdProps) => (
         itemListElement: props.items.map((item, index) => ({
           '@type': 'ListItem',
           position: index + 1,
-          ...item
+          item: {
+            '@id': item.url,
+            name: item.name
+          }
         })),
       }),
     }}
