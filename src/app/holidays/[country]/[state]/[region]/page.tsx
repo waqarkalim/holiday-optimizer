@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getAvailableCountries, getAllHolidaysByCountry, getRegions, getStates } from '@/services/holidays';
+import { getAllHolidaysByCountry, getAvailableCountries, getRegions, getStates } from '@/services/holidays';
 import HolidayPageContent from '@/components/features/holidays/HolidayPageContent';
 import { CountryInfo } from '@/lib/storage/location';
+import { WebPageJsonLd } from '@/components/JsonLd';
 
 // Generate static paths for all country/state/region combinations
 export async function generateStaticParams() {
@@ -120,6 +121,8 @@ export default async function RegionHolidaysPage(props: { params: Promise<Countr
 
   // Get holidays for the country, state, and region
   const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+
   const holidays = getAllHolidaysByCountry(
     currentYear,
     {
@@ -131,7 +134,7 @@ export default async function RegionHolidaysPage(props: { params: Promise<Countr
 
   // Get holidays for next year too
   const nextYearHolidays = getAllHolidaysByCountry(
-    currentYear + 1,
+    nextYear,
     {
       country: countryInfo.countryCode,
       state: stateInfo.code,
@@ -139,19 +142,53 @@ export default async function RegionHolidaysPage(props: { params: Promise<Countr
     },
   );
 
+  // Prepare data for schema.org structured data
+  const pageTitle = `${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`;
+  const pageDescription = `Detailed list of public holidays, local observances, and special events in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`;
+  const pageUrl = `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}/${region!.toLowerCase()}`;
+
+  // Prepare holiday items for structured data
+  const holidayItems = holidays.map(holiday => ({
+    name: holiday.name,
+    description: `${holiday.name} - Public holiday in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name}`,
+    startDate: holiday.date as string,
+    location: {
+      '@type': 'AdministrativeArea' as const,
+      name: regionInfo.name,
+      containedInPlace: {
+        '@type': 'State' as const,
+        name: stateInfo.name,
+        containedInPlace: {
+          '@type': 'Country' as const,
+          name: countryInfo.name
+        }
+      }
+    },
+  }));
+
   return (
-    <HolidayPageContent
-      title={`Public Holidays in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name}`}
-      location={{
-        country: countryInfo.name,
-        state: stateInfo.name,
-        region: regionInfo.name,
-      }}
-      countryCode={countryInfo.countryCode}
-      stateCode={stateInfo.code}
-      regionCode={regionInfo.code}
-      currentYearHolidays={holidays}
-      nextYearHolidays={nextYearHolidays}
-    />
+    <>
+      {/* Schema.org structured data */}
+      <WebPageJsonLd
+        name={pageTitle}
+        description={pageDescription}
+        url={pageUrl}
+        itemListElements={holidayItems}
+        id="region-jsonld"
+      />
+      <HolidayPageContent
+        title={`Public Holidays in ${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name}`}
+        location={{
+          country: countryInfo.name,
+          state: stateInfo.name,
+          region: regionInfo.name,
+        }}
+        countryCode={countryInfo.countryCode}
+        stateCode={stateInfo.code}
+        regionCode={regionInfo.code}
+        currentYearHolidays={holidays}
+        nextYearHolidays={nextYearHolidays}
+      />
+    </>
   );
 }

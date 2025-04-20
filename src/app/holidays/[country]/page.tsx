@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getAvailableCountries, getAllHolidaysByCountry } from '@/services/holidays';
+import { getAllHolidaysByCountry, getAvailableCountries } from '@/services/holidays';
 import HolidayPageContent from '@/components/features/holidays/HolidayPageContent';
 import { CountryInfo } from '@/lib/storage/location';
+import { WebPageJsonLd } from '@/components/JsonLd';
 
 // Generate static paths for all countries
 export async function generateStaticParams() {
@@ -68,18 +69,46 @@ export default async function CountryHolidaysPage(props: { params: Promise<Count
 
   // Get holidays for the country
   const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+
   const holidays = getAllHolidaysByCountry(currentYear, { country: countryInfo.countryCode });
 
   // Get holidays for next year too
-  const nextYearHolidays = getAllHolidaysByCountry(currentYear + 1, { country: countryInfo.countryCode });
+  const nextYearHolidays = getAllHolidaysByCountry(nextYear, { country: countryInfo.countryCode });
+
+  // Prepare data for schema.org structured data
+  const pageTitle = `${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`;
+  const pageDescription = `Complete list of ${countryInfo.name} public holidays, bank holidays, and national observances for ${currentYear} and ${nextYear}.`;
+  const pageUrl = `https://holidayoptimizer.com/holidays/${country.toLowerCase()}`;
+
+  // Prepare holiday items for structured data
+  const holidayItems = holidays.map(holiday => ({
+    name: holiday.name,
+    description: `${holiday.name} - Public holiday in ${countryInfo.name}`,
+    startDate: holiday.date as string,
+    location: {
+      '@type': 'Country' as const,
+      name: countryInfo.name,
+    },
+  }));
 
   return (
-    <HolidayPageContent
-      title={`Public Holidays in ${countryInfo.name}`}
-      location={{ country: countryInfo.name }}
-      countryCode={countryInfo.countryCode}
-      currentYearHolidays={holidays}
-      nextYearHolidays={nextYearHolidays}
-    />
+    <>
+      {/* Schema.org structured data */}
+      <WebPageJsonLd
+        name={pageTitle}
+        description={pageDescription}
+        url={pageUrl}
+        itemListElements={holidayItems}
+        id="country-jsonld"
+      />
+      <HolidayPageContent
+        title={`Public Holidays in ${countryInfo.name}`}
+        location={{ country: countryInfo.name }}
+        countryCode={countryInfo.countryCode}
+        currentYearHolidays={holidays}
+        nextYearHolidays={nextYearHolidays}
+      />
+    </>
   );
 }

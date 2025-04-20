@@ -147,3 +147,68 @@ export const BreadcrumbJsonLd = (props: BreadcrumbJsonLdProps) => (
     strategy="afterInteractive"
   />
 );
+
+// Define location types for schema.org
+interface SchemaCountry {
+  '@type': 'Country';
+  name: string;
+}
+
+interface SchemaState {
+  '@type': 'State';
+  name: string;
+  containedInPlace?: SchemaCountry;
+}
+
+interface SchemaAdministrativeArea {
+  '@type': 'AdministrativeArea';
+  name: string;
+  containedInPlace?: SchemaState;
+}
+
+type SchemaLocation = SchemaCountry | SchemaState | SchemaAdministrativeArea;
+
+interface WebPageJsonLdProps {
+  name: string;
+  description: string;
+  url: string;
+  itemListElements: Array<{
+    name: string;
+    description: string;
+    startDate?: string;
+    location?: SchemaLocation;
+  }>;
+  id?: string;
+}
+
+export const WebPageJsonLd = (props: WebPageJsonLdProps) => (
+  <Script
+    id={props.id || "webpage-jsonld"}
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: props.name,
+        description: props.description,
+        url: props.url,
+        mainEntity: {
+          '@type': 'ItemList',
+          'itemListElement': props.itemListElements.map((item, index) => ({
+            '@type': 'ListItem',
+            'position': index + 1,
+            'name': item.name,
+            'item': {
+              '@type': 'Event',
+              'name': item.name,
+              'description': item.description,
+              ...(item.startDate && { 'startDate': item.startDate }),
+              ...(item.location && { 'location': item.location }),
+            },
+          })),
+        },
+      }),
+    }}
+    strategy="afterInteractive"
+  />
+);

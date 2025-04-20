@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getAvailableCountries, getAllHolidaysByCountry, getStates } from '@/services/holidays';
+import { getAllHolidaysByCountry, getAvailableCountries, getStates } from '@/services/holidays';
 import HolidayPageContent from '@/components/features/holidays/HolidayPageContent';
 import { CountryInfo } from '@/lib/storage/location';
+import { WebPageJsonLd } from '@/components/JsonLd';
 
 // Generate static paths for all country/state combinations
 export async function generateStaticParams() {
@@ -97,6 +98,8 @@ export default async function StateHolidaysPage(props: { params: Promise<Country
 
   // Get holidays for the country and state
   const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1
+
   const holidays = getAllHolidaysByCountry(
     currentYear,
     { country: countryInfo.countryCode, state: stateInfo.code },
@@ -104,21 +107,51 @@ export default async function StateHolidaysPage(props: { params: Promise<Country
 
   // Get holidays for next year too
   const nextYearHolidays = getAllHolidaysByCountry(
-    currentYear + 1,
+    nextYear,
     { country: countryInfo.countryCode, state: stateInfo.code },
   );
 
+  // Prepare data for schema.org structured data
+  const pageTitle = `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`;
+  const pageDescription = `Official list of public holidays, bank holidays, and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`;
+  const pageUrl = `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}`;
+
+  // Prepare holiday items for structured data
+  const holidayItems = holidays.map(holiday => ({
+    name: holiday.name,
+    description: `${holiday.name} - Public holiday in ${stateInfo.name}, ${countryInfo.name}`,
+    startDate: holiday.date as string,
+    location: {
+      '@type': 'State' as const,
+      name: stateInfo.name,
+      containedInPlace: {
+        '@type': 'Country' as const,
+        name: countryInfo.name
+      }
+    },
+  }));
+
   return (
-    <HolidayPageContent
-      title={`Public Holidays in ${stateInfo.name}, ${countryInfo.name}`}
-      location={{
-        country: countryInfo.name,
-        state: stateInfo.name,
-      }}
-      countryCode={countryInfo.countryCode}
-      stateCode={stateInfo.code}
-      currentYearHolidays={holidays}
-      nextYearHolidays={nextYearHolidays}
-    />
+    <>
+      {/* Schema.org structured data */}
+      <WebPageJsonLd
+        name={pageTitle}
+        description={pageDescription}
+        url={pageUrl}
+        itemListElements={holidayItems}
+        id="state-jsonld"
+      />
+      <HolidayPageContent
+        title={`Public Holidays in ${stateInfo.name}, ${countryInfo.name}`}
+        location={{
+          country: countryInfo.name,
+          state: stateInfo.name,
+        }}
+        countryCode={countryInfo.countryCode}
+        stateCode={stateInfo.code}
+        currentYearHolidays={holidays}
+        nextYearHolidays={nextYearHolidays}
+      />
+    </>
   );
 }
