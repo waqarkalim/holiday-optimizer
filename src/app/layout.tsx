@@ -132,12 +132,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <BreadcrumbJsonLd
         items={[
           {
-            name: "Home",
+            name: "Holiday Optimizer",
             url: baseUrl
           },
           {
-            name: "Holiday Optimizer Tool",
+            name: "PTO Optimization Tool",
             url: `${baseUrl}/`
+          },
+          {
+            name: "How Holiday Optimizer Works",
+            url: `${baseUrl}/how-it-works`
           }
         ]}
       />
