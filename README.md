@@ -1,3 +1,6 @@
+![Solo Project](https://img.shields.io/badge/project-solo-blue.svg)
+> 🚫 **Solo Project** – I’m not accepting contributions at this time.
+
 # Holiday Optimizer
 
 A web application for optimizing Paid Time Off (PTO) usage.
@@ -107,6 +110,12 @@ pnpm lint
 # Format code
 pnpm format
 ```
+
+## Contribution
+
+Thank you for your interest! This repository is maintained solely by me.  
+I’m not accepting pull requests or forks.  
+If you’d like to support the project, feel free to ⭐ the repo.
 
 ## License
 
