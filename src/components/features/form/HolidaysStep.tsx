@@ -8,6 +8,7 @@ import { useEffect, useReducer } from 'react';
 import { useCountries, useHolidaysByCountry, useRegions, useStates } from '@/hooks/useHolidayQueries';
 import { CountryInfo, getStoredLocationData, storeLocationData } from '@/lib/storage/location';
 import { convertToDateObject } from '@/utils/dates';
+import { format } from 'date-fns';
 
 // Define the state interface for the reducer
 interface HolidaysState {
@@ -103,7 +104,7 @@ export const HolidaysStep = () => {
     if (!holidaysData) return;
 
     setDetectedHolidays(holidaysData.map(holiday => {
-      const displayDate = convertToDateObject(holiday.date).toISOString().split('T')[0];
+      const displayDate = format(convertToDateObject(holiday.date), 'yyyy-MM-dd');
 
       return {
         date: displayDate,
