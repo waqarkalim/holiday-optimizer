@@ -1,5 +1,5 @@
 ![Solo Project](https://img.shields.io/badge/project-solo-blue.svg)
-> 🚫 **Solo Project** – I’m not accepting contributions at this time.
+> 🚫 **Solo Project** – I'm not accepting contributions at this time.
 
 # Holiday Optimizer
 
@@ -31,7 +31,7 @@ This project is built with:
 - **Data Fetching**: React Query (TanStack Query)
 - **Notifications**: Sonner (Toasts)
 - **Testing**: Jest, React Testing Library (Planned/Setup)
-- **Deployment**: Cloudflare Pages
+- **Deployment**: Cloudflare Pages, Docker
 - **CI/CD**: GitHub Actions
 
 ## Getting Started
@@ -63,7 +63,21 @@ This project is built with:
 
 ## Deployment
 
-This application is deployed to Cloudflare Pages. For deployment details, see [DEPLOYMENT.md](DEPLOYMENT.md).
+### Cloudflare Pages
+
+This application can be deployed to Cloudflare Pages. For details, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Docker
+
+For Docker-based deployment, see [DOCKER.md](DOCKER.md) for instructions.
+
+Quick start with Docker:
+```bash
+# Build and start containers
+docker-compose up -d
+
+# Access at http://localhost:3000
+```
 
 ## Project Structure
 
@@ -114,8 +128,8 @@ pnpm format
 ## Contribution
 
 Thank you for your interest! This repository is maintained solely by me.  
-I’m not accepting pull requests or forks.  
-If you’d like to support the project, feel free to ⭐ the repo.
+I'm not accepting pull requests or forks.  
+If you'd like to support the project, feel free to ⭐ the repo.
 
 ## License
 

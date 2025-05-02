@@ -1,0 +1,34 @@
+# Node.js related
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Build outputs
+.next
+out
+
+# Development
+.git
+.github
+.husky
+.vscode
+.idea
+*.md
+!README.md
+
+# Test files
+__tests__
+coverage
+
+# Environment variables
+.env*
+!.env.example
+
+# Misc
+.DS_Store
+*.log
+Dockerfile
+docker-compose.yml
+.dockerignore 
