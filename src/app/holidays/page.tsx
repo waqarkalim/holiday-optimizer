@@ -4,15 +4,24 @@ import { getAvailableCountries } from '@/services/holidays';
 import { CalendarIcon, CheckCircleIcon, GlobeIcon } from 'lucide-react';
 import { continents, getCountryData, TCountryCode } from 'countries-list';
 import CountrySearch from '@/components/features/holidays/CountrySearch';
-import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/components/layout/PageLayout';
+import {
+  PageContent,
+  PageDescription,
+  PageHeader,
+  PageLayout,
+  PageTitle,
+} from '@/components/layout/PageLayout';
 
 export const metadata: Metadata = {
   title: 'Public Holidays Around the World | Global Holiday Calendar',
-  description: 'Explore public holidays, bank holidays, and national observances for countries worldwide. Find official holiday dates for over 100 countries to plan your international travel, business operations, and cultural events.',
-  keywords: 'public holidays, national holidays, bank holidays, world holidays, international holidays, global holidays, country holidays, official holidays, holiday calendar, days off, vacation planning',
+  description:
+    'Explore public holidays, bank holidays, and national observances for countries worldwide. Find holiday dates for over 100 countries to plan your international travel, business operations, and cultural events.',
+  keywords:
+    'public holidays, national holidays, bank holidays, world holidays, international holidays, global holidays, country holidays, holiday calendar, days off, vacation planning',
   openGraph: {
     title: 'Public Holidays Around the World | Global Holiday Calendar',
-    description: 'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
+    description:
+      'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
     type: 'website',
     url: 'https://holidayoptimizer.com/holidays',
     siteName: 'Holiday Optimizer',
@@ -20,7 +29,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
     title: 'Public Holidays Around the World | Global Holiday Calendar',
-    description: 'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
+    description:
+      'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
   },
   alternates: {
     canonical: 'https://holidayoptimizer.com/holidays',
@@ -55,19 +65,20 @@ export default async function HolidaysIndexPage() {
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    'name': 'Public Holidays Around the World',
-    'description': 'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
-    'url': 'https://holidayoptimizer.com/holidays',
-    'mainEntity': {
+    name: 'Public Holidays Around the World',
+    description:
+      'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
+    url: 'https://holidayoptimizer.com/holidays',
+    mainEntity: {
       '@type': 'ItemList',
-      'itemListElement': sortedGroups.map((group, index) => ({
+      itemListElement: sortedGroups.map((group, index) => ({
         '@type': 'ListItem',
-        'position': index + 1,
-        'name': group,
-        'item': {
+        position: index + 1,
+        name: group,
+        item: {
           '@type': 'Thing',
-          'name': group,
-          'description': `Public holidays in ${group} countries`,
+          name: group,
+          description: `Public holidays in ${group} countries`,
         },
       })),
     },
@@ -92,12 +103,13 @@ export default async function HolidaysIndexPage() {
           </div>
 
           <PageTitle className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight text-white">
-            Discover Public Holidays <br className="hidden sm:block" />Around the World
+            Discover Public Holidays <br className="hidden sm:block" />
+            Around the World
           </PageTitle>
 
           <PageDescription className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
-            Find official public holidays for {sortedCountries.length} countries worldwide.
-            Plan your travels, business operations, or simply learn about different cultural celebrations.
+            Find public holidays for {sortedCountries.length} countries worldwide. Plan your
+            travels, business operations, or simply learn about different cultural celebrations.
           </PageDescription>
 
           <div className="flex flex-wrap gap-4 justify-center mb-10">
@@ -151,8 +163,8 @@ export default async function HolidaysIndexPage() {
                 Why Use Our Holiday Calendar?
               </h2>
               <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Our comprehensive public holiday database offers several benefits for travelers, businesses, and the
-                culturally curious.
+                Our comprehensive public holiday database offers several benefits for travelers,
+                businesses, and the culturally curious.
               </p>
             </div>
 
@@ -165,8 +177,8 @@ export default async function HolidaysIndexPage() {
                   Comprehensive Coverage
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Access holiday information for {sortedCountries.length} countries worldwide, including regional and
-                  local observances.
+                  Access holiday information for {sortedCountries.length} countries worldwide,
+                  including regional and local observances.
                 </p>
               </div>
 
@@ -178,8 +190,8 @@ export default async function HolidaysIndexPage() {
                   Current & Upcoming Years
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  View holidays for both the current and upcoming year to plan ahead for vacations, business operations,
-                  and events.
+                  View holidays for both the current and upcoming year to plan ahead for vacations,
+                  business operations, and events.
                 </p>
               </div>
 
@@ -191,7 +203,7 @@ export default async function HolidaysIndexPage() {
                   Accurate & Reliable
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Our data is based on official government sources and regularly updated to ensure accuracy and
+                  Our data is based on reliable sources and regularly updated to ensure accuracy and
                   reliability.
                 </p>
               </div>
@@ -211,20 +223,21 @@ export default async function HolidaysIndexPage() {
 
             <div className="p-6 md:p-8 space-y-4 text-gray-600 dark:text-gray-300">
               <p>
-                Public holidays, also known as national holidays or legal holidays, are days when most businesses,
-                schools, and government offices are closed.
-                These holidays are established by law and typically commemorate important historical, cultural, or
+                Public holidays, also known as national holidays or legal holidays, are days when
+                most businesses, schools, and government offices are closed. These holidays are
+                established by law and typically commemorate important historical, cultural, or
                 religious events.
               </p>
               <p>
-                Different countries have their own unique set of public holidays that reflect their history, culture, and
-                traditions.
-                Some holidays, like New Year&apos;s Day, are celebrated in many countries around the world, while others
-                are specific to certain regions or cultures.
+                Different countries have their own unique set of public holidays that reflect their
+                history, culture, and traditions. Some holidays, like New Year&apos;s Day, are
+                celebrated in many countries around the world, while others are specific to certain
+                regions or cultures.
               </p>
               <p>
-                Use this resource to explore public holidays for countries around the world and plan your travels,
-                business operations, or simply learn about different cultural celebrations.
+                Use this resource to explore public holidays for countries around the world and plan
+                your travels, business operations, or simply learn about different cultural
+                celebrations.
               </p>
             </div>
           </div>

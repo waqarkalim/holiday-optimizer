@@ -34,9 +34,9 @@ export async function generateMetadata(props: { params: Promise<CountryInfo> }):
   const nextYear = currentYear + 1;
 
   return {
-    title: `${countryInfo.name} Public Holidays ${currentYear}-${nextYear} | Official Calendar`,
-    description: `Complete list of ${countryInfo.name} public holidays, bank holidays, and national observances for ${currentYear} and ${nextYear}. Plan your vacations and business operations with our official holiday calendar.`,
-    keywords: `${countryInfo.name} public holidays, ${countryInfo.name} bank holidays, ${countryInfo.name} national holidays, ${countryInfo.name} holiday calendar, ${countryInfo.name} days off, ${countryInfo.name} official holidays, ${currentYear} holidays, ${nextYear} holidays`,
+    title: `${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
+    description: `Complete list of ${countryInfo.name} public holidays, bank holidays, and national observances for ${currentYear} and ${nextYear}. Plan your vacations and business operations with our holiday calendar.`,
+    keywords: `${countryInfo.name} public holidays, ${countryInfo.name} bank holidays, ${countryInfo.name} national holidays, ${countryInfo.name} holiday calendar, ${countryInfo.name} days off, ${countryInfo.name} holidays, ${currentYear} holidays, ${nextYear} holidays`,
     openGraph: {
       title: `${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
       description: `Complete list of public holidays and observances in ${countryInfo.name} for ${currentYear} and ${nextYear}. Plan your vacations and business operations.`,
