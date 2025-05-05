@@ -57,7 +57,7 @@ export async function generateMetadata(props: { params: Promise<CountryInfo> }):
 
   return {
     title: `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear} | Regional Calendar`,
-    description: `Official list of public holidays, bank holidays, and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}. Find state-specific holidays and plan your local activities.`,
+    description: `List of public holidays, bank holidays, and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}. Find state-specific holidays and plan your local activities.`,
     keywords: `${stateInfo.name} holidays, ${stateInfo.name} ${countryInfo.name} public holidays, ${stateInfo.name} regional holidays, ${stateInfo.name} bank holidays, ${stateInfo.name} state holidays, ${stateInfo.name} days off, ${currentYear} ${stateInfo.name} holidays, ${nextYear} ${stateInfo.name} holidays`,
     openGraph: {
       title: `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`,
@@ -98,22 +98,22 @@ export default async function StateHolidaysPage(props: { params: Promise<Country
 
   // Get holidays for the country and state
   const currentYear = new Date().getFullYear();
-  const nextYear = currentYear + 1
+  const nextYear = currentYear + 1;
 
-  const holidays = getAllHolidaysByCountry(
-    currentYear,
-    { country: countryInfo.countryCode, state: stateInfo.code },
-  );
+  const holidays = getAllHolidaysByCountry(currentYear, {
+    country: countryInfo.countryCode,
+    state: stateInfo.code,
+  });
 
   // Get holidays for next year too
-  const nextYearHolidays = getAllHolidaysByCountry(
-    nextYear,
-    { country: countryInfo.countryCode, state: stateInfo.code },
-  );
+  const nextYearHolidays = getAllHolidaysByCountry(nextYear, {
+    country: countryInfo.countryCode,
+    state: stateInfo.code,
+  });
 
   // Prepare data for schema.org structured data
   const pageTitle = `${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`;
-  const pageDescription = `Official list of public holidays, bank holidays, and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`;
+  const pageDescription = `List of public holidays, bank holidays, and regional observances in ${stateInfo.name}, ${countryInfo.name} for ${currentYear} and ${nextYear}.`;
   const pageUrl = `https://holidayoptimizer.com/holidays/${country.toLowerCase()}/${state!.toLowerCase()}`;
 
   // Prepare holiday items for structured data
@@ -126,8 +126,8 @@ export default async function StateHolidaysPage(props: { params: Promise<Country
       name: stateInfo.name,
       containedInPlace: {
         '@type': 'Country' as const,
-        name: countryInfo.name
-      }
+        name: countryInfo.name,
+      },
     },
   }));
 
