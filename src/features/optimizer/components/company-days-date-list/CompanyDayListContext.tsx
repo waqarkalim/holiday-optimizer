@@ -2,10 +2,8 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   ReactNode,
-  useCallback,
   KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
 import { format, parse } from 'date-fns';
@@ -142,13 +140,14 @@ export const CompanyDayListProvider = ({
   const [editingTarget, setEditingTarget] = useState<EditingTarget>(null);
   const [editingValue, setEditingValue] = useState('');
 
-  const groups = useMemo(() => groupCompanyDays(items), [items]);
+  const groups = groupCompanyDays(items);
   const itemCount = items.length;
   const theme = colorStyles[colorScheme];
 
   useEffect(() => {
-    setCollapsedGroups(getCollapsedDefaults(groups));
-  }, [groups]);
+    const grouped = groupCompanyDays(items);
+    setCollapsedGroups(getCollapsedDefaults(grouped));
+  }, [items]);
 
   useEffect(() => {
     setSelectedDates(prev => prev.filter(date => items.some(item => item.date === date)));
@@ -164,151 +163,142 @@ export const CompanyDayListProvider = ({
     }
   }, [items, editingTarget]);
 
-  const toggleDateSelection = useCallback((date: string) => {
+  const toggleDateSelection = (date: string) => {
     setSelectedDates(prev =>
       prev.includes(date) ? prev.filter(value => value !== date) : [...prev, date]
     );
-  }, []);
+  };
 
-  const toggleGroupSelection = useCallback(
-    (groupName: string) => {
-      const group = groups.find(({ name }) => name === groupName);
-      if (!group) return;
+  const toggleGroupSelection = (groupName: string) => {
+    const group = groups.find(({ name }) => name === groupName);
+    if (!group) return;
 
-      const dates = group.dates.map(({ date }) => date);
-      setSelectedDates(prev => {
-        const allSelected = dates.every(date => prev.includes(date));
-        if (allSelected) {
-          return prev.filter(date => !dates.includes(date));
-        }
-        return Array.from(new Set([...prev, ...dates]));
-      });
-    },
-    [groups]
-  );
+    const dates = group.dates.map(({ date }) => date);
+    setSelectedDates(prev => {
+      const allSelected = dates.every(date => prev.includes(date));
+      if (allSelected) {
+        return prev.filter(date => !dates.includes(date));
+      }
+      return Array.from(new Set([...prev, ...dates]));
+    });
+  };
 
-  const toggleGroupCollapse = useCallback((groupName: string) => {
+  const toggleGroupCollapse = (groupName: string) => {
     setCollapsedGroups(prev =>
       prev.includes(groupName) ? prev.filter(name => name !== groupName) : [...prev, groupName]
     );
-  }, []);
+  };
 
-  const collapseAllGroups = useCallback(() => {
+  const collapseAllGroups = () => {
     setCollapsedGroups(groups.map(({ name }) => name));
-  }, [groups]);
+  };
 
-  const expandAllGroups = useCallback(() => {
+  const expandAllGroups = () => {
     setCollapsedGroups([]);
-  }, []);
+  };
 
-  const beginEditing = useCallback((date: string, currentName: string) => {
+  const beginEditing = (date: string, currentName: string) => {
     setEditingTarget(date);
     setEditingValue(currentName);
-  }, []);
+  };
 
-  const cancelEditing = useCallback(() => {
+  const cancelEditing = () => {
     setEditingTarget(null);
     setEditingValue('');
-  }, []);
+  };
 
-  const commitEditing = useCallback(
-    (date?: string) => {
-      if (!editingTarget || editingTarget === 'bulk') return;
-      const targetDate = date ?? editingTarget;
-      const nextName = editingValue.trim();
-      addCompanyDay(targetDate, nextName);
-      cancelEditing();
-    },
-    [addCompanyDay, cancelEditing, editingTarget, editingValue]
-  );
+  const commitEditing = (date?: string) => {
+    if (!editingTarget || editingTarget === 'bulk') return;
+    const targetDate = date ?? editingTarget;
+    const nextName = editingValue.trim();
+    addCompanyDay(targetDate, nextName);
+    cancelEditing();
+  };
 
-  const beginBulkRename = useCallback(() => {
+  const beginBulkRename = () => {
     if (selectedDates.length === 0) return;
     setEditingTarget('bulk');
     setEditingValue(deriveBulkRenameValue(items, selectedDates));
-  }, [items, selectedDates]);
+  };
 
-  const confirmBulkRename = useCallback(() => {
+  const confirmBulkRename = () => {
     if (editingTarget !== 'bulk' || selectedDates.length === 0) return;
     onBulkRename(selectedDates, editingValue.trim());
     setEditingTarget(null);
     setEditingValue('');
     setSelectedDates([]);
-  }, [editingTarget, editingValue, onBulkRename, selectedDates]);
+  };
 
-  const handleItemKeyDown = useCallback(
-    (event: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>, date: string) => {
-      const index = items.findIndex(item => item.date === date);
-      if (index === -1) return;
+  const handleItemKeyDown = (
+    event: ReactKeyboardEvent<HTMLButtonElement | HTMLInputElement>,
+    date: string
+  ) => {
+    const index = items.findIndex(item => item.date === date);
+    if (index === -1) return;
 
-      switch (event.key) {
-        case 'Delete':
-        case 'Backspace': {
-          if (!editingTarget) {
-            event.preventDefault();
-            removeCompanyDay(date);
-            setSelectedDates(prev => prev.filter(value => value !== date));
-          }
-          break;
-        }
-        case 'ArrowUp':
-        case 'ArrowDown': {
+    switch (event.key) {
+      case 'Delete':
+      case 'Backspace': {
+        if (!editingTarget) {
           event.preventDefault();
-          if (!editingTarget) {
-            const targetIndex = event.key === 'ArrowUp' ? index - 1 : index + 1;
-            const targetDate = items[targetIndex]?.date;
-            if (targetDate && typeof document !== 'undefined') {
-              const targetButton = document.querySelector(
-                `[data-date="${targetDate}"]`
-              ) as HTMLButtonElement | null;
-              targetButton?.focus();
-            }
-          }
-          break;
+          removeCompanyDay(date);
+          setSelectedDates(prev => prev.filter(value => value !== date));
         }
-        case 'Enter': {
-          if (editingTarget === date) {
-            event.preventDefault();
-            commitEditing(date);
-          }
-          break;
-        }
-        case 'Escape': {
-          if (editingTarget === date) {
-            event.preventDefault();
-            cancelEditing();
-          }
-          break;
-        }
-        default:
-          break;
+        break;
       }
-    },
-    [cancelEditing, commitEditing, editingTarget, items, removeCompanyDay]
-  );
+      case 'ArrowUp':
+      case 'ArrowDown': {
+        event.preventDefault();
+        if (!editingTarget) {
+          const targetIndex = event.key === 'ArrowUp' ? index - 1 : index + 1;
+          const targetDate = items[targetIndex]?.date;
+          if (targetDate && typeof document !== 'undefined') {
+            const targetButton = document.querySelector(
+              `[data-date="${targetDate}"]`
+            ) as HTMLButtonElement | null;
+            targetButton?.focus();
+          }
+        }
+        break;
+      }
+      case 'Enter': {
+        if (editingTarget === date) {
+          event.preventDefault();
+          commitEditing(date);
+        }
+        break;
+      }
+      case 'Escape': {
+        if (editingTarget === date) {
+          event.preventDefault();
+          cancelEditing();
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  };
 
-  const handleInputBlur = useCallback(() => {
+  const handleInputBlur = () => {
     if (editingTarget && editingTarget !== 'bulk') {
       commitEditing(editingTarget);
     }
-  }, [commitEditing, editingTarget]);
+  };
 
-  const removeDate = useCallback(
-    (date: string) => {
-      removeCompanyDay(date);
-      setSelectedDates(prev => prev.filter(value => value !== date));
-      if (editingTarget === date) {
-        cancelEditing();
-      }
-    },
-    [cancelEditing, editingTarget, removeCompanyDay]
-  );
+  const removeDate = (date: string) => {
+    removeCompanyDay(date);
+    setSelectedDates(prev => prev.filter(value => value !== date));
+    if (editingTarget === date) {
+      cancelEditing();
+    }
+  };
 
-  const clearAllDates = useCallback(() => {
+  const clearAllDates = () => {
     clearCompanyDays();
     setSelectedDates([]);
     cancelEditing();
-  }, [cancelEditing, clearCompanyDays]);
+  };
 
   const value: CompanyDayListContextValue = {
     title,
