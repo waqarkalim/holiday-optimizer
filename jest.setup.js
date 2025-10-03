@@ -87,7 +87,7 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock useLocalStorage hook
-jest.mock('@/hooks/useLocalStorage', () => ({
+jest.mock('@/features/optimizer/hooks/useLocalStorage', () => ({
   useLocalStorage: () => {
     const [value, setValue] = React.useState(null);
     return [value, setValue];
@@ -105,4 +105,3 @@ jest.mock('sonner', () => ({
     success: jest.fn(),
   },
 }));
-

@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:unit": "jest src/__tests__/unit",

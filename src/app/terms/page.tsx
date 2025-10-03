@@ -1,6 +1,6 @@
 import { PROJECT_NAME } from '@/constants';
 import { Metadata } from 'next';
-import { PageLayout, PageHeader, PageTitle, PageDescription, PageContent } from '@/components/layout/PageLayout';
+import { PageLayout, PageHeader, PageTitle, PageDescription, PageContent } from '@/shared/components/layout/PageLayout';
 
 export const metadata: Metadata = {
   title: `Terms of Service | ${PROJECT_NAME}`,

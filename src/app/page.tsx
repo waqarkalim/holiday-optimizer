@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ResultsDisplay } from '@/components/features/ResultsDisplay';
-import { OptimizerForm } from '@/components/OptimizerForm';
-import { OptimizerProvider } from '@/contexts/OptimizerContext';
+import { ResultsDisplay } from '@/features/optimizer/components/ResultsDisplay';
+import { OptimizerForm } from '@/features/optimizer/components/OptimizerForm';
+import { OptimizerProvider } from '@/features/optimizer/context/OptimizerContext';
 import { CompanyDayOff, OptimizationResult, OptimizationStrategy } from '@/types';
 import { optimizeDaysAsync } from '@/services/optimizer';
-import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/components/layout/PageLayout';
-import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui/card';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/shared/components/layout/PageLayout';
+import { cn } from '@/shared/lib/utils';
+import { Card } from '@/shared/components/ui/card';
+import { LoadingSpinner } from '@/shared/components/ui/loading-spinner';
 
 interface FormState {
   numberOfDays: number | null;

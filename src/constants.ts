@@ -1,5 +1,5 @@
 import { ColorSchemes, StrategyOption } from '@/types';
-import { isProd } from '@/lib/utils';
+import { isProd } from '@/shared/lib/utils';
 
 // Constants for break lengths and scoring
 export const BREAK_LENGTHS = {

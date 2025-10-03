@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAllHolidaysByCountry, getAvailableCountries, getStates } from '@/services/holidays';
-import HolidayPageContent from '@/components/features/holidays/HolidayPageContent';
-import { CountryInfo } from '@/lib/storage/location';
-import { WebPageJsonLd } from '@/components/JsonLd';
+import HolidayPageContent from '@/features/holidays/components/HolidayPageContent';
+import { CountryInfo } from '@/features/holidays/lib/location-storage';
+import { WebPageJsonLd } from '@/shared/components/JsonLd';
 
 // Generate static paths for all country/state combinations
 export async function generateStaticParams() {

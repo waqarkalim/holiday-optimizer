@@ -1,7 +1,7 @@
 'use client';
 
-import { OptimizationExplainer } from '@/components/features/OptimizationExplainer';
-import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/components/layout/PageLayout';
+import { OptimizationExplainer } from '@/features/optimizer/components/OptimizationExplainer';
+import { PageContent, PageDescription, PageHeader, PageLayout, PageTitle } from '@/shared/components/layout/PageLayout';
 import { BarChart, Calendar, Settings } from 'lucide-react';
 import Link from 'next/link';
 

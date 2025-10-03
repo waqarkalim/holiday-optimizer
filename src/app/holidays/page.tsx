@@ -3,14 +3,14 @@ import Link from 'next/link';
 import { getAvailableCountries } from '@/services/holidays';
 import { CalendarIcon, CheckCircleIcon, GlobeIcon } from 'lucide-react';
 import { continents, getCountryData, TCountryCode } from 'countries-list';
-import CountrySearch from '@/components/features/holidays/CountrySearch';
+import CountrySearch from '@/features/holidays/components/CountrySearch';
 import {
   PageContent,
   PageDescription,
   PageHeader,
   PageLayout,
   PageTitle,
-} from '@/components/layout/PageLayout';
+} from '@/shared/components/layout/PageLayout';
 
 export const metadata: Metadata = {
   title: 'Public Holidays Around the World | Global Holiday Calendar',

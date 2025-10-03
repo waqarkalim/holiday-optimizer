@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import Header from '@/shared/components/layout/Header';
+import Footer from '@/shared/components/layout/Footer';
 import React from 'react';
 import Script from 'next/script';
 import { UMAMI_WEBSITE_ID } from '@/constants';
-import { SoftwareApplicationJsonLd, WebsiteJsonLd, FAQPageJsonLd, HowToJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd';
+import { SoftwareApplicationJsonLd, WebsiteJsonLd, FAQPageJsonLd, HowToJsonLd, BreadcrumbJsonLd } from '@/shared/components/JsonLd';
 import { Providers } from './Providers';
 
 const inter = Inter({ subsets: ['latin'] });

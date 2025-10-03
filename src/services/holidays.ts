@@ -1,5 +1,5 @@
 import Holidays, { HolidaysTypes } from 'date-holidays';
-import { CountryInfo } from '@/lib/storage/location';
+import { CountryInfo } from '@/features/holidays/lib/location-storage';
 
 const lang = 'en';
 

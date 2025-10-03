@@ -19,6 +19,9 @@
       }
     ],
     "paths": {
+      "@/features/*": ["./src/features/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/lib/*": ["./src/shared/lib/*"],
       "@/*": ["./src/*"]
     }
   },
