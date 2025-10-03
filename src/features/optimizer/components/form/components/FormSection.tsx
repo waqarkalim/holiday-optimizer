@@ -10,16 +10,16 @@ interface FormSectionProps {
 
 const colorStyles = {
   teal: {
-    ring: 'ring-teal-900/5 dark:ring-teal-300/10',
+    ring: 'ring-teal-900/5',
   },
   blue: {
-    ring: 'ring-blue-900/5 dark:ring-blue-300/10',
+    ring: 'ring-blue-900/5',
   },
   amber: {
-    ring: 'ring-amber-900/5 dark:ring-amber-300/10',
+    ring: 'ring-amber-900/5',
   },
   violet: {
-    ring: 'ring-violet-900/5 dark:ring-violet-300/10',
+    ring: 'ring-violet-900/5',
   },
 } as const;
 
@@ -27,7 +27,7 @@ export function FormSection({ children, colorScheme, className, headingId }: For
   return (
     <section
       className={cn(
-        'bg-white/90 dark:bg-gray-800/60',
+        'bg-white/90',
         'rounded-lg p-2.5',
         'ring-1',
         'relative',
@@ -40,4 +40,4 @@ export function FormSection({ children, colorScheme, className, headingId }: For
       {children}
     </section>
   );
-} 
+}

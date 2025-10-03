@@ -1,6 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getAllHolidaysByCountry, getAvailableCountries, getRegions, getStates } from '@/services/holidays';
+import {
+  getAllHolidaysByCountry,
+  getAvailableCountries,
+  getRegions,
+  getStates,
+} from '@/services/holidays';
 import HolidayPageContent from '@/features/holidays/components/HolidayPageContent';
 import { CountryInfo } from '@/features/holidays/lib/location-storage';
 import { WebPageJsonLd } from '@/shared/components/JsonLd';
@@ -123,24 +128,18 @@ export default async function RegionHolidaysPage(props: { params: Promise<Countr
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
 
-  const holidays = getAllHolidaysByCountry(
-    currentYear,
-    {
-      country: countryInfo.countryCode,
-      state: stateInfo.code,
-      region: regionInfo.code,
-    },
-  );
+  const holidays = getAllHolidaysByCountry(currentYear, {
+    country: countryInfo.countryCode,
+    state: stateInfo.code,
+    region: regionInfo.code,
+  });
 
   // Get holidays for next year too
-  const nextYearHolidays = getAllHolidaysByCountry(
-    nextYear,
-    {
-      country: countryInfo.countryCode,
-      state: stateInfo.code,
-      region: regionInfo.code,
-    },
-  );
+  const nextYearHolidays = getAllHolidaysByCountry(nextYear, {
+    country: countryInfo.countryCode,
+    state: stateInfo.code,
+    region: regionInfo.code,
+  });
 
   // Prepare data for schema.org structured data
   const pageTitle = `${regionInfo.name}, ${stateInfo.name}, ${countryInfo.name} Public Holidays ${currentYear}-${nextYear}`;
@@ -160,9 +159,9 @@ export default async function RegionHolidaysPage(props: { params: Promise<Countr
         name: stateInfo.name,
         containedInPlace: {
           '@type': 'Country' as const,
-          name: countryInfo.name
-        }
-      }
+          name: countryInfo.name,
+        },
+      },
     },
   }));
 

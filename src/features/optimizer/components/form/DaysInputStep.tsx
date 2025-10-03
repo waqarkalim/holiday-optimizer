@@ -7,7 +7,7 @@ import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 
 export function DaysInputStep() {
   const { days, daysError, setDays } = useOptimizerForm();
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setDays(e.target.value);
 
   // Using the new StepTitleWithInfo component
@@ -15,24 +15,25 @@ export function DaysInputStep() {
     <StepTitleWithInfo
       title="Enter Your Days"
       colorScheme="teal"
-      badge={{ label: "Required" }}
+      badge={{ label: 'Required' }}
       tooltip={{
-        title: "Your Available PTO",
-        description: "Enter how many paid time off days you have available. These are workdays you can take off while still getting paid. The optimizer will distribute them strategically.",
-        ariaLabel: "About your PTO days"
+        title: 'Your Available PTO',
+        description:
+          'Enter how many paid time off days you have available. These are workdays you can take off while still getting paid. The optimizer will distribute them strategically.',
+        ariaLabel: 'About your PTO days',
       }}
     />
   );
 
   const inputClasses = cn(
     'max-w-[160px] h-9',
-    'bg-white dark:bg-gray-900',
-    'border-teal-200 dark:border-teal-800',
-    'focus:border-teal-400 dark:focus:border-teal-600',
-    'text-sm font-medium text-teal-900 dark:text-teal-100',
-    'placeholder:text-teal-400 dark:placeholder:text-teal-500',
+    'bg-white',
+    'border-teal-200',
+    'focus:border-teal-400',
+    'text-sm font-medium text-teal-900',
+    'placeholder:text-teal-400',
     'transition-colors duration-200',
-    daysError && 'border-red-300 dark:border-red-700 focus:ring-red-500 focus:border-red-500',
+    daysError && 'border-red-300 focus:ring-red-500 focus:border-red-500'
   );
 
   return (
@@ -46,7 +47,7 @@ export function DaysInputStep() {
       />
       <fieldset className="pt-1 border-0 m-0 p-0" aria-labelledby="days-heading">
         <legend className="sr-only">Number of paid time off days</legend>
-        <label htmlFor="days" className="block text-sm font-medium text-teal-700 dark:text-teal-300 mb-1">
+        <label htmlFor="days" className="block text-sm font-medium text-teal-700 mb-1">
           Number of days
           <span className="sr-only">(numeric input field)</span>
         </label>
@@ -65,15 +66,15 @@ export function DaysInputStep() {
           className={inputClasses}
           placeholder="Enter days"
           required
-          aria-describedby={daysError ? "days-error" : undefined}
+          aria-describedby={daysError ? 'days-error' : undefined}
           aria-invalid={!!daysError}
         />
         {daysError && (
-          <p id="days-error" role="alert" className="text-xs font-medium text-red-500 dark:text-red-400 mt-1.5">
+          <p id="days-error" role="alert" className="text-xs font-medium text-red-500 mt-1.5">
             {daysError}
           </p>
         )}
       </fieldset>
     </FormSection>
   );
-} 
+}

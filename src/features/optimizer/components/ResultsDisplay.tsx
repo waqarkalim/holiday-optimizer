@@ -37,12 +37,8 @@ export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
         animate="show"
         variants={container}
       >
-
         {/* Share Section */}
-        <ShareSection 
-          stats={stats}
-          selectedYear={selectedYear}
-        />
+        <ShareSection stats={stats} selectedYear={selectedYear} />
 
         {/* Summary Section */}
         <OptimizationStatsComponent stats={stats} />
@@ -51,11 +47,7 @@ export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
         <BreakDetails breaks={breaks} />
 
         {/* Calendar View */}
-        <CalendarView 
-          optimizedDays={optimizedDays} 
-          stats={stats} 
-          selectedYear={selectedYear}
-        />
+        <CalendarView optimizedDays={optimizedDays} stats={stats} selectedYear={selectedYear} />
       </motion.div>
     );
   }

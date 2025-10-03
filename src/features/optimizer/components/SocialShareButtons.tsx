@@ -14,12 +14,12 @@ interface SocialShareButtonsProps {
 }
 
 const SocialShareButtons = ({
-                              url = window.location.href,
-                              title = 'Holiday Optimizer - Maximize Your Time Off',
-                              description = 'Plan your PTO days strategically to get the most out of your holidays.',
-                              showLabels = false,
-                              className = '',
-                            }: SocialShareButtonsProps) => {
+  url = window.location.href,
+  title = 'Holiday Optimizer - Maximize Your Time Off',
+  description = 'Plan your PTO days strategically to get the most out of your holidays.',
+  showLabels = false,
+  className = '',
+}: SocialShareButtonsProps) => {
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
   const encodedDescription = encodeURIComponent(description);
@@ -36,10 +36,9 @@ const SocialShareButtons = ({
       },
       () => {
         toast.error('Failed to copy URL');
-      },
+      }
     );
   };
-
 
   const getEmailShareUrl = () => {
     return `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`;
@@ -97,10 +96,10 @@ const SocialShareButtons = ({
 
       <Button
         variant="outline"
-        size={showLabels ? "default" : "icon"}
+        size={showLabels ? 'default' : 'icon'}
         onClick={copyToClipboard}
         aria-label="Copy link to clipboard"
-        className={showLabels ? "h-9 px-3" : ""}
+        className={showLabels ? 'h-9 px-3' : ''}
       >
         <LinkIcon className="h-4 w-4" />
         {showLabels && <span className="ml-2 text-sm">Copy Link</span>}

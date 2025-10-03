@@ -20,7 +20,7 @@ const allTypesOptions: HolidaysTypes.Options = {
  */
 export const getPublicHolidaysByCountry = (
   year = new Date().getUTCFullYear(),
-  countryInfo: CountryInfo,
+  countryInfo: CountryInfo
 ) => {
   const hd = new Holidays(countryInfo, publicOptions);
   return hd.getHolidays(year, lang);
@@ -31,7 +31,7 @@ export const getPublicHolidaysByCountry = (
  */
 export const getAllHolidaysByCountry = (
   year = new Date().getUTCFullYear(),
-  countryInfo: CountryInfo,
+  countryInfo: CountryInfo
 ) => {
   const hd = new Holidays(countryInfo, allTypesOptions);
   return hd.getHolidays(year, lang);
@@ -45,7 +45,7 @@ export const getAvailableCountries = () => {
   const countries = hd.getCountries(lang);
   if (!countries) return [];
 
-  return Object.entries(countries).map(([countryCode, name]) => ({ countryCode, name }))
+  return Object.entries(countries).map(([countryCode, name]) => ({ countryCode, name }));
 };
 
 /**

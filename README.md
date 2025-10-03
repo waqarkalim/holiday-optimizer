@@ -1,4 +1,5 @@
 ![Solo Project](https://img.shields.io/badge/project-solo-blue.svg)
+
 > 🚫 **Solo Project** – I’m not accepting contributions at this time.
 
 # Holiday Optimizer
@@ -44,17 +45,20 @@ This project is built with:
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/holiday-optimizer.git
    cd holiday-optimizer
    ```
 
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. Start the development server:
+
    ```bash
    pnpm dev
    ```

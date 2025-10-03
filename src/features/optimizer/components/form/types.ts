@@ -36,4 +36,4 @@ export interface CompanyDaysStepProps extends FormStepProps {
   onCompanyDayRemove: (index: number) => void;
   onClearCompanyDays: () => void;
   onCompanyDayNameUpdate: (index: number, newName: string) => void;
-} 
+}

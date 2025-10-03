@@ -11,20 +11,20 @@ interface StepHeaderProps {
 
 const colorStyles = {
   teal: {
-    text: 'text-teal-900 dark:text-teal-100',
-    bg: 'bg-teal-100 dark:bg-teal-900',
+    text: 'text-teal-900',
+    bg: 'bg-teal-100',
   },
   blue: {
-    text: 'text-blue-900 dark:text-blue-100',
-    bg: 'bg-blue-100 dark:bg-blue-900',
+    text: 'text-blue-900',
+    bg: 'bg-blue-100',
   },
   amber: {
-    text: 'text-amber-900 dark:text-amber-100',
-    bg: 'bg-amber-100 dark:bg-amber-900',
+    text: 'text-amber-900',
+    bg: 'bg-amber-100',
   },
   violet: {
-    text: 'text-violet-900 dark:text-violet-100',
-    bg: 'bg-violet-100 dark:bg-violet-900',
+    text: 'text-violet-900',
+    bg: 'bg-violet-100',
   },
 } as const;
 
@@ -34,7 +34,7 @@ export function StepHeader({ number, title, description, colorScheme, id }: Step
 
   return (
     <header className="mb-3">
-      <h2 
+      <h2
         id={headingId}
         className={cn(
           'text-sm font-semibold flex items-center gap-2',
@@ -54,12 +54,9 @@ export function StepHeader({ number, title, description, colorScheme, id }: Step
         </span>
         {title}
       </h2>
-      <p 
-        id={descriptionId}
-        className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 mt-1"
-      >
+      <p id={descriptionId} className="text-xs leading-relaxed text-gray-600 mt-1">
         {description}
       </p>
     </header>
   );
-} 
+}

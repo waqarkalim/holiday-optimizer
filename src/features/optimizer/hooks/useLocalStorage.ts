@@ -1,6 +1,14 @@
 import { useEffect } from 'react';
-import { getStoredCompanyDays, removeStoredCompanyDay, storeCompanyDay } from '@/features/optimizer/lib/storage/company-days';
-import { getStoredHolidays, removeStoredHoliday, storeHoliday } from '@/features/optimizer/lib/storage/holidays';
+import {
+  getStoredCompanyDays,
+  removeStoredCompanyDay,
+  storeCompanyDay,
+} from '@/features/optimizer/lib/storage/company-days';
+import {
+  getStoredHolidays,
+  removeStoredHoliday,
+  storeHoliday,
+} from '@/features/optimizer/lib/storage/holidays';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 
 export function useLocalStorage() {

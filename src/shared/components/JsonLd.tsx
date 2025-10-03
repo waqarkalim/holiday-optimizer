@@ -13,17 +13,16 @@ export const WebsiteJsonLd = (props: WebsiteJsonLdProps) => (
     id="website-jsonld"
     type="application/ld+json"
     dangerouslySetInnerHTML={{
-      __html:
-        JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'WebSite',
-          ...props,
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: `${props.url}?q={search_term_string}`,
-            'query-input': 'required name=search_term_string',
-          },
-        }),
+      __html: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        ...props,
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${props.url}?q={search_term_string}`,
+          'query-input': 'required name=search_term_string',
+        },
+      }),
     }}
     strategy="afterInteractive"
   />
@@ -41,13 +40,11 @@ export const SoftwareApplicationJsonLd = (props: SoftwareApplicationJsonLdProps)
     id="software-jsonld"
     type="application/ld+json"
     dangerouslySetInnerHTML={{
-      __html:
-        JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'SoftwareApplication',
-            ...props,
-          },
-        ),
+      __html: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        ...props,
+      }),
     }}
     strategy="afterInteractive"
   />
@@ -142,8 +139,8 @@ export const BreadcrumbJsonLd = (props: BreadcrumbJsonLdProps) => (
           position: index + 1,
           item: {
             '@id': item.url,
-            name: item.name
-          }
+            name: item.name,
+          },
         })),
       }),
     }}
@@ -186,7 +183,7 @@ interface WebPageJsonLdProps {
 
 export const WebPageJsonLd = (props: WebPageJsonLdProps) => (
   <Script
-    id={props.id || "webpage-jsonld"}
+    id={props.id || 'webpage-jsonld'}
     type="application/ld+json"
     dangerouslySetInnerHTML={{
       __html: JSON.stringify({
@@ -197,16 +194,16 @@ export const WebPageJsonLd = (props: WebPageJsonLdProps) => (
         url: props.url,
         mainEntity: {
           '@type': 'ItemList',
-          'itemListElement': props.itemListElements.map((item, index) => ({
+          itemListElement: props.itemListElements.map((item, index) => ({
             '@type': 'ListItem',
-            'position': index + 1,
-            'name': item.name,
-            'item': {
+            position: index + 1,
+            name: item.name,
+            item: {
               '@type': 'Event',
-              'name': item.name,
-              'description': item.description,
-              ...(item.startDate && { 'startDate': item.startDate }),
-              ...(item.location && { 'location': item.location }),
+              name: item.name,
+              description: item.description,
+              ...(item.startDate && { startDate: item.startDate }),
+              ...(item.location && { location: item.location }),
             },
           })),
         },

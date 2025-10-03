@@ -1,5 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAvailableCountries, getPublicHolidaysByCountry, getRegions, getStates } from '@/services/holidays';
+import {
+  getAvailableCountries,
+  getPublicHolidaysByCountry,
+  getRegions,
+  getStates,
+} from '@/services/holidays';
 import { CountryInfo } from '@/features/holidays/lib/location-storage';
 
 /**
@@ -10,7 +15,7 @@ export const useCountries = () => {
     queryKey: ['countries'],
     queryFn: getAvailableCountries,
     staleTime: Infinity, // Countries rarely change
-    select: (data) => data.sort((a, b) => a.name.localeCompare(b.name)),
+    select: data => data.sort((a, b) => a.name.localeCompare(b.name)),
   });
 };
 
@@ -53,4 +58,4 @@ export const useHolidaysByCountry = (year: number, countryInfo: CountryInfo) => 
     enabled: !!countryInfo.country && !!year, // Only run if countryCode and year are provided
     staleTime: 1000 * 60 * 60 * 24, // 24 hours - holidays don't change often
   });
-}; 
+};

@@ -23,7 +23,7 @@ jest.mock('next/navigation', () => ({
 // Mock window.scrollTo since it's not implemented in jsdom
 window.scrollTo = jest.fn();
 
-// Mock window.matchMedia for ThemeProvider
+// Mock window.matchMedia (jsdom doesn't implement it)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({

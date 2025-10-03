@@ -9,98 +9,98 @@ interface Holiday {
 }
 
 interface OptimizerState {
-  days: string
-  strategy: OptimizationStrategy
-  companyDaysOff: Array<{ date: string, name: string }>
-  holidays: Holiday[]
-  selectedDates: Date[]
-  selectedYear: number
+  days: string;
+  strategy: OptimizationStrategy;
+  companyDaysOff: Array<{ date: string; name: string }>;
+  holidays: Holiday[];
+  selectedDates: Date[];
+  selectedYear: number;
   errors: {
-    days?: string
+    days?: string;
     companyDay?: {
-      name?: string
-      date?: string
-    }
+      name?: string;
+      date?: string;
+    };
     holiday?: {
-      name?: string
-      date?: string
-    }
-  }
+      name?: string;
+      date?: string;
+    };
+  };
 }
 
 type OptimizerAction =
   | { type: 'SET_DAYS'; payload: string }
   | { type: 'SET_STRATEGY'; payload: OptimizationStrategy }
-  | { type: 'SET_COMPANY_DAYS'; payload: Array<{ date: string, name: string }> }
-  | { type: 'ADD_COMPANY_DAY'; payload: { date: string, name: string } }
+  | { type: 'SET_COMPANY_DAYS'; payload: Array<{ date: string; name: string }> }
+  | { type: 'ADD_COMPANY_DAY'; payload: { date: string; name: string } }
   | { type: 'REMOVE_COMPANY_DAY'; payload: string }
   | { type: 'SET_ERROR'; payload: { field: string; message: string } }
   | { type: 'CLEAR_ERRORS' }
-  | { type: 'ADD_HOLIDAY'; payload: { date: string, name: string } }
+  | { type: 'ADD_HOLIDAY'; payload: { date: string; name: string } }
   | { type: 'REMOVE_HOLIDAY'; payload: string }
   | { type: 'TOGGLE_DATE'; payload: Date }
   | { type: 'CLEAR_HOLIDAYS' }
   | { type: 'CLEAR_COMPANY_DAYS' }
-  | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string, name: string }> }
-  | { type: 'SET_HOLIDAYS'; payload: Array<{ date: string, name: string }> }
-  | { type: 'SET_SELECTED_YEAR'; payload: number }
+  | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
+  | { type: 'SET_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
+  | { type: 'SET_SELECTED_YEAR'; payload: number };
 
 const initialState: OptimizerState = {
-  days: "",
-  strategy: "balanced",
+  days: '',
+  strategy: 'balanced',
   companyDaysOff: [],
   holidays: [],
   selectedDates: [],
   selectedYear: new Date().getFullYear(),
-  errors: {}
-}
+  errors: {},
+};
 
-function validateCompanyDay(day: { date: string, name: string }): Record<string, string> {
-  const errors: Record<string, string> = {}
+function validateCompanyDay(day: { date: string; name: string }): Record<string, string> {
+  const errors: Record<string, string> = {};
 
   if (!day.name?.trim()) {
-    errors.name = "Name is required"
+    errors.name = 'Name is required';
   }
 
   if (!day.date || !isValid(parse(day.date, 'yyyy-MM-dd', new Date()))) {
-    errors.date = "Valid date is required"
+    errors.date = 'Valid date is required';
   }
 
-  return errors
+  return errors;
 }
 
 function optimizerReducer(state: OptimizerState, action: OptimizerAction): OptimizerState {
   switch (action.type) {
     case 'SET_DAYS': {
-      const daysNum = parseInt(action.payload)
-      if (action.payload === "" || (daysNum >= 1 && daysNum <= 365)) {
+      const daysNum = parseInt(action.payload);
+      if (action.payload === '' || (daysNum >= 1 && daysNum <= 365)) {
         return {
           ...state,
           days: action.payload,
-          errors: { ...state.errors, days: undefined }
-        }
+          errors: { ...state.errors, days: undefined },
+        };
       }
       return {
         ...state,
-        errors: { ...state.errors, days: "Please enter a number between 1 and 365" }
-      }
+        errors: { ...state.errors, days: 'Please enter a number between 1 and 365' },
+      };
     }
 
     case 'SET_STRATEGY': {
-      return { ...state, strategy: action.payload }
+      return { ...state, strategy: action.payload };
     }
 
     case 'SET_COMPANY_DAYS': {
-      return { ...state, companyDaysOff: action.payload }
+      return { ...state, companyDaysOff: action.payload };
     }
 
     case 'ADD_COMPANY_DAY': {
-      const errors = validateCompanyDay(action.payload)
+      const errors = validateCompanyDay(action.payload);
       if (Object.keys(errors).length > 0) {
         return {
           ...state,
-          errors: { ...state.errors, companyDay: errors }
-        }
+          errors: { ...state.errors, companyDay: errors },
+        };
       }
 
       const existingIndex = state.companyDaysOff.findIndex(day => day.date === action.payload.date);
@@ -117,15 +117,15 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         companyDaysOff: updatedCompanyDays,
-        errors: { ...state.errors, companyDay: undefined }
-      }
+        errors: { ...state.errors, companyDay: undefined },
+      };
     }
 
     case 'REMOVE_COMPANY_DAY': {
       return {
         ...state,
-        companyDaysOff: state.companyDaysOff.filter(day => day.date !== action.payload)
-      }
+        companyDaysOff: state.companyDaysOff.filter(day => day.date !== action.payload),
+      };
     }
 
     case 'SET_ERROR': {
@@ -133,16 +133,16 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         ...state,
         errors: {
           ...state.errors,
-          [action.payload.field]: action.payload.message
-        }
-      }
+          [action.payload.field]: action.payload.message,
+        },
+      };
     }
 
     case 'CLEAR_ERRORS': {
       return {
         ...state,
-        errors: {}
-      }
+        errors: {},
+      };
     }
 
     case 'ADD_HOLIDAY': {
@@ -160,35 +160,38 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         holidays: updatedHolidays,
-        errors: { ...state.errors, holiday: undefined }
-      }
+        errors: { ...state.errors, holiday: undefined },
+      };
     }
 
     case 'REMOVE_HOLIDAY': {
       return {
         ...state,
-        holidays: state.holidays.filter(day => day.date !== action.payload)
-      }
+        holidays: state.holidays.filter(day => day.date !== action.payload),
+      };
     }
 
     case 'TOGGLE_DATE': {
       const dateStr = format(action.payload, 'yyyy-MM-dd');
       const isSelected = state.selectedDates.some(d => format(d, 'yyyy-MM-dd') === dateStr);
-      
+
       if (isSelected) {
         return {
           ...state,
           selectedDates: state.selectedDates.filter(d => format(d, 'yyyy-MM-dd') !== dateStr),
-          holidays: state.holidays.filter(h => h.date !== dateStr)
+          holidays: state.holidays.filter(h => h.date !== dateStr),
         };
       } else {
         return {
           ...state,
           selectedDates: [...state.selectedDates, action.payload],
-          holidays: [...state.holidays, { 
-            date: dateStr, 
-            name: format(action.payload, 'MMMM d, yyyy')
-          }]
+          holidays: [
+            ...state.holidays,
+            {
+              date: dateStr,
+              name: format(action.payload, 'MMMM d, yyyy'),
+            },
+          ],
         };
       }
     }
@@ -197,14 +200,14 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         holidays: [],
-        selectedDates: []
+        selectedDates: [],
       };
     }
 
     case 'CLEAR_COMPANY_DAYS': {
       return {
         ...state,
-        companyDaysOff: []
+        companyDaysOff: [],
       };
     }
 
@@ -214,12 +217,12 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         date: holiday.date,
         name: holiday.name,
         // Ensure alternateNames is initialized if needed, though likely not relevant for direct setting
-        alternateNames: [] 
+        alternateNames: [],
       }));
 
       // Update selectedDates to match the new holidays
-      const updatedSelectedDates = updatedHolidays.map(
-        holiday => parse(holiday.date, 'yyyy-MM-dd', new Date())
+      const updatedSelectedDates = updatedHolidays.map(holiday =>
+        parse(holiday.date, 'yyyy-MM-dd', new Date())
       );
 
       return {
@@ -227,21 +230,21 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
         holidays: updatedHolidays,
         selectedDates: updatedSelectedDates,
         // Clear any potential holiday errors when setting new ones
-        errors: { ...state.errors, holiday: undefined }
+        errors: { ...state.errors, holiday: undefined },
       };
     }
 
     case 'SET_HOLIDAYS': {
       return {
         ...state,
-        holidays: action.payload
+        holidays: action.payload,
       };
     }
 
     case 'SET_SELECTED_YEAR': {
       return {
         ...initialState,
-        selectedYear: action.payload
+        selectedYear: action.payload,
       };
     }
 
@@ -252,24 +255,22 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
 }
 
 const OptimizerContext = createContext<{
-  state: OptimizerState
-  dispatch: React.Dispatch<OptimizerAction>
-} | null>(null)
+  state: OptimizerState;
+  dispatch: React.Dispatch<OptimizerAction>;
+} | null>(null);
 
 export function OptimizerProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(optimizerReducer, initialState)
+  const [state, dispatch] = useReducer(optimizerReducer, initialState);
 
   return (
-    <OptimizerContext.Provider value={{ state, dispatch }}>
-      {children}
-    </OptimizerContext.Provider>
-  )
+    <OptimizerContext.Provider value={{ state, dispatch }}>{children}</OptimizerContext.Provider>
+  );
 }
 
 export function useOptimizer() {
-  const context = useContext(OptimizerContext)
+  const context = useContext(OptimizerContext);
   if (!context) {
-    throw new Error('useOptimizer must be used within an OptimizerProvider')
+    throw new Error('useOptimizer must be used within an OptimizerProvider');
   }
-  return context
-} 
+  return context;
+}

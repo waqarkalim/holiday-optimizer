@@ -85,8 +85,8 @@ Estimation:
 Title: Implement Calendar Day Selection Component
 
 Description:
-Create a reusable calendar day selection component that allows users to select 
-dates for their holiday planning. The component should highlight selected 
+Create a reusable calendar day selection component that allows users to select
+dates for their holiday planning. The component should highlight selected
 dates, show date ranges, and mark holidays and weekends differently.
 
 Acceptance Criteria:
@@ -120,8 +120,8 @@ Estimation:
 Title: Fix Date Selection Bug in Safari
 
 Description:
-Users on Safari browsers are reporting that selecting dates on the calendar 
-sometimes selects an adjacent date instead of the one clicked. This appears 
+Users on Safari browsers are reporting that selecting dates on the calendar
+sometimes selects an adjacent date instead of the one clicked. This appears
 to be a browser-specific issue with event handling.
 
 Acceptance Criteria:
@@ -150,17 +150,20 @@ Estimation:
 ## Additional Notes for Card Creation
 
 1. **For Bug Reports:**
+
    - Include steps to reproduce
    - Add expected vs. actual behavior
    - Note environment details (browser, OS, etc.)
    - Include screenshots if applicable
 
 2. **For Features/Enhancements:**
+
    - Consider user stories ("As a user, I want to...")
    - Link to design mockups if available
    - Note any analytics requirements
 
 3. **For Refactoring:**
+
    - Explain current issues with code
    - Outline expected improvements
    - Note risk factors
@@ -170,4 +173,4 @@ Estimation:
    - Use clear, concise language
    - Break large tasks into smaller, manageable cards
    - Link related cards where appropriate
-   - Consider impact on performance and accessibility 
+   - Consider impact on performance and accessibility

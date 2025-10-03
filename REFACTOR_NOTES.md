@@ -1,6 +1,7 @@
 # Refactor Notes
 
 ## Highlights & Snippets
+
 - **Unified optimizer hook** – replaced five micro hooks with one `useOptimizerForm` that returns state slices and memoised actions.
 
 ```diff
@@ -32,8 +33,9 @@
 - **Dead utilities removed** – deleted unused `src/utils/fp.ts` and an unused calendar component.
 
 ## Parity Checks
+
 - `pnpm lint`
 - `pnpm test`
-- `pnpm build` *(fails offline: Next.js cannot download Inter from Google Fonts in this sandbox; no app code changes required in production environments with network access.)*
+- `pnpm build` _(fails offline: Next.js cannot download Inter from Google Fonts in this sandbox; no app code changes required in production environments with network access.)_
 
 Routes verified unchanged: `/`, `/how-it-works`, `/holidays`, `/holidays/[country]`, `/holidays/[country]/[state]`, `/holidays/[country]/[state]/[region]`, `/privacy`, `/terms`.

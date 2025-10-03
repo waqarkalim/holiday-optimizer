@@ -25,7 +25,7 @@ export function storeHoliday(holiday: Holiday, year: number = new Date().getFull
     const storageKey = getYearStorageKey(year);
     const holidays = getStoredHolidays(year);
     const existingIndex = holidays.findIndex(h => h.date === holiday.date);
-    
+
     if (existingIndex !== -1) {
       // Update existing holiday
       holidays[existingIndex] = holiday;
@@ -33,7 +33,7 @@ export function storeHoliday(holiday: Holiday, year: number = new Date().getFull
       // Add new holiday
       holidays.push(holiday);
     }
-    
+
     localStorage.setItem(storageKey, JSON.stringify(holidays));
   } catch (error) {
     console.error('Failed to store holiday:', error);
@@ -60,7 +60,11 @@ export function clearStoredHolidays(year: number = new Date().getFullYear()) {
   }
 }
 
-export function updateStoredHoliday(date: string, newName: string, year: number = new Date().getFullYear()) {
+export function updateStoredHoliday(
+  date: string,
+  newName: string,
+  year: number = new Date().getFullYear()
+) {
   try {
     const storageKey = getYearStorageKey(year);
     const holidays = getStoredHolidays(year);

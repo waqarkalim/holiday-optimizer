@@ -1,0 +1,28 @@
+export const colorStyles = {
+  amber: {
+    container: 'bg-gradient-to-br from-amber-50/80 to-amber-100/30',
+    border: 'border-amber-200/60',
+    text: 'text-amber-900',
+    muted: 'text-amber-600/70',
+    accent: 'text-amber-600',
+    hover: 'hover:bg-amber-100/70',
+    active: 'active:bg-amber-200/70',
+    focus: 'focus:ring-amber-400/30',
+    divider: 'border-amber-200/30',
+    highlight: 'bg-amber-100/50',
+    input: 'border-amber-200 focus:border-amber-400',
+  },
+  violet: {
+    container: 'bg-gradient-to-br from-violet-50/80 to-violet-100/30',
+    border: 'border-violet-200/60',
+    text: 'text-violet-900',
+    muted: 'text-violet-600/70',
+    accent: 'text-violet-600',
+    hover: 'hover:bg-violet-100/70',
+    active: 'active:bg-violet-200/70',
+    focus: 'focus:ring-violet-400/30',
+    divider: 'border-violet-200/30',
+    highlight: 'bg-violet-100/50',
+    input: 'border-violet-200 focus:border-violet-400',
+  },
+} as const;

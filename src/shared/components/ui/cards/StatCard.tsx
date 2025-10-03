@@ -23,7 +23,8 @@ export interface StatCardProps {
  * Helper function to ensure dynamic color classes are applied correctly
  * by using a lookup approach that forces Tailwind to recognize the classes
  */
-const getColorClasses = (colorScheme: PossibleColors, type: 'bg' | 'text' | 'ring') => COLOR_SCHEMES[colorScheme].icon[type];
+const getColorClasses = (colorScheme: PossibleColors, type: 'bg' | 'text' | 'ring') =>
+  COLOR_SCHEMES[colorScheme].icon[type];
 
 /**
  * InfoIcon Component
@@ -72,7 +73,7 @@ const IconContainer = ({ icon, colorScheme }: IconContainerProps) => (
       'ring-1',
       getColorClasses(colorScheme, 'bg'),
       getColorClasses(colorScheme, 'text'),
-      getColorClasses(colorScheme, 'ring'),
+      getColorClasses(colorScheme, 'ring')
     )}
     role="img"
     aria-hidden="true"
@@ -94,10 +95,12 @@ interface ValueDisplayProps {
 const ValueDisplay = ({ value, colorScheme }: ValueDisplayProps) => {
   return (
     <div className="flex items-baseline gap-2">
-      <p className={cn(
-        'text-3xl font-bold tracking-tight leading-none',
-        getColorClasses(colorScheme, 'text'),
-      )}>
+      <p
+        className={cn(
+          'text-3xl font-bold tracking-tight leading-none',
+          getColorClasses(colorScheme, 'text')
+        )}
+      >
         {value}
       </p>
     </div>
@@ -117,8 +120,8 @@ const StatCard = ({ value, label, tooltip, colorScheme, icon }: StatCardProps) =
         'ring-1',
         COLOR_SCHEMES[colorScheme].icon.ring,
         'transition-all duration-200',
-        'bg-white dark:bg-gray-800/60',
-        'shadow-sm',
+        'bg-white',
+        'shadow-sm'
       )}
       aria-label={`${label}: ${value}`}
     >
@@ -130,16 +133,8 @@ const StatCard = ({ value, label, tooltip, colorScheme, icon }: StatCardProps) =
 
       {/* Content */}
       <div className="space-y-1.5">
-        <p className={cn(
-          'text-sm font-medium',
-          getColorClasses(colorScheme, 'text'),
-        )}>
-          {label}
-        </p>
-        <ValueDisplay
-          value={value}
-          colorScheme={colorScheme}
-        />
+        <p className={cn('text-sm font-medium', getColorClasses(colorScheme, 'text'))}>{label}</p>
+        <ValueDisplay value={value} colorScheme={colorScheme} />
       </div>
     </article>
   );

@@ -24,12 +24,13 @@ export const ShareSection = ({ stats, selectedYear }: ShareSectionProps) => {
     <SectionCard
       title="Share This Tool"
       subtitle="Help others optimize their time off"
-      icon={<Share2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
+      icon={<Share2 className="h-4 w-4 text-purple-600" />}
     >
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          If you found this tool useful, consider sharing it with others who might benefit. Many people aren&apos;t
-          aware of how to optimize their time off to get more vacation days without using additional PTO.
+          If you found this tool useful, consider sharing it with others who might benefit. Many
+          people aren&apos;t aware of how to optimize their time off to get more vacation days
+          without using additional PTO.
         </p>
         <SocialShareButtons
           showLabels={true}

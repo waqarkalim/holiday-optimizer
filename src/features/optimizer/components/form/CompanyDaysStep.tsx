@@ -1,4 +1,4 @@
-import { MonthCalendarSelector } from '../common/MonthCalendarSelector';
+import { MonthCalendarSelector } from '@/shared/components/ui/calendar/MonthCalendarSelector';
 import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
@@ -27,11 +27,12 @@ export function CompanyDaysStep() {
     <StepTitleWithInfo
       title="Company Days Off"
       colorScheme={colorScheme}
-      badge={{ label: "Optional" }}
+      badge={{ label: 'Optional' }}
       tooltip={{
-        title: "Company Days Off",
-        description: "These are non-working days your company provides that don't count against your PTO, such as company holidays or special days off. Adding these helps avoid scheduling PTO on days you already have free.",
-        ariaLabel: "About company days off"
+        title: 'Company Days Off',
+        description:
+          "These are non-working days your company provides that don't count against your PTO, such as company holidays or special days off. Adding these helps avoid scheduling PTO on days you already have free.",
+        ariaLabel: 'About company days off',
       }}
     />
   );
@@ -62,4 +63,4 @@ export function CompanyDaysStep() {
       </fieldset>
     </FormSection>
   );
-} 
+}

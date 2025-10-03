@@ -2,6 +2,6 @@
 const nextConfig = {
   output: 'export',
   // ... existing code ...
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig;

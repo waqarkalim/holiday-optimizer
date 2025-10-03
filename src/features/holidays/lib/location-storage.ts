@@ -6,7 +6,7 @@
 
 import { HolidaysTypes } from 'date-holidays';
 
-export type CountryInfo = HolidaysTypes.Country
+export type CountryInfo = HolidaysTypes.Country;
 
 const STORAGE_KEY_BASE = 'location';
 
@@ -28,7 +28,7 @@ export const getStoredLocationData = (year: number = new Date().getFullYear()) =
   const storageKey = getYearStorageKey(year);
   const stored = localStorage.getItem(storageKey);
 
-  if (!stored) return
+  if (!stored) return;
 
-  return JSON.parse(stored) as CountryInfo
+  return JSON.parse(stored) as CountryInfo;
 };

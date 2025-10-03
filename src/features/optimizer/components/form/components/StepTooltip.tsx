@@ -45,7 +45,7 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
   const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     switch (e.key) {
       case 'Enter':
-      case ' ':
+      case '':
         e.preventDefault();
         setTooltipOpen(!tooltipOpen);
         break;
@@ -61,36 +61,36 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
   // Map colorScheme to specific style classes
   const colorClasses = {
     teal: {
-      hover: 'hover:bg-teal-100/70 dark:hover:bg-teal-900/40',
+      hover: 'hover:bg-teal-100/70',
       ring: 'focus:ring-teal-500',
-      icon: 'text-teal-500/70 dark:text-teal-400/70',
-      content: 'bg-teal-50/95 dark:bg-teal-900/90 border-teal-100 dark:border-teal-800/40 text-teal-900 dark:text-teal-100',
-      header: 'text-teal-800 dark:text-teal-300',
-      text: 'text-teal-700/90 dark:text-teal-300/90',
+      icon: 'text-teal-500/70',
+      content: 'bg-teal-50/95 border-teal-100 text-teal-900',
+      header: 'text-teal-800',
+      text: 'text-teal-700/90',
     },
     blue: {
-      hover: 'hover:bg-blue-100/70 dark:hover:bg-blue-900/40',
+      hover: 'hover:bg-blue-100/70',
       ring: 'focus:ring-blue-500',
-      icon: 'text-blue-500/70 dark:text-blue-400/70',
-      content: 'bg-blue-50/95 dark:bg-blue-900/90 border-blue-100 dark:border-blue-800/40 text-blue-900 dark:text-blue-100',
-      header: 'text-blue-800 dark:text-blue-300',
-      text: 'text-blue-700/90 dark:text-blue-300/90',
+      icon: 'text-blue-500/70',
+      content: 'bg-blue-50/95 border-blue-100 text-blue-900',
+      header: 'text-blue-800',
+      text: 'text-blue-700/90',
     },
     amber: {
-      hover: 'hover:bg-amber-100/70 dark:hover:bg-amber-900/40',
+      hover: 'hover:bg-amber-100/70',
       ring: 'focus:ring-amber-500',
-      icon: 'text-amber-500/70 dark:text-amber-400/70',
-      content: 'bg-amber-50/95 dark:bg-amber-900/90 border-amber-100 dark:border-amber-800/40 text-amber-900 dark:text-amber-100',
-      header: 'text-amber-800 dark:text-amber-300',
-      text: 'text-amber-700/90 dark:text-amber-300/90',
+      icon: 'text-amber-500/70',
+      content: 'bg-amber-50/95 border-amber-100 text-amber-900',
+      header: 'text-amber-800',
+      text: 'text-amber-700/90',
     },
     violet: {
-      hover: 'hover:bg-violet-100/70 dark:hover:bg-violet-900/40',
+      hover: 'hover:bg-violet-100/70',
       ring: 'focus:ring-violet-500',
-      icon: 'text-violet-500/70 dark:text-violet-400/70',
-      content: 'bg-violet-50/95 dark:bg-violet-900/90 border-violet-100 dark:border-violet-800/40 text-violet-900 dark:text-violet-100',
-      header: 'text-violet-800 dark:text-violet-300',
-      text: 'text-violet-700/90 dark:text-violet-300/90',
+      icon: 'text-violet-500/70',
+      content: 'bg-violet-50/95 border-violet-100 text-violet-900',
+      header: 'text-violet-800',
+      text: 'text-violet-700/90',
     },
   };
 
@@ -103,7 +103,9 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
           className={`rounded-full p-1 ${colorClasses[colorScheme].hover} cursor-help transition-colors focus:outline-none focus:ring-2 ${colorClasses[colorScheme].ring} focus:ring-offset-1`}
           aria-label={ariaLabel}
           aria-expanded={tooltipOpen}
-          aria-describedby={tooltipOpen ? `tooltip-${title.replace(/\s+/g, '-').toLowerCase()}` : undefined}
+          aria-describedby={
+            tooltipOpen ? `tooltip-${title.replace(/\s+/g, '-').toLowerCase()}` : undefined
+          }
           aria-haspopup="dialog"
           onKeyDown={handleKeyDown}
           tabIndex={0}
@@ -127,4 +129,4 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
       </TooltipContent>
     </Tooltip>
   );
-} 
+}

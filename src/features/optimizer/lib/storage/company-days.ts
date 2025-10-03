@@ -23,7 +23,7 @@ export function storeCompanyDay(day: CompanyDay, year: number = new Date().getFu
     const storageKey = getYearStorageKey(year);
     const companyDays = getStoredCompanyDays(year);
     const existingIndex = companyDays.findIndex(d => d.date === day.date);
-    
+
     if (existingIndex !== -1) {
       // Update existing company day
       companyDays[existingIndex] = day;
@@ -31,14 +31,17 @@ export function storeCompanyDay(day: CompanyDay, year: number = new Date().getFu
       // Add new company day
       companyDays.push(day);
     }
-    
+
     localStorage.setItem(storageKey, JSON.stringify(companyDays));
   } catch (error) {
     console.error('Failed to store company day:', error);
   }
 }
 
-export function removeStoredCompanyDay(dateToRemove: string, year: number = new Date().getFullYear()) {
+export function removeStoredCompanyDay(
+  dateToRemove: string,
+  year: number = new Date().getFullYear()
+) {
   try {
     const storageKey = getYearStorageKey(year);
     const companyDays = getStoredCompanyDays(year);

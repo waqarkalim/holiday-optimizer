@@ -6,10 +6,7 @@ interface UseOnboardingOverlayProps {
   primaryButtonRef?: RefObject<HTMLButtonElement>;
 }
 
-export const useOnboardingOverlay = ({
-                                       step,
-                                       primaryButtonRef,
-                                     }: UseOnboardingOverlayProps) => {
+export const useOnboardingOverlay = ({ step, primaryButtonRef }: UseOnboardingOverlayProps) => {
   const { isOnboardingVisible, isCurrentStep, dismissOnboarding } = useOnboarding();
   const overlayRef = useRef<HTMLDivElement>(undefined);
 
@@ -31,7 +28,7 @@ export const useOnboardingOverlay = ({
         if (e.key !== 'Tab') return;
 
         const focusableElements = overlayRef.current?.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
 
         if (!focusableElements?.length) return;
@@ -76,4 +73,4 @@ export const useOnboardingOverlay = ({
     overlayRef,
     shouldRender,
   };
-}; 
+};

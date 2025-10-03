@@ -70,7 +70,12 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
 
     const holiday = holidays.find(h => h.date === iso);
     const companyDay = companyDays.find(dayOff => {
-      if (dayOff.isRecurring && dayOff.startDate && dayOff.endDate && dayOff.weekday !== undefined) {
+      if (
+        dayOff.isRecurring &&
+        dayOff.startDate &&
+        dayOff.endDate &&
+        dayOff.weekday !== undefined
+      ) {
         const start = new Date(dayOff.startDate);
         const end = new Date(dayOff.endDate);
         return date >= start && date <= end && date.getDay() === dayOff.weekday;

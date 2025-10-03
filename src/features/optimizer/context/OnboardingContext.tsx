@@ -164,9 +164,5 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     isCurrentStep,
   };
 
-  return (
-    <OnboardingContext.Provider value={value}>
-      {children}
-    </OnboardingContext.Provider>
-  );
-} 
+  return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
+}

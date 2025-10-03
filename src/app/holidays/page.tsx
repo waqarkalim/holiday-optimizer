@@ -143,10 +143,8 @@ export default async function HolidaysIndexPage() {
       <PageContent>
         <section className="container mx-auto px-4 py-16 max-w-6xl" id="browse-countries">
           <div className="mb-10 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Browse Countries
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Browse Countries</h2>
+            <p className="text-gray-600 max-w-3xl mx-auto">
               Select a country to view its public holidays, bank holidays, and observances.
             </p>
           </div>
@@ -156,53 +154,47 @@ export default async function HolidaysIndexPage() {
         </section>
 
         {/* Features section */}
-        <section className="bg-gray-100 dark:bg-gray-800/50 py-16 mt-8">
+        <section className="bg-gray-100 py-16 mt-8">
           <div className="container mx-auto px-4 max-w-6xl">
             <div className="mb-10 text-center">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 Why Use Our Holiday Calendar?
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              <p className="text-gray-600 max-w-3xl mx-auto">
                 Our comprehensive public holiday database offers several benefits for travelers,
                 businesses, and the culturally curious.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4">
-                  <GlobeIcon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                  <GlobeIcon className="h-6 w-6 text-teal-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Comprehensive Coverage
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Comprehensive Coverage</h3>
+                <p className="text-gray-600">
                   Access holiday information for {sortedCountries.length} countries worldwide,
                   including regional and local observances.
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4">
-                  <CalendarIcon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                  <CalendarIcon className="h-6 w-6 text-teal-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Current & Upcoming Years
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Current & Upcoming Years</h3>
+                <p className="text-gray-600">
                   View holidays for both the current and upcoming year to plan ahead for vacations,
                   business operations, and events.
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4">
-                  <CheckCircleIcon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                  <CheckCircleIcon className="h-6 w-6 text-teal-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Accurate & Reliable
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Accurate & Reliable</h3>
+                <p className="text-gray-600">
                   Our data is based on reliable sources and regularly updated to ensure accuracy and
                   reliability.
                 </p>
@@ -213,15 +205,15 @@ export default async function HolidaysIndexPage() {
 
         {/* About section */}
         <section className="container mx-auto px-4 py-16 max-w-3xl">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                <CalendarIcon className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                <CalendarIcon className="h-5 w-5 mr-2 text-teal-600" />
                 About Public Holidays
               </h2>
             </div>
 
-            <div className="p-6 md:p-8 space-y-4 text-gray-600 dark:text-gray-300">
+            <div className="p-6 md:p-8 space-y-4 text-gray-600">
               <p>
                 Public holidays, also known as national holidays or legal holidays, are days when
                 most businesses, schools, and government offices are closed. These holidays are

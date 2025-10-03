@@ -24,7 +24,13 @@ type NavigationIconProps = {
   [key: string]: unknown; // Allow other props to be passed
 };
 
-const NavigationIcon = ({ ariaLabel, Icon, className, colorScheme, ...props }: NavigationIconProps) => (
+const NavigationIcon = ({
+  ariaLabel,
+  Icon,
+  className,
+  colorScheme,
+  ...props
+}: NavigationIconProps) => (
   <span
     {...props}
     aria-label={ariaLabel}
@@ -34,7 +40,7 @@ const NavigationIcon = ({ ariaLabel, Icon, className, colorScheme, ...props }: N
       'rounded-md',
       'h-7 w-7',
       'bg-transparent',
-      'hover:bg-gray-100 dark:hover:bg-gray-800',
+      'hover:bg-gray-100',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       colorScheme === 'amber' ? 'focus-visible:ring-amber-500' : 'focus-visible:ring-violet-500',
       'disabled:opacity-40 disabled:pointer-events-none',
@@ -80,7 +86,7 @@ export function MonthCalendarSelector({
     if (year && date.getFullYear() !== year) {
       return true;
     }
-    
+
     if (!minDate && !maxDate) return false;
     const isBeforeMin = minDate ? date < startOfMonth(minDate) : false;
     const isAfterMax = maxDate ? date > maxDate : false;
@@ -89,27 +95,27 @@ export function MonthCalendarSelector({
 
   const colorStyles = {
     amber: {
-      selected: 'bg-amber-100 text-amber-950 dark:bg-amber-900 dark:text-amber-50 shadow-amber-200/50 dark:shadow-amber-900/50',
-      hover: 'hover:bg-amber-50 dark:hover:bg-amber-800 hover:text-amber-950 dark:hover:text-amber-50',
-      ring: 'focus-visible:ring-4 focus-visible:ring-amber-500/50 dark:focus-visible:ring-amber-400/50',
-      today: 'ring-2 ring-amber-400 dark:ring-amber-500 bg-amber-50 dark:bg-amber-900',
-      cell: '[&:has([aria-selected])]:bg-amber-50 dark:[&:has([aria-selected])]:bg-amber-900/70 [&:has([aria-selected])]:shadow-sm',
-      header: 'text-amber-950 dark:text-amber-100',
+      selected: 'bg-amber-100 text-amber-950 shadow-amber-200/50',
+      hover: 'hover:bg-amber-50 hover:text-amber-950',
+      ring: 'focus-visible:ring-4 focus-visible:ring-amber-500/50',
+      today: 'ring-2 ring-amber-400 bg-amber-50',
+      cell: '[&:has([aria-selected])]:bg-amber-50 [&:has([aria-selected])]:shadow-sm',
+      header: 'text-amber-950',
       nav: {
-        button: 'hover:bg-amber-50 dark:hover:bg-amber-800 text-amber-900 dark:text-amber-100 hover:text-amber-950 dark:hover:text-amber-50',
-        icon: 'text-amber-700 dark:text-amber-300',
+        button: 'hover:bg-amber-50 text-amber-900 hover:text-amber-950',
+        icon: 'text-amber-700',
       },
     },
     violet: {
-      selected: 'bg-violet-100 text-violet-950 dark:bg-violet-900 dark:text-violet-50 shadow-violet-200/50 dark:shadow-violet-900/50',
-      hover: 'hover:bg-violet-50 dark:hover:bg-violet-800 hover:text-violet-950 dark:hover:text-violet-50',
-      ring: 'focus-visible:ring-4 focus-visible:ring-violet-500/50 dark:focus-visible:ring-violet-400/50',
-      today: 'ring-2 ring-violet-400 dark:ring-violet-500 bg-violet-50 dark:bg-violet-900',
-      cell: '[&:has([aria-selected])]:bg-violet-50 dark:[&:has([aria-selected])]:bg-violet-900/70 [&:has([aria-selected])]:shadow-sm',
-      header: 'text-violet-950 dark:text-violet-100',
+      selected: 'bg-violet-100 text-violet-950 shadow-violet-200/50',
+      hover: 'hover:bg-violet-50 hover:text-violet-950',
+      ring: 'focus-visible:ring-4 focus-visible:ring-violet-500/50',
+      today: 'ring-2 ring-violet-400 bg-violet-50',
+      cell: '[&:has([aria-selected])]:bg-violet-50 [&:has([aria-selected])]:shadow-sm',
+      header: 'text-violet-950',
       nav: {
-        button: 'hover:bg-violet-50 dark:hover:bg-violet-800 text-violet-900 dark:text-violet-100 hover:text-violet-950 dark:hover:text-violet-50',
-        icon: 'text-violet-700 dark:text-violet-300',
+        button: 'hover:bg-violet-50 text-violet-900 hover:text-violet-950',
+        icon: 'text-violet-700',
       },
     },
   };
@@ -117,11 +123,7 @@ export function MonthCalendarSelector({
   const calendarType = colorScheme === 'amber' ? 'holidays' : 'company days';
 
   return (
-    <section
-      aria-label={`Calendar for selecting ${calendarType}`}
-      id={id}
-      className="relative"
-    >
+    <section aria-label={`Calendar for selecting ${calendarType}`} id={id} className="relative">
       <div className="sr-only">
         <h2>Calendar Navigation Instructions</h2>
         <ul>
@@ -129,8 +131,13 @@ export function MonthCalendarSelector({
           <li>Use arrow keys to move between days</li>
           <li>Press Space or Enter to select a date</li>
           <li>Use Page Up/Down to move between months</li>
-          <li>Use the &ldquo;Previous month&rdquo; and &ldquo;Next month&rdquo; buttons to navigate between months</li>
-          <li>Press Tab to reach the month navigation buttons and Space or Enter to activate them</li>
+          <li>
+            Use the &ldquo;Previous month&rdquo; and &ldquo;Next month&rdquo; buttons to navigate
+            between months
+          </li>
+          <li>
+            Press Tab to reach the month navigation buttons and Space or Enter to activate them
+          </li>
         </ul>
       </div>
 
@@ -145,11 +152,11 @@ export function MonthCalendarSelector({
         toDate={maxDate}
         disabled={isDateDisabled}
         className={cn(
-          'w-full select-none rounded-2xl border border-gray-200 dark:border-gray-700',
-          'bg-white dark:bg-gray-900',
+          'w-full select-none rounded-2xl border border-gray-200',
+          'bg-white',
           'shadow-sm',
           'p-3.5 sm:p-4',
-          'ring-1 ring-black/5 dark:ring-white/10'
+          'ring-1 ring-black/5'
         )}
         pagedNavigation
         modifiersClassNames={{
@@ -159,39 +166,36 @@ export function MonthCalendarSelector({
           today: new Date(),
         }}
         components={{
-          IconLeft: (props) => (
-            <NavigationIcon 
+          IconLeft: props => (
+            <NavigationIcon
               {...props}
-              ariaLabel="Go to previous month" 
-              Icon={ChevronLeft} 
+              ariaLabel="Go to previous month"
+              Icon={ChevronLeft}
               colorScheme={colorScheme}
             />
           ),
-          IconRight: (props) => (
-            <NavigationIcon 
+          IconRight: props => (
+            <NavigationIcon
               {...props}
-              ariaLabel="Go to next month" 
-              Icon={ChevronRight} 
+              ariaLabel="Go to next month"
+              Icon={ChevronRight}
               colorScheme={colorScheme}
             />
           ),
         }}
         classNames={{
           months: 'flex flex-col sm:flex-row space-y-6 sm:space-x-6 sm:space-y-0',
-          month: cn(
-            'space-y-4 w-full rounded-xl',
-            'transition-opacity duration-200 ease-in-out'
-          ),
+          month: cn('space-y-4 w-full rounded-xl', 'transition-opacity duration-200 ease-in-out'),
           caption: cn(
             'flex justify-center pt-1 relative items-center h-9',
             'mb-2',
-            colorStyles[colorScheme].header,
+            colorStyles[colorScheme].header
           ),
           caption_label: 'text-sm font-semibold tracking-wide',
           nav: 'space-x-1 flex items-center absolute inset-0',
           nav_button: cn(
             'h-7 w-7 bg-transparent rounded-lg transition-all duration-200',
-            'hover:bg-gray-100 dark:hover:bg-gray-800',
+            'hover:bg-gray-100',
             'active:scale-95',
             'focus-visible:outline-none focus-visible:ring-4',
             'disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed',
@@ -199,7 +203,7 @@ export function MonthCalendarSelector({
             'focus:ring-2',
             'focus-visible:ring-2',
             'focus-visible:ring-offset-2',
-            colorStyles[colorScheme].nav.button,
+            colorStyles[colorScheme].nav.button
           ),
           nav_button_previous: cn(
             'absolute left-1 flex items-center justify-center opacity-85 hover:opacity-100',
@@ -211,7 +215,9 @@ export function MonthCalendarSelector({
             'focus-visible:ring-4',
             'aria-disabled:opacity-50 aria-disabled:pointer-events-none',
             'focus-visible:ring-offset-2',
-            colorScheme === 'amber' ? 'focus-visible:ring-amber-500/50' : 'focus-visible:ring-violet-500/50'
+            colorScheme === 'amber'
+              ? 'focus-visible:ring-amber-500/50'
+              : 'focus-visible:ring-violet-500/50'
           ),
           nav_button_next: cn(
             'absolute right-1 flex items-center justify-center opacity-85 hover:opacity-100',
@@ -223,14 +229,16 @@ export function MonthCalendarSelector({
             'focus-visible:ring-4',
             'aria-disabled:opacity-50 aria-disabled:pointer-events-none',
             'focus-visible:ring-offset-2',
-            colorScheme === 'amber' ? 'focus-visible:ring-amber-500/50' : 'focus-visible:ring-violet-500/50'
+            colorScheme === 'amber'
+              ? 'focus-visible:ring-amber-500/50'
+              : 'focus-visible:ring-violet-500/50'
           ),
           table: 'w-full border-collapse space-y-1',
-          head_row: 'flex w-full border-b border-gray-200 dark:border-gray-700',
+          head_row: 'flex w-full border-b border-gray-200',
           head_cell: cn(
             'flex-1 pb-2 text-center text-xs font-medium tracking-widest uppercase',
-            'text-gray-600 dark:text-gray-400',
-            '[&:first-child]:text-red-600/90 dark:[&:first-child]:text-red-400',
+            'text-gray-600',
+            '[&:first-child]:text-red-600/90',
             'select-none transition-colors duration-200'
           ),
           row: 'flex w-full mt-2',
@@ -243,7 +251,7 @@ export function MonthCalendarSelector({
           day: cn(
             'h-8 w-full p-0 font-normal',
             'aria-selected:opacity-100',
-            'hover:bg-gray-100 dark:hover:bg-gray-800',
+            'hover:bg-gray-100',
             'active:scale-90',
             colorStyles[colorScheme].hover,
             'focus-visible:outline-none focus-visible:ring-4',
@@ -251,25 +259,20 @@ export function MonthCalendarSelector({
             'focus-visible:ring-offset-1',
             'transition-all duration-150 ease-out',
             'rounded-md',
-            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent',
-            'text-gray-900 dark:text-gray-100'
+            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent',
+            'text-gray-900'
           ),
-          day_today: cn(
-            'bg-gray-50 dark:bg-gray-800',
-            'font-semibold',
-            colorStyles[colorScheme].today,
-            'shadow-sm'
-          ),
+          day_today: cn('bg-gray-50', 'font-semibold', colorStyles[colorScheme].today, 'shadow-sm'),
           day_outside: cn(
-            'text-gray-500 dark:text-gray-500 opacity-50 hover:opacity-70',
+            'text-gray-500 opacity-50 hover:opacity-70',
             'transition-opacity duration-200'
           ),
           day_disabled: cn(
-            'text-gray-400 dark:text-gray-600 opacity-40',
-            'cursor-not-allowed hover:bg-transparent dark:hover:bg-transparent',
+            'text-gray-400 opacity-40',
+            'cursor-not-allowed hover:bg-transparent',
             'select-none'
           ),
-          day_range_middle: 'aria-selected:bg-gray-100 dark:aria-selected:bg-gray-800',
+          day_range_middle: 'aria-selected:bg-gray-100',
           day_hidden: 'invisible',
           day_selected: cn(
             colorStyles[colorScheme].selected,
@@ -280,4 +283,4 @@ export function MonthCalendarSelector({
       />
     </section>
   );
-} 
+}

@@ -19,7 +19,7 @@ export default function RelatedLocations({
   countryCode,
   stateCode,
   regionCode,
-  maxItems = 5
+  maxItems = 5,
 }: RelatedLocationsProps) {
   // Different link strategies based on the current page context
   if (regionCode) {
@@ -36,22 +36,20 @@ export default function RelatedLocations({
       .slice(0, maxItems);
 
     return (
-      <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-        <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
-          Related Locations
-        </h2>
+      <div className="mt-8 bg-white rounded-lg shadow-sm p-4">
+        <h2 className="text-lg font-semibold mb-3 text-gray-800">Related Locations</h2>
 
         {siblingRegions.length > 0 && (
           <>
-            <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <h3 className="text-sm font-medium mb-2 text-gray-700">
               Other regions in {currentState}
             </h3>
             <ul className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {siblingRegions.map(region => (
                 <li key={region.code}>
-                  <Link 
+                  <Link
                     href={`/holidays/${countryCode?.toLowerCase()}/${stateCode?.toLowerCase()}/${region.code.toLowerCase()}`}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
                     title={`Public holidays in ${region.name}, ${currentState}, ${currentCountry}`}
                   >
                     Public Holidays in {region.name}, {currentState}
@@ -64,15 +62,15 @@ export default function RelatedLocations({
 
         {otherStates.length > 0 && (
           <>
-            <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <h3 className="text-sm font-medium mb-2 text-gray-700">
               Other states in {currentCountry}
             </h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {otherStates.map(state => (
                 <li key={state.code}>
-                  <Link 
+                  <Link
                     href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
                     title={`Public holidays in ${state.name}, ${currentCountry}`}
                   >
                     Public Holidays in {state.name}, {currentCountry}
@@ -84,8 +82,7 @@ export default function RelatedLocations({
         )}
       </div>
     );
-  } 
-  else if (stateCode) {
+  } else if (stateCode) {
     // On a state page, show:
     // 1. Top regions in this state
     // 2. Sibling states in the same country
@@ -96,22 +93,18 @@ export default function RelatedLocations({
       .slice(0, maxItems);
 
     return (
-      <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-        <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
-          Related Locations
-        </h2>
+      <div className="mt-8 bg-white rounded-lg shadow-sm p-4">
+        <h2 className="text-lg font-semibold mb-3 text-gray-800">Related Locations</h2>
 
         {topRegions.length > 0 && (
           <>
-            <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Regions in {currentState}
-            </h3>
+            <h3 className="text-sm font-medium mb-2 text-gray-700">Regions in {currentState}</h3>
             <ul className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {topRegions.map(region => (
                 <li key={region.code}>
-                  <Link 
+                  <Link
                     href={`/holidays/${countryCode?.toLowerCase()}/${stateCode.toLowerCase()}/${region.code.toLowerCase()}`}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
                     title={`Public holidays in ${region.name}, ${currentState}, ${currentCountry}`}
                   >
                     Public Holidays in {region.name}, {currentState}
@@ -124,15 +117,15 @@ export default function RelatedLocations({
 
         {siblingStates.length > 0 && (
           <>
-            <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <h3 className="text-sm font-medium mb-2 text-gray-700">
               Other states in {currentCountry}
             </h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {siblingStates.map(state => (
                 <li key={state.code}>
-                  <Link 
+                  <Link
                     href={`/holidays/${countryCode?.toLowerCase()}/${state.code.toLowerCase()}`}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
                     title={`Public holidays in ${state.name}, ${currentCountry}`}
                   >
                     Public Holidays in {state.name}, {currentCountry}
@@ -144,8 +137,7 @@ export default function RelatedLocations({
         )}
       </div>
     );
-  } 
-  else if (countryCode) {
+  } else if (countryCode) {
     // On a country page, show:
     // 1. Top states in this country
     // 2. Other popular countries
@@ -156,22 +148,18 @@ export default function RelatedLocations({
       .slice(0, maxItems);
 
     return (
-      <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-        <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
-          Related Locations
-        </h2>
+      <div className="mt-8 bg-white rounded-lg shadow-sm p-4">
+        <h2 className="text-lg font-semibold mb-3 text-gray-800">Related Locations</h2>
 
         {topStates.length > 0 && (
           <>
-            <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              States in {currentCountry}
-            </h3>
+            <h3 className="text-sm font-medium mb-2 text-gray-700">States in {currentCountry}</h3>
             <ul className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {topStates.map(state => (
                 <li key={state.code}>
-                  <Link 
+                  <Link
                     href={`/holidays/${countryCode.toLowerCase()}/${state.code.toLowerCase()}`}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
                     title={`Public holidays in ${state.name}, ${currentCountry}`}
                   >
                     Public Holidays in {state.name}, {currentCountry}
@@ -184,15 +172,13 @@ export default function RelatedLocations({
 
         {otherCountries.length > 0 && (
           <>
-            <h3 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Other countries
-            </h3>
+            <h3 className="text-sm font-medium mb-2 text-gray-700">Other countries</h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {otherCountries.map(country => (
                 <li key={country.countryCode}>
-                  <Link 
+                  <Link
                     href={`/holidays/${country.countryCode.toLowerCase()}`}
-                    className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
                     title={`Public holidays in ${country.name}`}
                   >
                     Public Holidays in {country.name}
@@ -208,4 +194,4 @@ export default function RelatedLocations({
 
   // Default empty component if no context matches
   return null;
-} 
+}

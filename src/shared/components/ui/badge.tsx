@@ -4,43 +4,38 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/shared/lib/utils';
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
-        success:
-          "border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50",
-        info:
-          "border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50",
-        warning:
-          "border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-900/50",
-        neutral:
-          "border-transparent bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700",
+          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
+        outline: 'text-foreground',
+        success: 'border-transparent bg-green-100 text-green-800 hover:bg-green-200',
+        info: 'border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200',
+        warning: 'border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
+        neutral: 'border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200',
       },
       size: {
-        default: "px-2.5 py-0.5 text-xs",
-        sm: "px-2 py-0.5 text-[0.625rem]",
-        lg: "px-3 py-1 text-sm",
+        default: 'px-2.5 py-0.5 text-xs',
+        sm: 'px-2 py-0.5 text-[0.625rem]',
+        lg: 'px-3 py-1 text-sm',
       },
       interactive: {
-        true: "cursor-pointer hover:shadow-sm focus:ring-2",
-        false: "",
+        true: 'cursor-pointer hover:shadow-sm focus:ring-2',
+        false: '',
       },
     },
     defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: 'default',
+      size: 'default',
       interactive: false,
     },
   }
-)
+);
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -50,16 +45,16 @@ export interface BadgeProps
   onRemove?: () => void;
 }
 
-function Badge({ 
-  className, 
-  variant, 
-  size, 
+function Badge({
+  className,
+  variant,
+  size,
   interactive,
   icon,
   removable,
   onRemove,
   children,
-  ...props 
+  ...props
 }: BadgeProps) {
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -67,9 +62,9 @@ function Badge({
   };
 
   return (
-    <div 
-      className={cn(badgeVariants({ variant, size, interactive }), className)} 
-      role={interactive ? "button" : undefined}
+    <div
+      className={cn(badgeVariants({ variant, size, interactive }), className)}
+      role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
       {...props}
     >
@@ -82,19 +77,24 @@ function Badge({
           onClick={handleRemoveClick}
           aria-label="Remove badge"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 16 16" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
             className="h-3 w-3"
           >
-            <path d="M12 4L4 12M4 4l8 8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M12 4L4 12M4 4l8 8"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       )}
     </div>
-  )
+  );
 }
 
-export { Badge, badgeVariants }
+export { Badge, badgeVariants };
