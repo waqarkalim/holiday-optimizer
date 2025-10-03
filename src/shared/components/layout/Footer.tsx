@@ -4,6 +4,8 @@ import { GITHUB_URL, PROJECT_NAME } from '@/constants';
 import { cn, linkStyles, spacing, textSize } from '@/shared/lib/utils';
 import { GitHubLink } from '@/shared/components/ui/github-link';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 const Footer = () => (
   <footer className="bg-white/90 dark:bg-gray-800/90 border-t border-gray-200/60 dark:border-gray-700/30" role="contentinfo" aria-label="Site footer">
     <div className={cn(
@@ -87,11 +89,15 @@ const Footer = () => (
 
         {/* Bottom Bar */}
         <section className="pt-4 flex flex-col sm:flex-row justify-between items-center">
-          <p className={cn(
-            textSize('tiny'),
-            'text-gray-500 dark:text-gray-400',
-          )}>
-            <small>&copy; {new Date().getUTCFullYear()} {PROJECT_NAME}. All rights reserved.</small>
+          <p
+            className={cn(
+              textSize('tiny'),
+              'text-gray-500 dark:text-gray-400',
+            )}
+          >
+            <small>
+              &copy; {CURRENT_YEAR} Waqar Bin Kalim ({PROJECT_NAME}). All rights reserved.
+            </small>
           </p>
           <nav aria-label="Footer navigation" className="mt-3 sm:mt-0">
             <ul className="flex items-center gap-4">
