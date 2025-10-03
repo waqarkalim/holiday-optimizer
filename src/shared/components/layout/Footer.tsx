@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/shared/components/Logo';
-import { GITHUB_URL, PROJECT_NAME } from '@/constants';
+import { GITHUB_URL } from '@/constants';
 import { cn, linkStyles, spacing, textSize } from '@/shared/lib/utils';
 import { GitHubLink } from '@/shared/components/ui/github-link';
 
@@ -95,9 +95,7 @@ const Footer = () => (
               'text-gray-500 dark:text-gray-400',
             )}
           >
-            <small>
-              &copy; {CURRENT_YEAR} Waqar Bin Kalim ({PROJECT_NAME}). All rights reserved.
-            </small>
+            <small>&copy; {CURRENT_YEAR} Waqar Bin Kalim. All rights reserved.</small>
           </p>
           <nav aria-label="Footer navigation" className="mt-3 sm:mt-0">
             <ul className="flex items-center gap-4">

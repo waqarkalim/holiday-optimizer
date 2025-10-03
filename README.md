@@ -111,6 +111,14 @@ pnpm lint
 pnpm format
 ```
 
+## Usage Policy
+
+This repository is published for transparency so others can review how the application works. **All rights remain with Waqar Bin Kalim.**
+
+- © 2025 Waqar Bin Kalim. All rights reserved.
+- You may read and learn from the code, but you may **not** copy, host, deploy, redistribute, or commercialize this project (including modified versions) without written permission.
+- If you’re interested in collaboration or licensing, please contact me directly.
+
 ## Contribution
 
 Thank you for your interest! This repository is maintained solely by me.  
