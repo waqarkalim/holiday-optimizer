@@ -5,7 +5,9 @@ import {
   OptimizationStats,
   OptimizationStrategy,
   OptimizedDay,
+  WeekdayNumber,
 } from '@/types';
+import { DEFAULT_WEEKEND_DAYS } from '@/constants';
 
 type StrategyConfig = {
   spacing: number;
@@ -42,6 +44,20 @@ const formatDate = (date: Date): string => {
 const addDays = (date: Date, days: number): Date =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 
+const getWeekendDaysSet = (weekendDays?: WeekdayNumber[]): Set<WeekdayNumber> => {
+  if (!Array.isArray(weekendDays)) {
+    return new Set(DEFAULT_WEEKEND_DAYS);
+  }
+
+  const normalized = weekendDays.filter(day => Number.isInteger(day) && day >= 0 && day <= 6);
+
+  if (normalized.length === 0) {
+    return new Set(DEFAULT_WEEKEND_DAYS);
+  }
+
+  return new Set(normalized as WeekdayNumber[]);
+};
+
 const isFixedOff = (day: OptimizedDay): boolean =>
   day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff;
 
@@ -62,11 +78,12 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
 
   const holidays = params.holidays ?? [];
   const companyDays = params.companyDaysOff ?? [];
+  const weekendDays = getWeekendDaysSet(params.weekendDays);
 
   for (let date = new Date(startOfYear); date <= endOfYear; date = addDays(date, 1)) {
     const iso = formatDate(date);
-    const dayOfWeek = date.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const dayOfWeek = date.getDay() as WeekdayNumber;
+    const isWeekend = weekendDays.has(dayOfWeek);
 
     const holiday = holidays.find(h => h.date === iso);
     const companyDay = companyDays.find(dayOff => {

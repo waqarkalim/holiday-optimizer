@@ -17,6 +17,7 @@ import {
 } from '@/features/holidays/lib/location-storage';
 import { convertToDateObject } from '@/utils/dates';
 import { format } from 'date-fns';
+import { useOptimizer } from '@/features/optimizer/context/OptimizerContext';
 
 // Define the state interface for the reducer
 interface HolidaysState {
@@ -75,7 +76,8 @@ const holidaysReducer = (state: HolidaysState, action: HolidaysAction): Holidays
 };
 
 export const HolidaysStep = () => {
-  const { holidays, setDetectedHolidays, selectedYear } = useOptimizerForm();
+  const { holidays, selectedYear } = useOptimizerForm();
+  const { dispatch: optimizerDispatch } = useOptimizer();
 
   const [holidaysState, dispatch] = useReducer(holidaysReducer, initialState);
   const { selectedCountryCode, selectedState, selectedRegion } = holidaysState;
@@ -114,17 +116,17 @@ export const HolidaysStep = () => {
   useEffect(() => {
     if (!holidaysData) return;
 
-    setDetectedHolidays(
-      holidaysData.map(holiday => {
-        const displayDate = format(convertToDateObject(holiday.date), 'yyyy-MM-dd');
+    const detected = holidaysData.map(holiday => {
+      const displayDate = format(convertToDateObject(holiday.date), 'yyyy-MM-dd');
 
-        return {
-          date: displayDate,
-          name: holiday.name,
-        };
-      })
-    );
-  }, [holidaysData, setDetectedHolidays]);
+      return {
+        date: displayDate,
+        name: holiday.name,
+      };
+    });
+
+    optimizerDispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: detected });
+  }, [holidaysData, optimizerDispatch]);
 
   const handleCountryChange = (countryCode: string): void => {
     dispatch({ type: 'SET_COUNTRY', payload: countryCode });

@@ -1,6 +1,5 @@
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 
 export interface StepTooltipProps {
   /**
@@ -22,42 +21,6 @@ export interface StepTooltipProps {
 }
 
 export function StepTooltip({ title, description, colorScheme, ariaLabel }: StepTooltipProps) {
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
-  // Close tooltip on ESC key
-  useEffect(() => {
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && tooltipOpen) {
-        setTooltipOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-
-    // Use a type assertion for document.addEventListener
-    document.addEventListener('keydown', handleEscKey as unknown as EventListener);
-    return () => {
-      document.removeEventListener('keydown', handleEscKey as unknown as EventListener);
-    };
-  }, [tooltipOpen]);
-
-  // Handle keyboard interactions
-  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    switch (e.key) {
-      case 'Enter':
-      case '':
-        e.preventDefault();
-        setTooltipOpen(!tooltipOpen);
-        break;
-      case 'Escape':
-        if (tooltipOpen) {
-          e.preventDefault();
-          setTooltipOpen(false);
-        }
-        break;
-    }
-  };
-
   // Map colorScheme to specific style classes
   const colorClasses = {
     teal: {
@@ -95,19 +58,13 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
   };
 
   return (
-    <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+    <Tooltip>
       <TooltipTrigger asChild>
         <button
-          ref={triggerRef}
           type="button"
           className={`rounded-full p-1 ${colorClasses[colorScheme].hover} cursor-help transition-colors focus:outline-none focus:ring-2 ${colorClasses[colorScheme].ring} focus:ring-offset-1`}
           aria-label={ariaLabel}
-          aria-expanded={tooltipOpen}
-          aria-describedby={
-            tooltipOpen ? `tooltip-${title.replace(/\s+/g, '-').toLowerCase()}` : undefined
-          }
           aria-haspopup="dialog"
-          onKeyDown={handleKeyDown}
           tabIndex={0}
         >
           <Info className={`h-3.5 w-3.5 ${colorClasses[colorScheme].icon}`} aria-hidden="true" />

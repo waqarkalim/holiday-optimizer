@@ -2,14 +2,16 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
-import { AlertCircle, Calendar, Sparkles } from 'lucide-react';
+import { AlertCircle, Calendar, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { DaysInputStep } from './form/DaysInputStep';
+import { WeekendPreferencesStep } from './form/WeekendPreferencesStep';
 import { StrategySelectionStep } from './form/StrategySelectionStep';
 import { HolidaysStep } from './form/HolidaysStep';
 import { CompanyDaysStep } from './form/CompanyDaysStep';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { useLocalStorage } from '@/features/optimizer/hooks/useLocalStorage';
-import { OptimizationStrategy } from '@/types';
+import { OptimizationStrategy, WeekdayNumber } from '@/types';
+import { DEFAULT_WEEKEND_DAYS } from '@/constants';
 import {
   Card,
   CardContent,
@@ -30,6 +32,7 @@ interface FormData {
   companyDaysOff: Array<{ date: string; name: string }>;
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
+  weekendDays: WeekdayNumber[];
 }
 
 interface OptimizerFormProps {
@@ -38,13 +41,23 @@ interface OptimizerFormProps {
 }
 
 export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFormProps) {
-  const { days, strategy, companyDaysOff, holidays, selectedYear, setSelectedYear } =
+  const {
+    days,
+    strategy,
+    companyDaysOff,
+    holidays,
+    selectedYear,
+    weekendDays,
+    setSelectedYear,
+  } =
     useOptimizerForm();
 
   // Reference to manage focus flow - moved to dedicated refs for better semantic structure
   const daysInputRef = useRef<HTMLFieldSetElement>(null);
   const errorMessageRef = useRef<HTMLDivElement>(null);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const hasInitializedAdvanced = useRef(false);
 
   // Initialize local storage sync
   useLocalStorage();
@@ -60,6 +73,21 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [attemptedSubmit, isFormValid]);
+
+  useEffect(() => {
+    if (hasInitializedAdvanced.current) return;
+
+    const defaultSet = new Set(DEFAULT_WEEKEND_DAYS);
+    const weekendSet = new Set(weekendDays);
+    const isDefaultWeekend =
+      weekendSet.size === defaultSet.size && [...defaultSet].every(day => weekendSet.has(day));
+
+    if (!isDefaultWeekend) {
+      setShowAdvanced(true);
+    }
+
+    hasInitializedAdvanced.current = true;
+  }, [weekendDays]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,6 +107,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       companyDaysOff,
       holidays,
       selectedYear,
+      weekendDays,
     };
 
     // Track form submission with Umami
@@ -186,6 +215,30 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             >
               <CompanyDaysStep />
             </fieldset>
+            <div className="pt-2 mt-3 border-t border-dashed border-amber-200/60">
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-xs font-medium text-amber-800 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-md px-1.5 py-1"
+                onClick={() => setShowAdvanced(prev => !prev)}
+                aria-expanded={showAdvanced}
+                aria-controls="advanced-options-container"
+              >
+                {showAdvanced ? (
+                  <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                )}
+                {showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
+              </button>
+
+              {showAdvanced && (
+                <div id="advanced-options-container" className="mt-2 space-y-2">
+                  <fieldset className="border-0 m-0 p-0" data-onboarding-target="weekend-preferences">
+                    <WeekendPreferencesStep />
+                  </fieldset>
+                </div>
+              )}
+            </div>
           </TooltipProvider>
         </CardContent>
 

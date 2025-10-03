@@ -14,6 +14,8 @@ export type OptimizationStrategy =
   | 'weekLongBreaks'
   | 'extendedVacations';
 
+export type WeekdayNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 export interface OptimizedDay {
   date: string;
   isWeekend: boolean;
@@ -66,6 +68,7 @@ export interface OptimizationParams {
   year?: number;
   holidays?: Array<{ date: string; name: string }>;
   companyDaysOff?: Array<CompanyDayOff>;
+  weekendDays?: WeekdayNumber[];
 }
 
 export interface StrategyOption {

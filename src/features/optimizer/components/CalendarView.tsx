@@ -1,9 +1,9 @@
 import { OptimizationStats, OptimizedDay } from '@/types';
 import { CalendarLegend } from '@/shared/components/ui/calendar/CalendarLegend';
-import { MONTHS } from '@/constants';
+import { MONTHS, WEEKDAYS } from '@/constants';
 import { MonthCalendar } from '@/shared/components/ui/calendar/MonthCalendar';
 import { AlertCircle, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, getDay, parse } from 'date-fns';
 import { SectionCard } from '@/shared/components/ui/section-card';
 
 interface CalendarViewProps {
@@ -12,12 +12,50 @@ interface CalendarViewProps {
   selectedYear: number;
 }
 
+const buildWeekendLegendLabel = (days: OptimizedDay[]) => {
+  const weekendDayNumbers = new Set<number>();
+
+  days.forEach(day => {
+    if (!day.isWeekend) {
+      return;
+    }
+    const parsed = parse(day.date, 'yyyy-MM-dd', new Date());
+    weekendDayNumbers.add(getDay(parsed));
+  });
+
+  if (weekendDayNumbers.size === 0) {
+    return undefined;
+  }
+
+  const names = WEEKDAYS.reduce<string[]>((acc, label, index) => {
+    if (weekendDayNumbers.has(index)) {
+      acc.push(label);
+    }
+    return acc;
+  }, []);
+
+  if (names.length === 0) {
+    return undefined;
+  }
+
+  if (names.length === 1) {
+    return `Normal Weekend (${names[0]})`;
+  }
+
+  const last = names[names.length - 1];
+  const initial = names.slice(0, -1);
+  return `Normal Weekend (${initial.join(', ')} & ${last})`;
+};
+
 export const CalendarView = ({ stats, optimizedDays, selectedYear }: CalendarViewProps) => {
   // Get today's date and format it nicely
   const today = new Date();
   const formattedDate = format(today, 'MMMM d, yyyy');
   const currentYear = today.getFullYear();
   const isCurrentYear = selectedYear === currentYear;
+
+  const weekendLegendLabel = buildWeekendLegendLabel(optimizedDays);
+  const hasWeekendDays = optimizedDays.some(day => day.isWeekend);
 
   return (
     <SectionCard
@@ -62,7 +100,8 @@ export const CalendarView = ({ stats, optimizedDays, selectedYear }: CalendarVie
         hasHolidays={stats.totalPublicHolidays > 0}
         hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
         hasExtendedWeekends={stats.totalExtendedWeekends > 0}
-        hasWeekends={true}
+        hasWeekends={hasWeekendDays}
+        weekendLabel={weekendLegendLabel}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">

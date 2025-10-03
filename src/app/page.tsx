@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ResultsDisplay } from '@/features/optimizer/components/ResultsDisplay';
 import { OptimizerForm } from '@/features/optimizer/components/OptimizerForm';
 import { OptimizerProvider } from '@/features/optimizer/context/OptimizerContext';
-import { CompanyDayOff, OptimizationResult, OptimizationStrategy } from '@/types';
+import { CompanyDayOff, OptimizationResult, OptimizationStrategy, WeekdayNumber } from '@/types';
 import { optimizeDaysAsync } from '@/services/optimizer';
 import {
   PageContent,
@@ -23,6 +23,7 @@ interface FormState {
   companyDaysOff: Array<CompanyDayOff>;
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
+  weekendDays: WeekdayNumber[];
 }
 
 const HomePage = () => {
@@ -44,6 +45,7 @@ const HomePage = () => {
         year: data.selectedYear,
         companyDaysOff: data.companyDaysOff,
         holidays: data.holidays,
+        weekendDays: data.weekendDays,
       });
       setOptimizationResult({
         days: result.days,
@@ -97,13 +99,16 @@ const HomePage = () => {
             >
               <h2 className="sr-only">Optimization Form</h2>
               <OptimizerForm
-                onSubmitAction={({ days, strategy, companyDaysOff, holidays, selectedYear }) => {
+                onSubmitAction={(
+                  { days, strategy, companyDaysOff, holidays, selectedYear, weekendDays }
+                ) => {
                   const newFormState = {
                     numberOfDays: days,
                     strategy,
                     companyDaysOff,
                     holidays,
                     selectedYear,
+                    weekendDays,
                   };
                   handleOptimize(newFormState);
                 }}

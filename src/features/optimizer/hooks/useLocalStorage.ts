@@ -9,30 +9,27 @@ import {
   removeStoredHoliday,
   storeHoliday,
 } from '@/features/optimizer/lib/storage/holidays';
-import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
+import { useOptimizer } from '@/features/optimizer/context/OptimizerContext';
+import {
+  getStoredWeekendDays,
+  storeWeekendDays,
+} from '@/features/optimizer/lib/storage/weekend-days';
 
 export function useLocalStorage() {
-  const {
-    holidays,
-    companyDaysOff,
-    selectedYear,
-    addHoliday,
-    clearHolidays,
-    addCompanyDay,
-    clearCompanyDays,
-  } = useOptimizerForm();
+  const { state, dispatch } = useOptimizer();
+  const { holidays, companyDaysOff, selectedYear, weekendDays } = state;
 
   // Load stored data when year changes or on mount
   useEffect(() => {
     // Clear existing holidays and company days when year changes
-    clearHolidays();
-    clearCompanyDays();
+    dispatch({ type: 'CLEAR_HOLIDAYS' });
+    dispatch({ type: 'CLEAR_COMPANY_DAYS' });
 
     // Load public holidays for the selected year
     const storedHolidays = getStoredHolidays(selectedYear);
     if (storedHolidays.length > 0) {
       storedHolidays.forEach(day => {
-        addHoliday(day.date, day.name);
+        dispatch({ type: 'ADD_HOLIDAY', payload: { date: day.date, name: day.name } });
       });
     }
 
@@ -40,10 +37,15 @@ export function useLocalStorage() {
     const storedCompanyDays = getStoredCompanyDays(selectedYear);
     if (storedCompanyDays.length > 0) {
       storedCompanyDays.forEach(day => {
-        addCompanyDay(day.date, day.name);
+        dispatch({ type: 'ADD_COMPANY_DAY', payload: { date: day.date, name: day.name } });
       });
     }
-  }, [addCompanyDay, addHoliday, clearCompanyDays, clearHolidays, selectedYear]);
+  }, [dispatch, selectedYear]);
+
+  useEffect(() => {
+    const storedWeekendDays = getStoredWeekendDays();
+    dispatch({ type: 'SET_WEEKEND_DAYS', payload: storedWeekendDays });
+  }, [dispatch]);
 
   // Sync individual holiday changes
   useEffect(() => {
@@ -84,4 +86,8 @@ export function useLocalStorage() {
       }
     });
   }, [companyDaysOff, selectedYear]);
+
+  useEffect(() => {
+    storeWeekendDays(weekendDays);
+  }, [weekendDays]);
 }

@@ -1,4 +1,4 @@
-import { ColorSchemes, StrategyOption } from '@/types';
+import { ColorSchemes, StrategyOption, WeekdayNumber } from '@/types';
 import { isProd } from '@/shared/lib/utils';
 
 // Constants for break lengths and scoring
@@ -636,6 +636,8 @@ export const MONTHS = [
 ] as const;
 
 export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+
+export const DEFAULT_WEEKEND_DAYS: WeekdayNumber[] = [0, 6];
 
 export const PROJECT_NAME = 'Holiday Optimizer';
 

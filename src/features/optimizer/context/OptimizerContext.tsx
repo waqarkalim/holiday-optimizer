@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useReducer } from 'react';
 import { format, isValid, parse } from 'date-fns';
-import { OptimizationStrategy } from '@/types';
+import { OptimizationStrategy, WeekdayNumber } from '@/types';
+import { DEFAULT_WEEKEND_DAYS } from '@/constants';
 
 interface Holiday {
   date: string;
@@ -15,6 +16,7 @@ interface OptimizerState {
   holidays: Holiday[];
   selectedDates: Date[];
   selectedYear: number;
+  weekendDays: WeekdayNumber[];
   errors: {
     days?: string;
     companyDay?: {
@@ -43,7 +45,8 @@ type OptimizerAction =
   | { type: 'CLEAR_COMPANY_DAYS' }
   | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
   | { type: 'SET_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
-  | { type: 'SET_SELECTED_YEAR'; payload: number };
+  | { type: 'SET_SELECTED_YEAR'; payload: number }
+  | { type: 'SET_WEEKEND_DAYS'; payload: WeekdayNumber[] };
 
 const initialState: OptimizerState = {
   days: '',
@@ -52,6 +55,7 @@ const initialState: OptimizerState = {
   holidays: [],
   selectedDates: [],
   selectedYear: new Date().getFullYear(),
+  weekendDays: DEFAULT_WEEKEND_DAYS,
   errors: {},
 };
 
@@ -244,7 +248,23 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     case 'SET_SELECTED_YEAR': {
       return {
         ...initialState,
+        weekendDays: state.weekendDays,
         selectedYear: action.payload,
+      };
+    }
+
+    case 'SET_WEEKEND_DAYS': {
+      const validWeekendDays = Array.from(
+        new Set(
+          action.payload.filter(
+            (day): day is WeekdayNumber => Number.isInteger(day) && day >= 0 && day <= 6
+          )
+        )
+      );
+
+      return {
+        ...state,
+        weekendDays: validWeekendDays.length > 0 ? validWeekendDays : DEFAULT_WEEKEND_DAYS,
       };
     }
 

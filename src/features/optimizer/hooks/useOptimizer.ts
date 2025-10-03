@@ -1,122 +1,90 @@
-import { useCallback, useMemo } from 'react';
 import { useOptimizer } from '@/features/optimizer/context/OptimizerContext';
-import { OptimizationStrategy } from '@/types';
+import { OptimizationStrategy, WeekdayNumber } from '@/types';
 
 type SimpleDay = { date: string; name: string };
 
 export function useOptimizerForm() {
   const { state, dispatch } = useOptimizer();
 
-  const setDays = useCallback(
-    (value: string) => {
-      dispatch({ type: 'SET_DAYS', payload: value });
-    },
-    [dispatch]
-  );
+  const setDays = (value: string) => {
+    dispatch({ type: 'SET_DAYS', payload: value });
+  };
 
-  const setStrategy = useCallback(
-    (value: OptimizationStrategy) => {
-      dispatch({ type: 'SET_STRATEGY', payload: value });
-    },
-    [dispatch]
-  );
+  const setStrategy = (value: OptimizationStrategy) => {
+    dispatch({ type: 'SET_STRATEGY', payload: value });
+  };
 
-  const setSelectedYear = useCallback(
-    (value: number) => {
-      dispatch({ type: 'SET_SELECTED_YEAR', payload: value });
-    },
-    [dispatch]
-  );
+  const setSelectedYear = (value: number) => {
+    dispatch({ type: 'SET_SELECTED_YEAR', payload: value });
+  };
 
-  const addHoliday = useCallback(
-    (date: string, name: string) => {
-      dispatch({ type: 'ADD_HOLIDAY', payload: { date, name } });
-    },
-    [dispatch]
-  );
+  const setWeekendDays = (value: WeekdayNumber[]) => {
+    dispatch({ type: 'SET_WEEKEND_DAYS', payload: value });
+  };
 
-  const removeHoliday = useCallback(
-    (date: string) => {
-      dispatch({ type: 'REMOVE_HOLIDAY', payload: date });
-    },
-    [dispatch]
-  );
+  const addHoliday = (date: string, name: string) => {
+    dispatch({ type: 'ADD_HOLIDAY', payload: { date, name } });
+  };
 
-  const clearHolidays = useCallback(() => {
+  const removeHoliday = (date: string) => {
+    dispatch({ type: 'REMOVE_HOLIDAY', payload: date });
+  };
+
+  const clearHolidays = () => {
     dispatch({ type: 'CLEAR_HOLIDAYS' });
-  }, [dispatch]);
+  };
 
-  const setDetectedHolidays = useCallback(
-    (holidays: SimpleDay[]) => {
-      dispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: holidays });
-    },
-    [dispatch]
-  );
+  const setDetectedHolidays = (holidays: SimpleDay[]) => {
+    dispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: holidays });
+  };
 
-  const setHolidays = useCallback(
-    (holidays: SimpleDay[]) => {
-      dispatch({ type: 'SET_HOLIDAYS', payload: holidays });
-    },
-    [dispatch]
-  );
+  const setHolidays = (holidays: SimpleDay[]) => {
+    dispatch({ type: 'SET_HOLIDAYS', payload: holidays });
+  };
 
-  const addCompanyDay = useCallback(
-    (date: string, name: string) => {
-      dispatch({ type: 'ADD_COMPANY_DAY', payload: { date, name } });
-    },
-    [dispatch]
-  );
+  const addCompanyDay = (date: string, name: string) => {
+    dispatch({ type: 'ADD_COMPANY_DAY', payload: { date, name } });
+  };
 
-  const removeCompanyDay = useCallback(
-    (date: string) => {
-      dispatch({ type: 'REMOVE_COMPANY_DAY', payload: date });
-    },
-    [dispatch]
-  );
+  const removeCompanyDay = (date: string) => {
+    dispatch({ type: 'REMOVE_COMPANY_DAY', payload: date });
+  };
 
-  const clearCompanyDays = useCallback(() => {
+  const clearCompanyDays = () => {
     dispatch({ type: 'CLEAR_COMPANY_DAYS' });
-  }, [dispatch]);
+  };
 
-  const setCompanyDays = useCallback(
-    (days: SimpleDay[]) => {
-      dispatch({ type: 'SET_COMPANY_DAYS', payload: days });
-    },
-    [dispatch]
-  );
+  const setCompanyDays = (days: SimpleDay[]) => {
+    dispatch({ type: 'SET_COMPANY_DAYS', payload: days });
+  };
 
-  return useMemo(() => {
-    const { days, strategy, companyDaysOff, holidays, selectedYear, selectedDates, errors } = state;
+  const {
+    days,
+    strategy,
+    companyDaysOff,
+    holidays,
+    selectedYear,
+    selectedDates,
+    weekendDays,
+    errors,
+  } = state;
 
-    return {
-      days,
-      strategy,
-      companyDaysOff,
-      holidays,
-      selectedYear,
-      selectedDates,
-      errors,
-      daysError: errors.days,
-      companyDayError: errors.companyDay,
-      holidayError: errors.holiday,
-      setDays,
-      setStrategy,
-      setSelectedYear,
-      addHoliday,
-      removeHoliday,
-      clearHolidays,
-      setDetectedHolidays,
-      setHolidays,
-      addCompanyDay,
-      removeCompanyDay,
-      clearCompanyDays,
-      setCompanyDays,
-    } as const;
-  }, [
-    state,
+  return {
+    days,
+    strategy,
+    companyDaysOff,
+    holidays,
+    selectedYear,
+    selectedDates,
+    weekendDays,
+    errors,
+    daysError: errors.days,
+    companyDayError: errors.companyDay,
+    holidayError: errors.holiday,
     setDays,
     setStrategy,
     setSelectedYear,
+    setWeekendDays,
     addHoliday,
     removeHoliday,
     clearHolidays,
@@ -126,5 +94,5 @@ export function useOptimizerForm() {
     removeCompanyDay,
     clearCompanyDays,
     setCompanyDays,
-  ]);
+  };
 }

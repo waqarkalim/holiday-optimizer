@@ -160,6 +160,30 @@ const getDayStyles = (isCurrentDay: boolean, isPastDay: boolean, dayType: DayTyp
   };
 };
 
+const getWeekendDayNumbers = (days: OptimizedDay[]) => {
+  const weekendSet = new Set<number>();
+
+  for (const day of days) {
+    if (!day.isWeekend) {
+      continue;
+    }
+
+    const parsed = parse(day.date, 'yyyy-MM-dd', new Date());
+    weekendSet.add(getDay(parsed));
+
+    if (weekendSet.size >= 7) {
+      break;
+    }
+  }
+
+  if (weekendSet.size === 0) {
+    weekendSet.add(0);
+    weekendSet.add(6);
+  }
+
+  return weekendSet;
+};
+
 /**
  * MonthCalendar Component
  * Displays a single month calendar with optimized day styling
@@ -191,13 +215,15 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   });
 
   // Create calendar grid with empty cells for proper alignment
+  const weekendDayNumbers = getWeekendDayNumbers(days);
+
   const calendarDays = Array(35).fill(null);
   daysInMonth.forEach((date, index) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const day = days.find(d => d.date === dateStr);
     calendarDays[startingDayIndex + index] = day || {
       date: dateStr,
-      isWeekend: getDay(date) === 0 || getDay(date) === 6,
+      isWeekend: weekendDayNumbers.has(getDay(date)),
       isPTO: false,
       isPartOfBreak: false,
       isPublicHoliday: false,

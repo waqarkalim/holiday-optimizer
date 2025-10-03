@@ -53,6 +53,7 @@ interface CalendarLegendProps {
   hasCompanyDaysOff?: boolean;
   hasExtendedWeekends?: boolean;
   hasWeekends?: boolean;
+  weekendLabel?: string;
 }
 
 export function CalendarLegend({
@@ -61,6 +62,7 @@ export function CalendarLegend({
   hasCompanyDaysOff = false,
   hasExtendedWeekends = false,
   hasWeekends = false,
+  weekendLabel,
 }: CalendarLegendProps) {
   // Define legend items with priority for importance-based visual hierarchy
   const legendItems: LegendItemProps[] = [
@@ -87,14 +89,14 @@ export function CalendarLegend({
     hasWeekends &&
       !hasExtendedWeekends && {
         dayType: 'weekend',
-        label: 'Normal Weekend',
+        label: weekendLabel ?? 'Normal Weekend',
         priority: 5,
       },
     // If both regular and extended weekends exist, show both
     hasWeekends &&
       hasExtendedWeekends && {
         dayType: 'weekend',
-        label: 'Normal Weekend',
+        label: weekendLabel ?? 'Normal Weekend',
         priority: 5,
       },
   ].filter((item): item is LegendItemProps => Boolean(item));
