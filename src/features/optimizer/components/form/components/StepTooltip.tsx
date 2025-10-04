@@ -1,6 +1,6 @@
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
-import { useEffect, useMemo, useState, type MouseEvent, type KeyboardEvent } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface StepTooltipProps {
   /**
@@ -14,7 +14,7 @@ export interface StepTooltipProps {
   /**
    * The color scheme to use for styling (matches step colors)
    */
-  colorScheme: 'teal' | 'blue' | 'amber' | 'violet';
+  colorScheme: 'teal' | 'blue' | 'amber' | 'violet' | 'emerald' | 'cyan';
   /**
    * The aria-label for the tooltip trigger button
    */
@@ -22,8 +22,7 @@ export interface StepTooltipProps {
 }
 
 export function StepTooltip({ title, description, colorScheme, ariaLabel }: StepTooltipProps) {
-  const [open, setOpen] = useState(false);
-  const [isTouch, setIsTouch] = useState(() => false);
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) {
@@ -45,40 +44,6 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
     query.addListener(update);
     return () => query.removeListener(update);
   }, []);
-
-  const triggerHandlers = useMemo(() => {
-    if (!isTouch) {
-      return {
-        onPointerEnter: () => setOpen(true),
-        onPointerLeave: () => setOpen(false),
-        onFocus: () => setOpen(true),
-        onBlur: () => setOpen(false),
-        onClick: undefined,
-        onKeyDown: undefined,
-      };
-    }
-
-    return {
-      onPointerEnter: undefined,
-      onPointerLeave: undefined,
-      onFocus: undefined,
-      onBlur: undefined,
-      onClick: (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        setOpen(prev => !prev);
-      },
-      onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          setOpen(false);
-        }
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          setOpen(prev => !prev);
-        }
-      },
-    };
-  }, [isTouch]);
 
   // Map colorScheme to specific style classes
   const colorClasses = {
@@ -114,30 +79,31 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
       header: 'text-violet-800',
       text: 'text-violet-700/90',
     },
-  };
-
-  const handleOpenChange = (next: boolean) => {
-    if (isTouch) {
-      if (!next) {
-        setOpen(false);
-      }
-      return;
-    }
-
-    setOpen(next);
+    emerald: {
+      hover: 'hover:bg-emerald-100/70',
+      ring: 'focus:ring-emerald-500',
+      icon: 'text-emerald-500/70',
+      content: 'bg-emerald-50/95 border-emerald-100 text-emerald-900',
+      header: 'text-emerald-800',
+      text: 'text-emerald-700/90',
+    },
+    cyan: {
+      hover: 'hover:bg-cyan-100/70',
+      ring: 'focus:ring-cyan-500',
+      icon: 'text-cyan-500/70',
+      content: 'bg-cyan-50/95 border-cyan-100 text-cyan-900',
+      header: 'text-cyan-800',
+      text: 'text-cyan-700/90',
+    },
   };
 
   return (
-    <Tooltip open={open} onOpenChange={handleOpenChange} disableHoverableContent={isTouch}>
+    <Tooltip disableHoverableContent={isTouch}>
       <TooltipTrigger asChild>
         <button
           type="button"
           className={`rounded-full p-1 ${colorClasses[colorScheme].hover} cursor-help transition-colors focus:outline-none focus:ring-2 ${colorClasses[colorScheme].ring} focus:ring-offset-1`}
           aria-label={ariaLabel}
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          tabIndex={0}
-          {...triggerHandlers}
         >
           <Info className={`h-3.5 w-3.5 ${colorClasses[colorScheme].icon}`} aria-hidden="true" />
         </button>

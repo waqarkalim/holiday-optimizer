@@ -151,7 +151,7 @@ export const HolidaysStep = () => {
   return (
     <FormSection colorScheme="amber" headingId="holidays-heading">
       <StepHeader
-        number={3}
+        number={4}
         title={
           <StepTitleWithInfo
             title="Public Holidays"

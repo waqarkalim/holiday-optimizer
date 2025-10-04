@@ -5,7 +5,7 @@ interface StepHeaderProps {
   number: number;
   title: ReactNode;
   description: string;
-  colorScheme: 'teal' | 'blue' | 'amber' | 'violet';
+  colorScheme: 'teal' | 'blue' | 'amber' | 'violet' | 'emerald' | 'cyan';
   id?: string;
 }
 
@@ -25,6 +25,14 @@ const colorStyles = {
   violet: {
     text: 'text-violet-900',
     bg: 'bg-violet-100',
+  },
+  emerald: {
+    text: 'text-emerald-900',
+    bg: 'bg-emerald-100',
+  },
+  cyan: {
+    text: 'text-cyan-900',
+    bg: 'bg-cyan-100',
   },
 } as const;
 

@@ -69,6 +69,8 @@ export interface OptimizationParams {
   holidays?: Array<{ date: string; name: string }>;
   companyDaysOff?: Array<CompanyDayOff>;
   weekendDays?: WeekdayNumber[];
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface StrategyOption {

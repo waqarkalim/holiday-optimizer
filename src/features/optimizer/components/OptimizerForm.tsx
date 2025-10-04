@@ -8,6 +8,7 @@ import { WeekendPreferencesStep } from './form/WeekendPreferencesStep';
 import { StrategySelectionStep } from './form/StrategySelectionStep';
 import { HolidaysStep } from './form/HolidaysStep';
 import { CompanyDaysStep } from './form/CompanyDaysStep';
+import { TimeframeStep } from './form/TimeframeStep';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { useLocalStorage } from '@/features/optimizer/hooks/useLocalStorage';
 import { OptimizationStrategy, WeekdayNumber } from '@/types';
@@ -23,8 +24,6 @@ import {
 import { TooltipProvider } from '@/shared/components/ui/tooltip';
 import { trackEvent } from '@/utils/tracking';
 
-// Update to use dynamic calculation based on current year
-const AVAILABLE_YEARS = Array.from({ length: 2 }, (_, index) => new Date().getFullYear() + index);
 
 interface FormData {
   days: number;
@@ -33,6 +32,8 @@ interface FormData {
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
   weekendDays: WeekdayNumber[];
+  customStartDate?: string;
+  customEndDate?: string;
 }
 
 interface OptimizerFormProps {
@@ -48,7 +49,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     holidays,
     selectedYear,
     weekendDays,
-    setSelectedYear,
+    customStartDate,
+    customEndDate,
   } =
     useOptimizerForm();
 
@@ -108,6 +110,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       holidays,
       selectedYear,
       weekendDays,
+      customStartDate,
+      customEndDate,
     };
 
     // Track form submission with Umami
@@ -117,68 +121,22 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       year: selectedYear,
       companyDaysCount: companyDaysOff.length,
       holidaysCount: holidays.length,
+      customStartDate: customStartDate ?? 'default',
+      customEndDate: customEndDate ?? 'default',
     });
 
     onSubmitAction(formData);
   };
 
-  const handleYearChange = (value: string) => {
-    setSelectedYear(parseInt(value));
-  };
 
   return (
     <Card variant="primary">
       <form onSubmit={handleSubmit} className="space-y-4" aria-labelledby="form-title">
         <CardHeader className="pb-0">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div className="flex items-center justify-between">
-              <CardTitle id="form-title" className="flex items-center gap-1.5 text-teal-900">
-                <Calendar className="h-4 w-4 text-teal-600" aria-hidden="true" />
-                Plan Your Year
-              </CardTitle>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center overflow-hidden rounded-md border border-teal-200 shadow-sm focus-within:ring-2 focus-within:ring-teal-500/70 focus-within:border-transparent">
-                <div className="flex h-9 items-center border-r border-teal-200 bg-white px-3 text-xs font-medium text-gray-500">
-                  Year:
-                </div>
-                <div className="relative">
-                  <select
-                    id="year-select"
-                    value={selectedYear.toString()}
-                    onChange={e => handleYearChange(e.target.value)}
-                    className="h-9 border-none bg-white px-3 pr-7 text-sm font-medium text-gray-900 focus:outline-none focus:ring-0 appearance-none cursor-pointer transition-all duration-150"
-                    aria-label="Select planning year"
-                  >
-                    {AVAILABLE_YEARS.map(year => (
-                      <option key={year} value={year.toString()} className="bg-white text-gray-700">
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                  <div
-                    className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      className="h-4 w-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CardTitle id="form-title" className="flex items-center gap-1.5 text-teal-900">
+            <Calendar className="h-4 w-4 text-teal-600" aria-hidden="true" />
+            Plan Your Year
+          </CardTitle>
           <CardDescription>
             Complete these simple steps to optimize your time off throughout the year.
           </CardDescription>
@@ -193,6 +151,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               data-onboarding-target="days-input"
             >
               <DaysInputStep />
+            </fieldset>
+            <fieldset
+              className="border-0 m-0 p-0"
+              id="timeframe-container"
+              data-onboarding-target="timeframe-selection"
+            >
+              <TimeframeStep />
             </fieldset>
             <fieldset
               className="border-0 m-0 p-0"

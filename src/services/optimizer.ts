@@ -8,6 +8,7 @@ import {
   WeekdayNumber,
 } from '@/types';
 import { DEFAULT_WEEKEND_DAYS } from '@/constants';
+import { parse } from 'date-fns';
 
 type StrategyConfig = {
   spacing: number;
@@ -65,14 +66,21 @@ const isFixedOff = (day: OptimizedDay): boolean =>
    Calendar Construction
 ----------------------------- */
 
+const parseDate = (value?: string) => {
+  if (!value) return null;
+  const parsed = parse(value, 'yyyy-MM-dd', new Date());
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
 const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
   const targetYear = params.year ?? new Date().getFullYear();
   const now = new Date();
-  const startOfYear =
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const defaultStart =
     targetYear === now.getFullYear()
-      ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      ? today
       : new Date(targetYear, 0, 1);
-  const endOfYear = new Date(targetYear, 11, 31);
+  const defaultEnd = new Date(targetYear, 11, 31);
 
   const calendar: OptimizedDay[] = [];
 
@@ -80,7 +88,26 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
   const companyDays = params.companyDaysOff ?? [];
   const weekendDays = getWeekendDaysSet(params.weekendDays);
 
-  for (let date = new Date(startOfYear); date <= endOfYear; date = addDays(date, 1)) {
+  const startOverride = parseDate(params.startDate);
+  const endOverride = parseDate(params.endDate);
+
+  let rangeStart = startOverride ?? defaultStart;
+  const rangeEnd = endOverride ?? defaultEnd;
+
+  // Forward-looking: If the start date is in the past, adjust it to today
+  // But only if the end date is today or in the future (i.e., the range is still relevant)
+  if (rangeStart < today && rangeEnd >= today) {
+    rangeStart = today;
+  }
+
+  if (rangeEnd < rangeStart) {
+    return [];
+  }
+
+  const startDate = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate());
+  const endDate = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate());
+
+  for (let date = new Date(startDate); date <= endDate; date = addDays(date, 1)) {
     const iso = formatDate(date);
     const dayOfWeek = date.getDay() as WeekdayNumber;
     const isWeekend = weekendDays.has(dayOfWeek);

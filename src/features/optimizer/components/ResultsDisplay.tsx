@@ -25,10 +25,12 @@ interface ResultsDisplayProps {
   breaks: Break[];
   stats: OptimizationStats;
   selectedYear: number;
+  customStartDate?: string;
+  customEndDate?: string;
 }
 
 export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
-  ({ optimizedDays, breaks, stats, selectedYear }, ref) => {
+  ({ optimizedDays, breaks, stats, selectedYear, customStartDate, customEndDate }, ref) => {
     return (
       <motion.div
         ref={ref}
@@ -47,7 +49,13 @@ export const ResultsDisplay = forwardRef<HTMLDivElement, ResultsDisplayProps>(
         <BreakDetails breaks={breaks} />
 
         {/* Calendar View */}
-        <CalendarView optimizedDays={optimizedDays} stats={stats} selectedYear={selectedYear} />
+        <CalendarView
+          optimizedDays={optimizedDays}
+          stats={stats}
+          selectedYear={selectedYear}
+          customStartDate={customStartDate}
+          customEndDate={customEndDate}
+        />
       </motion.div>
     );
   }

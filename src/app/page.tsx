@@ -24,6 +24,8 @@ interface FormState {
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
   weekendDays: WeekdayNumber[];
+  customStartDate?: string;
+  customEndDate?: string;
 }
 
 const HomePage = () => {
@@ -31,6 +33,7 @@ const HomePage = () => {
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [timeframeRange, setTimeframeRange] = useState<{ start?: string; end?: string }>({});
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleOptimize = async (data: FormState) => {
@@ -39,6 +42,7 @@ const HomePage = () => {
     try {
       setIsOptimizing(true);
       setSelectedYear(data.selectedYear);
+      setTimeframeRange({ start: data.customStartDate, end: data.customEndDate });
       const result = await optimizeDaysAsync({
         numberOfDays: data.numberOfDays,
         strategy: data.strategy,
@@ -46,6 +50,8 @@ const HomePage = () => {
         companyDaysOff: data.companyDaysOff,
         holidays: data.holidays,
         weekendDays: data.weekendDays,
+        startDate: data.customStartDate,
+        endDate: data.customEndDate,
       });
       setOptimizationResult({
         days: result.days,
@@ -100,7 +106,16 @@ const HomePage = () => {
               <h2 className="sr-only">Optimization Form</h2>
               <OptimizerForm
                 onSubmitAction={(
-                  { days, strategy, companyDaysOff, holidays, selectedYear, weekendDays }
+                  {
+                    days,
+                    strategy,
+                    companyDaysOff,
+                    holidays,
+                    selectedYear,
+                    weekendDays,
+                    customStartDate,
+                    customEndDate,
+                  }
                 ) => {
                   const newFormState = {
                     numberOfDays: days,
@@ -109,6 +124,8 @@ const HomePage = () => {
                     holidays,
                     selectedYear,
                     weekendDays,
+                    customStartDate,
+                    customEndDate,
                   };
                   handleOptimize(newFormState);
                 }}
@@ -144,6 +161,8 @@ const HomePage = () => {
                         breaks={optimizationResult.breaks}
                         stats={optimizationResult.stats}
                         selectedYear={selectedYear}
+                        customStartDate={timeframeRange.start}
+                        customEndDate={timeframeRange.end}
                       />
                     </div>
                   )

@@ -9,7 +9,7 @@ export interface StepTitleWithInfoProps {
   /**
    * The color scheme to use for styling (matches step colors)
    */
-  colorScheme: 'teal' | 'blue' | 'amber' | 'violet';
+  colorScheme: 'teal' | 'blue' | 'amber' | 'violet' | 'emerald' | 'cyan';
   /**
    * Optional badge configuration
    */

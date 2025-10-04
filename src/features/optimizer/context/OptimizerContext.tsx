@@ -17,6 +17,9 @@ interface OptimizerState {
   selectedDates: Date[];
   selectedYear: number;
   weekendDays: WeekdayNumber[];
+  customStartDate?: string;
+  customEndDate?: string;
+  timeframePreset: TimeframePreset;
   errors: {
     days?: string;
     companyDay?: {
@@ -46,7 +49,38 @@ type OptimizerAction =
   | { type: 'SET_DETECTED_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
   | { type: 'SET_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
   | { type: 'SET_SELECTED_YEAR'; payload: number }
-  | { type: 'SET_WEEKEND_DAYS'; payload: WeekdayNumber[] };
+  | { type: 'SET_WEEKEND_DAYS'; payload: WeekdayNumber[] }
+  | { type: 'APPLY_TIMEFRAME_PRESET'; payload: { preset: TimeframePreset; year?: number } }
+  | { type: 'SET_CUSTOM_START_DATE'; payload: string | undefined }
+  | { type: 'SET_CUSTOM_END_DATE'; payload: string | undefined }
+  | { type: 'CLEAR_CUSTOM_DATE_RANGE' };
+
+type TimeframePreset = 'calendar' | 'fiscal' | 'custom';
+
+const DATE_FORMAT = 'yyyy-MM-dd';
+
+const toISO = (date: Date) => format(date, DATE_FORMAT);
+
+const getPresetRange = (preset: TimeframePreset, year: number): { start: string; end: string } => {
+  switch (preset) {
+    case 'fiscal': {
+      // For fiscal year, we'll rely on the custom dates being set by the component
+      // Default to July fiscal year as fallback
+      const start = new Date(year, 6, 1);
+      const end = new Date(year + 1, 5, 30);
+      return { start: toISO(start), end: toISO(end) };
+    }
+    case 'calendar':
+    default: {
+      const start = new Date(year, 0, 1);
+      const end = new Date(year, 11, 31);
+      return { start: toISO(start), end: toISO(end) };
+    }
+  }
+};
+
+const currentYear = new Date().getFullYear();
+const defaultRange = getPresetRange('calendar', currentYear);
 
 const initialState: OptimizerState = {
   days: '',
@@ -54,8 +88,11 @@ const initialState: OptimizerState = {
   companyDaysOff: [],
   holidays: [],
   selectedDates: [],
-  selectedYear: new Date().getFullYear(),
+  selectedYear: currentYear,
   weekendDays: DEFAULT_WEEKEND_DAYS,
+  customStartDate: defaultRange.start,
+  customEndDate: defaultRange.end,
+  timeframePreset: 'calendar',
   errors: {},
 };
 
@@ -246,10 +283,20 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
     }
 
     case 'SET_SELECTED_YEAR': {
+      const { payload } = action;
+      const isCustom = state.timeframePreset === 'custom';
+      const nextRange = isCustom
+        ? {
+            start: state.customStartDate ?? getPresetRange('calendar', payload).start,
+            end: state.customEndDate ?? getPresetRange('calendar', payload).end,
+          }
+        : getPresetRange(state.timeframePreset, payload);
+
       return {
-        ...initialState,
-        weekendDays: state.weekendDays,
-        selectedYear: action.payload,
+        ...state,
+        selectedYear: payload,
+        customStartDate: nextRange.start,
+        customEndDate: nextRange.end,
       };
     }
 
@@ -265,6 +312,53 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         weekendDays: validWeekendDays.length > 0 ? validWeekendDays : DEFAULT_WEEKEND_DAYS,
+      };
+    }
+
+    case 'APPLY_TIMEFRAME_PRESET': {
+      const { preset, year } = action.payload;
+      if (preset === 'custom') {
+        return {
+          ...state,
+          timeframePreset: 'custom',
+          customStartDate: state.customStartDate ?? getPresetRange('calendar', state.selectedYear).start,
+          customEndDate: state.customEndDate ?? getPresetRange('calendar', state.selectedYear).end,
+        };
+      }
+
+      const targetYear = year ?? state.selectedYear;
+      const { start, end } = getPresetRange(preset, targetYear);
+      return {
+        ...state,
+        timeframePreset: preset,
+        customStartDate: start,
+        customEndDate: end,
+      };
+    }
+
+    case 'SET_CUSTOM_START_DATE': {
+      return {
+        ...state,
+        customStartDate: action.payload,
+        // Don't automatically change preset type - let the component manage it
+      };
+    }
+
+    case 'SET_CUSTOM_END_DATE': {
+      return {
+        ...state,
+        customEndDate: action.payload,
+        // Don't automatically change preset type - let the component manage it
+      };
+    }
+
+    case 'CLEAR_CUSTOM_DATE_RANGE': {
+      const { start, end } = getPresetRange('calendar', state.selectedYear);
+      return {
+        ...state,
+        timeframePreset: 'calendar',
+        customStartDate: start,
+        customEndDate: end,
       };
     }
 

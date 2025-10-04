@@ -73,7 +73,7 @@ export function WeekendPreferencesStep() {
   return (
     <FormSection colorScheme="amber" headingId="weekend-preferences-heading">
       <StepHeader
-        number={5}
+        number={6}
         title={titleWithInfo}
         description="Select the days you normally have off each week. This helps us identify extended weekends and bridge PTO days effectively."
         colorScheme="amber"

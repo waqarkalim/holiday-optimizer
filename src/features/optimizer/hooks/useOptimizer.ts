@@ -58,6 +58,25 @@ export function useOptimizerForm() {
     dispatch({ type: 'SET_COMPANY_DAYS', payload: days });
   };
 
+  const setCustomStartDate = (value?: string) => {
+    dispatch({ type: 'SET_CUSTOM_START_DATE', payload: value });
+  };
+
+  const setCustomEndDate = (value?: string) => {
+    dispatch({ type: 'SET_CUSTOM_END_DATE', payload: value });
+  };
+
+  const clearCustomDateRange = () => {
+    dispatch({ type: 'CLEAR_CUSTOM_DATE_RANGE' });
+  };
+
+  const applyTimeframePreset = (
+    preset: 'calendar' | 'fiscalJul' | 'federalOct' | 'custom',
+    year?: number
+  ) => {
+    dispatch({ type: 'APPLY_TIMEFRAME_PRESET', payload: { preset, year } });
+  };
+
   const {
     days,
     strategy,
@@ -66,6 +85,9 @@ export function useOptimizerForm() {
     selectedYear,
     selectedDates,
     weekendDays,
+    customStartDate,
+    customEndDate,
+    timeframePreset,
     errors,
   } = state;
 
@@ -77,6 +99,9 @@ export function useOptimizerForm() {
     selectedYear,
     selectedDates,
     weekendDays,
+    customStartDate,
+    customEndDate,
+    timeframePreset,
     errors,
     daysError: errors.days,
     companyDayError: errors.companyDay,
@@ -94,5 +119,9 @@ export function useOptimizerForm() {
     removeCompanyDay,
     clearCompanyDays,
     setCompanyDays,
+    applyTimeframePreset,
+    setCustomStartDate,
+    setCustomEndDate,
+    clearCustomDateRange,
   };
 }

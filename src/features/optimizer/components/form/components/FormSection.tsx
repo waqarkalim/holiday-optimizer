@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 
 interface FormSectionProps {
   children: ReactNode;
-  colorScheme: 'teal' | 'blue' | 'amber' | 'violet';
+  colorScheme: 'teal' | 'blue' | 'amber' | 'violet' | 'emerald' | 'cyan';
   className?: string;
   headingId: string;
 }
@@ -20,6 +20,12 @@ const colorStyles = {
   },
   violet: {
     ring: 'ring-violet-900/5',
+  },
+  emerald: {
+    ring: 'ring-emerald-900/5',
+  },
+  cyan: {
+    ring: 'ring-cyan-900/5',
   },
 } as const;
 

@@ -42,7 +42,7 @@ export function CompanyDaysStep() {
   return (
     <FormSection colorScheme={colorScheme} headingId="company-days-heading">
       <StepHeader
-        number={4}
+        number={5}
         title={titleWithInfo}
         description={`Add your company's special non-working days for ${selectedYear} that don't count against your PTO.`}
         colorScheme={colorScheme}

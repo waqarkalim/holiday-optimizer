@@ -25,7 +25,7 @@ export function StrategySelectionStep() {
   const titleWithInfo = (
     <StepTitleWithInfo
       title="Choose Your Style"
-      colorScheme="blue"
+      colorScheme="violet"
       tooltip={{
         title: 'Optimization Styles',
         description:
@@ -36,12 +36,12 @@ export function StrategySelectionStep() {
   );
 
   return (
-    <FormSection colorScheme="blue" headingId="strategy-heading">
+    <FormSection colorScheme="violet" headingId="strategy-heading">
       <StepHeader
-        number={2}
+        number={3}
         title={titleWithInfo}
         description="Select how you'd like to distribute your time off. This affects the length and frequency of your breaks throughout the year."
-        colorScheme="blue"
+        colorScheme="violet"
         id="strategy-heading"
       />
       <fieldset
