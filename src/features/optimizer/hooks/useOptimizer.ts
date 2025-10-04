@@ -71,7 +71,7 @@ export function useOptimizerForm() {
   };
 
   const applyTimeframePreset = (
-    preset: 'calendar' | 'fiscalJul' | 'federalOct' | 'custom',
+    preset: 'calendar' | 'fiscal' | 'custom',
     year?: number
   ) => {
     dispatch({ type: 'APPLY_TIMEFRAME_PRESET', payload: { preset, year } });

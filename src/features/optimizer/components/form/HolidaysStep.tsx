@@ -3,7 +3,7 @@ import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
 import {
   useCountries,
   useHolidaysByCountry,
@@ -76,7 +76,7 @@ const holidaysReducer = (state: HolidaysState, action: HolidaysAction): Holidays
 };
 
 export const HolidaysStep = () => {
-  const { holidays, selectedYear } = useOptimizerForm();
+  const { holidays, selectedYear, customStartDate, customEndDate } = useOptimizerForm();
   const { dispatch: optimizerDispatch } = useOptimizer();
 
   const [holidaysState, dispatch] = useReducer(holidaysReducer, initialState);
@@ -86,11 +86,35 @@ export const HolidaysStep = () => {
   const { data: states = [] } = useStates(selectedCountryCode);
   const { data: regions = [] } = useRegions(selectedCountryCode, selectedState);
 
-  const { data: holidaysData, refetch } = useHolidaysByCountry(selectedYear, {
+  // Derive the year range from customStartDate and customEndDate
+  const startYear = customStartDate ? new Date(customStartDate).getFullYear() : selectedYear;
+  const endYear = customEndDate ? new Date(customEndDate).getFullYear() : selectedYear;
+  const needsTwoYears = startYear !== endYear;
+
+  // Fetch holidays for the first year
+  const { data: holidaysDataYear1, refetch: refetchYear1 } = useHolidaysByCountry(startYear, {
     country: selectedCountryCode,
     state: selectedState,
     region: selectedRegion,
   });
+
+  // Fetch holidays for the second year if needed (when timeframe spans two years)
+  const { data: holidaysDataYear2, refetch: refetchYear2 } = useHolidaysByCountry(
+    endYear,
+    {
+      country: selectedCountryCode,
+      state: selectedState,
+      region: selectedRegion,
+    }
+  );
+
+  // Combine holidays from both years - memoized to prevent infinite re-renders
+  const holidaysData = useMemo(() => {
+    if (needsTwoYears) {
+      return [...(holidaysDataYear1 || []), ...(holidaysDataYear2 || [])];
+    }
+    return holidaysDataYear1;
+  }, [needsTwoYears, holidaysDataYear1, holidaysDataYear2]);
 
   useEffect(() => {
     const countryInfo = getStoredLocationData(selectedYear);
@@ -116,17 +140,28 @@ export const HolidaysStep = () => {
   useEffect(() => {
     if (!holidaysData) return;
 
-    const detected = holidaysData.map(holiday => {
-      const displayDate = format(convertToDateObject(holiday.date), 'yyyy-MM-dd');
+    const detected = holidaysData
+      .map(holiday => {
+        const displayDate = format(convertToDateObject(holiday.date), 'yyyy-MM-dd');
 
-      return {
-        date: displayDate,
-        name: holiday.name,
-      };
-    });
+        return {
+          date: displayDate,
+          name: holiday.name,
+        };
+      })
+      .filter(holiday => {
+        // Filter holidays to only include those within the date range
+        if (!customStartDate || !customEndDate) return true;
+
+        const holidayDate = new Date(holiday.date);
+        const startDate = new Date(customStartDate);
+        const endDate = new Date(customEndDate);
+
+        return holidayDate >= startDate && holidayDate <= endDate;
+      });
 
     optimizerDispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: detected });
-  }, [holidaysData, optimizerDispatch]);
+  }, [holidaysData, optimizerDispatch, customStartDate, customEndDate]);
 
   const handleCountryChange = (countryCode: string): void => {
     dispatch({ type: 'SET_COUNTRY', payload: countryCode });
@@ -139,14 +174,36 @@ export const HolidaysStep = () => {
   const handleRegionChange = (regionCode: string): void => {
     dispatch({ type: 'SET_REGION', payload: regionCode });
   };
-  const handleRefetch = () => refetch();
 
-  const publicHolidaysTooltip = {
+  const handleRefetch = () => {
+    refetchYear1();
+    if (needsTwoYears) {
+      refetchYear2();
+    }
+  };
+
+  // Generate description text based on the date range - memoized
+  const dateRangeDescription = useMemo(() => {
+    if (!customStartDate || !customEndDate) return selectedYear.toString();
+
+    const startDate = new Date(customStartDate);
+    const endDate = new Date(customEndDate);
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+
+    if (startYear === endYear) {
+      return startYear.toString();
+    } else {
+      return `${format(startDate, 'MMM yyyy')} – ${format(endDate, 'MMM yyyy')}`;
+    }
+  }, [customStartDate, customEndDate, selectedYear]);
+
+  const publicHolidaysTooltip = useMemo(() => ({
     title: 'About Public Holidays',
     description:
       "Public holidays are already non-working days, so you don't need to use PTO for them. Adding them helps create an optimized schedule that accounts for these days when planning your time off.",
     ariaLabel: 'Why public holidays matter',
-  };
+  }), []);
 
   return (
     <FormSection colorScheme="amber" headingId="holidays-heading">
@@ -160,7 +217,7 @@ export const HolidaysStep = () => {
             tooltip={publicHolidaysTooltip}
           />
         }
-        description={`Add public holidays for ${selectedYear} by selecting your country, state, and region.`}
+        description={`Add public holidays for ${dateRangeDescription} by selecting your country, state, and region.`}
         colorScheme="amber"
         id="holidays-heading"
       />
