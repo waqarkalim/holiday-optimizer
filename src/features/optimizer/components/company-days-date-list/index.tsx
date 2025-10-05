@@ -542,16 +542,35 @@ function DateListContent() {
 }
 
 export function DateList({ title, colorScheme }: DateListProps) {
-  const { companyDaysOff, addCompanyDay } = useOptimizerForm();
+  const { companyDaysOff, addCompanyDay, customStartDate, customEndDate } = useOptimizerForm();
 
   if (companyDaysOff.length === 0) return null;
+
+  // Filter company days to only show those within the selected timeframe
+  const filteredCompanyDays = companyDaysOff.filter(day => {
+    if (!customStartDate || !customEndDate) return true;
+
+    const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
+    const startDate = parse(customStartDate, 'yyyy-MM-dd', new Date());
+    const endDate = parse(customEndDate, 'yyyy-MM-dd', new Date());
+
+    return dayDate >= startDate && dayDate <= endDate;
+  });
+
+  // Only show the list if there are days in the current timeframe
+  if (filteredCompanyDays.length === 0) return null;
 
   const handleBulkRename = (dates: string[], newName: string) => {
     dates.forEach(date => addCompanyDay(date, newName));
   };
 
   return (
-    <CompanyDayListProvider title={title} colorScheme={colorScheme} onBulkRename={handleBulkRename}>
+    <CompanyDayListProvider
+      title={title}
+      colorScheme={colorScheme}
+      onBulkRename={handleBulkRename}
+      filteredItems={filteredCompanyDays}
+    >
       <DateListContent />
     </CompanyDayListProvider>
   );

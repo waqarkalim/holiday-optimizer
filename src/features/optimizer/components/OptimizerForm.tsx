@@ -84,12 +84,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     const isDefaultWeekend =
       weekendSet.size === defaultSet.size && [...defaultSet].every(day => weekendSet.has(day));
 
-    if (!isDefaultWeekend) {
+    // Auto-expand if user has customized weekend or has company days
+    if (!isDefaultWeekend || companyDaysOff.length > 0) {
       setShowAdvanced(true);
     }
 
     hasInitializedAdvanced.current = true;
-  }, [weekendDays]);
+  }, [weekendDays, companyDaysOff]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -173,17 +174,10 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
             >
               <HolidaysStep />
             </fieldset>
-            <fieldset
-              className="border-0 m-0 p-0"
-              id="company-days-container"
-              data-onboarding-target="company-days"
-            >
-              <CompanyDaysStep />
-            </fieldset>
-            <div className="pt-2 mt-3 border-t border-dashed border-amber-200/60">
+            <div className="pt-2 mt-3 border-t border-dashed border-violet-200/60">
               <button
                 type="button"
-                className="flex items-center gap-1.5 text-xs font-medium text-amber-800 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-md px-1.5 py-1"
+                className="flex items-center gap-1.5 text-xs font-medium text-violet-800 hover:text-violet-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 rounded-md px-1.5 py-1"
                 onClick={() => setShowAdvanced(prev => !prev)}
                 aria-expanded={showAdvanced}
                 aria-controls="advanced-options-container"
@@ -198,6 +192,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
 
               {showAdvanced && (
                 <div id="advanced-options-container" className="mt-2 space-y-2">
+                  <fieldset
+                    className="border-0 m-0 p-0"
+                    id="company-days-container"
+                    data-onboarding-target="company-days"
+                  >
+                    <CompanyDaysStep />
+                  </fieldset>
                   <fieldset className="border-0 m-0 p-0" data-onboarding-target="weekend-preferences">
                     <WeekendPreferencesStep />
                   </fieldset>

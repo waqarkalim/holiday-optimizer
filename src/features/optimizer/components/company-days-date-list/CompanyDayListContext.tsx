@@ -52,6 +52,7 @@ type CompanyDayListProviderProps = {
   colorScheme: 'violet';
   children: ReactNode;
   onBulkRename: (dates: string[], newName: string) => void;
+  filteredItems: DateItem[];
 };
 
 const CompanyDayListContext = createContext<CompanyDayListContextValue | null>(null);
@@ -127,13 +128,17 @@ export const CompanyDayListProvider = ({
   title,
   colorScheme,
   onBulkRename,
+  filteredItems,
 }: CompanyDayListProviderProps) => {
   const {
-    companyDaysOff: items,
+    companyDaysOff: allItems,
     addCompanyDay,
     removeCompanyDay,
     clearCompanyDays,
   } = useOptimizerForm();
+
+  // Use filtered items for display, but keep all items for operations
+  const items = filteredItems;
 
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);

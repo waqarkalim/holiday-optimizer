@@ -9,7 +9,7 @@ import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
   const colorScheme = 'violet';
-  const { companyDaysOff, addCompanyDay, removeCompanyDay, selectedYear } = useOptimizerForm();
+  const { companyDaysOff, addCompanyDay, removeCompanyDay, selectedYear, customStartDate, customEndDate } = useOptimizerForm();
 
   const handleCompanyDaySelect = (date: Date) => {
     const formattedDate = format(date, 'yyyy-MM-dd');
@@ -37,14 +37,34 @@ export function CompanyDaysStep() {
     />
   );
 
+  // Show ALL company days in the calendar selector (not filtered)
   const selectedDates = companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
+
+  // Filter company days for display in the date range text
+  const filteredCompanyDays = companyDaysOff.filter(day => {
+    if (!customStartDate || !customEndDate) return true;
+
+    const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
+    const startDate = parse(customStartDate, 'yyyy-MM-dd', new Date());
+    const endDate = parse(customEndDate, 'yyyy-MM-dd', new Date());
+
+    return dayDate >= startDate && dayDate <= endDate;
+  });
+
+  // Format date range for description
+  const startDate = customStartDate ? parse(customStartDate, 'yyyy-MM-dd', new Date()) : null;
+  const endDate = customEndDate ? parse(customEndDate, 'yyyy-MM-dd', new Date()) : null;
+
+  const dateRangeText = startDate && endDate
+    ? `${format(startDate, 'MMM yyyy')} – ${format(endDate, 'MMM yyyy')}`
+    : selectedYear.toString();
 
   return (
     <FormSection colorScheme={colorScheme} headingId="company-days-heading">
       <StepHeader
         number={5}
         title={titleWithInfo}
-        description={`Add your company's special non-working days for ${selectedYear} that don't count against your PTO.`}
+        description={`Add your company's special non-working days for ${dateRangeText} that don't count against your PTO.`}
         colorScheme={colorScheme}
         id="company-days-heading"
       />
@@ -56,7 +76,6 @@ export function CompanyDaysStep() {
           selectedDates={selectedDates}
           onDateSelect={handleCompanyDaySelect}
           colorScheme={colorScheme}
-          year={selectedYear}
         />
 
         <DateList title={title} colorScheme={colorScheme} />

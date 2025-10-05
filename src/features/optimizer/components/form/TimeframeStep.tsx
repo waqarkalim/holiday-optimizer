@@ -94,13 +94,13 @@ export function TimeframeStep() {
 
   const titleWithInfo = (
     <StepTitleWithInfo
-      title="Timeframe"
+      title="Select Your Timeframe"
       colorScheme="blue"
       tooltip={{
-        title: 'Select Your Timeframe',
+        title: 'Planning Timeframe',
         description:
-          'Choose a preset timeframe or define custom dates. The calendar will only show months within your selected range.',
-        ariaLabel: 'About timeframe selection',
+          'Choose the period you want to plan for. You can select a calendar year (Jan–Dec), a 12-month period starting any month, or define a custom range. Your holidays and company days will automatically filter to match your selection.',
+        ariaLabel: 'About planning timeframe',
       }}
     />
   );
@@ -156,7 +156,7 @@ export function TimeframeStep() {
       <StepHeader
         number={2}
         title={titleWithInfo}
-        description="Choose your planning timeframe."
+        description="Select the time period you want to plan for. Your holidays and company days will automatically adjust to show only what's relevant for your selected timeframe."
         colorScheme="blue"
         id="timeframe-heading"
       />

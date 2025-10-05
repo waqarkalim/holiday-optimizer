@@ -116,15 +116,16 @@ export const HolidaysStep = () => {
     return holidaysDataYear1;
   }, [needsTwoYears, holidaysDataYear1, holidaysDataYear2]);
 
+  // Load stored location data on mount only
   useEffect(() => {
     const countryInfo = getStoredLocationData(selectedYear);
     if (countryInfo) {
       dispatch({ type: 'SET_COUNTRY_INFO', payload: countryInfo });
-    } else {
-      dispatch({ type: 'RESET_SELECTIONS' });
     }
-  }, [selectedYear]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
+  // Store location data whenever it changes
   useEffect(() => {
     if (selectedCountryCode) {
       const countryInfo: CountryInfo = {
