@@ -25,6 +25,7 @@ export interface OptimizedDay {
   publicHolidayName?: string;
   isCompanyDayOff: boolean;
   companyDayName?: string;
+  isPreBooked?: boolean;
 }
 
 export interface Break {
@@ -68,6 +69,7 @@ export interface OptimizationParams {
   year?: number;
   holidays?: Array<{ date: string; name: string }>;
   companyDaysOff?: Array<CompanyDayOff>;
+  preBookedDays?: Array<{ date: string; name: string }>;
   weekendDays?: WeekdayNumber[];
   startDate?: string;
   endDate?: string;

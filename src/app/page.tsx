@@ -21,6 +21,7 @@ interface FormState {
   numberOfDays: number | null;
   strategy: OptimizationStrategy;
   companyDaysOff: Array<CompanyDayOff>;
+  preBookedDays: Array<{ date: string; name: string }>;
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
   weekendDays: WeekdayNumber[];
@@ -48,6 +49,7 @@ const HomePage = () => {
         strategy: data.strategy,
         year: data.selectedYear,
         companyDaysOff: data.companyDaysOff,
+        preBookedDays: data.preBookedDays,
         holidays: data.holidays,
         weekendDays: data.weekendDays,
         startDate: data.customStartDate,
@@ -110,6 +112,7 @@ const HomePage = () => {
                     days,
                     strategy,
                     companyDaysOff,
+                    preBookedDays,
                     holidays,
                     selectedYear,
                     weekendDays,
@@ -121,6 +124,7 @@ const HomePage = () => {
                     numberOfDays: days,
                     strategy,
                     companyDaysOff,
+                    preBookedDays,
                     holidays,
                     selectedYear,
                     weekendDays,

@@ -13,6 +13,7 @@ interface OptimizerState {
   days: string;
   strategy: OptimizationStrategy;
   companyDaysOff: Array<{ date: string; name: string }>;
+  preBookedDays: Array<{ date: string; name: string }>;
   holidays: Holiday[];
   selectedDates: Date[];
   selectedYear: number;
@@ -39,6 +40,10 @@ type OptimizerAction =
   | { type: 'SET_COMPANY_DAYS'; payload: Array<{ date: string; name: string }> }
   | { type: 'ADD_COMPANY_DAY'; payload: { date: string; name: string } }
   | { type: 'REMOVE_COMPANY_DAY'; payload: string }
+  | { type: 'SET_PRE_BOOKED_DAYS'; payload: Array<{ date: string; name: string }> }
+  | { type: 'ADD_PRE_BOOKED_DAY'; payload: { date: string; name: string } }
+  | { type: 'REMOVE_PRE_BOOKED_DAY'; payload: string }
+  | { type: 'CLEAR_PRE_BOOKED_DAYS' }
   | { type: 'SET_ERROR'; payload: { field: string; message: string } }
   | { type: 'CLEAR_ERRORS' }
   | { type: 'ADD_HOLIDAY'; payload: { date: string; name: string } }
@@ -86,6 +91,7 @@ const initialState: OptimizerState = {
   days: '',
   strategy: 'balanced',
   companyDaysOff: [],
+  preBookedDays: [],
   holidays: [],
   selectedDates: [],
   selectedYear: currentYear,
@@ -166,6 +172,40 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         companyDaysOff: state.companyDaysOff.filter(day => day.date !== action.payload),
+      };
+    }
+
+    case 'SET_PRE_BOOKED_DAYS': {
+      return { ...state, preBookedDays: action.payload };
+    }
+
+    case 'ADD_PRE_BOOKED_DAY': {
+      const existingIndex = state.preBookedDays.findIndex(day => day.date === action.payload.date);
+      const updatedPreBookedDays = [...state.preBookedDays];
+
+      if (existingIndex !== -1) {
+        updatedPreBookedDays[existingIndex] = action.payload;
+      } else {
+        updatedPreBookedDays.push(action.payload);
+      }
+
+      return {
+        ...state,
+        preBookedDays: updatedPreBookedDays,
+      };
+    }
+
+    case 'REMOVE_PRE_BOOKED_DAY': {
+      return {
+        ...state,
+        preBookedDays: state.preBookedDays.filter(day => day.date !== action.payload),
+      };
+    }
+
+    case 'CLEAR_PRE_BOOKED_DAYS': {
+      return {
+        ...state,
+        preBookedDays: [],
       };
     }
 

@@ -14,6 +14,7 @@ import { StatTooltipContent, Tooltip, TooltipTrigger } from '@/shared/components
 import { OptimizedDay } from '@/types';
 import { cn, DayType, dayTypeToColorScheme } from '@/shared/lib/utils';
 import { COLOR_SCHEMES, WEEKDAYS } from '@/constants';
+import { Lock } from 'lucide-react';
 
 interface MonthCalendarProps {
   month: number;
@@ -106,14 +107,20 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
         <TooltipTrigger asChild>
           <div
             className={cn(
-              'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs',
+              'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs gap-0.5',
               textClass,
               tooltipText && 'cursor-help',
               // Very subtle text emphasis for break days
-              day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700'
+              day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700',
+              // Grey out pre-booked days
+              day.isPreBooked && 'opacity-40'
             )}
           >
-            {format(date, 'd')}
+            {day.isPreBooked ? (
+              <Lock className="w-3.5 h-3.5" />
+            ) : (
+              format(date, 'd')
+            )}
           </div>
         </TooltipTrigger>
         {tooltipText && (
@@ -261,7 +268,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
         tooltipText = 'Extended Weekend';
       } else if (dayTypeFlags.hasPTODays && day.isPTO) {
         dayType = 'pto';
-        tooltipText = 'PTO Day';
+        tooltipText = day.isPreBooked ? 'Pre-Booked Vacation (Locked)' : 'PTO Day';
       } else if (day.isPartOfBreak) {
         // Add specific tooltip for break days that aren't weekends or holidays
         tooltipText = 'Part of Break Period';

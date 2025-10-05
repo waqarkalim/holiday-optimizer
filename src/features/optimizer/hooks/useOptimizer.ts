@@ -58,6 +58,22 @@ export function useOptimizerForm() {
     dispatch({ type: 'SET_COMPANY_DAYS', payload: days });
   };
 
+  const addPreBookedDay = (date: string, name: string) => {
+    dispatch({ type: 'ADD_PRE_BOOKED_DAY', payload: { date, name } });
+  };
+
+  const removePreBookedDay = (date: string) => {
+    dispatch({ type: 'REMOVE_PRE_BOOKED_DAY', payload: date });
+  };
+
+  const clearPreBookedDays = () => {
+    dispatch({ type: 'CLEAR_PRE_BOOKED_DAYS' });
+  };
+
+  const setPreBookedDays = (days: SimpleDay[]) => {
+    dispatch({ type: 'SET_PRE_BOOKED_DAYS', payload: days });
+  };
+
   const setCustomStartDate = (value?: string) => {
     dispatch({ type: 'SET_CUSTOM_START_DATE', payload: value });
   };
@@ -81,6 +97,7 @@ export function useOptimizerForm() {
     days,
     strategy,
     companyDaysOff,
+    preBookedDays,
     holidays,
     selectedYear,
     selectedDates,
@@ -95,6 +112,7 @@ export function useOptimizerForm() {
     days,
     strategy,
     companyDaysOff,
+    preBookedDays,
     holidays,
     selectedYear,
     selectedDates,
@@ -119,6 +137,10 @@ export function useOptimizerForm() {
     removeCompanyDay,
     clearCompanyDays,
     setCompanyDays,
+    addPreBookedDay,
+    removePreBookedDay,
+    clearPreBookedDays,
+    setPreBookedDays,
     applyTimeframePreset,
     setCustomStartDate,
     setCustomEndDate,

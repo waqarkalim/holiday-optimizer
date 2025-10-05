@@ -60,7 +60,29 @@ const getWeekendDaysSet = (weekendDays?: WeekdayNumber[]): Set<WeekdayNumber> =>
 };
 
 const isFixedOff = (day: OptimizedDay): boolean =>
-  day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff;
+  day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff || day.isPreBooked === true;
+
+// Check if a day range contains or is adjacent to any pre-booked days
+const isNearPreBookedDays = (calendar: OptimizedDay[], start: number, end: number): boolean => {
+  // Check if any day in the range is pre-booked
+  for (let i = start; i <= end; i++) {
+    if (calendar[i]?.isPreBooked) {
+      return true;
+    }
+  }
+
+  // Check if day before range is pre-booked
+  if (start > 0 && calendar[start - 1]?.isPreBooked) {
+    return true;
+  }
+
+  // Check if day after range is pre-booked
+  if (end < calendar.length - 1 && calendar[end + 1]?.isPreBooked) {
+    return true;
+  }
+
+  return false;
+};
 
 /* -----------------------------
    Calendar Construction
@@ -86,6 +108,7 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
 
   const holidays = params.holidays ?? [];
   const companyDays = params.companyDaysOff ?? [];
+  const preBookedDays = params.preBookedDays ?? [];
   const weekendDays = getWeekendDaysSet(params.weekendDays);
 
   const startOverride = parseDate(params.startDate);
@@ -107,6 +130,9 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
   const startDate = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate());
   const endDate = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate());
 
+  // Create a set of pre-booked dates for O(1) lookup
+  const preBookedDatesSet = new Set(preBookedDays.map(day => day.date));
+
   for (let date = new Date(startDate); date <= endDate; date = addDays(date, 1)) {
     const iso = formatDate(date);
     const dayOfWeek = date.getDay() as WeekdayNumber;
@@ -127,6 +153,8 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
       return dayOff.date === iso;
     });
 
+    const isPreBooked = preBookedDatesSet.has(iso);
+
     calendar.push({
       date: iso,
       isWeekend,
@@ -134,8 +162,9 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
       publicHolidayName: holiday?.name,
       isCompanyDayOff: Boolean(companyDay),
       companyDayName: companyDay?.name,
-      isPTO: false,
+      isPTO: isPreBooked, // Pre-booked days are already PTO
       isPartOfBreak: false,
+      isPreBooked: isPreBooked,
     });
   }
 
@@ -161,9 +190,11 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
   const strategy: OptimizationStrategy = params.strategy ?? 'balanced';
   const config = STRATEGY_CONFIG[strategy] ?? STRATEGY_CONFIG.balanced;
 
-  const availablePTO = Math.max(0, params.numberOfDays);
   const calendar = buildCalendar(params);
   const totalDays = calendar.length;
+
+  // Use the PTO days as provided - user enters days they want to optimize
+  const availablePTO = Math.max(0, params.numberOfDays);
 
   if (totalDays === 0 || availablePTO === 0) {
     const emptyStats: OptimizationStats = {
@@ -217,6 +248,11 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
       }
 
       if (ptoUsed === 0 || !isLengthAllowed(length)) {
+        continue;
+      }
+
+      // Skip this break if it's near any pre-booked days
+      if (isNearPreBookedDays(calendar, idx, end)) {
         continue;
       }
 

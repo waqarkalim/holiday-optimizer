@@ -7,6 +7,7 @@ import { DaysInputStep } from './form/DaysInputStep';
 import { WeekendPreferencesStep } from './form/WeekendPreferencesStep';
 import { StrategySelectionStep } from './form/StrategySelectionStep';
 import { HolidaysStep } from './form/HolidaysStep';
+import { PreBookedDaysStep } from './form/PreBookedDaysStep';
 import { CompanyDaysStep } from './form/CompanyDaysStep';
 import { TimeframeStep } from './form/TimeframeStep';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
@@ -29,6 +30,7 @@ interface FormData {
   days: number;
   strategy: OptimizationStrategy;
   companyDaysOff: Array<{ date: string; name: string }>;
+  preBookedDays: Array<{ date: string; name: string }>;
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
   weekendDays: WeekdayNumber[];
@@ -46,6 +48,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     days,
     strategy,
     companyDaysOff,
+    preBookedDays,
     holidays,
     selectedYear,
     weekendDays,
@@ -84,8 +87,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     const isDefaultWeekend =
       weekendSet.size === defaultSet.size && [...defaultSet].every(day => weekendSet.has(day));
 
-    // Auto-expand if user has customized weekend or has company days
-    if (!isDefaultWeekend || companyDaysOff.length > 0) {
+    // Auto-expand if user has customized weekend, company days, or pre-booked days
+    if (!isDefaultWeekend || companyDaysOff.length > 0 || preBookedDays.length > 0) {
       setShowAdvanced(true);
     }
 
@@ -108,6 +111,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       days: numDays,
       strategy,
       companyDaysOff,
+      preBookedDays,
       holidays,
       selectedYear,
       weekendDays,
@@ -121,6 +125,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       strategy,
       year: selectedYear,
       companyDaysCount: companyDaysOff.length,
+      preBookedDaysCount: preBookedDays.length,
       holidaysCount: holidays.length,
       customStartDate: customStartDate ?? 'default',
       customEndDate: customEndDate ?? 'default',
@@ -192,6 +197,13 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
 
               {showAdvanced && (
                 <div id="advanced-options-container" className="mt-2 space-y-2">
+                  <fieldset
+                    className="border-0 m-0 p-0"
+                    id="pre-booked-days-container"
+                    data-onboarding-target="pre-booked-days"
+                  >
+                    <PreBookedDaysStep />
+                  </fieldset>
                   <fieldset
                     className="border-0 m-0 p-0"
                     id="company-days-container"
