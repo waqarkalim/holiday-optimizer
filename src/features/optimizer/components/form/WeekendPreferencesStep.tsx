@@ -60,7 +60,6 @@ export function WeekendPreferencesStep() {
     <StepTitleWithInfo
       title="Customize Weekends"
       colorScheme="amber"
-      badge={{ label: 'Optional' }}
       tooltip={{
         title: 'Your Weekly Days Off',
         description:
@@ -81,7 +80,7 @@ export function WeekendPreferencesStep() {
       />
       <fieldset className="border-0 m-0 p-0 space-y-2" aria-labelledby="weekend-preferences-heading">
         <legend className="sr-only">Choose weekend days</legend>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="group" aria-label="Weekend day options">
+        <div className="flex gap-2 flex-wrap sm:flex-nowrap" role="group" aria-label="Weekend day options">
           {WEEKDAYS.map((label, index) => {
             const value = index as WeekdayNumber;
             const isSelected = weekendDays.includes(value);
