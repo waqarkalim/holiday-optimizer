@@ -14,11 +14,14 @@ import { CompanyDayListProvider, useCompanyDayList } from './CompanyDayListConte
 import { DateItem, DateListProps } from './types';
 
 function BulkRenameInput() {
-  const { theme, editingValue, updateEditingValue, cancelEditing, confirmBulkRename } =
+  const { theme, editingValue, updateEditingValue, cancelEditing, confirmBulkRename, selectedDates } =
     useCompanyDayList();
 
   return (
-    <div className={cn('mb-4 p-3 rounded-lg', theme.highlight, 'animate-in fade-in')}>
+    <div className={cn('mb-4 p-3 rounded-lg border', theme.highlight, 'border-violet-200', 'animate-in fade-in')}>
+      <label className={cn('text-xs font-medium mb-2 block', theme.text)}>
+        Rename {selectedDates.length} selected date{selectedDates.length > 1 ? 's' : ''}:
+      </label>
       <div className="flex items-center gap-2">
         <Input
           autoFocus
@@ -34,7 +37,7 @@ function BulkRenameInput() {
               cancelEditing();
             }
           }}
-          placeholder="Enter a new name for selected dates"
+          placeholder="e.g., Summer Fridays, Winter Break, Q3 Benefits..."
           className={cn('h-8 text-sm', 'bg-white', 'flex-1', theme.input)}
         />
         <div className="flex">
@@ -136,12 +139,14 @@ function ListHeader({ id }: ListHeaderProps) {
             'h-7 px-2.5 gap-1.5',
             'border transition-all duration-200',
             theme.border,
-            hasSelection && [theme.hover, theme.active],
+            hasSelection && [theme.hover, theme.active, 'border-violet-400'],
             'hover:border-opacity-100',
             'group',
             'flex-1',
             'disabled:opacity-50 disabled:cursor-not-allowed',
-            'disabled:hover:bg-transparent'
+            'disabled:hover:bg-transparent',
+            // Make it pulse when dates are selected to draw attention
+            hasSelection && 'animate-in fade-in'
           )}
           tabIndex={0}
           aria-label={
@@ -149,17 +154,22 @@ function ListHeader({ id }: ListHeaderProps) {
               ? `Rename ${selectedDates.length} selected dates`
               : 'Select dates to rename them'
           }
+          title={
+            hasSelection
+              ? `Click to rename ${selectedDates.length} selected date${selectedDates.length > 1 ? 's' : ''}`
+              : 'Select dates using checkboxes, then click here to rename them'
+          }
         >
           <Pencil
             className={cn(
               'h-3.5 w-3.5',
               theme.accent,
-              'opacity-50 group-hover:opacity-100 transition-opacity',
-              !hasSelection && 'opacity-40 group-hover:opacity-40'
+              'transition-all duration-200',
+              hasSelection ? 'opacity-100 scale-110' : 'opacity-40'
             )}
           />
-          <span className={cn('text-xs font-medium', theme.text)}>
-            {hasSelection ? `Rename ${selectedDates.length}` : 'Rename Selected'}
+          <span className={cn('text-xs font-medium', theme.text, hasSelection && 'font-semibold')}>
+            {hasSelection ? `Rename ${selectedDates.length} Selected` : 'Rename Selected'}
           </span>
         </Button>
 
@@ -194,9 +204,10 @@ function ListHeader({ id }: ListHeaderProps) {
 interface DateListItemProps {
   item: DateItem;
   isGrouped?: boolean;
+  groupIsDefaultNamed?: boolean;
 }
 
-function DateListItem({ item, isGrouped = false }: DateListItemProps) {
+function DateListItem({ item, isGrouped = false, groupIsDefaultNamed = false }: DateListItemProps) {
   const {
     theme,
     colorScheme,
@@ -308,44 +319,55 @@ function DateListItem({ item, isGrouped = false }: DateListItemProps) {
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2">
-                {!isGrouped && <p className={cn('text-sm font-medium', theme.text)}>{item.name}</p>}
-                {!isGrouped && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => beginEditing(item.date, item.name)}
-                    onKeyDown={event =>
-                      handleButtonKeyDown(event, () => beginEditing(item.date, item.name))
-                    }
-                    className={cn(
-                      'h-6 w-6 p-0',
-                      'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
-                      'transition-all duration-200',
-                      theme.hover,
-                      'hover:scale-110 active:scale-95',
-                      'focus:ring-1 focus:ring-violet-500 focus:ring-offset-1'
-                    )}
-                    aria-label={`Edit name for ${item.name}`}
-                    tabIndex={0}
-                    data-edit-button="true"
-                    data-date={item.date}
+              {isGrouped ? (
+                // When in a group:
+                // - Default named groups (by month): show "Thursday, 16th" - month/year is in header
+                // - Custom named groups: show "Thu, Oct 16, 2025" - need full context for dates across months/years
+                <time
+                  dateTime={item.date}
+                  className={cn('text-sm font-medium', theme.text)}
+                >
+                  {groupIsDefaultNamed
+                    ? format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, do')
+                    : format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEE, MMM d, yyyy')}
+                </time>
+              ) : (
+                // When ungrouped, show full details with edit button
+                <>
+                  <div className="flex items-center gap-2">
+                    <p className={cn('text-sm font-medium', theme.text)}>{item.name}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => beginEditing(item.date, item.name)}
+                      onKeyDown={event =>
+                        handleButtonKeyDown(event, () => beginEditing(item.date, item.name))
+                      }
+                      className={cn(
+                        'h-6 w-6 p-0',
+                        'opacity-0 group-hover/item:opacity-100 focus:opacity-100',
+                        'transition-all duration-200',
+                        theme.hover,
+                        'hover:scale-110 active:scale-95',
+                        'focus:ring-1 focus:ring-violet-500 focus:ring-offset-1'
+                      )}
+                      aria-label={`Edit name for ${item.name}`}
+                      tabIndex={0}
+                      data-edit-button="true"
+                      data-date={item.date}
+                    >
+                      <Pencil className={cn('h-3 w-3', theme.accent)} />
+                    </Button>
+                  </div>
+                  <time
+                    dateTime={item.date}
+                    className={cn('block text-xs mt-0.5', theme.muted)}
                   >
-                    <Pencil className={cn('h-3 w-3', theme.accent)} />
-                  </Button>
-                )}
-              </div>
-              <time
-                dateTime={item.date}
-                className={cn(
-                  'block',
-                  isGrouped ? 'text-sm' : 'text-xs mt-0.5',
-                  isGrouped ? theme.text : theme.muted
-                )}
-              >
-                {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, MMMM d, yyyy')}
-              </time>
+                    {format(parse(item.date, 'yyyy-MM-dd', new Date()), 'EEEE, MMMM d, yyyy')}
+                  </time>
+                </>
+              )}
             </>
           )}
         </div>
@@ -441,8 +463,11 @@ function GroupRow({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span id={groupId} className={cn('text-sm font-medium', theme.text)}>
-              {isDefaultNamed ? `Dates in ${name}` : name}
+            <span id={groupId} className={cn('text-sm font-semibold', theme.text)}>
+              {name}
+            </span>
+            <span className={cn('text-xs font-medium', theme.muted)}>
+              ({dates.length})
             </span>
             {someSelected && (
               <span
@@ -457,7 +482,6 @@ function GroupRow({
             )}
           </div>
           <div className={cn('text-xs mt-0.5', theme.muted)}>
-            {dates.length} date{dates.length > 1 ? 's' : ''} •{' '}
             {format(parse(dates[0].date, 'yyyy-MM-dd', new Date()), 'MMM d')}
             {dates.length > 1 &&
               ` - ${format(parse(dates[dates.length - 1].date, 'yyyy-MM-dd', new Date()), 'MMM d')}`}
@@ -487,7 +511,7 @@ function GroupRow({
         {!isCollapsed && (
           <motion.div {...ANIMATION_CONFIG}>
             {dates.map(item => (
-              <DateListItem key={item.date} item={item} isGrouped={!isDefaultNamed} />
+              <DateListItem key={item.date} item={item} isGrouped={true} groupIsDefaultNamed={isDefaultNamed} />
             ))}
           </motion.div>
         )}
