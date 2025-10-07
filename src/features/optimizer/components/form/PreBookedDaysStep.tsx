@@ -1,10 +1,11 @@
-import { MonthCalendarSelector } from '@/shared/components/ui/calendar/MonthCalendarSelector';
+import { MultiRangeCalendar } from '@/shared/components/ui/multi-range-calendar';
 import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { DateList } from '@/features/optimizer/components/company-days-date-list';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
+import { useCallback } from 'react';
 
 export function PreBookedDaysStep() {
   const title = 'Pre-Booked Vacation Days';
@@ -19,16 +20,26 @@ export function PreBookedDaysStep() {
     customEndDate
   } = useOptimizerForm();
 
-  const handlePreBookedDaySelect = (date: Date) => {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    const isSelected = preBookedDays.some(day => day.date === formattedDate);
+  // Convert preBookedDays to Date objects for the calendar
+  const selectedDates = preBookedDays.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
 
-    if (isSelected) {
-      removePreBookedDay(formattedDate);
-    } else {
-      addPreBookedDay(formattedDate, format(date, 'MMMM d, yyyy'));
-    }
-  };
+  const handleDateChange = useCallback((newDates: Date[]) => {
+    // Add new dates
+    newDates.forEach(date => {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+      if (!preBookedDays.some(day => day.date === formattedDate)) {
+        addPreBookedDay(formattedDate, format(date, 'MMMM d, yyyy'));
+      }
+    });
+
+    // Remove dates that were deselected
+    preBookedDays.forEach(day => {
+      const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
+      if (!newDates.some(d => d.toDateString() === dayDate.toDateString())) {
+        removePreBookedDay(day.date);
+      }
+    });
+  }, [preBookedDays, addPreBookedDay, removePreBookedDay]);
 
   const titleWithInfo = (
     <StepTitleWithInfo
@@ -43,9 +54,6 @@ export function PreBookedDaysStep() {
       }}
     />
   );
-
-  // Show ALL pre-booked days in the calendar selector (not filtered)
-  const selectedDates = preBookedDays.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
 
   // Filter pre-booked days for display
   const filteredPreBookedDays = preBookedDays.filter(day => {
@@ -78,12 +86,21 @@ export function PreBookedDaysStep() {
 
       <fieldset className="space-y-6 border-0 m-0 p-0" aria-labelledby="pre-booked-days-heading">
         <legend className="sr-only">Pre-booked vacation days selection</legend>
-        <MonthCalendarSelector
-          id="pre-booked-days-calendar"
-          selectedDates={selectedDates}
-          onDateSelect={handlePreBookedDaySelect}
-          colorScheme="violet"
-        />
+
+        <div>
+          <label className="block mb-3">
+            <span className="sr-only">Select vacation days</span>
+            <span className="block text-sm text-gray-600">
+              Click a date twice for single days, or select start and end dates for ranges
+            </span>
+          </label>
+
+          <MultiRangeCalendar
+            selectedDates={selectedDates}
+            onChange={handleDateChange}
+            className="w-full"
+          />
+        </div>
 
         {filteredPreBookedDays.length > 0 && (
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">

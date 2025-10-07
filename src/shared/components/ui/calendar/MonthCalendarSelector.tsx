@@ -166,34 +166,38 @@ export function MonthCalendarSelector({
           today: new Date(),
         }}
         components={{
-          IconLeft: props => (
-            <NavigationIcon
-              {...props}
-              ariaLabel="Go to previous month"
-              Icon={ChevronLeft}
-              colorScheme={colorScheme}
-            />
-          ),
-          IconRight: props => (
-            <NavigationIcon
-              {...props}
-              ariaLabel="Go to next month"
-              Icon={ChevronRight}
-              colorScheme={colorScheme}
-            />
-          ),
+          Chevron: ({ orientation, ...props }) => {
+            if (orientation === 'left') {
+              return (
+                <NavigationIcon
+                  {...props}
+                  ariaLabel="Go to previous month"
+                  Icon={ChevronLeft}
+                  colorScheme={colorScheme}
+                />
+              );
+            }
+            return (
+              <NavigationIcon
+                {...props}
+                ariaLabel="Go to next month"
+                Icon={ChevronRight}
+                colorScheme={colorScheme}
+              />
+            );
+          },
         }}
         classNames={{
           months: 'flex flex-col sm:flex-row space-y-6 sm:space-x-6 sm:space-y-0',
           month: cn('space-y-4 w-full rounded-xl', 'transition-opacity duration-200 ease-in-out'),
-          caption: cn(
+          month_caption: cn(
             'flex justify-center pt-1 relative items-center h-9',
             'mb-2',
             colorStyles[colorScheme].header
           ),
           caption_label: 'text-sm font-semibold tracking-wide',
           nav: 'space-x-1 flex items-center absolute inset-0',
-          nav_button: cn(
+          button_previous: cn(
             'h-7 w-7 bg-transparent rounded-lg transition-all duration-200',
             'hover:bg-gray-100',
             'active:scale-95',
@@ -203,9 +207,7 @@ export function MonthCalendarSelector({
             'focus:ring-2',
             'focus-visible:ring-2',
             'focus-visible:ring-offset-2',
-            colorStyles[colorScheme].nav.button
-          ),
-          nav_button_previous: cn(
+            colorStyles[colorScheme].nav.button,
             'absolute left-1 flex items-center justify-center opacity-85 hover:opacity-100',
             'focus:outline-none focus:ring-4 focus:ring-offset-2',
             colorScheme === 'amber' ? 'focus:ring-amber-500/50' : 'focus:ring-violet-500/50',
@@ -219,7 +221,17 @@ export function MonthCalendarSelector({
               ? 'focus-visible:ring-amber-500/50'
               : 'focus-visible:ring-violet-500/50'
           ),
-          nav_button_next: cn(
+          button_next: cn(
+            'h-7 w-7 bg-transparent rounded-lg transition-all duration-200',
+            'hover:bg-gray-100',
+            'active:scale-95',
+            'focus-visible:outline-none focus-visible:ring-4',
+            'disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed',
+            'focus:ring-offset-2',
+            'focus:ring-2',
+            'focus-visible:ring-2',
+            'focus-visible:ring-offset-2',
+            colorStyles[colorScheme].nav.button,
             'absolute right-1 flex items-center justify-center opacity-85 hover:opacity-100',
             'focus:outline-none focus:ring-4 focus:ring-offset-2',
             colorScheme === 'amber' ? 'focus:ring-amber-500/50' : 'focus:ring-violet-500/50',

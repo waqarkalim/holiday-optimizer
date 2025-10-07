@@ -1,0 +1,321 @@
+'use client';
+
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { Calendar, DateObject } from 'react-multi-date-picker';
+import { eachDayOfInterval } from 'date-fns';
+
+export interface MultiRangeCalendarProps {
+  selectedDates?: Date[];
+  onChange?: (dates: Date[]) => void;
+  className?: string;
+}
+
+export function MultiRangeCalendar({
+  selectedDates = [],
+  onChange,
+  className,
+}: MultiRangeCalendarProps) {
+  const [hoverDate, setHoverDate] = useState<Date | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [rangeStart, setRangeStart] = useState<Date | null>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const isSelectingRef = useRef(false);
+  const rangeStartRef = useRef<Date | null>(null);
+  // Convert Date[] to DateObject[][] (array of ranges) for proper display
+  // Group consecutive dates into ranges
+  const values = useMemo(() => {
+    if (selectedDates.length === 0) return [];
+
+    // Sort dates
+    const sortedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
+    const ranges: DateObject[][] = [];
+    let rangeStart = new DateObject(sortedDates[0]);
+    let rangeEnd = new DateObject(sortedDates[0]);
+
+    for (let i = 1; i < sortedDates.length; i++) {
+      const currentDate = new DateObject(sortedDates[i]);
+      const prevDate = new DateObject(sortedDates[i - 1]);
+
+      // Check if dates are consecutive (difference of 1 day)
+      const diffInDays = Math.floor((currentDate.toDate().getTime() - prevDate.toDate().getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffInDays === 1) {
+        // Extend the current range
+        rangeEnd = currentDate;
+      } else {
+        // Save the current range and start a new one
+        ranges.push([rangeStart, rangeEnd]);
+        rangeStart = currentDate;
+        rangeEnd = currentDate;
+      }
+    }
+
+    // Add the last range
+    ranges.push([rangeStart, rangeEnd]);
+
+    return ranges;
+  }, [selectedDates]);
+
+  const handleChange = (dates: DateObject | DateObject[] | DateObject[][] | null) => {
+    // Don't process if we're in the middle of selecting a range
+    if (isSelectingRef.current) {
+      return;
+    }
+
+    if (!dates) {
+      onChange?.([]);
+      return;
+    }
+
+    const allDates: Date[] = [];
+
+    // Normalize to array for easier processing
+    const dateArray = Array.isArray(dates) ? dates : [dates];
+
+    // Process each item - could be a single date, a range, or nested arrays
+    dateArray.forEach((item: DateObject | DateObject[]) => {
+      if (!item) return;
+
+      // If it's a range (array with 2 DateObjects)
+      if (Array.isArray(item) && item.length === 2) {
+        const [start, end] = item;
+        if (start?.toDate && end?.toDate) {
+          // Expand the range to all dates in between
+          const datesInRange = eachDayOfInterval({
+            start: start.toDate(),
+            end: end.toDate()
+          });
+          allDates.push(...datesInRange);
+        }
+      } else if (!Array.isArray(item) && item?.toDate) {
+        // Single date
+        allDates.push(item.toDate());
+      }
+    });
+
+    onChange?.(allDates);
+
+    // Reset selection state after change completes
+    setIsSelecting(false);
+    setRangeStart(null);
+    setHoverDate(null);
+    isSelectingRef.current = false;
+    rangeStartRef.current = null;
+  };
+
+  // Helper function to extract date from day element
+  const getDateFromElement = (element: Element): Date | null => {
+    try {
+      const span = element.querySelector('span');
+      if (!span) return null;
+
+      const dayText = span.textContent?.trim();
+      if (!dayText) return null;
+
+      const day = parseInt(dayText);
+      if (isNaN(day)) return null;
+
+      const calendar = element.closest('.rmdp-calendar');
+      if (!calendar) return null;
+
+      const headerValues = calendar.querySelector('.rmdp-header-values');
+      if (!headerValues) return null;
+
+      const monthYearText = headerValues.textContent?.trim();
+      if (!monthYearText) return null;
+
+      // Parse month and year from header (e.g., "January 2024", "October 2025", or "October,2025")
+      const parts = monthYearText.includes(',')
+        ? monthYearText.split(',')
+        : monthYearText.split(' ');
+
+      if (parts.length < 2) return null;
+
+      const monthName = parts[0].trim();
+      const yearStr = parts[1].trim();
+      const year = parseInt(yearStr);
+
+      if (isNaN(year)) return null;
+
+      const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth();
+
+      // Handle dates from other months (deactive class)
+      const isDeactive = element.classList.contains('rmdp-deactive');
+      let actualMonth = monthIndex;
+      let actualYear = year;
+
+      if (isDeactive) {
+        const week = element.closest('.rmdp-week');
+        const allWeeks = Array.from(calendar.querySelectorAll('.rmdp-week'));
+        const weekIndex = allWeeks.indexOf(week as Element);
+
+        if ((weekIndex <= 1 || weekIndex === -1) && day > 20) {
+          // Previous month
+          if (monthIndex === 0) {
+            actualMonth = 11;
+            actualYear = year - 1;
+          } else {
+            actualMonth = monthIndex - 1;
+          }
+        } else if (weekIndex > 3 && day < 15) {
+          // Next month
+          if (monthIndex === 11) {
+            actualMonth = 0;
+            actualYear = year + 1;
+          } else {
+            actualMonth = monthIndex + 1;
+          }
+        }
+      }
+
+      return new Date(actualYear, actualMonth, day);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // Track when user clicks on a date
+  useEffect(() => {
+    if (!calendarRef.current) return;
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const dayElement = target.closest('.rmdp-day:not(.rmdp-disabled)');
+
+      if (dayElement) {
+        const date = getDateFromElement(dayElement);
+
+        if (date) {
+          // Check if this date is already in the selectedDates array
+          const dateStr = date.toDateString();
+          const isAlreadySelected = selectedDates.some(d => d.toDateString() === dateStr);
+
+          if (isAlreadySelected) {
+            // User is clicking on an already-selected date - exit selecting mode
+            isSelectingRef.current = false;
+            rangeStartRef.current = null;
+            setIsSelecting(false);
+            setRangeStart(null);
+            setHoverDate(null);
+            return;
+          }
+
+          if (!rangeStartRef.current) {
+            // First click - set range start and enable hover preview
+            setRangeStart(date);
+            setIsSelecting(true);
+            rangeStartRef.current = date;
+            isSelectingRef.current = true;
+          } else {
+            // Second click - complete the range and reset
+            isSelectingRef.current = false;
+            rangeStartRef.current = null;
+          }
+        }
+      }
+    };
+
+    const calendarElement = calendarRef.current;
+    // Use capture phase to get the event before the library processes it
+    calendarElement.addEventListener('click', handleClick, true);
+
+    return () => {
+      calendarElement.removeEventListener('click', handleClick, true);
+    };
+  }, [selectedDates]);
+
+  // Track hover for range preview - set up once and use refs
+  useEffect(() => {
+    if (!calendarRef.current) return;
+
+    const handleMouseEnter = (e: MouseEvent) => {
+      if (!isSelectingRef.current) return;
+
+      const target = e.target as HTMLElement;
+      const dayElement = target.closest('.rmdp-day:not(.rmdp-disabled)');
+
+      if (dayElement) {
+        const date = getDateFromElement(dayElement);
+        if (date) {
+          setHoverDate(date);
+        }
+      }
+    };
+
+    const calendarElement = calendarRef.current;
+
+    // Use MutationObserver to re-attach listeners when calendar updates
+    const observer = new MutationObserver(() => {
+      const dayElements = calendarElement.querySelectorAll('.rmdp-day:not(.rmdp-disabled)');
+
+      dayElements.forEach(el => {
+        el.removeEventListener('mouseenter', handleMouseEnter as EventListener);
+        el.addEventListener('mouseenter', handleMouseEnter as EventListener);
+      });
+    });
+
+    observer.observe(calendarElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Initial setup
+    const dayElements = calendarElement.querySelectorAll('.rmdp-day:not(.rmdp-disabled)');
+    dayElements.forEach(el => {
+      el.addEventListener('mouseenter', handleMouseEnter as EventListener);
+    });
+
+    return () => {
+      observer.disconnect();
+      calendarElement.querySelectorAll('.rmdp-day').forEach(el => {
+        el.removeEventListener('mouseenter', handleMouseEnter as EventListener);
+      });
+    };
+  }, []);
+
+  // Apply hover preview classes
+  useEffect(() => {
+    if (!calendarRef.current) {
+      return;
+    }
+
+    // Remove all preview classes first
+    calendarRef.current.querySelectorAll('.rmdp-day').forEach(el => {
+      el.classList.remove('hover-preview');
+    });
+
+    if (!isSelecting || !rangeStart || !hoverDate) {
+      return;
+    }
+
+    const start = rangeStart.getTime();
+    const end = hoverDate.getTime();
+    const [minDate, maxDate] = start < end ? [start, end] : [end, start];
+
+    // Add preview class to dates in range
+    calendarRef.current.querySelectorAll('.rmdp-day').forEach(el => {
+      const date = getDateFromElement(el);
+      if (date) {
+        const dateTime = date.getTime();
+        if (dateTime >= minDate && dateTime <= maxDate) {
+          el.classList.add('hover-preview');
+        }
+      }
+    });
+  }, [isSelecting, rangeStart, hoverDate]);
+
+  return (
+    <div className={className} ref={calendarRef}>
+      <Calendar
+        value={values as any}
+        onChange={handleChange as any}
+        multiple
+        range
+        numberOfMonths={1}
+        shadow={false}
+        className="w-full"
+        showOtherDays
+      />
+    </div>
+  );
+}

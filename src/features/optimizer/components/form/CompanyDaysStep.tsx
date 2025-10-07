@@ -1,26 +1,37 @@
-import { MonthCalendarSelector } from '@/shared/components/ui/calendar/MonthCalendarSelector';
+import { MultiRangeCalendar } from '@/shared/components/ui/multi-range-calendar';
 import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { DateList } from '@/features/optimizer/components/company-days-date-list';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
+import { useCallback } from 'react';
 
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
   const colorScheme = 'violet';
   const { companyDaysOff, addCompanyDay, removeCompanyDay, selectedYear, customStartDate, customEndDate } = useOptimizerForm();
 
-  const handleCompanyDaySelect = (date: Date) => {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    const isSelected = companyDaysOff.some(day => day.date === formattedDate);
+  // Convert companyDaysOff to Date objects for the calendar
+  const selectedDates = companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
 
-    if (isSelected) {
-      removeCompanyDay(formattedDate);
-    } else {
-      addCompanyDay(formattedDate, format(date, 'MMMM d, yyyy'));
-    }
-  };
+  const handleDateChange = useCallback((newDates: Date[]) => {
+    // Add new dates
+    newDates.forEach(date => {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+      if (!companyDaysOff.some(day => day.date === formattedDate)) {
+        addCompanyDay(formattedDate, format(date, 'MMMM d, yyyy'));
+      }
+    });
+
+    // Remove dates that were deselected
+    companyDaysOff.forEach(day => {
+      const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
+      if (!newDates.some(d => d.toDateString() === dayDate.toDateString())) {
+        removeCompanyDay(day.date);
+      }
+    });
+  }, [companyDaysOff, addCompanyDay, removeCompanyDay]);
 
   // Using the new StepTitleWithInfo component
   const titleWithInfo = (
@@ -36,9 +47,6 @@ export function CompanyDaysStep() {
       }}
     />
   );
-
-  // Show ALL company days in the calendar selector (not filtered)
-  const selectedDates = companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
 
   // Filter company days for display in the date range text
   const filteredCompanyDays = companyDaysOff.filter(day => {
@@ -71,12 +79,21 @@ export function CompanyDaysStep() {
 
       <fieldset className="space-y-6 border-0 m-0 p-0" aria-labelledby="company-days-heading">
         <legend className="sr-only">Company days off selection</legend>
-        <MonthCalendarSelector
-          id="company-days-calendar"
-          selectedDates={selectedDates}
-          onDateSelect={handleCompanyDaySelect}
-          colorScheme={colorScheme}
-        />
+
+        <div>
+          <label className="block mb-3">
+            <span className="sr-only">Select company days off</span>
+            <span className="block text-sm text-gray-600">
+              Click a date twice for single days, or select start and end dates for ranges
+            </span>
+          </label>
+
+          <MultiRangeCalendar
+            selectedDates={selectedDates}
+            onChange={handleDateChange}
+            className="w-full"
+          />
+        </div>
 
         <DateList title={title} colorScheme={colorScheme} />
       </fieldset>
