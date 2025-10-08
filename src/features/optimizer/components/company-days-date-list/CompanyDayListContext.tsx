@@ -13,11 +13,12 @@ import { colorStyles } from './styles';
 
 type EditingTarget = string | 'bulk' | null;
 
-type Theme = (typeof colorStyles)['violet'];
+type ColorScheme = 'violet' | 'blue' | 'amber';
+type Theme = (typeof colorStyles)[ColorScheme];
 
 interface CompanyDayListContextValue {
   title: string;
-  colorScheme: 'violet';
+  colorScheme: ColorScheme;
   theme: Theme;
   items: DateItem[];
   groups: GroupedDates[];
@@ -49,10 +50,13 @@ interface CompanyDayListContextValue {
 
 type CompanyDayListProviderProps = {
   title: string;
-  colorScheme: 'violet';
+  colorScheme: ColorScheme;
   children: ReactNode;
   onBulkRename: (dates: string[], newName: string) => void;
   filteredItems: DateItem[];
+  onRemove: (date: string) => void;
+  onClearAll: () => void;
+  onAdd: (date: string, name: string) => void;
 };
 
 const CompanyDayListContext = createContext<CompanyDayListContextValue | null>(null);
@@ -129,15 +133,11 @@ export const CompanyDayListProvider = ({
   colorScheme,
   onBulkRename,
   filteredItems,
+  onRemove,
+  onClearAll,
+  onAdd,
 }: CompanyDayListProviderProps) => {
-  const {
-    companyDaysOff: allItems,
-    addCompanyDay,
-    removeCompanyDay,
-    clearCompanyDays,
-  } = useOptimizerForm();
-
-  // Use filtered items for display, but keep all items for operations
+  // Use filtered items for display
   const items = filteredItems;
 
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
@@ -216,7 +216,7 @@ export const CompanyDayListProvider = ({
     if (!editingTarget || editingTarget === 'bulk') return;
     const targetDate = date ?? editingTarget;
     const nextName = editingValue.trim();
-    addCompanyDay(targetDate, nextName);
+    onAdd(targetDate, nextName);
     cancelEditing();
   };
 
@@ -246,7 +246,7 @@ export const CompanyDayListProvider = ({
       case 'Backspace': {
         if (!editingTarget) {
           event.preventDefault();
-          removeCompanyDay(date);
+          onRemove(date);
           setSelectedDates(prev => prev.filter(value => value !== date));
         }
         break;
@@ -292,7 +292,7 @@ export const CompanyDayListProvider = ({
   };
 
   const removeDate = (date: string) => {
-    removeCompanyDay(date);
+    onRemove(date);
     setSelectedDates(prev => prev.filter(value => value !== date));
     if (editingTarget === date) {
       cancelEditing();
@@ -300,7 +300,7 @@ export const CompanyDayListProvider = ({
   };
 
   const clearAllDates = () => {
-    clearCompanyDays();
+    onClearAll();
     setSelectedDates([]);
     cancelEditing();
   };

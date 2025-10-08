@@ -3,21 +3,23 @@ import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
-import { DateList } from '@/features/optimizer/components/company-days-date-list';
+import { PreBookedDaysRangeList } from '@/features/optimizer/components/PreBookedDaysRangeList';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 import { useCallback } from 'react';
 
 export function PreBookedDaysStep() {
   const title = 'Pre-Booked Vacation Days';
   const colorScheme = 'blue';
-  const dateListColorScheme = 'violet';
   const {
     preBookedDays,
     addPreBookedDay,
     removePreBookedDay,
     selectedYear,
     customStartDate,
-    customEndDate
+    customEndDate,
+    weekendDays,
+    holidays,
+    companyDaysOff
   } = useOptimizerForm();
 
   // Convert preBookedDays to Date objects for the calendar
@@ -55,17 +57,6 @@ export function PreBookedDaysStep() {
     />
   );
 
-  // Filter pre-booked days for display
-  const filteredPreBookedDays = preBookedDays.filter(day => {
-    if (!customStartDate || !customEndDate) return true;
-
-    const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
-    const startDate = parse(customStartDate, 'yyyy-MM-dd', new Date());
-    const endDate = parse(customEndDate, 'yyyy-MM-dd', new Date());
-
-    return dayDate >= startDate && dayDate <= endDate;
-  });
-
   // Format date range for description
   const startDate = customStartDate ? parse(customStartDate, 'yyyy-MM-dd', new Date()) : null;
   const endDate = customEndDate ? parse(customEndDate, 'yyyy-MM-dd', new Date()) : null;
@@ -88,27 +79,17 @@ export function PreBookedDaysStep() {
         <legend className="sr-only">Pre-booked vacation days selection</legend>
 
         <div>
-          <label className="block mb-3">
-            <span className="sr-only">Select vacation days</span>
-            <span className="block text-sm text-gray-600">
-              Click a date twice for single days, or select start and end dates for ranges
-            </span>
-          </label>
-
           <MultiRangeCalendar
             selectedDates={selectedDates}
             onChange={handleDateChange}
             className="w-full"
+            weekendDays={weekendDays}
+            holidays={holidays}
+            companyDaysOff={companyDaysOff}
           />
         </div>
 
-        {filteredPreBookedDays.length > 0 && (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm font-medium text-blue-900">
-              {filteredPreBookedDays.length} {filteredPreBookedDays.length === 1 ? 'day' : 'days'} pre-booked
-            </p>
-          </div>
-        )}
+        <PreBookedDaysRangeList />
       </fieldset>
     </FormSection>
   );

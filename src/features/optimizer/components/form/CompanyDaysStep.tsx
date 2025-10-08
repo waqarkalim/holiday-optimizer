@@ -1,4 +1,4 @@
-import { MultiRangeCalendar } from '@/shared/components/ui/multi-range-calendar';
+import { SingleDateCalendar } from '@/shared/components/ui/single-date-calendar';
 import { format, parse } from 'date-fns';
 import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
@@ -10,7 +10,7 @@ import { useCallback } from 'react';
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
   const colorScheme = 'violet';
-  const { companyDaysOff, addCompanyDay, removeCompanyDay, selectedYear, customStartDate, customEndDate } = useOptimizerForm();
+  const { companyDaysOff, addCompanyDay, removeCompanyDay, selectedYear, customStartDate, customEndDate, weekendDays, holidays } = useOptimizerForm();
 
   // Convert companyDaysOff to Date objects for the calendar
   const selectedDates = companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
@@ -81,17 +81,12 @@ export function CompanyDaysStep() {
         <legend className="sr-only">Company days off selection</legend>
 
         <div>
-          <label className="block mb-3">
-            <span className="sr-only">Select company days off</span>
-            <span className="block text-sm text-gray-600">
-              Click a date twice for single days, or select start and end dates for ranges
-            </span>
-          </label>
-
-          <MultiRangeCalendar
+          <SingleDateCalendar
             selectedDates={selectedDates}
             onChange={handleDateChange}
             className="w-full"
+            weekendDays={weekendDays}
+            holidays={holidays}
           />
         </div>
 

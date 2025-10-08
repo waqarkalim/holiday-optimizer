@@ -566,12 +566,30 @@ function DateListContent() {
 }
 
 export function DateList({ title, colorScheme }: DateListProps) {
-  const { companyDaysOff, addCompanyDay, customStartDate, customEndDate } = useOptimizerForm();
+  const {
+    companyDaysOff,
+    preBookedDays,
+    addCompanyDay,
+    addPreBookedDay,
+    removeCompanyDay,
+    removePreBookedDay,
+    clearCompanyDays,
+    clearPreBookedDays,
+    customStartDate,
+    customEndDate
+  } = useOptimizerForm();
 
-  if (companyDaysOff.length === 0) return null;
+  // Determine which data source to use based on the title
+  const isPreBookedDays = title === 'Pre-Booked Vacation Days';
+  const sourceData = isPreBookedDays ? preBookedDays : companyDaysOff;
+  const addFunction = isPreBookedDays ? addPreBookedDay : addCompanyDay;
+  const removeFunction = isPreBookedDays ? removePreBookedDay : removeCompanyDay;
+  const clearFunction = isPreBookedDays ? clearPreBookedDays : clearCompanyDays;
 
-  // Filter company days to only show those within the selected timeframe
-  const filteredCompanyDays = companyDaysOff.filter(day => {
+  if (sourceData.length === 0) return null;
+
+  // Filter days to only show those within the selected timeframe
+  const filteredDays = sourceData.filter(day => {
     if (!customStartDate || !customEndDate) return true;
 
     const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
@@ -582,10 +600,10 @@ export function DateList({ title, colorScheme }: DateListProps) {
   });
 
   // Only show the list if there are days in the current timeframe
-  if (filteredCompanyDays.length === 0) return null;
+  if (filteredDays.length === 0) return null;
 
   const handleBulkRename = (dates: string[], newName: string) => {
-    dates.forEach(date => addCompanyDay(date, newName));
+    dates.forEach(date => addFunction(date, newName));
   };
 
   return (
@@ -593,7 +611,10 @@ export function DateList({ title, colorScheme }: DateListProps) {
       title={title}
       colorScheme={colorScheme}
       onBulkRename={handleBulkRename}
-      filteredItems={filteredCompanyDays}
+      filteredItems={filteredDays}
+      onAdd={addFunction}
+      onRemove={removeFunction}
+      onClearAll={clearFunction}
     >
       <DateListContent />
     </CompanyDayListProvider>

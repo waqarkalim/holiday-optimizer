@@ -13,7 +13,7 @@ export interface GroupedDates {
 
 export interface DateListProps {
   title: string;
-  colorScheme: 'violet';
+  colorScheme: 'violet' | 'blue' | 'amber';
 }
 
 export interface DateListItemProps {

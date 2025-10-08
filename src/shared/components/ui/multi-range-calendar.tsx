@@ -2,25 +2,58 @@
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Calendar, DateObject } from 'react-multi-date-picker';
-import { eachDayOfInterval } from 'date-fns';
+import { eachDayOfInterval, format, getDay } from 'date-fns';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
+import { WeekdayNumber } from '@/types';
 
 export interface MultiRangeCalendarProps {
   selectedDates?: Date[];
   onChange?: (dates: Date[]) => void;
   className?: string;
+  weekendDays?: WeekdayNumber[];
+  holidays?: Array<{ date: string; name: string }>;
+  companyDaysOff?: Array<{ date: string; name: string }>;
 }
 
 export function MultiRangeCalendar({
   selectedDates = [],
   onChange,
   className,
+  weekendDays = [],
+  holidays = [],
+  companyDaysOff = [],
 }: MultiRangeCalendarProps) {
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>('');
   const calendarRef = useRef<HTMLDivElement>(null);
   const isSelectingRef = useRef(false);
   const rangeStartRef = useRef<Date | null>(null);
+
+  // Helper function to check if a date is a weekend
+  const isWeekend = (date: Date): boolean => {
+    const dayOfWeek = getDay(date) as WeekdayNumber;
+    return weekendDays.includes(dayOfWeek);
+  };
+
+  // Helper function to check if a date is a holiday or company day off
+  const isExcludedDay = (date: Date): boolean => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return (
+      holidays.some(h => h.date === dateStr) ||
+      companyDaysOff.some(c => c.date === dateStr)
+    );
+  };
+
+  // Calculate actual working days from a date range
+  const calculateWorkingDays = (dates: Date[]): { total: number; working: number; excluded: number } => {
+    const total = dates.length;
+    const working = dates.filter(date => !isWeekend(date) && !isExcludedDay(date)).length;
+    const excluded = total - working;
+    return { total, working, excluded };
+  };
+
   // Convert Date[] to DateObject[][] (array of ranges) for proper display
   // Group consecutive dates into ranges
   const values = useMemo(() => {
@@ -304,18 +337,107 @@ export function MultiRangeCalendar({
     });
   }, [isSelecting, rangeStart, hoverDate]);
 
+  // Update status message based on current state
+  useEffect(() => {
+    // Priority 1: Range selection in progress with hover preview
+    if (isSelecting && rangeStart && hoverDate) {
+      const start = rangeStart.getTime();
+      const end = hoverDate.getTime();
+      const [minDate, maxDate] = start < end ? [rangeStart, hoverDate] : [hoverDate, rangeStart];
+      const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate });
+      const { total, working, excluded } = calculateWorkingDays(datesInRange);
+
+      if (excluded > 0) {
+        setStatusMessage(
+          `Selecting ${total} ${total === 1 ? 'day' : 'days'}: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded)`
+        );
+      } else {
+        setStatusMessage(
+          `Selecting ${total} ${total === 1 ? 'day' : 'days'}: ${format(minDate, 'MMM d')} – ${format(maxDate, 'MMM d')}`
+        );
+      }
+      return;
+    }
+
+    // Priority 2: Range selection started (waiting for second click)
+    if (isSelecting && rangeStart) {
+      setStatusMessage('Click another date to complete the range');
+      return;
+    }
+
+    // Priority 3: Dates are selected
+    if (selectedDates.length > 0) {
+      const { total, working, excluded } = calculateWorkingDays(selectedDates);
+
+      if (excluded > 0) {
+        setStatusMessage(
+          `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded) • Click any to remove`
+        );
+      } else {
+        setStatusMessage(
+          `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`
+        );
+      }
+      return;
+    }
+
+    // Default state: No selection
+    setStatusMessage('Double-click for single dates • Click start and end for ranges');
+  }, [isSelecting, rangeStart, hoverDate, selectedDates, weekendDays, holidays, companyDaysOff]);
+
   return (
-    <div className={className} ref={calendarRef}>
-      <Calendar
-        value={values as any}
-        onChange={handleChange as any}
-        multiple
-        range
-        numberOfMonths={1}
-        shadow={false}
-        className="w-full"
-        showOtherDays
-      />
+    <div className={className}>
+      <div ref={calendarRef} className="relative border border-gray-200 rounded-lg overflow-hidden">
+        <div className="p-4 pb-3">
+          <Calendar
+            value={values as any}
+            onChange={handleChange as any}
+            multiple
+            range
+            numberOfMonths={1}
+            shadow={false}
+            className="w-full"
+            showOtherDays
+          />
+        </div>
+
+        <TooltipProvider>
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-t border-gray-200">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400 hover:border-gray-500 hover:bg-gray-100 transition-colors"
+                  aria-label="How to use calendar"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    className="h-3 w-3 text-gray-600"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8 10a.75.75 0 01-.75-.75v-3.5a.75.75 0 011.5 0v3.5A.75.75 0 018 10zm0 2.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-sm">
+                <div className="space-y-2 text-xs">
+                  <p><strong>Select a single date:</strong> Double-click</p>
+                  <p><strong>Select a range:</strong> Click start date, then end date</p>
+                  <p><strong>Remove selection:</strong> Click any selected date</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            <span className="text-xs text-gray-700 leading-tight">
+              {statusMessage}
+            </span>
+          </div>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }

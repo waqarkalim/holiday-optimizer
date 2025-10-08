@@ -25,4 +25,17 @@ export const colorStyles = {
     highlight: 'bg-violet-100/50',
     input: 'border-violet-200 focus:border-violet-400',
   },
+  blue: {
+    container: 'bg-gradient-to-br from-blue-50/80 to-blue-100/30',
+    border: 'border-blue-200/60',
+    text: 'text-blue-900',
+    muted: 'text-blue-600/70',
+    accent: 'text-blue-600',
+    hover: 'hover:bg-blue-100/70',
+    active: 'active:bg-blue-200/70',
+    focus: 'focus:ring-blue-400/30',
+    divider: 'border-blue-200/30',
+    highlight: 'bg-blue-100/50',
+    input: 'border-blue-200 focus:border-blue-400',
+  },
 } as const;
