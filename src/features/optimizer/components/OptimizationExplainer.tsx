@@ -1,430 +1,215 @@
 'use client';
 
 import React from 'react';
-import { Calendar, Info, Lightbulb } from 'lucide-react';
-import { cn, DayType, dayTypeToColorScheme } from '@/shared/lib/utils';
-import { COLOR_SCHEMES } from '@/constants';
+import { Brain, Calendar, CalendarRange, Info, ShieldCheck, Sparkles, Timer } from 'lucide-react';
 import { SectionCard } from '@/shared/components/ui/section-card';
-
-// Our simplified day types for the explainer
-type ExplainerDayType = 'weekend' | 'pto' | 'holiday' | 'workday' | 'empty';
-
-// Factor item for the algorithm explanation
-interface Factor {
-  icon: React.ReactNode;
-  text: string;
-  bgColor: string;
-}
-
-interface DayCellProps {
-  day: string | number;
-  dayType: ExplainerDayType;
-  isToday?: boolean;
-}
-
-// Helper component for displaying the day cells in our example calendars
-const DayCell = ({ day, dayType, isToday = false }: DayCellProps) => {
-  const baseStyle =
-    'flex flex-col items-center justify-center rounded-md text-center p-1 h-8 sm:p-2 sm:h-10 md:h-14 transition-colors shadow-sm';
-
-  // Map our simplified day types to the app's actual day types
-  let appDayType: DayType = 'default';
-
-  switch (dayType) {
-    case 'holiday':
-      appDayType = 'publicHoliday';
-      break;
-    case 'pto':
-      appDayType = 'pto';
-      break;
-    case 'weekend':
-      appDayType = 'weekend';
-      break;
-    case 'workday':
-    case 'empty':
-    default:
-      appDayType = 'default';
-  }
-
-  // Get the color scheme based on day type
-  const colorScheme = dayTypeToColorScheme[appDayType];
-
-  return (
-    <div
-      className={cn(
-        baseStyle,
-        colorScheme ? COLOR_SCHEMES[colorScheme].calendar.bg : '',
-        'ring-1 ring-gray-200/80 ',
-        dayType === 'pto' && 'ring-2 ring-teal-500 ',
-        isToday && 'ring-2 ring-offset-2 ring-blue-500'
-      )}
-    >
-      <span
-        className={cn(
-          'text-xs font-medium sm:text-sm',
-          colorScheme ? COLOR_SCHEMES[colorScheme].calendar.text : ''
-        )}
-      >
-        {day}
-      </span>
-    </div>
-  );
-};
-
-interface WeekViewExampleProps {
-  title: string;
-  description: string;
-  days: Array<{ date: string | number; type: ExplainerDayType }>;
-  formula: string;
-}
-
-// Component for showing a week view calendar with optimization explanation
-const WeekViewExample = ({ title, description, days, formula }: WeekViewExampleProps) => (
-  <article className="space-y-3 p-3 sm:space-y-4 sm:p-4 bg-white rounded-lg shadow-sm border border-gray-100">
-    <header className="flex items-start gap-2 sm:gap-3">
-      <div className="mt-1 flex-shrink-0 p-1 bg-amber-100 rounded-full sm:p-1.5">
-        <Lightbulb className="h-4 w-4 text-amber-500 sm:h-5 sm:w-5" />
-      </div>
-      <div>
-        <h3 className="text-base font-semibold text-gray-900 sm:text-lg tracking-tight leading-tight">
-          {title}
-        </h3>
-        <p className="text-xs leading-relaxed text-gray-600 sm:text-sm mt-1">{description}</p>
-      </div>
-    </header>
-
-    <div className="overflow-x-auto -mx-3 px-3 pb-2 sm:-mx-4 sm:px-4">
-      <figure className="min-w-[500px] py-2 sm:py-3">
-        <div className="grid grid-cols-9 gap-1 mb-1 sm:gap-2 sm:mb-2" role="row">
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Sat
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Sun
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Mon
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Tue
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Wed
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Thu
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Fri
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Sat
-          </div>
-          <div
-            className="text-center text-[10px] font-medium text-gray-500 xs:text-xs"
-            role="columnheader"
-          >
-            Sun
-          </div>
-        </div>
-
-        <div className="grid grid-cols-9 gap-1 sm:gap-2" role="grid">
-          {days.map((day, i) => (
-            <DayCell key={i} day={day.date} dayType={day.type} />
-          ))}
-        </div>
-      </figure>
-    </div>
-
-    <footer className="mt-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-2 border border-blue-100 sm:mt-4 sm:p-3">
-      <div className="flex items-center gap-1.5 sm:gap-2">
-        <Info className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
-        <p className="text-xs font-semibold text-gray-800 sm:text-sm">Formula:</p>
-      </div>
-      <p className="mt-1 text-xs text-blue-700 font-medium pl-5 sm:text-sm sm:pl-6 leading-snug">
-        {formula}
-      </p>
-    </footer>
-  </article>
-);
-
-// Legend component to explain the colors - styled more like CalendarLegend
-const Legend = () => {
-  const ptoDayType: DayType = 'pto';
-  const weekendDayType: DayType = 'weekend';
-  const holidayDayType: DayType = 'publicHoliday';
-
-  return (
-    <figure
-      className={cn(
-        'mb-4 bg-white  rounded-lg overflow-hidden sm:mb-5',
-        'ring-1 ring-gray-200  shadow-sm',
-        'transition-all duration-200'
-      )}
-    >
-      <figcaption className="px-3 py-2 border-b border-gray-100 bg-gray-50/80 flex items-center justify-between sm:px-4">
-        <h3 className="text-xs font-semibold text-gray-700 flex items-center gap-1.5 sm:text-sm tracking-tight">
-          <Info className="h-3 w-3 text-gray-500 sm:h-3.5 sm:w-3.5" />
-          Calendar Legend
-        </h3>
-      </figcaption>
-
-      <div className="p-2 sm:p-3">
-        <ul className="grid gap-1 grid-cols-2 sm:grid-cols-4">
-          <li className="flex items-center space-x-2 px-2 py-1.5 rounded-md sm:px-3 sm:py-2">
-            <div
-              className={cn(
-                'w-4 h-4 rounded-md flex-shrink-0 sm:w-5 sm:h-5',
-                COLOR_SCHEMES[dayTypeToColorScheme[ptoDayType]].calendar.bg,
-                'ring-2 ring-teal-500  shadow-sm'
-              )}
-            />
-            <span className="text-xs font-medium text-gray-700 sm:text-sm leading-none">
-              PTO Day
-            </span>
-          </li>
-
-          <li className="flex items-center space-x-2 px-2 py-1.5 rounded-md sm:px-3 sm:py-2">
-            <div
-              className={cn(
-                'w-4 h-4 rounded-md flex-shrink-0 sm:w-5 sm:h-5',
-                COLOR_SCHEMES[dayTypeToColorScheme[weekendDayType]].calendar.bg,
-                'ring-1 ring-gray-200/80  shadow-sm'
-              )}
-            />
-            <span className="text-xs font-medium text-gray-700 sm:text-sm leading-none">
-              Weekend
-            </span>
-          </li>
-
-          <li className="flex items-center space-x-2 px-2 py-1.5 rounded-md sm:px-3 sm:py-2">
-            <div
-              className={cn(
-                'w-4 h-4 rounded-md flex-shrink-0 sm:w-5 sm:h-5',
-                COLOR_SCHEMES[dayTypeToColorScheme[holidayDayType]].calendar.bg,
-                'ring-1 ring-gray-200/80  shadow-sm'
-              )}
-            />
-            <span className="text-xs font-medium text-gray-700 sm:text-sm leading-none">
-              Holiday
-            </span>
-          </li>
-
-          <li className="flex items-center space-x-2 px-2 py-1.5 rounded-md sm:px-3 sm:py-2">
-            <div
-              className={cn(
-                'w-4 h-4 rounded-md flex-shrink-0 sm:w-5 sm:h-5',
-                'bg-slate-100 ',
-                'ring-1 ring-gray-200/80  shadow-sm'
-              )}
-            />
-            <span className="text-xs font-medium text-gray-700 sm:text-sm leading-none">
-              Work Day
-            </span>
-          </li>
-        </ul>
-      </div>
-    </figure>
-  );
-};
 
 interface OptimizationExplainerProps {
   introText?: string;
-  factorsText?: string;
-  factors?: Factor[];
 }
 
-interface IStrategyExample {
-  id: string;
-  title: string;
-  mobileTitle: string;
-  description: string;
-  days: { date: string; type: ExplainerDayType }[];
-  formula: string;
-}
+const CORE_FEATURES = [
+  {
+    title: 'Adaptive calendar window',
+    description:
+      'Builds a calendar around your selected year and timeframe, trims past dates automatically, and honours any custom start or end boundaries.',
+    icon: <CalendarRange className="h-4 w-4 text-indigo-600" />,
+  },
+  {
+    title: 'Strategy-aware spacing',
+    description:
+      'Each preset encodes preferred break lengths and recovery buffers so long vacations, mini breaks, and long weekends stay in their lanes.',
+    icon: <Timer className="h-4 w-4 text-emerald-600" />,
+  },
+  {
+    title: 'Conflict smart filters',
+    description:
+      'Pre-booked PTO, company shutdowns, and holidays are treated as hard constraints so suggested breaks never collide with what you already locked in.',
+    icon: <ShieldCheck className="h-4 w-4 text-teal-600" />,
+  },
+  {
+    title: 'Fast scoring engine',
+    description:
+      'Prefix sums and memoization evaluate thousands of combinations in milliseconds, updating results the moment you tweak an input.',
+    icon: <Sparkles className="h-4 w-4 text-purple-600" />,
+  },
+];
 
-export const OptimizationExplainer = ({
-  introText,
-  factorsText,
-  factors,
-}: OptimizationExplainerProps) => {
-  // Example content for each strategy
-  const examples: IStrategyExample[] = [
-    {
-      id: 'basic',
-      title: 'Basic Week Strategy',
-      mobileTitle: 'Full Week Strategy',
-      description:
-        'Using 5 PTO days (Monday-Friday) gives you 9 total days off including the adjacent weekends.',
-      days: [
-        { date: '1', type: 'weekend' },
-        { date: '2', type: 'weekend' },
-        { date: '3', type: 'pto' },
-        { date: '4', type: 'pto' },
-        { date: '5', type: 'pto' },
-        { date: '6', type: 'pto' },
-        { date: '7', type: 'pto' },
-        { date: '8', type: 'weekend' },
-        { date: '9', type: 'weekend' },
-      ],
-      formula: '5 PTO days + 4 weekend days = 9 consecutive days off',
-    },
-    {
-      id: 'holiday',
-      title: 'Holiday Advantage',
-      mobileTitle: 'Holiday Advantage',
-      description:
-        'Using 4 PTO days around a holiday gives you 9 total days off with one less PTO day.',
-      days: [
-        { date: '1', type: 'weekend' },
-        { date: '2', type: 'weekend' },
-        { date: '3', type: 'holiday' },
-        { date: '4', type: 'pto' },
-        { date: '5', type: 'pto' },
-        { date: '6', type: 'pto' },
-        { date: '7', type: 'pto' },
-        { date: '8', type: 'weekend' },
-        { date: '9', type: 'weekend' },
-      ],
-      formula: '4 PTO days + 1 holiday + 4 weekend days = 9 consecutive days off',
-    },
-    {
-      id: 'extended',
-      title: 'Extended Weekend',
-      mobileTitle: 'Extended Weekend',
-      description: 'Using just 2 PTO days (Thursday-Friday) gives you 4 consecutive days off.',
-      days: [
-        { date: '1', type: 'weekend' },
-        { date: '2', type: 'weekend' },
-        { date: '3', type: 'workday' },
-        { date: '4', type: 'workday' },
-        { date: '5', type: 'workday' },
-        { date: '6', type: 'pto' },
-        { date: '7', type: 'pto' },
-        { date: '8', type: 'weekend' },
-        { date: '9', type: 'weekend' },
-      ],
-      formula: '2 PTO days + 2 weekend days = 4 consecutive days off',
-    },
-  ];
+const PROCESS_STEPS = [
+  {
+    title: 'Assemble your working calendar',
+    description:
+      'We stitch together every day in the window, marking weekends, public holidays, company shutdowns, and pre-booked PTO. Weekend rules adapt automatically when you change them.',
+  },
+  {
+    title: 'Score every possible break',
+    description:
+      'Starting at each date, the engine considers every stretch that fits the chosen strategy. Prefix sums make it trivial to see how much PTO the stretch consumes versus how much fixed time off it absorbs.',
+  },
+  {
+    title: 'Optimize with dynamic programming',
+    description:
+      'A memoized search tracks your remaining PTO and enforces spacing between breaks. The best combination maximizes consecutive days off without exceeding your allotment.',
+  },
+  {
+    title: 'Reconstruct the itinerary',
+    description:
+      'The chosen breaks are replayed to mark exact PTO days, holidays, and weekends. We then surface stats, break cards, and the calendar view you see in the results panel.',
+  },
+];
 
+const STRATEGY_HIGHLIGHTS = [
+  {
+    name: 'Balanced',
+    detail:
+      'Cycles through a blend of long weekends and week-long getaways, ensuring PTO is distributed across the year.',
+  },
+  {
+    name: 'Long Weekends',
+    detail:
+      'Targets 3–4 day runs with tight spacing so you can reset often without committing large PTO blocks.',
+  },
+  {
+    name: 'Mini Breaks',
+    detail:
+      'Loves 5–6 day stretches, useful when you want meaningful time away but still keep PTO powder dry.',
+  },
+  {
+    name: 'Week Long Breaks',
+    detail:
+      'Prefers 7–9 day spans with wider buffers to avoid back-to-back drains on PTO balances.',
+  },
+  {
+    name: 'Extended Vacations',
+    detail:
+      'Searches for 10–15 day escapes and leaves generous recovery time before the next suggestion.',
+  },
+];
+
+const GUARDRAILS = [
+  'Automatic skip of dates that already passed when you are planning the current year.',
+  'Support for custom date windows so you can focus on a season or fiscal period.',
+  'Weekend detection that adapts for non-traditional work weeks.',
+  'Company shutdowns that recur by weekday stay marked across the range.',
+];
+
+export const OptimizationExplainer = ({ introText }: OptimizationExplainerProps) => {
   return (
     <>
       <SectionCard
         className="shadow-md"
-        title="Understanding Optimization"
-        subtitle="Learn how strategic PTO placement creates longer breaks without using extra days"
-        icon={<Lightbulb className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />}
+        title="Optimizer At A Glance"
+        subtitle="Key capabilities the planner relies on every time you run it."
+        icon={<Sparkles className="h-4 w-4 text-purple-600 sm:h-5 sm:w-5" />}
       >
-        <div className="space-y-4 pt-3 sm:space-y-6 sm:pt-4">
-          {/* Intro text - either from props or default */}
+        <div className="space-y-6 pt-3 sm:space-y-8 sm:pt-4">
           <p className="text-sm leading-relaxed text-gray-700 sm:text-base tracking-normal">
             {introText ||
-              "The key to maximizing your time off is strategic PTO placement. Of course, 15 PTO days can't magically become 53 days off - Holiday Optimizer simply helps you align your PTO days around weekends and holidays to create longer stretches of consecutive time off work."}
+              'Holiday Optimizer centres everything around a dynamic programming engine. It adapts the planning window, respects your constraints, and recomputes instantly while you experiment.'}
           </p>
 
-          {/* Algorithm factors list - only shown if provided via props */}
-          {factors && factors.length > 0 && (
-            <>
-              {factorsText && (
-                <p className="text-sm leading-relaxed text-gray-700 mt-3 sm:text-base">
-                  {factorsText}
-                </p>
-              )}
-
-              <ul className="list-none pl-0 mb-1 text-gray-700 space-y-3">
-                {factors.map((factor, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <div className={`p-1.5 ${factor.bgColor} rounded-full`}>{factor.icon}</div>
-                    <span className="text-sm font-medium sm:text-base leading-tight">
-                      {factor.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {CORE_FEATURES.map(feature => (
+              <div
+                key={feature.title}
+                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <header className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50">
+                    {feature.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-900 sm:text-base">
+                      {feature.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </header>
+              </div>
+            ))}
+          </div>
         </div>
       </SectionCard>
+
       <SectionCard
         className="shadow-md"
-        title="Optimization Strategies"
-        subtitle="See examples of how to maximize your time off with smart scheduling techniques"
-        icon={<Calendar className="h-4 w-4 text-indigo-600" />}
+        title="How The Algorithm Plans Your Time Off"
+        subtitle="A four-step process transforms PTO inputs into a shareable schedule."
+        icon={<Brain className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />}
       >
-        <div className="space-y-4 pt-3 sm:space-y-6 sm:pt-4">
-          <Legend />
-
-          {/* All examples displayed vertically for all screen sizes */}
-          <section className="space-y-6">
-            {examples.map(example => (
-              <WeekViewExample
-                key={example.id}
-                title={example.title}
-                description={example.description}
-                days={example.days}
-                formula={example.formula}
-              />
+        <div className="space-y-6 pt-3 sm:space-y-8 sm:pt-4">
+          <ol className="space-y-4">
+            {PROCESS_STEPS.map((step, index) => (
+              <li key={step.title} className="flex gap-4">
+                <div className="mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                  {index + 1}
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900 leading-tight">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-slate-600 leading-relaxed">{step.description}</p>
+                </div>
+              </li>
             ))}
-          </section>
+          </ol>
 
-          <aside className="mt-4 rounded-lg bg-gradient-to-r from-teal-50 to-emerald-50 p-3 border border-teal-200 shadow-sm sm:mt-6 sm:p-4">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="mt-0.5 flex-shrink-0 p-1 rounded-full bg-teal-100">
-                <Calendar className="h-4 w-4 text-teal-600" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-teal-800 leading-tight tracking-tight">
-                  The Algorithm Works At Scale
+          <div className="rounded-lg border border-blue-100 bg-blue-50/70 p-4 text-sm text-blue-800">
+            The dynamic programming layer means we no longer brute-force every combination. Instead,
+            we remember intermediate results so changing a single input—like PTO days or a weekend
+            rule—recomputes the plan almost instantly.
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        className="shadow-md"
+        title="Strategy Presets & Guardrails"
+        subtitle="Pick the flavour that matches how you like to recharge."
+        icon={<Calendar className="h-4 w-4 text-emerald-600" />}
+      >
+        <div className="space-y-6 pt-3 sm:space-y-8 sm:pt-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {STRATEGY_HIGHLIGHTS.map(strategy => (
+              <div
+                key={strategy.name}
+                className="rounded-lg border border-emerald-100 bg-emerald-50/60 p-3 sm:p-4 shadow-sm"
+              >
+                <h3 className="text-sm font-semibold text-emerald-900 sm:text-base">
+                  {strategy.name}
                 </h3>
-                <p className="mt-2 text-[15px] text-teal-700 leading-relaxed">
-                  Holiday Optimizer doesn&apos;t add to your PTO days - it finds the most strategic
-                  placement for them. This is the same approach used in vacation planning guides and
-                  other tools. Your 15 PTO days are still just 15 days, but by connecting them to
-                  weekends and holidays, you get more consecutive days away from work without using
-                  additional PTO.
-                </p>
+                <p className="mt-2 text-sm text-emerald-700 leading-relaxed">{strategy.detail}</p>
               </div>
-            </div>
-          </aside>
+            ))}
+          </div>
 
-          {/* Disclaimer Banner */}
-          <div className="mt-6 rounded-lg bg-blue-50 p-3 border border-blue-200 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="flex items-center gap-2 text-base font-semibold text-slate-900">
+              <ShieldCheck className="h-4 w-4 text-teal-600" />
+              Built-in guardrails
+            </h3>
+            <ul className="mt-3 space-y-2 text-sm text-slate-600">
+              {GUARDRAILS.map(item => (
+                <li key={item} className="flex gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-teal-500" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-lg bg-blue-50 p-3 border border-blue-200 shadow-sm">
             <div className="flex items-start gap-2.5">
               <div className="mt-0.5 flex-shrink-0">
                 <Info className="h-4 w-4 text-blue-500" />
               </div>
               <div>
                 <p className="text-sm text-blue-700 leading-relaxed">
-                  <span className="font-medium">Note:</span> The optimization results are
-                  suggestions based on general patterns and preferences. What works best for you
-                  might differ based on your personal circumstances, specific work requirements, or
-                  individual preferences. Always verify that the suggested schedule aligns with your
-                  specific needs.
+                  <span className="font-medium">Remember:</span> These plans are recommendations
+                  generated from the inputs you provide. Cross-check them with your manager or HR
+                  policies before locking anything in.
                 </p>
               </div>
             </div>
