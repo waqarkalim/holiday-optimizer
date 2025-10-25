@@ -71,8 +71,32 @@ export interface MultiSelectCalendarProps extends Omit<CalendarProps, 'mode' | '
   onDatesChange?: (dates: Date[]) => void;
   maxRanges?: number;
   maxDates?: number;
-  allowOverlap?: boolean;
 }
+
+const isDateInRanges = (date: Date, ranges: DateRange[]): boolean => {
+  return ranges.some(range => {
+    if (!range.from) return false;
+    if (!range.to) {
+      return date.toDateString() === range.from.toDateString();
+    }
+    return date >= range.from && date <= range.to;
+  });
+};
+
+const isDateSelected = (date: Date, dates: Date[]): boolean => {
+  return dates.some(d => d.toDateString() === date.toDateString());
+};
+
+const buildModifiers = (dates: Date[], ranges: DateRange[]): Record<string, Matcher> => {
+  if (dates.length === 0 && ranges.length === 0) {
+    return {};
+  }
+
+  return {
+    selected: (date: Date) =>
+      isDateSelected(date, dates) || isDateInRanges(date, ranges),
+  };
+};
 
 function MultiSelectCalendar({
   className,
@@ -84,7 +108,6 @@ function MultiSelectCalendar({
   onDatesChange,
   maxRanges,
   maxDates,
-  allowOverlap = true,
   showOutsideDays = true,
   ...props
 }: MultiSelectCalendarProps) {
@@ -101,24 +124,8 @@ function MultiSelectCalendar({
     setInternalDates(selectedDates);
   }, [selectedDates]);
 
-  // Helper to check if a date is within any selected range
-  const isDateInRanges = React.useCallback((date: Date, ranges: DateRange[]): boolean => {
-    return ranges.some((range) => {
-      if (!range.from) return false;
-      if (!range.to) {
-        return date.toDateString() === range.from.toDateString();
-      }
-      return date >= range.from && date <= range.to;
-    });
-  }, []);
-
-  // Helper to check if a date is in the selected dates array
-  const isDateSelected = React.useCallback((date: Date, dates: Date[]): boolean => {
-    return dates.some((d) => d.toDateString() === date.toDateString());
-  }, []);
-
   // Handle day click for range selection
-  const handleRangeClick = React.useCallback((date: Date | undefined) => {
+  const handleRangeClick = (date: Date | undefined) => {
     if (!date) return;
 
     if (mode === 'multiple-singles') {
@@ -172,10 +179,10 @@ function MultiSelectCalendar({
       });
       setCurrentRangeStart(undefined);
     }
-  }, [mode, currentRangeStart, maxRanges, maxDates, isDateSelected, onRangesChange, onDatesChange]);
+  };
 
   // Handle mixed mode - allow both range and single date selection
-  const handleMixedClick = React.useCallback((date: Date | undefined) => {
+  const handleMixedClick = (date: Date | undefined) => {
     if (!date) return;
 
     // Check if clicking on an already selected single date to deselect it
@@ -209,27 +216,10 @@ function MultiSelectCalendar({
 
     // Default to range selection behavior in mixed mode
     handleRangeClick(date);
-  }, [internalDates, internalRanges, isDateSelected, handleRangeClick, onDatesChange, onRangesChange]);
+  };
 
   // Create modifiers for selected dates and ranges
-  const modifiers = React.useMemo(() => {
-    const mods: Record<string, Matcher> = {};
-
-    // Use the standard 'selected' modifier for visual feedback
-    const allSelectedDates: Matcher = (date: Date) => {
-      // Check if date is in single dates
-      const isSingleDate = internalDates.some(d => d.toDateString() === date.toDateString());
-      // Check if date is in ranges
-      const isInRange = isDateInRanges(date, internalRanges);
-      return isSingleDate || isInRange;
-    };
-
-    if (internalDates.length > 0 || internalRanges.length > 0) {
-      mods.selected = allSelectedDates;
-    }
-
-    return mods;
-  }, [internalDates, internalRanges, isDateInRanges]);
+  const modifiers = buildModifiers(internalDates, internalRanges);
 
   const handleDayClick = mode === 'mixed' ? handleMixedClick : handleRangeClick;
 

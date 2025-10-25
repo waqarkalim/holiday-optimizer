@@ -17,7 +17,7 @@ jest.mock('@/services/holidays', () => ({
   ])),
   getStates: jest.fn(() => Promise.resolve([])),
   getRegions: jest.fn(() => Promise.resolve([])),
-  getPublicHolidaysByCountry: jest.fn((year, countryInfo) => {
+  getPublicHolidaysByCountry: jest.fn((year) => {
     // Return different holidays based on year
     const holidays = {
       2025: [

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, DateObject } from 'react-multi-date-picker';
 import { eachDayOfInterval, format, getDay } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
@@ -15,6 +15,34 @@ export interface MultiRangeCalendarProps {
   companyDaysOff?: Array<{ date: string; name: string }>;
 }
 
+const buildCalendarValues = (selectedDates: Date[]): DateObject[][] => {
+  if (selectedDates.length === 0) return [];
+
+  const sortedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
+  const ranges: DateObject[][] = [];
+  let rangeStart = new DateObject(sortedDates[0]);
+  let rangeEnd = new DateObject(sortedDates[0]);
+
+  for (let i = 1; i < sortedDates.length; i++) {
+    const currentDate = new DateObject(sortedDates[i]);
+    const prevDate = new DateObject(sortedDates[i - 1]);
+    const diffInDays = Math.floor(
+      (currentDate.toDate().getTime() - prevDate.toDate().getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffInDays === 1) {
+      rangeEnd = currentDate;
+    } else {
+      ranges.push([rangeStart, rangeEnd]);
+      rangeStart = currentDate;
+      rangeEnd = currentDate;
+    }
+  }
+
+  ranges.push([rangeStart, rangeEnd]);
+  return ranges;
+};
+
 export function MultiRangeCalendar({
   selectedDates = [],
   onChange,
@@ -23,6 +51,8 @@ export function MultiRangeCalendar({
   holidays = [],
   companyDaysOff = [],
 }: MultiRangeCalendarProps) {
+  type CalendarSelection = DateObject | DateObject[] | DateObject[][] | null;
+
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
@@ -30,66 +60,9 @@ export function MultiRangeCalendar({
   const calendarRef = useRef<HTMLDivElement>(null);
   const isSelectingRef = useRef(false);
   const rangeStartRef = useRef<Date | null>(null);
+  const values = buildCalendarValues(selectedDates);
 
-  // Helper function to check if a date is a weekend
-  const isWeekend = (date: Date): boolean => {
-    const dayOfWeek = getDay(date) as WeekdayNumber;
-    return weekendDays.includes(dayOfWeek);
-  };
-
-  // Helper function to check if a date is a holiday or company day off
-  const isExcludedDay = (date: Date): boolean => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return (
-      holidays.some(h => h.date === dateStr) ||
-      companyDaysOff.some(c => c.date === dateStr)
-    );
-  };
-
-  // Calculate actual working days from a date range
-  const calculateWorkingDays = (dates: Date[]): { total: number; working: number; excluded: number } => {
-    const total = dates.length;
-    const working = dates.filter(date => !isWeekend(date) && !isExcludedDay(date)).length;
-    const excluded = total - working;
-    return { total, working, excluded };
-  };
-
-  // Convert Date[] to DateObject[][] (array of ranges) for proper display
-  // Group consecutive dates into ranges
-  const values = useMemo(() => {
-    if (selectedDates.length === 0) return [];
-
-    // Sort dates
-    const sortedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
-    const ranges: DateObject[][] = [];
-    let rangeStart = new DateObject(sortedDates[0]);
-    let rangeEnd = new DateObject(sortedDates[0]);
-
-    for (let i = 1; i < sortedDates.length; i++) {
-      const currentDate = new DateObject(sortedDates[i]);
-      const prevDate = new DateObject(sortedDates[i - 1]);
-
-      // Check if dates are consecutive (difference of 1 day)
-      const diffInDays = Math.floor((currentDate.toDate().getTime() - prevDate.toDate().getTime()) / (1000 * 60 * 60 * 24));
-
-      if (diffInDays === 1) {
-        // Extend the current range
-        rangeEnd = currentDate;
-      } else {
-        // Save the current range and start a new one
-        ranges.push([rangeStart, rangeEnd]);
-        rangeStart = currentDate;
-        rangeEnd = currentDate;
-      }
-    }
-
-    // Add the last range
-    ranges.push([rangeStart, rangeEnd]);
-
-    return ranges;
-  }, [selectedDates]);
-
-  const handleChange = (dates: DateObject | DateObject[] | DateObject[][] | null) => {
+  const handleChange = (dates: CalendarSelection) => {
     // Don't process if we're in the middle of selecting a range
     if (isSelectingRef.current) {
       return;
@@ -202,7 +175,7 @@ export function MultiRangeCalendar({
       }
 
       return new Date(actualYear, actualMonth, day);
-    } catch (error) {
+    } catch {
       return null;
     }
   };
@@ -339,13 +312,31 @@ export function MultiRangeCalendar({
 
   // Update status message based on current state
   useEffect(() => {
+    const getWorkingStats = (dates: Date[]) => {
+      const total = dates.length;
+      const working = dates.filter(date => {
+        const dayOfWeek = getDay(date) as WeekdayNumber;
+        if (weekendDays.includes(dayOfWeek)) {
+          return false;
+        }
+
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const isHoliday = holidays.some(h => h.date === dateStr);
+        const isCompanyDay = companyDaysOff.some(c => c.date === dateStr);
+
+        return !isHoliday && !isCompanyDay;
+      }).length;
+      const excluded = total - working;
+      return { total, working, excluded };
+    };
+
     // Priority 1: Range selection in progress with hover preview
     if (isSelecting && rangeStart && hoverDate) {
       const start = rangeStart.getTime();
       const end = hoverDate.getTime();
       const [minDate, maxDate] = start < end ? [rangeStart, hoverDate] : [hoverDate, rangeStart];
       const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate });
-      const { total, working, excluded } = calculateWorkingDays(datesInRange);
+      const { total, working, excluded } = getWorkingStats(datesInRange);
 
       if (excluded > 0) {
         setStatusMessage(
@@ -367,7 +358,7 @@ export function MultiRangeCalendar({
 
     // Priority 3: Dates are selected
     if (selectedDates.length > 0) {
-      const { total, working, excluded } = calculateWorkingDays(selectedDates);
+      const { total, working, excluded } = getWorkingStats(selectedDates);
 
       if (excluded > 0) {
         setStatusMessage(
@@ -390,8 +381,8 @@ export function MultiRangeCalendar({
       <div ref={calendarRef} className="relative border border-gray-200 rounded-lg overflow-hidden">
         <div className="p-4 pb-3">
           <Calendar
-            value={values as any}
-            onChange={handleChange as any}
+            value={values}
+            onChange={nextValue => handleChange(nextValue as CalendarSelection)}
             multiple
             range
             numberOfMonths={1}

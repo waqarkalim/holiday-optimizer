@@ -3,7 +3,7 @@ import { StepHeader } from './components/StepHeader';
 import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
-import { useEffect, useMemo, useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import {
   useCountries,
   useHolidaysByCountry,
@@ -75,6 +75,13 @@ const holidaysReducer = (state: HolidaysState, action: HolidaysAction): Holidays
   }
 };
 
+const PUBLIC_HOLIDAYS_TOOLTIP = {
+  title: 'About Public Holidays',
+  description:
+    "Public holidays are already non-working days, so you don't need to use PTO for them. Adding them helps create an optimized schedule that accounts for these days when planning your time off.",
+  ariaLabel: 'Why public holidays matter',
+} as const;
+
 export const HolidaysStep = () => {
   const { holidays, selectedYear, customStartDate, customEndDate } = useOptimizerForm();
   const { dispatch: optimizerDispatch } = useOptimizer();
@@ -108,14 +115,6 @@ export const HolidaysStep = () => {
     }
   );
 
-  // Combine holidays from both years - memoized to prevent infinite re-renders
-  const holidaysData = useMemo(() => {
-    if (needsTwoYears) {
-      return [...(holidaysDataYear1 || []), ...(holidaysDataYear2 || [])];
-    }
-    return holidaysDataYear1;
-  }, [needsTwoYears, holidaysDataYear1, holidaysDataYear2]);
-
   // Load stored location data on mount only
   useEffect(() => {
     const countryInfo = getStoredLocationData(selectedYear);
@@ -139,9 +138,13 @@ export const HolidaysStep = () => {
 
   // Process holidays when data changes
   useEffect(() => {
-    if (!holidaysData) return;
+    const combinedHolidays = needsTwoYears
+      ? [...(holidaysDataYear1 || []), ...(holidaysDataYear2 || [])]
+      : holidaysDataYear1;
 
-    const detected = holidaysData
+    if (!combinedHolidays) return;
+
+    const detected = combinedHolidays
       .map(holiday => {
         const displayDate = format(convertToDateObject(holiday.date), 'yyyy-MM-dd');
 
@@ -162,7 +165,14 @@ export const HolidaysStep = () => {
       });
 
     optimizerDispatch({ type: 'SET_DETECTED_HOLIDAYS', payload: detected });
-  }, [holidaysData, optimizerDispatch, customStartDate, customEndDate]);
+  }, [
+    needsTwoYears,
+    holidaysDataYear1,
+    holidaysDataYear2,
+    optimizerDispatch,
+    customStartDate,
+    customEndDate,
+  ]);
 
   const handleCountryChange = (countryCode: string): void => {
     dispatch({ type: 'SET_COUNTRY', payload: countryCode });
@@ -183,28 +193,20 @@ export const HolidaysStep = () => {
     }
   };
 
-  // Generate description text based on the date range - memoized
-  const dateRangeDescription = useMemo(() => {
+  const dateRangeDescription = (() => {
     if (!customStartDate || !customEndDate) return selectedYear.toString();
 
     const startDate = new Date(customStartDate);
     const endDate = new Date(customEndDate);
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
+    const startYearValue = startDate.getFullYear();
+    const endYearValue = endDate.getFullYear();
 
-    if (startYear === endYear) {
-      return startYear.toString();
-    } else {
-      return `${format(startDate, 'MMM yyyy')} – ${format(endDate, 'MMM yyyy')}`;
+    if (startYearValue === endYearValue) {
+      return startYearValue.toString();
     }
-  }, [customStartDate, customEndDate, selectedYear]);
 
-  const publicHolidaysTooltip = useMemo(() => ({
-    title: 'About Public Holidays',
-    description:
-      "Public holidays are already non-working days, so you don't need to use PTO for them. Adding them helps create an optimized schedule that accounts for these days when planning your time off.",
-    ariaLabel: 'Why public holidays matter',
-  }), []);
+    return `${format(startDate, 'MMM yyyy')} – ${format(endDate, 'MMM yyyy')}`;
+  })();
 
   return (
     <FormSection colorScheme="amber" headingId="holidays-heading">
@@ -215,7 +217,7 @@ export const HolidaysStep = () => {
             title="Public Holidays"
             badge={{ label: 'Required' }}
             colorScheme="amber"
-            tooltip={publicHolidaysTooltip}
+            tooltip={PUBLIC_HOLIDAYS_TOOLTIP}
           />
         }
         description={`Add public holidays for ${dateRangeDescription} by selecting your country, state, and region.`}

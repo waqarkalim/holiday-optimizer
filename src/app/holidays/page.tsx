@@ -1,9 +1,6 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { getAvailableCountries } from '@/services/holidays';
 import { CalendarIcon, CheckCircleIcon, GlobeIcon } from 'lucide-react';
-import { continents, getCountryData, TCountryCode } from 'countries-list';
-import CountrySearch from '@/features/holidays/components/CountrySearch';
 import {
   PageContent,
   PageDescription,
@@ -40,26 +37,7 @@ export const metadata: Metadata = {
 export default async function HolidaysIndexPage() {
   const countries = getAvailableCountries();
 
-  // Sort countries alphabetically by name
-  const sortedCountries = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-
-  // Group countries by continent/region for better organization
-  const getCountryGroup = (country: TCountryCode) => {
-    return continents[getCountryData(country).continent] || 'Other';
-  };
-
-  const groupedCountries: Record<string, Array<{ countryCode: string; name: string }>> = {};
-
-  for (const country of sortedCountries) {
-    const group = getCountryGroup(country.countryCode as TCountryCode);
-    if (!groupedCountries[group]) {
-      groupedCountries[group] = [];
-    }
-    groupedCountries[group].push(country);
-  }
-
-  // Sort groups by name
-  const sortedGroups = Object.keys(groupedCountries).sort();
+  const countryCount = countries.length;
 
   // Add schema.org structured data for better SEO
   const schemaData = {
@@ -69,18 +47,12 @@ export default async function HolidaysIndexPage() {
     description:
       'Explore public holidays and observances for countries around the world. Find information about national holidays, bank holidays, and more.',
     url: 'https://holidayoptimizer.com/holidays',
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: sortedGroups.map((group, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: group,
-        item: {
-          '@type': 'Thing',
-          name: group,
-          description: `Public holidays in ${group} countries`,
-        },
-      })),
+    about: {
+      '@type': 'Dataset',
+      name: 'Global holiday coverage',
+      numberOfItems: countryCount,
+      description:
+        'Holiday Optimizer maintains public holiday information for countries worldwide to power travel and planning workflows.',
     },
   };
 
@@ -108,19 +80,10 @@ export default async function HolidaysIndexPage() {
           </PageTitle>
 
           <PageDescription className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
-            Find public holidays for {sortedCountries.length} countries worldwide. Plan your
-            travels, business operations, or simply learn about different cultural celebrations.
+            We track public holidays for {countryCount} countries worldwide. Use these insights to
+            power your time-off plans, support global teams, or simply explore cultural
+            celebrations.
           </PageDescription>
-
-          <div className="flex flex-wrap gap-4 justify-center mb-10">
-            <Link
-              href="#browse-countries"
-              className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg transition-colors flex items-center"
-            >
-              <GlobeIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Browse Countries
-            </Link>
-          </div>
 
           <div className="flex flex-wrap gap-2 justify-center">
             <div className="inline-flex items-center px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white/80">
@@ -141,16 +104,48 @@ export default async function HolidaysIndexPage() {
 
       {/* Main content */}
       <PageContent>
-        <section className="container mx-auto px-4 py-16 max-w-6xl" id="browse-countries">
+        <section className="container mx-auto px-4 py-16 max-w-6xl">
           <div className="mb-10 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Browse Countries</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Global Coverage Snapshot</h2>
             <p className="text-gray-600 max-w-3xl mx-auto">
-              Select a country to view its public holidays, bank holidays, and observances.
+              Holiday Optimizer aggregates official public holiday calendars across continents. The
+              data feeds our planning tools and reporting, so you can align teams in advance of key
+              observances.
             </p>
           </div>
 
-          {/* Country search and groups */}
-          <CountrySearch groupedCountries={groupedCountries} sortedGroups={sortedGroups} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                <GlobeIcon className="h-6 w-6 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Worldwide Sources</h3>
+              <p className="text-gray-600">
+                Coverage spans {countryCount} countries with additional state and regional context
+                where available.
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                <CalendarIcon className="h-6 w-6 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Actionable Context</h3>
+              <p className="text-gray-600">
+                Plan project timelines and release schedules around national events without digging
+                through disparate calendars.
+              </p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center mb-4">
+                <CheckCircleIcon className="h-6 w-6 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Integrated Workflows</h3>
+              <p className="text-gray-600">
+                Use the optimizer to discover long weekends and maximize time off using the same
+                data set.
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* Features section */}
@@ -173,7 +168,7 @@ export default async function HolidaysIndexPage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Comprehensive Coverage</h3>
                 <p className="text-gray-600">
-                  Access holiday information for {sortedCountries.length} countries worldwide,
+                  Access holiday information for {countryCount} countries worldwide,
                   including regional and local observances.
                 </p>
               </div>

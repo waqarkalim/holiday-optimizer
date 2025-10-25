@@ -5,7 +5,6 @@ import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { DateList } from '@/features/optimizer/components/company-days-date-list';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
-import { useCallback } from 'react';
 
 export function CompanyDaysStep() {
   const title = 'Selected Company Days';
@@ -15,7 +14,7 @@ export function CompanyDaysStep() {
   // Convert companyDaysOff to Date objects for the calendar
   const selectedDates = companyDaysOff.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
 
-  const handleDateChange = useCallback((newDates: Date[]) => {
+  const handleDateChange = (newDates: Date[]) => {
     // Add new dates
     newDates.forEach(date => {
       const formattedDate = format(date, 'yyyy-MM-dd');
@@ -31,7 +30,7 @@ export function CompanyDaysStep() {
         removeCompanyDay(day.date);
       }
     });
-  }, [companyDaysOff, addCompanyDay, removeCompanyDay]);
+  };
 
   // Using the new StepTitleWithInfo component
   const titleWithInfo = (
@@ -47,17 +46,6 @@ export function CompanyDaysStep() {
       }}
     />
   );
-
-  // Filter company days for display in the date range text
-  const filteredCompanyDays = companyDaysOff.filter(day => {
-    if (!customStartDate || !customEndDate) return true;
-
-    const dayDate = parse(day.date, 'yyyy-MM-dd', new Date());
-    const startDate = parse(customStartDate, 'yyyy-MM-dd', new Date());
-    const endDate = parse(customEndDate, 'yyyy-MM-dd', new Date());
-
-    return dayDate >= startDate && dayDate <= endDate;
-  });
 
   // Format date range for description
   const startDate = customStartDate ? parse(customStartDate, 'yyyy-MM-dd', new Date()) : null;

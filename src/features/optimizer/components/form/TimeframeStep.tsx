@@ -3,8 +3,8 @@ import { FormSection } from './components/FormSection';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { format, parse } from 'date-fns';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { Calendar, CalendarDays, Edit3 } from 'lucide-react';
+import { ChangeEvent, useState } from 'react';
+import { Calendar, CalendarDays } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
 const DATE_FORMAT = 'yyyy-MM-dd';

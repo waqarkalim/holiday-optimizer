@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { OptimizationStats, OptimizedDay } from '@/types';
 import { CalendarLegend } from '@/shared/components/ui/calendar/CalendarLegend';
 import { WEEKDAYS } from '@/constants';
@@ -50,41 +49,14 @@ const buildWeekendLegendLabel = (days: OptimizedDay[]) => {
   return `Normal Weekend (${initial.join(', ')} & ${last})`;
 };
 
-export const CalendarView = ({
-  stats,
-  optimizedDays,
-  selectedYear,
-  customStartDate,
-  customEndDate
-}: CalendarViewProps) => {
-  const weekendLegendLabel = buildWeekendLegendLabel(optimizedDays);
-  const hasWeekendDays = optimizedDays.some(day => day.isWeekend);
-
-  const monthBuckets = useMemo(() => {
-    // Use custom dates if available, otherwise fall back to optimized days
-    if (customStartDate && customEndDate) {
-      const firstDate = parse(customStartDate, 'yyyy-MM-dd', new Date());
-      const lastDate = parse(customEndDate, 'yyyy-MM-dd', new Date());
-
-      const buckets: Array<{ month: number; year: number }> = [];
-      for (
-        let cursor = startOfMonth(firstDate);
-        cursor <= lastDate;
-        cursor = addMonths(cursor, 1)
-      ) {
-        buckets.push({ month: cursor.getMonth(), year: cursor.getFullYear() });
-      }
-
-      return buckets;
-    }
-
-    // Fallback to optimized days if no custom dates
-    if (optimizedDays.length === 0) {
-      return [] as Array<{ month: number; year: number }>;
-    }
-
-    const firstDate = parse(optimizedDays[0].date, 'yyyy-MM-dd', new Date());
-    const lastDate = parse(optimizedDays[optimizedDays.length - 1].date, 'yyyy-MM-dd', new Date());
+const buildMonthBuckets = (
+  optimizedDays: OptimizedDay[],
+  customStartDate?: string,
+  customEndDate?: string
+) => {
+  if (customStartDate && customEndDate) {
+    const firstDate = parse(customStartDate, 'yyyy-MM-dd', new Date());
+    const lastDate = parse(customEndDate, 'yyyy-MM-dd', new Date());
 
     const buckets: Array<{ month: number; year: number }> = [];
     for (
@@ -96,16 +68,48 @@ export const CalendarView = ({
     }
 
     return buckets;
-  }, [optimizedDays, customStartDate, customEndDate]);
+  }
 
-  const timeframeLabel = useMemo(() => {
-    if (customStartDate && customEndDate) {
-      const start = parse(customStartDate, 'yyyy-MM-dd', new Date());
-      const end = parse(customEndDate, 'yyyy-MM-dd', new Date());
-      return `${format(start, 'MMM d, yyyy')} – ${format(end, 'MMM d, yyyy')}`;
-    }
-    return null;
-  }, [customStartDate, customEndDate]);
+  if (optimizedDays.length === 0) {
+    return [] as Array<{ month: number; year: number }>;
+  }
+
+  const firstDate = parse(optimizedDays[0].date, 'yyyy-MM-dd', new Date());
+  const lastDate = parse(optimizedDays[optimizedDays.length - 1].date, 'yyyy-MM-dd', new Date());
+
+  const buckets: Array<{ month: number; year: number }> = [];
+  for (
+    let cursor = startOfMonth(firstDate);
+    cursor <= lastDate;
+    cursor = addMonths(cursor, 1)
+  ) {
+    buckets.push({ month: cursor.getMonth(), year: cursor.getFullYear() });
+  }
+
+  return buckets;
+};
+
+const buildTimeframeLabel = (customStartDate?: string, customEndDate?: string) => {
+  if (customStartDate && customEndDate) {
+    const start = parse(customStartDate, 'yyyy-MM-dd', new Date());
+    const end = parse(customEndDate, 'yyyy-MM-dd', new Date());
+    return `${format(start, 'MMM d, yyyy')} – ${format(end, 'MMM d, yyyy')}`;
+  }
+
+  return null;
+};
+
+export const CalendarView = ({
+  stats,
+  optimizedDays,
+  selectedYear,
+  customStartDate,
+  customEndDate
+}: CalendarViewProps) => {
+  const weekendLegendLabel = buildWeekendLegendLabel(optimizedDays);
+  const hasWeekendDays = optimizedDays.some(day => day.isWeekend);
+  const monthBuckets = buildMonthBuckets(optimizedDays, customStartDate, customEndDate);
+  const timeframeLabel = buildTimeframeLabel(customStartDate, customEndDate);
 
   return (
     <SectionCard

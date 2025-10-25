@@ -2,7 +2,7 @@
 
 ## Highlights & Snippets
 
-- **Unified optimizer hook** – replaced five micro hooks with one `useOptimizerForm` that returns state slices and memoised actions.
+- **Unified optimizer hook** – replaced five micro hooks with one `useOptimizerForm` that returns state slices and direct action helpers.
 
 ```diff
 - export function useDaysInput() {
@@ -15,9 +15,9 @@
 - }
 +export function useOptimizerForm() {
 +  const { state, dispatch } = useOptimizer();
-+  const setDays = useCallback((value: string) => {
++  const setDays = (value: string) => {
 +    dispatch({ type: 'SET_DAYS', payload: value });
-+  }, [dispatch]);
++  };
 +  // ...other actions...
 +  return {
 +    days: state.days,

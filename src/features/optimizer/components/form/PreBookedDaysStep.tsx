@@ -5,10 +5,8 @@ import { FormSection } from './components/FormSection';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { PreBookedDaysRangeList } from '@/features/optimizer/components/PreBookedDaysRangeList';
 import { StepTitleWithInfo } from './components/StepTitleWithInfo';
-import { useCallback } from 'react';
 
 export function PreBookedDaysStep() {
-  const title = 'Pre-Booked Vacation Days';
   const colorScheme = 'blue';
   const {
     preBookedDays,
@@ -25,7 +23,7 @@ export function PreBookedDaysStep() {
   // Convert preBookedDays to Date objects for the calendar
   const selectedDates = preBookedDays.map(day => parse(day.date, 'yyyy-MM-dd', new Date()));
 
-  const handleDateChange = useCallback((newDates: Date[]) => {
+  const handleDateChange = (newDates: Date[]) => {
     // Add new dates
     newDates.forEach(date => {
       const formattedDate = format(date, 'yyyy-MM-dd');
@@ -41,7 +39,7 @@ export function PreBookedDaysStep() {
         removePreBookedDay(day.date);
       }
     });
-  }, [preBookedDays, addPreBookedDay, removePreBookedDay]);
+  };
 
   const titleWithInfo = (
     <StepTitleWithInfo

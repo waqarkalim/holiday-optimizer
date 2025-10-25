@@ -7,7 +7,6 @@ import {
   KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
 import { format, parse } from 'date-fns';
-import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { DateItem, GroupedDates } from './types';
 import { colorStyles } from './styles';
 

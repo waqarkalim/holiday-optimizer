@@ -1,7 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
-import { format, parse, eachDayOfInterval, getDay } from 'date-fns';
+import { format, parse, getDay } from 'date-fns';
 import { Trash2, Calendar } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/components/ui/button';
@@ -48,7 +47,7 @@ export function PreBookedDaysRangeList() {
   };
 
   // Group consecutive dates into ranges
-  const dateRanges = useMemo(() => {
+  const buildRanges = () => {
     if (preBookedDays.length === 0) return [];
 
     // Filter by custom date range if set
@@ -110,7 +109,9 @@ export function PreBookedDaysRangeList() {
     });
 
     return ranges;
-  }, [preBookedDays, customStartDate, customEndDate, weekendDays, holidays, companyDaysOff]);
+  };
+
+  const dateRanges = buildRanges();
 
   if (dateRanges.length === 0) return null;
 

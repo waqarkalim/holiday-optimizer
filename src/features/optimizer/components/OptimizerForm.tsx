@@ -63,6 +63,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const hasInitializedAdvanced = useRef(false);
+  const companyDaysCount = companyDaysOff.length;
+  const preBookedDaysCount = preBookedDays.length;
 
   // Initialize local storage sync
   useLocalStorage();
@@ -88,12 +90,12 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       weekendSet.size === defaultSet.size && [...defaultSet].every(day => weekendSet.has(day));
 
     // Auto-expand if user has customized weekend, company days, or pre-booked days
-    if (!isDefaultWeekend || companyDaysOff.length > 0 || preBookedDays.length > 0) {
+    if (!isDefaultWeekend || companyDaysCount > 0 || preBookedDaysCount > 0) {
       setShowAdvanced(true);
     }
 
     hasInitializedAdvanced.current = true;
-  }, [weekendDays, companyDaysOff]);
+  }, [weekendDays, companyDaysCount, preBookedDaysCount]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -124,8 +126,8 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       days: numDays,
       strategy,
       year: selectedYear,
-      companyDaysCount: companyDaysOff.length,
-      preBookedDaysCount: preBookedDays.length,
+      companyDaysCount,
+      preBookedDaysCount,
       holidaysCount: holidays.length,
       customStartDate: customStartDate ?? 'default',
       customEndDate: customEndDate ?? 'default',

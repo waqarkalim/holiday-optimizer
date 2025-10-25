@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Calendar, DateObject } from 'react-multi-date-picker';
 import { format, getDay } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
@@ -22,33 +22,10 @@ export function SingleDateCalendar({
   holidays = [],
 }: SingleDateCalendarProps) {
   const [statusMessage, setStatusMessage] = React.useState<string>('');
+  type CalendarSelection = DateObject[] | DateObject | null;
+  const values = selectedDates.map(date => new DateObject(date));
 
-  // Helper to check if date is weekend
-  const isWeekend = (date: Date): boolean => {
-    const dayOfWeek = getDay(date) as WeekdayNumber;
-    return weekendDays.includes(dayOfWeek);
-  };
-
-  // Helper to check if date is excluded
-  const isExcludedDay = (date: Date): boolean => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return holidays.some(h => h.date === dateStr);
-  };
-
-  // Calculate working days
-  const calculateWorkingDays = (dates: Date[]): { total: number; working: number; excluded: number } => {
-    const total = dates.length;
-    const working = dates.filter(date => !isWeekend(date) && !isExcludedDay(date)).length;
-    const excluded = total - working;
-    return { total, working, excluded };
-  };
-
-  // Convert Date[] to DateObject[] for the calendar
-  const values = useMemo(() => {
-    return selectedDates.map(date => new DateObject(date));
-  }, [selectedDates]);
-
-  const handleChange = (dates: DateObject | DateObject[] | null) => {
+  const handleChange = (dates: CalendarSelection) => {
     if (!dates) {
       onChange?.([]);
       return;
@@ -64,20 +41,33 @@ export function SingleDateCalendar({
 
   // Update status message
   useEffect(() => {
-    if (selectedDates.length > 0) {
-      const { total, working, excluded } = calculateWorkingDays(selectedDates);
-
-      if (excluded > 0) {
-        setStatusMessage(
-          `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded) • Click any to remove`
-        );
-      } else {
-        setStatusMessage(
-          `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`
-        );
-      }
-    } else {
+    if (selectedDates.length === 0) {
       setStatusMessage('Click dates to select company days off');
+      return;
+    }
+
+    const isWeekend = (date: Date): boolean => {
+      const dayOfWeek = getDay(date) as WeekdayNumber;
+      return weekendDays.includes(dayOfWeek);
+    };
+
+    const isExcludedDay = (date: Date): boolean => {
+      const dateStr = format(date, 'yyyy-MM-dd');
+      return holidays.some(h => h.date === dateStr);
+    };
+
+    const total = selectedDates.length;
+    const working = selectedDates.filter(date => !isWeekend(date) && !isExcludedDay(date)).length;
+    const excluded = total - working;
+
+    if (excluded > 0) {
+      setStatusMessage(
+        `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded) • Click any to remove`
+      );
+    } else {
+      setStatusMessage(
+        `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`
+      );
     }
   }, [selectedDates, weekendDays, holidays]);
 
@@ -86,8 +76,8 @@ export function SingleDateCalendar({
       <div className="relative border border-gray-200 rounded-lg overflow-hidden">
         <div className="p-4 pb-3">
           <Calendar
-            value={values as any}
-            onChange={handleChange as any}
+            value={values}
+            onChange={nextValue => handleChange(nextValue as CalendarSelection)}
             multiple
             numberOfMonths={1}
             shadow={false}
