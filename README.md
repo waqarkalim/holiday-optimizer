@@ -6,6 +6,8 @@
 
 A web application for optimizing Paid Time Off (PTO) usage.
 
+> 🔍 **Transparency Notice** – This codebase is public so others can review how the app works. It remains my personal project; please do not copy, deploy, rebrand, or monetize it without explicit permission.
+
 ## Overview
 
 Holiday Optimizer helps users maximize their time off by intelligently planning PTO days around public and company holidays. By inputting your available PTO and selecting your location, the application generates an optimized schedule suggesting the best days to take off to create longer breaks throughout the year.
@@ -120,7 +122,8 @@ pnpm format
 This repository is published for transparency so others can review how the application works. **All rights remain with Waqar Bin Kalim.**
 
 - © 2025 Waqar Bin Kalim. All rights reserved.
-- You may read and learn from the code, but you may **not** copy, host, deploy, redistribute, or commercialize this project (including modified versions) without written permission.
+- You may read and learn from the code, but you may **not** copy, fork, host, deploy, redistribute, rebrand, or commercialize this project—whether in its original form or in modified/“revamped” versions—without written permission.
+- Automated rewrites or derivative deployments created with AI tooling are equally prohibited unless you have an explicit license from me.
 - If you’re interested in collaboration or licensing, please contact me directly.
 
 ## Contribution
