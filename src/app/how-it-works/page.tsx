@@ -60,7 +60,7 @@ const ALGORITHM_STEPS = [
     number: '01',
     title: 'Parse Your Inputs',
     description:
-      'We build a calendar for your chosen timeframe, marking every weekend, public holiday, company shutdown, and pre-booked PTO day.',
+      'The optimizer builds a calendar for your chosen timeframe, marking every weekend, public holiday, company shutdown, and pre-booked PTO day.',
     icon: <Calendar className="h-5 w-5" />,
     color: 'from-teal-500 to-teal-600',
     bgGradient: 'from-teal-50 to-teal-100/50',
@@ -69,7 +69,7 @@ const ALGORITHM_STEPS = [
     number: '02',
     title: 'Calculate PTO Costs',
     description:
-      'Using prefix sums, we instantly compute how many PTO days are needed for any date range, accounting for all your free days.',
+      'Using prefix sums, the algorithm instantly computes how many PTO days are needed for any date range, accounting for all your free days.',
     icon: <Binary className="h-5 w-5" />,
     color: 'from-indigo-500 to-indigo-600',
     bgGradient: 'from-indigo-50 to-indigo-100/50',
@@ -78,7 +78,7 @@ const ALGORITHM_STEPS = [
     number: '03',
     title: 'Dynamic Programming Magic',
     description:
-      'Our algorithm explores every possible break combination using memoization, respecting your strategy spacing and length rules.',
+      'The algorithm explores every possible break combination using memoization, respecting your strategy spacing and length rules.',
     icon: <BrainCircuit className="h-5 w-5" />,
     color: 'from-violet-500 to-violet-600',
     bgGradient: 'from-violet-50 to-violet-100/50',
@@ -87,7 +87,7 @@ const ALGORITHM_STEPS = [
     number: '04',
     title: 'Return Your Plan',
     description:
-      'We reconstruct the selected breaks with full transparency—showing exactly which PTO days to book and how they maximize your consecutive time off.',
+      'The optimizer reconstructs the selected breaks with full transparency—showing exactly which PTO days to book and how they maximize your consecutive time off.',
     icon: <Sparkles className="h-5 w-5" />,
     color: 'from-emerald-500 to-emerald-600',
     bgGradient: 'from-emerald-50 to-emerald-100/50',
