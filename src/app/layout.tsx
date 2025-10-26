@@ -182,7 +182,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     className="inline-flex items-center gap-1 text-sm font-medium text-emerald-800 hover:text-emerald-900 transition-colors"
                     aria-label="Learn what's new in Holiday Optimizer"
                   >
-                    See what's new
+                    See what&apos;s new
                     <span aria-hidden="true">→</span>
                   </Link>
                 </div>
