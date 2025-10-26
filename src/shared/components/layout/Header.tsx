@@ -31,12 +31,6 @@ const Header = () => {
               >
                 How It Works
               </Link>
-              <Link
-                href="/holidays"
-                className="text-sm font-medium text-gray-700 hover:text-teal-600 transition-colors"
-              >
-                Public Holidays
-              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
@@ -64,13 +58,6 @@ const Header = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 How It Works
-              </Link>
-              <Link
-                href="/holidays"
-                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-teal-600 hover:bg-gray-50 rounded-md transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Public Holidays
               </Link>
               <div className="py-1 px-3">
                 <GitHubLink href={GITHUB_URL} variant="default" className="w-full" />
