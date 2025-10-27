@@ -1,7 +1,5 @@
 import type { Config } from 'tailwindcss';
 
-import colors from 'tailwindcss/colors';
-
 import tailwindcss_animate from 'tailwindcss-animate';
 
 const config = {
@@ -39,9 +37,6 @@ const config = {
   ],
   theme: {
     extend: {
-      colors: {
-        ...colors,
-      },
     },
   },
   plugins: [tailwindcss_animate],
