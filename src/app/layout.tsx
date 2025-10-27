@@ -6,7 +6,6 @@ import Footer from '@/shared/components/layout/Footer';
 import React from 'react';
 import Script from 'next/script';
 import { UMAMI_WEBSITE_ID } from '@/constants';
-import Link from 'next/link';
 import {
   SoftwareApplicationJsonLd,
   WebsiteJsonLd,
@@ -15,6 +14,7 @@ import {
   BreadcrumbJsonLd,
 } from '@/shared/components/JsonLd';
 import { Providers } from './Providers';
+import { ReleaseBanner } from '@/shared/components/layout/ReleaseBanner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -170,24 +170,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
           <div className="relative min-h-screen flex flex-col bg-gray-50">
             <Header />
-            {showReleaseBanner && (
-              <div className="bg-emerald-50 border-b border-emerald-200/70">
-                <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-2 text-sm text-emerald-900 flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left">
-                  <span className="flex items-center gap-2 font-medium">
-                    <span aria-hidden="true">🚀</span>
-                    Holiday Optimizer now ships new features, fewer bugs, and an improved optimization algorithm.
-                  </span>
-                  <Link
-                    href="/how-it-works"
-                    className="inline-flex items-center gap-1 text-sm font-medium text-emerald-800 hover:text-emerald-900 transition-colors"
-                    aria-label="Learn what's new in Holiday Optimizer"
-                  >
-                    See what&apos;s new
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                </div>
-              </div>
-            )}
+            <ReleaseBanner show={showReleaseBanner} />
             <main id="main-content" className="flex-grow" role="main">
               {children}
             </main>
