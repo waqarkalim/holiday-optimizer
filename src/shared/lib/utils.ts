@@ -24,7 +24,7 @@ export const dayTypeToColorScheme: Record<DayType, PossibleColors> = {
   companyDayOff: 'violet',
   weekend: 'orange',
   extendedWeekend: 'red',
-  default: 'transparent',
+  default: 'gray',
 };
 
 // Custom utility functions for common Tailwind patterns
