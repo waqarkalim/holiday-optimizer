@@ -1,10 +1,42 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Calendar, DateObject } from 'react-multi-date-picker';
 import { format, getDay } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 import { WeekdayNumber } from '@/types';
+
+const buildStatusMessage = (
+  selectedDates: Date[],
+  weekendDays: WeekdayNumber[],
+  holidays: Array<{ date: string; name: string }>
+) => {
+  if (selectedDates.length === 0) {
+    return 'Click dates to select company days off';
+  }
+
+  const isWeekend = (date: Date): boolean => {
+    const dayOfWeek = getDay(date) as WeekdayNumber;
+    return weekendDays.includes(dayOfWeek);
+  };
+
+  const isExcludedDay = (date: Date): boolean => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return holidays.some(h => h.date === dateStr);
+  };
+
+  const total = selectedDates.length;
+  const working = selectedDates.filter(date => !isWeekend(date) && !isExcludedDay(date)).length;
+  const excluded = total - working;
+
+  if (excluded > 0) {
+    return `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} ${
+      working === 1 ? 'working day' : 'working days'
+    } (${excluded} excluded) • Click any to remove`;
+  }
+
+  return `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`;
+};
 
 export interface SingleDateCalendarProps {
   selectedDates?: Date[];
@@ -21,7 +53,6 @@ export function SingleDateCalendar({
   weekendDays = [],
   holidays = [],
 }: SingleDateCalendarProps) {
-  const [statusMessage, setStatusMessage] = React.useState<string>('');
   type CalendarSelection = DateObject[] | DateObject | null;
   const values = selectedDates.map(date => new DateObject(date));
 
@@ -39,37 +70,7 @@ export function SingleDateCalendar({
     onChange?.(allDates);
   };
 
-  // Update status message
-  useEffect(() => {
-    if (selectedDates.length === 0) {
-      setStatusMessage('Click dates to select company days off');
-      return;
-    }
-
-    const isWeekend = (date: Date): boolean => {
-      const dayOfWeek = getDay(date) as WeekdayNumber;
-      return weekendDays.includes(dayOfWeek);
-    };
-
-    const isExcludedDay = (date: Date): boolean => {
-      const dateStr = format(date, 'yyyy-MM-dd');
-      return holidays.some(h => h.date === dateStr);
-    };
-
-    const total = selectedDates.length;
-    const working = selectedDates.filter(date => !isWeekend(date) && !isExcludedDay(date)).length;
-    const excluded = total - working;
-
-    if (excluded > 0) {
-      setStatusMessage(
-        `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded) • Click any to remove`
-      );
-    } else {
-      setStatusMessage(
-        `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`
-      );
-    }
-  }, [selectedDates, weekendDays, holidays]);
+  const statusMessage = buildStatusMessage(selectedDates, weekendDays, holidays);
 
   return (
     <div className={className}>

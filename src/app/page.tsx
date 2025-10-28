@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Activity, useRef, useState } from 'react';
 import { ResultsDisplay } from '@/features/optimizer/components/ResultsDisplay';
 import { OptimizerForm } from '@/features/optimizer/components/OptimizerForm';
 import { OptimizerProvider } from '@/features/optimizer/context/OptimizerContext';
@@ -31,19 +31,52 @@ interface FormState {
 
 const HomePage = () => {
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [timeframeRange, setTimeframeRange] = useState<{ start?: string; end?: string }>({});
   const resultsRef = useRef<HTMLDivElement>(null);
+  const scrollResultsIntoView = () => {
+    if (typeof window === 'undefined') return;
+    if (resultsRef.current && window.innerWidth < 1024) {
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const runWithViewTransition = (update: () => void, afterTransition?: () => void) => {
+    if (typeof document !== 'undefined') {
+      const enhancedDocument = document as Document & {
+        startViewTransition?: (
+          callback: () => void | Promise<void>
+        ) => { finished: Promise<void> } | undefined;
+      };
+
+      if (typeof enhancedDocument.startViewTransition === 'function') {
+        const transition = enhancedDocument.startViewTransition(() => {
+          update();
+        });
+
+        if (transition?.finished && afterTransition) {
+          transition.finished.finally(afterTransition);
+        } else if (afterTransition) {
+          afterTransition();
+        }
+
+        return;
+      }
+    }
+
+    update();
+    afterTransition?.();
+  };
 
   const handleOptimize = async (data: FormState) => {
     if (data.numberOfDays === null) return;
 
+    setIsOptimizing(true);
+    setSelectedYear(data.selectedYear);
+    setTimeframeRange({ start: data.customStartDate, end: data.customEndDate });
+
     try {
-      setIsOptimizing(true);
-      setSelectedYear(data.selectedYear);
-      setTimeframeRange({ start: data.customStartDate, end: data.customEndDate });
       const result = await optimizeDaysAsync({
         numberOfDays: data.numberOfDays,
         strategy: data.strategy,
@@ -55,26 +88,31 @@ const HomePage = () => {
         startDate: data.customStartDate,
         endDate: data.customEndDate,
       });
-      setOptimizationResult({
-        days: result.days,
-        breaks: result.breaks,
-        stats: result.stats,
-      });
-      setShouldScrollToResults(true);
+
+      runWithViewTransition(
+        () => {
+          setOptimizationResult({
+            days: result.days,
+            breaks: result.breaks,
+            stats: result.stats,
+          });
+          setIsOptimizing(false);
+        },
+        () => {
+          if (typeof window === 'undefined') return;
+          Promise.resolve().then(() => {
+            window.requestAnimationFrame(() => scrollResultsIntoView());
+          });
+        }
+      );
     } catch (e) {
       console.error('Optimization error:', e);
-      setOptimizationResult(null);
-    } finally {
-      setIsOptimizing(false);
+      runWithViewTransition(() => {
+        setOptimizationResult(null);
+        setIsOptimizing(false);
+      });
     }
   };
-
-  useEffect(() => {
-    if (shouldScrollToResults && resultsRef.current && window.innerWidth < 1024) {
-      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setShouldScrollToResults(false);
-    }
-  }, [shouldScrollToResults, optimizationResult]);
 
   return (
     <OptimizerProvider>
@@ -141,7 +179,7 @@ const HomePage = () => {
             {(isOptimizing || (optimizationResult && optimizationResult.days.length > 0)) && (
               <div className="space-y-4 min-w-0 max-w-4xl w-full">
                 <h2 className="sr-only">Optimization Results</h2>
-                {isOptimizing ? (
+                {isOptimizing && (
                   <Card
                     variant="neutral"
                     className="p-8 flex flex-col items-center justify-center min-h-[300px]"
@@ -152,8 +190,9 @@ const HomePage = () => {
                       description={`Finding the best way to use your time off in ${selectedYear}...`}
                     />
                   </Card>
-                ) : (
-                  optimizationResult && (
+                )}
+                <Activity mode={isOptimizing ? 'hidden' : 'visible'}>
+                  {optimizationResult && optimizationResult.days.length > 0 && (
                     <div itemScope itemType="https://schema.org/Event">
                       <meta
                         itemProp="name"
@@ -169,8 +208,8 @@ const HomePage = () => {
                         customEndDate={timeframeRange.end}
                       />
                     </div>
-                  )
-                )}
+                  )}
+                </Activity>
               </div>
             )}
           </section>

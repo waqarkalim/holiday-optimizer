@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/shared/components/layout/Header';
 import Footer from '@/shared/components/layout/Footer';
@@ -16,13 +15,12 @@ import {
 import { Providers } from './Providers';
 import { ReleaseBanner } from '@/shared/components/layout/ReleaseBanner';
 
-const inter = Inter({ subsets: ['latin'] });
-
 // TODO(2025-11-08): Remove release banner once the two-week launch window ends.
 // Banner release set to Oct 25, 2025; hides automatically 14 days later.
 // Adjust RELEASE_DATE for future announcement windows.
 const RELEASE_DATE = new Date('2025-10-25T00:00:00Z');
 const ANNOUNCEMENT_EXPIRY = new Date(RELEASE_DATE.getTime() + 14 * 24 * 60 * 60 * 1000);
+const SHOULD_SHOW_RELEASE_BANNER = Date.now() < ANNOUNCEMENT_EXPIRY.getTime();
 
 export const metadata: Metadata = {
   title: 'Holiday Optimizer',
@@ -75,7 +73,6 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://holiday-optimizer.com';
-  const showReleaseBanner = Date.now() < ANNOUNCEMENT_EXPIRY.getTime();
 
   return (
     <html lang="en">
@@ -85,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6295400781172674"
         crossOrigin="anonymous"
       />
-      <body className={`${inter.className} antialiased bg-white`}>
+      <body className="font-sans antialiased bg-white">
         <Providers>
           <WebsiteJsonLd
             url={baseUrl}
@@ -170,7 +167,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
           <div className="relative min-h-screen flex flex-col bg-gray-50">
             <Header />
-            <ReleaseBanner show={showReleaseBanner} />
+            <ReleaseBanner show={SHOULD_SHOW_RELEASE_BANNER} />
             <main id="main-content" className="flex-grow" role="main">
               {children}
             </main>

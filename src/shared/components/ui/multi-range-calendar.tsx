@@ -56,57 +56,73 @@ export function MultiRangeCalendar({
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string>('');
   const calendarRef = useRef<HTMLDivElement>(null);
   const isSelectingRef = useRef(false);
   const rangeStartRef = useRef<Date | null>(null);
   const values = buildCalendarValues(selectedDates);
 
-  const handleChange = (dates: CalendarSelection) => {
-    // Don't process if we're in the middle of selecting a range
-    if (isSelectingRef.current) {
-      return;
-    }
-
-    if (!dates) {
-      onChange?.([]);
-      return;
-    }
-
-    const allDates: Date[] = [];
-
-    // Normalize to array for easier processing
-    const dateArray = Array.isArray(dates) ? dates : [dates];
-
-    // Process each item - could be a single date, a range, or nested arrays
-    dateArray.forEach((item: DateObject | DateObject[]) => {
-      if (!item) return;
-
-      // If it's a range (array with 2 DateObjects)
-      if (Array.isArray(item) && item.length === 2) {
-        const [start, end] = item;
-        if (start?.toDate && end?.toDate) {
-          // Expand the range to all dates in between
-          const datesInRange = eachDayOfInterval({
-            start: start.toDate(),
-            end: end.toDate()
-          });
-          allDates.push(...datesInRange);
-        }
-      } else if (!Array.isArray(item) && item?.toDate) {
-        // Single date
-        allDates.push(item.toDate());
+  const buildWorkingStats = (dates: Date[]) => {
+    const total = dates.length;
+    const working = dates.filter(date => {
+      const dayOfWeek = getDay(date) as WeekdayNumber;
+      if (weekendDays.includes(dayOfWeek)) {
+        return false;
       }
-    });
 
-    onChange?.(allDates);
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const isHoliday = holidays.some(h => h.date === dateStr);
+      const isCompanyDay = companyDaysOff.some(c => c.date === dateStr);
 
-    // Reset selection state after change completes
-    setIsSelecting(false);
-    setRangeStart(null);
-    setHoverDate(null);
-    isSelectingRef.current = false;
-    rangeStartRef.current = null;
+      return !isHoliday && !isCompanyDay;
+    }).length;
+    const excluded = total - working;
+    return { total, working, excluded };
+  };
+
+  const statusMessage = (() => {
+    if (isSelecting && rangeStart && hoverDate) {
+      const start = rangeStart.getTime();
+      const end = hoverDate.getTime();
+      const [minDate, maxDate] = start < end ? [rangeStart, hoverDate] : [hoverDate, rangeStart];
+      const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate });
+      const { total, working, excluded } = buildWorkingStats(datesInRange);
+
+      if (excluded > 0) {
+        return `Selecting ${total} ${total === 1 ? 'day' : 'days'}: ${working} ${
+          working === 1 ? 'working day' : 'working days'
+        } (${excluded} excluded)`;
+      }
+
+      return `Selecting ${total} ${total === 1 ? 'day' : 'days'}: ${format(minDate, 'MMM d')} – ${format(maxDate, 'MMM d')}`;
+    }
+
+    if (isSelecting && rangeStart) {
+      return 'Click another date to complete the range';
+    }
+
+    if (selectedDates.length > 0) {
+      const { total, working, excluded } = buildWorkingStats(selectedDates);
+
+      if (excluded > 0) {
+        return `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} ${
+          working === 1 ? 'working day' : 'working days'
+        } (${excluded} excluded) • Click any to remove`;
+      }
+
+      return `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`;
+    }
+
+    return 'Double-click for single dates • Click start and end for ranges';
+  })();
+
+  const handleChange = (_dates: CalendarSelection) => {
+    void _dates;
+    if (!isSelectingRef.current) {
+      setIsSelecting(false);
+      setRangeStart(null);
+      setHoverDate(null);
+      rangeStartRef.current = null;
+    }
   };
 
   // Helper function to extract date from day element
@@ -189,6 +205,8 @@ export function MultiRangeCalendar({
       const dayElement = target.closest('.rmdp-day:not(.rmdp-disabled)');
 
       if (dayElement) {
+        e.preventDefault();
+        e.stopPropagation();
         const date = getDateFromElement(dayElement);
 
         if (date) {
@@ -203,19 +221,88 @@ export function MultiRangeCalendar({
             setIsSelecting(false);
             setRangeStart(null);
             setHoverDate(null);
+
+            const toMidnightKey = (d: Date) =>
+              new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+            const sortedDates = [...selectedDates].sort(
+              (a, b) => toMidnightKey(a) - toMidnightKey(b)
+            );
+            const targetIndex = sortedDates.findIndex(d => d.toDateString() === dateStr);
+
+            if (targetIndex !== -1) {
+              let rangeStartIndex = targetIndex;
+              let rangeEndIndex = targetIndex;
+
+              while (
+                rangeStartIndex > 0 &&
+                toMidnightKey(sortedDates[rangeStartIndex]) -
+                  toMidnightKey(sortedDates[rangeStartIndex - 1]) ===
+                  24 * 60 * 60 * 1000
+              ) {
+                rangeStartIndex -= 1;
+              }
+
+              while (
+                rangeEndIndex < sortedDates.length - 1 &&
+                toMidnightKey(sortedDates[rangeEndIndex + 1]) -
+                  toMidnightKey(sortedDates[rangeEndIndex]) ===
+                  24 * 60 * 60 * 1000
+              ) {
+                rangeEndIndex += 1;
+              }
+
+              const removalSet = new Set(
+                sortedDates
+                  .slice(rangeStartIndex, rangeEndIndex + 1)
+                  .map(d => d.toDateString())
+              );
+
+              const remaining = selectedDates
+                .filter(d => !removalSet.has(d.toDateString()))
+                .sort((a, b) => toMidnightKey(a) - toMidnightKey(b));
+
+              onChange?.(remaining);
+            }
             return;
           }
 
           if (!rangeStartRef.current) {
             // First click - set range start and enable hover preview
             setRangeStart(date);
+            setHoverDate(date);
             setIsSelecting(true);
             rangeStartRef.current = date;
             isSelectingRef.current = true;
           } else {
-            // Second click - complete the range and reset
-            isSelectingRef.current = false;
+            // Second click - finalize range selection manually
+            const startDate = rangeStartRef.current;
+            if (startDate) {
+              const [minDate, maxDate] = startDate.getTime() <= date.getTime()
+                ? [startDate, date]
+                : [date, startDate];
+              const rangeDates = eachDayOfInterval({ start: minDate, end: maxDate });
+
+              const combined = new Map<string, Date>();
+              selectedDates.forEach(existing => {
+                combined.set(existing.toDateString(), existing);
+              });
+              rangeDates.forEach(newDate => {
+                combined.set(newDate.toDateString(), newDate);
+              });
+
+              const merged = Array.from(combined.values()).sort(
+                (a, b) => a.getTime() - b.getTime()
+              );
+
+              onChange?.(merged);
+            }
+
             rangeStartRef.current = null;
+            isSelectingRef.current = false;
+            setIsSelecting(false);
+            setRangeStart(null);
+            setHoverDate(null);
           }
         }
       }
@@ -228,7 +315,7 @@ export function MultiRangeCalendar({
     return () => {
       calendarElement.removeEventListener('click', handleClick, true);
     };
-  }, [selectedDates]);
+  }, [selectedDates, onChange]);
 
   // Track hover for range preview - set up once and use refs
   useEffect(() => {
@@ -309,72 +396,6 @@ export function MultiRangeCalendar({
       }
     });
   }, [isSelecting, rangeStart, hoverDate]);
-
-  // Update status message based on current state
-  useEffect(() => {
-    const getWorkingStats = (dates: Date[]) => {
-      const total = dates.length;
-      const working = dates.filter(date => {
-        const dayOfWeek = getDay(date) as WeekdayNumber;
-        if (weekendDays.includes(dayOfWeek)) {
-          return false;
-        }
-
-        const dateStr = format(date, 'yyyy-MM-dd');
-        const isHoliday = holidays.some(h => h.date === dateStr);
-        const isCompanyDay = companyDaysOff.some(c => c.date === dateStr);
-
-        return !isHoliday && !isCompanyDay;
-      }).length;
-      const excluded = total - working;
-      return { total, working, excluded };
-    };
-
-    // Priority 1: Range selection in progress with hover preview
-    if (isSelecting && rangeStart && hoverDate) {
-      const start = rangeStart.getTime();
-      const end = hoverDate.getTime();
-      const [minDate, maxDate] = start < end ? [rangeStart, hoverDate] : [hoverDate, rangeStart];
-      const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate });
-      const { total, working, excluded } = getWorkingStats(datesInRange);
-
-      if (excluded > 0) {
-        setStatusMessage(
-          `Selecting ${total} ${total === 1 ? 'day' : 'days'}: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded)`
-        );
-      } else {
-        setStatusMessage(
-          `Selecting ${total} ${total === 1 ? 'day' : 'days'}: ${format(minDate, 'MMM d')} – ${format(maxDate, 'MMM d')}`
-        );
-      }
-      return;
-    }
-
-    // Priority 2: Range selection started (waiting for second click)
-    if (isSelecting && rangeStart) {
-      setStatusMessage('Click another date to complete the range');
-      return;
-    }
-
-    // Priority 3: Dates are selected
-    if (selectedDates.length > 0) {
-      const { total, working, excluded } = getWorkingStats(selectedDates);
-
-      if (excluded > 0) {
-        setStatusMessage(
-          `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} working ${working === 1 ? 'day' : 'days'} (${excluded} excluded) • Click any to remove`
-        );
-      } else {
-        setStatusMessage(
-          `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`
-        );
-      }
-      return;
-    }
-
-    // Default state: No selection
-    setStatusMessage('Double-click for single dates • Click start and end for ranges');
-  }, [isSelecting, rangeStart, hoverDate, selectedDates, weekendDays, holidays, companyDaysOff]);
 
   return (
     <div className={className}>

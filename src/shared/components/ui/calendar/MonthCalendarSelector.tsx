@@ -4,6 +4,7 @@ import { DayClickEventHandler } from 'react-day-picker';
 import { useEffect, useState } from 'react';
 import { startOfMonth, startOfYear } from 'date-fns';
 import { ChevronLeft, ChevronRight, LucideIcon } from 'lucide-react';
+import { useEffectEvent } from '@/shared/hooks/useEffectEvent';
 
 interface MonthCalendarSelectorProps {
   selectedDates: Date[];
@@ -70,9 +71,13 @@ export function MonthCalendarSelector({
   });
 
   // Update the calendar when the year changes
+  const syncYearAnchor = useEffectEvent((nextYear: number) => {
+    setCurrentDate(startOfYear(new Date(nextYear, 0, 1)));
+  });
+
   useEffect(() => {
     if (year) {
-      setCurrentDate(startOfYear(new Date(year, 0, 1)));
+      syncYearAnchor(year);
     }
   }, [year]);
 

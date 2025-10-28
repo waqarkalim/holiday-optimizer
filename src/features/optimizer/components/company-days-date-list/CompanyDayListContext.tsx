@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useState,
   ReactNode,
   KeyboardEvent as ReactKeyboardEvent,
@@ -136,39 +135,55 @@ export const CompanyDayListProvider = ({
   onClearAll,
   onAdd,
 }: CompanyDayListProviderProps) => {
-  // Use filtered items for display
   const items = filteredItems;
-
-  const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
-  const [editingTarget, setEditingTarget] = useState<EditingTarget>(null);
-  const [editingValue, setEditingValue] = useState('');
-
   const groups = groupCompanyDays(items);
   const itemCount = items.length;
   const theme = colorStyles[colorScheme];
+  const itemsByDate = new Set(items.map(item => item.date));
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [collapsedOverrides, setCollapsedOverrides] = useState<Record<string, boolean>>({});
+  const [editingState, setEditingState] = useState<{ target: EditingTarget; value: string }>({
+    target: null,
+    value: '',
+  });
 
-  useEffect(() => {
-    const grouped = groupCompanyDays(items);
-    setCollapsedGroups(getCollapsedDefaults(grouped));
-  }, [items]);
-
-  useEffect(() => {
-    setSelectedDates(prev => prev.filter(date => items.some(item => item.date === date)));
-  }, [items]);
-
-  useEffect(() => {
-    if (editingTarget && editingTarget !== 'bulk') {
-      const stillExists = items.some(item => item.date === editingTarget);
-      if (!stillExists) {
-        setEditingTarget(null);
-        setEditingValue('');
+  const defaultCollapsedGroups = getCollapsedDefaults(groups);
+  const defaultCollapsedSet = new Set(defaultCollapsedGroups);
+  const collapsedGroups = groups
+    .filter(({ name }) => {
+      const override = collapsedOverrides[name];
+      if (override !== undefined) {
+        return override;
       }
-    }
-  }, [items, editingTarget]);
+      return defaultCollapsedSet.has(name);
+    })
+    .map(({ name }) => name);
+  const sanitizedSelectedDates = selectedDates.filter(date => itemsByDate.has(date));
+
+  const hasSelection = sanitizedSelectedDates.length > 0;
+  const activeEditingTarget =
+    editingState.target === 'bulk'
+      ? hasSelection
+        ? editingState.target
+        : null
+      : editingState.target && itemsByDate.has(editingState.target)
+        ? editingState.target
+        : null;
+  const editingValue = activeEditingTarget ? editingState.value : '';
+
+  const updateSelection = (updater: (current: string[]) => string[]) => {
+    setSelectedDates(prev => {
+      const current = prev.filter(date => itemsByDate.has(date));
+      return updater(current);
+    });
+  };
+
+  const resetEditingState = () => {
+    setEditingState({ target: null, value: '' });
+  };
 
   const toggleDateSelection = (date: string) => {
-    setSelectedDates(prev =>
+    updateSelection(prev =>
       prev.includes(date) ? prev.filter(value => value !== date) : [...prev, date]
     );
   };
@@ -178,7 +193,7 @@ export const CompanyDayListProvider = ({
     if (!group) return;
 
     const dates = group.dates.map(({ date }) => date);
-    setSelectedDates(prev => {
+    updateSelection(prev => {
       const allSelected = dates.every(date => prev.includes(date));
       if (allSelected) {
         return prev.filter(date => !dates.includes(date));
@@ -188,49 +203,69 @@ export const CompanyDayListProvider = ({
   };
 
   const toggleGroupCollapse = (groupName: string) => {
-    setCollapsedGroups(prev =>
-      prev.includes(groupName) ? prev.filter(name => name !== groupName) : [...prev, groupName]
-    );
+    setCollapsedOverrides(prev => {
+      const next = { ...prev };
+      const isDefaultCollapsed = defaultCollapsedSet.has(groupName);
+      const current = next[groupName] ?? isDefaultCollapsed;
+      const nextValue = !current;
+      if (nextValue === isDefaultCollapsed) {
+        delete next[groupName];
+      } else {
+        next[groupName] = nextValue;
+      }
+      return next;
+    });
   };
 
   const collapseAllGroups = () => {
-    setCollapsedGroups(groups.map(({ name }) => name));
+    setCollapsedOverrides(() => {
+      const overrides: Record<string, boolean> = {};
+      groups.forEach(({ name }) => {
+        overrides[name] = true;
+      });
+      return overrides;
+    });
   };
 
   const expandAllGroups = () => {
-    setCollapsedGroups([]);
+    setCollapsedOverrides(() => {
+      const overrides: Record<string, boolean> = {};
+      groups.forEach(({ name }) => {
+        overrides[name] = false;
+      });
+      return overrides;
+    });
   };
 
   const beginEditing = (date: string, currentName: string) => {
-    setEditingTarget(date);
-    setEditingValue(currentName);
+    setEditingState({ target: date, value: currentName });
   };
 
   const cancelEditing = () => {
-    setEditingTarget(null);
-    setEditingValue('');
+    resetEditingState();
   };
 
   const commitEditing = (date?: string) => {
-    if (!editingTarget || editingTarget === 'bulk') return;
-    const targetDate = date ?? editingTarget;
+    if (!activeEditingTarget || activeEditingTarget === 'bulk') return;
+    const targetDate = date ?? activeEditingTarget;
     const nextName = editingValue.trim();
     onAdd(targetDate, nextName);
-    cancelEditing();
+    resetEditingState();
   };
 
   const beginBulkRename = () => {
-    if (selectedDates.length === 0) return;
-    setEditingTarget('bulk');
-    setEditingValue(deriveBulkRenameValue(items, selectedDates));
+    if (!hasSelection) return;
+    setEditingState({
+      target: 'bulk',
+      value: deriveBulkRenameValue(items, sanitizedSelectedDates),
+    });
   };
 
   const confirmBulkRename = () => {
-    if (editingTarget !== 'bulk' || selectedDates.length === 0) return;
-    onBulkRename(selectedDates, editingValue.trim());
-    setEditingTarget(null);
-    setEditingValue('');
-    setSelectedDates([]);
+    if (activeEditingTarget !== 'bulk' || !hasSelection) return;
+    onBulkRename(sanitizedSelectedDates, editingValue.trim());
+    resetEditingState();
+    updateSelection(() => []);
   };
 
   const handleItemKeyDown = (
@@ -243,17 +278,17 @@ export const CompanyDayListProvider = ({
     switch (event.key) {
       case 'Delete':
       case 'Backspace': {
-        if (!editingTarget) {
+        if (!activeEditingTarget) {
           event.preventDefault();
           onRemove(date);
-          setSelectedDates(prev => prev.filter(value => value !== date));
+          updateSelection(prev => prev.filter(value => value !== date));
         }
         break;
       }
       case 'ArrowUp':
       case 'ArrowDown': {
         event.preventDefault();
-        if (!editingTarget) {
+        if (!activeEditingTarget) {
           const targetIndex = event.key === 'ArrowUp' ? index - 1 : index + 1;
           const targetDate = items[targetIndex]?.date;
           if (targetDate && typeof document !== 'undefined') {
@@ -266,14 +301,14 @@ export const CompanyDayListProvider = ({
         break;
       }
       case 'Enter': {
-        if (editingTarget === date) {
+        if (activeEditingTarget === date) {
           event.preventDefault();
           commitEditing(date);
         }
         break;
       }
       case 'Escape': {
-        if (editingTarget === date) {
+        if (activeEditingTarget === date) {
           event.preventDefault();
           cancelEditing();
         }
@@ -285,23 +320,23 @@ export const CompanyDayListProvider = ({
   };
 
   const handleInputBlur = () => {
-    if (editingTarget && editingTarget !== 'bulk') {
-      commitEditing(editingTarget);
+    if (activeEditingTarget && activeEditingTarget !== 'bulk') {
+      commitEditing(activeEditingTarget);
     }
   };
 
   const removeDate = (date: string) => {
     onRemove(date);
-    setSelectedDates(prev => prev.filter(value => value !== date));
-    if (editingTarget === date) {
-      cancelEditing();
+    updateSelection(prev => prev.filter(value => value !== date));
+    if (activeEditingTarget === date) {
+      resetEditingState();
     }
   };
 
   const clearAllDates = () => {
     onClearAll();
-    setSelectedDates([]);
-    cancelEditing();
+    updateSelection(() => []);
+    resetEditingState();
   };
 
   const value: CompanyDayListContextValue = {
@@ -311,11 +346,11 @@ export const CompanyDayListProvider = ({
     items,
     groups,
     itemCount,
-    selectedDates,
+    selectedDates: sanitizedSelectedDates,
     collapsedGroups,
-    editingTarget,
+    editingTarget: activeEditingTarget,
     editingValue,
-    hasSelection: selectedDates.length > 0,
+    hasSelection,
     toggleDateSelection,
     toggleGroupSelection,
     toggleGroupCollapse,
@@ -323,7 +358,11 @@ export const CompanyDayListProvider = ({
     expandAllGroups,
     beginEditing,
     cancelEditing,
-    updateEditingValue: setEditingValue,
+    updateEditingValue: value =>
+      setEditingState(prev => ({
+        ...prev,
+        value,
+      })),
     commitEditing,
     beginBulkRename,
     confirmBulkRename,

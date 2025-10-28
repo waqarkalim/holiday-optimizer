@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useEffectEvent } from '@/shared/hooks/useEffectEvent';
 import { Button } from '@/shared/components/ui/button';
 import { AlertCircle, Calendar, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { DaysInputStep } from './form/DaysInputStep';
@@ -61,8 +62,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
   const daysInputRef = useRef<HTMLFieldSetElement>(null);
   const errorMessageRef = useRef<HTMLDivElement>(null);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const hasInitializedAdvanced = useRef(false);
+  const [advancedPreference, setAdvancedPreference] = useState<'shown' | 'hidden' | null>(null);
   const companyDaysCount = companyDaysOff.length;
   const preBookedDaysCount = preBookedDays.length;
 
@@ -75,27 +75,33 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
   const isFormValid = isDaysValid && areHolidaysValid;
 
   // Scroll to the error message when validation fails after submission attempt
-  useEffect(() => {
-    if (attemptedSubmit && !isFormValid && errorMessageRef.current) {
+  const scrollErrorMessageIntoView = useEffectEvent(() => {
+    if (errorMessageRef.current) {
       errorMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  useEffect(() => {
+    if (attemptedSubmit && !isFormValid) {
+      scrollErrorMessageIntoView();
     }
   }, [attemptedSubmit, isFormValid]);
 
-  useEffect(() => {
-    if (hasInitializedAdvanced.current) return;
+  const defaultWeekend = new Set(DEFAULT_WEEKEND_DAYS);
+  const chosenWeekend = new Set(weekendDays);
+  const isDefaultWeekend =
+    chosenWeekend.size === defaultWeekend.size && [...defaultWeekend].every(day => chosenWeekend.has(day));
 
-    const defaultSet = new Set(DEFAULT_WEEKEND_DAYS);
-    const weekendSet = new Set(weekendDays);
-    const isDefaultWeekend =
-      weekendSet.size === defaultSet.size && [...defaultSet].every(day => weekendSet.has(day));
+  const shouldAutoExpandAdvanced =
+    !isDefaultWeekend || companyDaysCount > 0 || preBookedDaysCount > 0;
 
-    // Auto-expand if user has customized weekend, company days, or pre-booked days
-    if (!isDefaultWeekend || companyDaysCount > 0 || preBookedDaysCount > 0) {
-      setShowAdvanced(true);
-    }
+  const showAdvanced =
+    advancedPreference === 'shown' ||
+    (advancedPreference !== 'hidden' && shouldAutoExpandAdvanced);
 
-    hasInitializedAdvanced.current = true;
-  }, [weekendDays, companyDaysCount, preBookedDaysCount]);
+  const toggleAdvancedVisibility = () => {
+    setAdvancedPreference(showAdvanced ? 'hidden' : 'shown');
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -185,7 +191,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
               <button
                 type="button"
                 className="flex items-center gap-1.5 text-xs font-medium text-violet-800 hover:text-violet-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 rounded-md px-1.5 py-1"
-                onClick={() => setShowAdvanced(prev => !prev)}
+                onClick={toggleAdvancedVisibility}
                 aria-expanded={showAdvanced}
                 aria-controls="advanced-options-container"
               >
