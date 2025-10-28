@@ -22,11 +22,18 @@ export default function robots(): MetadataRoute.Robots {
           'facebookexternalhit', // Facebook crawler
           'LinkedInBot', // LinkedIn crawler
           'Twitterbot', // Twitter crawler
-          'Applebot', // Apple's web crawler'Pinterestbot', // Pinterest crawler
+          'Applebot', // Apple's web crawler
+          'Pinterestbot', // Pinterest crawler
         ],
         allow: '/',
         disallow: [
-          '/api/', // Protect API routes'/_next/', // Protect Next.js system files'/static/', // Protect static files if any'/admin/', // Protect admin areas if any'/*.json$', // Block access to JSON files'/*.xml$', // Block access to XML files except sitemap'/debug/', // Block debug pages
+          '/api/', // Protect API routes
+          '/_next/', // Protect Next.js system files
+          '/static/', // Protect static files if any
+          '/admin/', // Protect admin areas if any
+          '/*.json$', // Block access to JSON files
+          '/*.xml$', // Block access to XML files except sitemap
+          '/debug/', // Block debug pages
         ],
         crawlDelay: 2, // Rate limiting for crawlers
       },

@@ -224,7 +224,8 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   // Create calendar grid with empty cells for proper alignment
   const weekendDayNumbers = getWeekendDayNumbers(days);
 
-  const calendarDays = Array(35).fill(null);
+  const totalCells = Math.ceil((startingDayIndex + daysInMonth.length) / 7) * 7;
+  const calendarDays: Array<OptimizedDay | null> = Array(totalCells).fill(null);
   daysInMonth.forEach((date, index) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const day = days.find(d => d.date === dateStr);

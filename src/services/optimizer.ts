@@ -84,6 +84,39 @@ const isNearPreBookedDays = (calendar: OptimizedDay[], start: number, end: numbe
   return false;
 };
 
+const countExtendedWeekendGroups = (days: OptimizedDay[]): number => {
+  let count = 0;
+  let index = 0;
+
+  while (index < days.length) {
+    const current = days[index];
+
+    if (!current.isWeekend) {
+      index += 1;
+      continue;
+    }
+
+    const groupStart = index;
+    while (index + 1 < days.length && days[index + 1].isWeekend) {
+      index += 1;
+    }
+
+    const groupEnd = index;
+    const beforeGroup = groupStart > 0 ? days[groupStart - 1] : undefined;
+    const afterGroup = groupEnd + 1 < days.length ? days[groupEnd + 1] : undefined;
+    const touchesBreakday =
+      (beforeGroup && !beforeGroup.isWeekend) || (afterGroup && !afterGroup.isWeekend);
+
+    if (touchesBreakday) {
+      count += 1;
+    }
+
+    index += 1;
+  }
+
+  return count;
+};
+
 /* -----------------------------
    Calendar Construction
 ----------------------------- */
@@ -317,6 +350,10 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
 
   const sumBreakValues = (selector: (br: Break) => number) =>
     breaks.reduce((total, brk) => total + selector(brk), 0);
+  const extendedWeekendCount = breaks.reduce(
+    (total, brk) => total + countExtendedWeekendGroups(brk.days),
+    0
+  );
 
   const stats: OptimizationStats = {
     totalPTODays: sumBreakValues(br => br.ptoDays),
@@ -324,7 +361,7 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
     totalNormalWeekends: sumBreakValues(br => br.weekends),
     totalCompanyDaysOff: sumBreakValues(br => br.companyDaysOff),
     totalDaysOff: sumBreakValues(br => br.totalDays),
-    totalExtendedWeekends: sumBreakValues(br => br.ptoDays),
+    totalExtendedWeekends: extendedWeekendCount,
   };
 
   return {
