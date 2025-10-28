@@ -99,7 +99,7 @@ interface DayCountsGridProps {
 const iconSize = 'h-3.5 w-3.5';
 
 const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
-  <div className="mt-3 grid grid-cols-4 gap-2">
+  <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
     {/* PTO Days count */}
     {breakPeriod.ptoDays > 0 && (
       <DayCount
