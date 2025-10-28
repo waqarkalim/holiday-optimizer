@@ -32,7 +32,6 @@ export default function robots(): MetadataRoute.Robots {
           '/static/', // Protect static files if any
           '/admin/', // Protect admin areas if any
           '/*.json$', // Block access to JSON files
-          '/*.xml$', // Block access to XML files except sitemap
           '/debug/', // Block debug pages
         ],
         crawlDelay: 2, // Rate limiting for crawlers
@@ -53,7 +52,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         // Block all other bots
         userAgent: '*',
-        disallow: ['/api/', '/_next/', '/static/', '/admin/', '/*.json$', '/*.xml$', '/debug/'],
+        disallow: ['/api/', '/_next/', '/static/', '/admin/', '/*.json$', '/debug/'],
         allow: '/', // Allow indexing for everything else
         crawlDelay: 5, // Higher delay for unknown bots
       },
