@@ -2,8 +2,8 @@ import { OptimizationStats, OptimizedDay } from '@/types';
 import { CalendarLegend } from '@/shared/components/ui/calendar/CalendarLegend';
 import { WEEKDAYS } from '@/constants';
 import { MonthCalendar } from '@/shared/components/ui/calendar/MonthCalendar';
-import { Calendar } from 'lucide-react';
-import { addMonths, format, getDay, parse, startOfMonth } from 'date-fns';
+import { AlertCircle, Calendar } from 'lucide-react';
+import { addMonths, format, getDay, isWithinInterval, parse, startOfDay, startOfMonth } from 'date-fns';
 import { SectionCard } from '@/shared/components/ui/section-card';
 
 interface CalendarViewProps {
@@ -109,15 +109,53 @@ export const CalendarView = ({
   const weekendLegendLabel = buildWeekendLegendLabel(optimizedDays);
   const hasWeekendDays = optimizedDays.some(day => day.isWeekend);
   const monthBuckets = buildMonthBuckets(optimizedDays, customStartDate, customEndDate);
-  const timeframeLabel = buildTimeframeLabel(customStartDate, customEndDate);
+  const calendarStart = new Date(selectedYear, 0, 1);
+  const calendarEnd = new Date(selectedYear, 11, 31);
+  const calendarStartString = format(calendarStart, 'yyyy-MM-dd');
+  const calendarEndString = format(calendarEnd, 'yyyy-MM-dd');
+  const startString = customStartDate ?? calendarStartString;
+  const endString = customEndDate ?? calendarEndString;
+  const usesCalendarRange = startString === calendarStartString && endString === calendarEndString;
+  const timeframeLabel = usesCalendarRange ? null : buildTimeframeLabel(customStartDate, customEndDate);
+  const today = new Date();
+  const todayStart = startOfDay(today);
+  const rangeStart = parse(startString, 'yyyy-MM-dd', calendarStart);
+  const rangeEnd = parse(endString, 'yyyy-MM-dd', calendarEnd);
+  const hasValidRange = rangeStart <= rangeEnd;
+  const rangeIncludesToday =
+    hasValidRange && isWithinInterval(todayStart, { start: rangeStart, end: rangeEnd });
+  const shouldShowBanner = rangeIncludesToday;
+  let subtitle = timeframeLabel ?? `Planning for ${selectedYear}`;
+
+  if (usesCalendarRange) {
+    subtitle =
+      selectedYear === today.getFullYear()
+        ? `From today until the end of ${selectedYear}`
+        : `Planning for ${selectedYear}`;
+  }
+
+  const formattedToday = format(today, 'MMMM d, yyyy');
 
   return (
     <SectionCard
       title="Calendar View"
-      subtitle={timeframeLabel || `Planning for ${selectedYear}`}
+      subtitle={subtitle}
       icon={<Calendar className="h-4 w-4 text-gray-600" />}
     >
-
+      {shouldShowBanner && (
+        <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <div>
+            <p className="text-sm font-medium text-blue-700">
+              Optimization begins from today ({formattedToday})
+            </p>
+            <p className="text-xs text-blue-600 leading-relaxed">
+              Past dates are grayed out and not considered in the optimization. This ensures your
+              vacation planning is practical and forward-looking.
+            </p>
+          </div>
+        </div>
+      )}
       <CalendarLegend
         hasPTODays={stats.totalPTODays > 0}
         hasHolidays={stats.totalPublicHolidays > 0}
