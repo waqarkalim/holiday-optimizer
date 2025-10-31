@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, DateObject } from 'react-multi-date-picker';
-import { eachDayOfInterval, format, getDay } from 'date-fns';
+import { eachDayOfInterval, format, getDay, differenceInCalendarDays } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 import { WeekdayNumber } from '@/types';
 
@@ -26,9 +26,7 @@ const buildCalendarValues = (selectedDates: Date[]): DateObject[][] => {
   for (let i = 1; i < sortedDates.length; i++) {
     const currentDate = new DateObject(sortedDates[i]);
     const prevDate = new DateObject(sortedDates[i - 1]);
-    const diffInDays = Math.floor(
-      (currentDate.toDate().getTime() - prevDate.toDate().getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const diffInDays = differenceInCalendarDays(currentDate.toDate(), prevDate.toDate());
 
     if (diffInDays === 1) {
       rangeEnd = currentDate;
@@ -222,11 +220,8 @@ export function MultiRangeCalendar({
             setRangeStart(null);
             setHoverDate(null);
 
-            const toMidnightKey = (d: Date) =>
-              new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-
             const sortedDates = [...selectedDates].sort(
-              (a, b) => toMidnightKey(a) - toMidnightKey(b)
+              (a, b) => a.getTime() - b.getTime()
             );
             const targetIndex = sortedDates.findIndex(d => d.toDateString() === dateStr);
 
@@ -236,18 +231,20 @@ export function MultiRangeCalendar({
 
               while (
                 rangeStartIndex > 0 &&
-                toMidnightKey(sortedDates[rangeStartIndex]) -
-                  toMidnightKey(sortedDates[rangeStartIndex - 1]) ===
-                  24 * 60 * 60 * 1000
+                differenceInCalendarDays(
+                  sortedDates[rangeStartIndex],
+                  sortedDates[rangeStartIndex - 1]
+                ) === 1
               ) {
                 rangeStartIndex -= 1;
               }
 
               while (
                 rangeEndIndex < sortedDates.length - 1 &&
-                toMidnightKey(sortedDates[rangeEndIndex + 1]) -
-                  toMidnightKey(sortedDates[rangeEndIndex]) ===
-                  24 * 60 * 60 * 1000
+                differenceInCalendarDays(
+                  sortedDates[rangeEndIndex + 1],
+                  sortedDates[rangeEndIndex]
+                ) === 1
               ) {
                 rangeEndIndex += 1;
               }
@@ -260,7 +257,7 @@ export function MultiRangeCalendar({
 
               const remaining = selectedDates
                 .filter(d => !removalSet.has(d.toDateString()))
-                .sort((a, b) => toMidnightKey(a) - toMidnightKey(b));
+                .sort((a, b) => a.getTime() - b.getTime());
 
               onChange?.(remaining);
             }
