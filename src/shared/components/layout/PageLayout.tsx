@@ -45,7 +45,7 @@ export const PageContent = ({ children, className, fullWidth = false }: PageSect
         className={cn(
           fullWidth
             ? containerStyles
-            : 'max-w-[1400px] mx-auto px-0 sm:px-4 lg:px-8 xl:px-12'
+            : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12'
         )}
       >
         {children}

@@ -1,6 +1,7 @@
 'use client';
 
 import { Activity, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { ResultsDisplay } from '@/features/optimizer/components/ResultsDisplay';
 import { OptimizerForm } from '@/features/optimizer/components/OptimizerForm';
 import { OptimizerProvider } from '@/features/optimizer/context/OptimizerContext';
@@ -97,6 +98,9 @@ const HomePage = () => {
             stats: result.stats,
           });
           setIsOptimizing(false);
+          toast.success('Optimization complete!', {
+            description: `Found ${result.breaks.length} optimal break${result.breaks.length !== 1 ? 's' : ''} for your schedule.`,
+          });
         },
         () => {
           if (typeof window === 'undefined') return;
@@ -107,9 +111,14 @@ const HomePage = () => {
       );
     } catch (e) {
       console.error('Optimization error:', e);
+      const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred';
       runWithViewTransition(() => {
         setOptimizationResult(null);
         setIsOptimizing(false);
+      });
+      toast.error('Optimization failed', {
+        description: errorMessage,
+        duration: 5000,
       });
     }
   };
