@@ -56,7 +56,7 @@ export function SocialShareButtons({
         <Button
           variant="outline"
           size="default"
-          className="flex-1 justify-center gap-2 rounded-xl border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
+          className="flex-1 justify-center gap-2 rounded-lg border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50 sm:text-sm"
           asChild
           onClick={() => {
             trackEvent('Content shared', { platform: 'email' });
@@ -76,7 +76,7 @@ export function SocialShareButtons({
         <Button
           variant="outline"
           size="default"
-          className="flex-1 justify-center gap-2 rounded-xl border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
+          className="flex-1 justify-center gap-2 rounded-lg border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50 sm:text-sm"
           onClick={copyToClipboard}
           aria-label="Copy link to clipboard"
         >
