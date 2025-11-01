@@ -359,7 +359,7 @@ export default function HowItWorksPage() {
             </p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-teal-600 to-indigo-600 px-6 py-3 sm:px-8 sm:py-3.5 text-sm sm:text-base font-semibold text-white shadow-lg hover:shadow-xl hover:from-teal-700 hover:to-indigo-700 transition-all"
+              className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-6 py-3 sm:px-8 sm:py-3.5 text-sm sm:text-base font-semibold text-white shadow-lg hover:shadow-xl hover:bg-violet-700 transition-all"
             >
               Launch Optimizer
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
