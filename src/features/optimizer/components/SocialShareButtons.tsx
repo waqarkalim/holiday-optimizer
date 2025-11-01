@@ -44,7 +44,7 @@ export function SocialShareButtons({
       trackEvent('Content shared', { platform: 'clipboard' });
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (error) {
+    } catch {
       toast.error('Unable to copy link');
     }
   };

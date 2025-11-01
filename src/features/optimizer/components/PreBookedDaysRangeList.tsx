@@ -80,7 +80,7 @@ export function PreBookedDaysRangeList() {
   if (preBookedDays.length === 0) {
     return (
       <div className="text-xs text-gray-500 italic py-2 text-center">
-        No pre-booked days added yet. Add vacation days you've already planned above.
+        No pre-booked days added yet. Add vacation days you&apos;ve already planned above.
       </div>
     );
   }
