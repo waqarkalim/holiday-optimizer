@@ -163,13 +163,47 @@ interface DayVisualizationProps {
 const DayVisualization = ({ days }: DayVisualizationProps) => {
   return (
     <div className="mt-3">
+      <div className="sr-only">
+        <p>
+          {days.map(day => {
+            const parsed = parse(day.date, 'yyyy-MM-dd', new Date());
+            const fullDate = format(parsed, 'MMMM d, yyyy');
+            const baseDescription = getDayDescription(day);
+            const extras: string[] = [];
+
+            if (day.isPartOfBreak) {
+              extras.push('part of the break period');
+            }
+
+            if (day.isPreBooked) {
+              extras.push('pre-booked and locked');
+            }
+
+            const extraText = extras.length ? ` (${extras.join(', ')})` : '';
+            return (
+              <span key={day.date}>{`${fullDate}: ${baseDescription}${extraText}. `}</span>
+            );
+          })}
+        </p>
+      </div>
+
       {/* Container for day bars with bottom alignment */}
       <div className="flex space-x-0.5 items-end h-3">
         {days.map(day => {
           const dayType = getDayType(day);
           const colorScheme = dayTypeToColorScheme[dayType];
-          const formattedDate = format(parse(day.date, 'yyyy-MM-dd', new Date()), 'MMM d');
+          const parsedDate = parse(day.date, 'yyyy-MM-dd', new Date());
+          const formattedDate = format(parsedDate, 'MMM d');
           const description = getDayDescription(day);
+          const accessibleLabelParts = [`${format(parsedDate, 'EEEE, MMMM d, yyyy')}: ${description}`];
+
+          if (day.isPartOfBreak) {
+            accessibleLabelParts.push('Part of the break period');
+          }
+
+          if (day.isPreBooked) {
+            accessibleLabelParts.push('Pre-booked and locked');
+          }
 
           // Determine height based on day type for visual hierarchy
           const heightClass = 'h-2';
@@ -178,15 +212,18 @@ const DayVisualization = ({ days }: DayVisualizationProps) => {
             <Tooltip key={day.date}>
               <TooltipTrigger asChild>
                 {/* Day bar with color based on day type */}
-                <div
+                <button
+                  type="button"
                   className={cn(
                     'flex-1 rounded-sm relative group cursor-help',
                     // Color mapping based on color scheme
                     COLOR_SCHEMES[colorScheme].calendar.bg,
                     heightClass,
                     'border border-transparent hover:border-gray-200',
-                    'transition-all duration-150 hover:shadow-sm'
+                    'transition-all duration-150 hover:shadow-sm',
+                    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500'
                   )}
+                  aria-label={accessibleLabelParts.join('. ')}
                 />
               </TooltipTrigger>
               {/* Tooltip showing date and day type */}

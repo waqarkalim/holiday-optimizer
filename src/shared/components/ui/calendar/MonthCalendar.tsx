@@ -22,24 +22,26 @@ interface MonthCalendarProps {
   days: OptimizedDay[];
 }
 
+interface DayInfo {
+  date: Date;
+  dayType:
+    | 'default'
+    | 'companyDayOff'
+    | 'weekend'
+    | 'pto'
+    | 'publicHoliday'
+    | 'extendedWeekend';
+  tooltipText: string;
+  bgClass: string;
+  textClass: string;
+  isCurrentDay: boolean;
+  isPastDay: boolean;
+  accessibleLabel: string;
+}
+
 interface CalendarDayProps {
   day: OptimizedDay;
-  dayInfo: ReturnType<
-    (day: OptimizedDay) => {
-      date: Date;
-      dayType:
-        | 'default'
-        | 'companyDayOff'
-        | 'weekend'
-        | 'pto'
-        | 'publicHoliday'
-        | 'extendedWeekend';
-      tooltipText: string;
-      bgClass: string;
-      textClass: string;
-      isCurrentDay: boolean;
-    }
-  >;
+  dayInfo: DayInfo;
   hasPublicHoliday: boolean;
 }
 
@@ -78,7 +80,7 @@ const getDayColorScheme = (
  * Renders a single calendar day with appropriate styling and tooltip
  */
 const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
-  const { date, tooltipText, bgClass, textClass, isCurrentDay, dayType } = dayInfo;
+  const { date, tooltipText, bgClass, textClass, isCurrentDay, dayType, accessibleLabel } = dayInfo;
 
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -89,50 +91,50 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
   return (
     <>
       <div
+        aria-hidden="true"
         className={cn(
-          'absolute inset-0.5 rounded-md',
+          'absolute inset-0.5 rounded-md transition-colors',
           bgClass,
           isCurrentDay && 'ring-2 ring-blue-400 shadow-sm',
-          // Apply dashed ring for regular break days
           day.isPartOfBreak &&
             dayType !== 'extendedWeekend' &&
             !isCurrentDay &&
             'ring-1 ring-indigo-300/40 ring-dashed',
-          // Apply solid ring for extended weekends
           dayType === 'extendedWeekend' && !isCurrentDay && 'ring-1 ring-purple-400/70'
         )}
       />
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <div
+          <button
+            type="button"
             className={cn(
-              'absolute inset-0 flex items-center justify-center font-medium z-10 text-xs gap-0.5',
+              'relative z-10 flex h-full w-full items-center justify-center rounded-md text-xs font-medium gap-0.5',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+              'transition-colors duration-150 cursor-default',
               textClass,
               tooltipText && 'cursor-help',
-              // Very subtle text emphasis for break days
-              day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700',
-              // Grey out pre-booked days
-              day.isPreBooked && 'opacity-40'
+              day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700'
             )}
+            aria-label={accessibleLabel}
           >
             {day.isPreBooked ? (
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-3.5 h-3.5 opacity-60" aria-hidden="true" />
             ) : (
-              format(date, 'd')
+              <span aria-hidden="true" className="leading-none">
+                {format(date, 'd')}
+              </span>
             )}
-          </div>
+          </button>
         </TooltipTrigger>
         {tooltipText && (
           <StatTooltipContent colorScheme={colorScheme}>
-            {/* Enhanced tooltip content with better structure */}
             {day.isPartOfBreak ? (
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-sm bg-indigo-500/70" />
                   <p className="text-xs font-medium">Break Period</p>
                 </div>
-                {/* Show more specific information if available */}
                 {tooltipText !== 'Part of Break Period' && (
                   <p className="text-xs pl-3 text-gray-600">{tooltipText}</p>
                 )}
@@ -145,7 +147,6 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
         )}
       </Tooltip>
 
-      {/* Holiday Indicator Dot */}
       {hasPublicHoliday && day.isPublicHoliday && (
         <div
           className={cn(
@@ -242,7 +243,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   /**
    * Helper function to process all day-related information in one pass
    */
-  const getDayInfo = (day: OptimizedDay) => {
+  const getDayInfo = (day: OptimizedDay): DayInfo => {
     const date = parse(day.date, 'yyyy-MM-dd', new Date());
     const isCurrentDay = isToday(date);
     // Only consider dates as past when in the current year
@@ -282,6 +283,73 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
 
     const { bgClass, textClass } = getDayStyles(isCurrentDay, isPastDay, dayType);
 
+    const baseDateLabel = format(date, 'EEEE, MMMM d, yyyy');
+    const descriptors: string[] = [];
+    const addDescriptor = (value?: string) => {
+      if (!value) return;
+      if (!descriptors.includes(value)) {
+        descriptors.push(value);
+      }
+    };
+
+    if (isCurrentDay) {
+      addDescriptor('Today');
+    }
+
+    if (isPastDay) {
+      addDescriptor('Past date not considered in the optimization');
+    }
+
+    if (day.isPreBooked) {
+      addDescriptor('Pre-booked PTO day');
+    }
+
+    switch (dayType) {
+      case 'companyDayOff':
+        addDescriptor(day.companyDayName ? `Company day off: ${day.companyDayName}` : 'Company day off');
+        break;
+      case 'publicHoliday':
+        addDescriptor(day.publicHolidayName ? `Public holiday: ${day.publicHolidayName}` : 'Public holiday');
+        break;
+      case 'extendedWeekend':
+        addDescriptor('Extended weekend day');
+        break;
+      case 'pto':
+        addDescriptor('PTO day');
+        break;
+      case 'weekend':
+        addDescriptor('Weekend day');
+        break;
+      default:
+        break;
+    }
+
+    if (day.isPartOfBreak) {
+      addDescriptor('Part of break period');
+    }
+
+    if (
+      !day.isWeekend &&
+      !day.isPTO &&
+      !day.isPublicHoliday &&
+      !day.isCompanyDayOff &&
+      !day.isPartOfBreak &&
+      !isPastDay &&
+      !isCurrentDay
+    ) {
+      addDescriptor('Working day');
+    }
+
+    if (
+      tooltipText &&
+      !['Today', 'Normal Weekend', 'Part of Break Period'].includes(tooltipText) &&
+      !descriptors.includes(tooltipText)
+    ) {
+      addDescriptor(tooltipText);
+    }
+
+    const accessibleLabel = [baseDateLabel, ...descriptors].join('. ');
+
     return {
       date,
       dayType,
@@ -290,6 +358,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       textClass,
       isCurrentDay,
       isPastDay,
+      accessibleLabel,
     };
   };
 
