@@ -24,15 +24,15 @@ export const ShareSection = ({ stats, selectedYear }: ShareSectionProps) => {
     <SectionCard
       title="Share This Tool"
       subtitle="Help others optimize their time off"
-      className="border border-blue-100/60 bg-white/95 ring-1 ring-blue-50/60"
-      icon={<Share2 className="h-4 w-4 text-blue-600" />}
-      iconWrapperClassName="rounded-lg bg-blue-50 p-1.5 text-blue-600"
+      className="border border-violet-200/60 bg-white/95 ring-1 ring-violet-100/60"
+      icon={<Share2 className="h-4 w-4 text-violet-600" />}
+      iconWrapperClassName="rounded-lg bg-violet-50 p-1.5 text-violet-600"
     >
-      <section className="space-y-4 rounded-xl border border-blue-100 bg-white p-4 shadow-sm sm:p-5">
+      <section className="space-y-4 rounded-xl border border-violet-100 bg-white/95 p-4 shadow-sm sm:bg-gradient-to-br sm:from-violet-50/90 sm:to-violet-100/40 sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-blue-900">Share in seconds</h3>
-            <p className="text-xs text-blue-800/80">
+            <h3 className="text-sm font-semibold text-violet-900">Share in seconds</h3>
+            <p className="text-xs text-violet-800/80">
               Share the plan instantly—email and socials are ready to go.
             </p>
           </div>
@@ -40,7 +40,7 @@ export const ShareSection = ({ stats, selectedYear }: ShareSectionProps) => {
             href="https://x.com/waqar_kalim"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-1 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-violet-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-1 sm:w-auto"
             aria-label="Follow Waqar Bin Kalim on X (Twitter)"
           >
             <svg

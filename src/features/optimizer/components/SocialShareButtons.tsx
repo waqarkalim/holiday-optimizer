@@ -56,7 +56,7 @@ export function SocialShareButtons({
         <Button
           variant="outline"
           size="default"
-          className="flex-1 justify-center gap-2 rounded-lg border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50 sm:text-sm"
+          className="flex-1 justify-center gap-2 rounded-lg border border-violet-200 bg-white text-violet-700 shadow-sm hover:bg-violet-50 sm:text-sm"
           asChild
           onClick={() => {
             trackEvent('Content shared', { platform: 'email' });
@@ -76,7 +76,7 @@ export function SocialShareButtons({
         <Button
           variant="outline"
           size="default"
-          className="flex-1 justify-center gap-2 rounded-lg border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50 sm:text-sm"
+          className="flex-1 justify-center gap-2 rounded-lg border border-violet-200 bg-white text-violet-700 shadow-sm hover:bg-violet-50 sm:text-sm"
           onClick={copyToClipboard}
           aria-label="Copy link to clipboard"
         >
@@ -92,7 +92,7 @@ export function SocialShareButtons({
       <Button
         variant="ghost"
         size="icon"
-        className="h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+        className="h-9 w-9 rounded-full bg-violet-50 text-violet-600 hover:bg-violet-100"
         asChild
         onClick={() => trackEvent('Content shared', { platform: 'twitter' })}
         aria-label="Share on X (Twitter)"
@@ -108,7 +108,7 @@ export function SocialShareButtons({
       <Button
         variant="ghost"
         size="icon"
-        className="h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+        className="h-9 w-9 rounded-full bg-violet-50 text-violet-600 hover:bg-violet-100"
         asChild
         onClick={() => trackEvent('Content shared', { platform: 'facebook' })}
         aria-label="Share on Facebook"
@@ -124,7 +124,7 @@ export function SocialShareButtons({
       <Button
         variant="ghost"
         size="icon"
-        className="h-9 w-9 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"
+        className="h-9 w-9 rounded-full bg-violet-50 text-violet-600 hover:bg-violet-100"
         asChild
         onClick={() => trackEvent('Content shared', { platform: 'linkedin' })}
         aria-label="Share on LinkedIn"
