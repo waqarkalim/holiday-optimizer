@@ -67,6 +67,13 @@ const REASON_VISUALS: Record<
   },
 };
 
+const formatExclusions = (items: string[]) => {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+};
+
 export function PreBookedDaysRangeList() {
   const {
     preBookedDays,
@@ -260,10 +267,8 @@ export function PreBookedDaysRangeList() {
             reasonCounts.weekend ? pluralize(reasonCounts.weekend, 'weekend day') : null,
           ].filter(Boolean) as string[];
 
-          const summaryText =
-            excludedSegments.length > 0
-              ? `${pluralize(range.workingDays, 'working day')} • ${excludedSegments.join(' • ')} excluded`
-              : pluralize(range.workingDays, 'working day');
+          const excludedSummary =
+            excludedSegments.length > 0 ? formatExclusions(excludedSegments) : '';
 
           return (
             <motion.div
@@ -277,7 +282,7 @@ export function PreBookedDaysRangeList() {
                 'sm:border-transparent sm:bg-white/95 sm:ring-1 sm:ring-blue-200/50 sm:hover:ring-blue-300 sm:hover:shadow-sm'
               )}
             >
-              <div className="relative flex flex-col gap-3 p-3 sm:p-4">
+              <div className="relative flex flex-col gap-3 p-3 sm:p-4 sm:pr-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-blue-900 sm:text-base">
@@ -290,29 +295,38 @@ export function PreBookedDaysRangeList() {
                     size="sm"
                     onClick={() => handleRemoveRange(range)}
                     className={cn(
-                      'absolute right-3 top-3 h-9 w-9 rounded-full border border-blue-100 bg-blue-50 p-0 text-blue-600 focus:border-blue-200 focus:bg-blue-100',
-                      'sm:static sm:h-7 sm:w-7 sm:rounded-md sm:border-transparent sm:bg-transparent',
+                      'absolute right-2 top-2 h-7 w-7 rounded-full border border-blue-100 bg-blue-50 p-0 text-blue-600 focus:border-blue-200 focus:bg-blue-100',
+                      'sm:static sm:h-6 sm:w-6 sm:rounded-md sm:border-transparent sm:bg-transparent',
                       'sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100',
                       'transition-all duration-200',
                       'hover:bg-red-100/70 hover:scale-105 active:scale-95'
                     )}
                     aria-label={`Remove ${formatRangeLabel(range)}`}
                   >
-                    <Trash2 className="h-3.5 w-3.5 text-blue-600 hover:text-red-500" />
+                    <Trash2 className="h-2.5 w-2.5 text-blue-600 hover:text-red-500" />
                   </Button>
                 </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm font-medium text-blue-500/90 sm:text-xs">
-                    {summaryText}
-                  </span>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-2 items-stretch sm:items-start">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 pl-2.5 pr-2 py-0.5 text-xs font-medium leading-tight text-blue-600 sm:text-[0.7rem]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-400" aria-hidden="true" />
+                      {pluralize(range.workingDays, 'working day')}
+                    </span>
+                    {excludedSummary && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 pl-2.5 pr-2 py-0.5 text-xs font-medium leading-tight text-blue-600 sm:text-[0.7rem]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-400" aria-hidden="true" />
+                        Excludes {excludedSummary}
+                      </span>
+                    )}
+                  </div>
                   {excludedCount > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:self-end sm:justify-end">
                       <button
                         type="button"
                         onClick={() => toggleRow(key)}
                         aria-expanded={isExpanded}
-                        className="inline-flex w-full items-center justify-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-300 sm:w-auto sm:justify-start sm:rounded-md sm:border-transparent sm:bg-blue-50 sm:px-2.5"
+                        className="inline-flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-300 sm:w-auto sm:justify-start sm:rounded-md sm:border-transparent sm:bg-blue-50 sm:px-2.5"
                       >
                         <Info className="h-3 w-3" aria-hidden="true" />
                         {isExpanded ? 'Hide details' : 'View details'}
