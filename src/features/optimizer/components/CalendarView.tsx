@@ -17,7 +17,7 @@ import {
 } from 'date-fns';
 import { SectionCard } from '@/shared/components/ui/section-card';
 import { cn } from '@/shared/lib/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 interface CalendarViewProps {
   stats: OptimizationStats;
@@ -169,12 +169,8 @@ export const CalendarView = ({
   const hiddenMonthCount = monthVisibility.filter(entry => entry.hideOnMobile).length;
   const hasHiddenMonths = hiddenMonthCount > 0;
   const [showEarlierMonths, setShowEarlierMonths] = useState(false);
-
-  useEffect(() => {
-    if (!hasHiddenMonths) {
-      setShowEarlierMonths(false);
-    }
-  }, [hasHiddenMonths, startString, endString]);
+  const [showLegendMobile, setShowLegendMobile] = useState(false);
+  const earlierMonthsVisible = hasHiddenMonths && showEarlierMonths;
 
   return (
     <SectionCard
@@ -196,24 +192,39 @@ export const CalendarView = ({
           </div>
         </div>
       )}
-      <CalendarLegend
-        hasPTODays={stats.totalPTODays > 0}
-        hasHolidays={stats.totalPublicHolidays > 0}
-        hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
-        hasExtendedWeekends={stats.totalExtendedWeekends > 0}
-        hasWeekends={hasWeekendDays}
-        weekendLabel={weekendLegendLabel}
-      />
+        <div className="mb-3 md:hidden">
+          <button
+            type="button"
+            onClick={() => setShowLegendMobile(prev => !prev)}
+            className="inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm transition-colors duration-150 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            aria-pressed={showLegendMobile}
+          >
+            {showLegendMobile ? 'Hide legend' : 'Show legend'}
+          </button>
+      </div>
+
+      <div className={cn('mb-3 md:mb-4', !showLegendMobile && 'hidden md:block')}>
+        <CalendarLegend
+          hasPTODays={stats.totalPTODays > 0}
+          hasHolidays={stats.totalPublicHolidays > 0}
+          hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
+          hasExtendedWeekends={stats.totalExtendedWeekends > 0}
+          hasWeekends={hasWeekendDays}
+          weekendLabel={weekendLegendLabel}
+        />
+      </div>
 
       {hasHiddenMonths && (
         <div className="mb-3 md:hidden">
           <button
             type="button"
-            onClick={() => setShowEarlierMonths(prev => !prev)}
+            onClick={() =>
+              setShowEarlierMonths(prev => (hasHiddenMonths ? !prev : prev))
+            }
             className="inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm transition-colors duration-150 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-            aria-pressed={showEarlierMonths}
+            aria-pressed={earlierMonthsVisible}
           >
-            {showEarlierMonths
+            {earlierMonthsVisible
               ? 'Hide earlier months'
               : `Show ${hiddenMonthCount} earlier month${hiddenMonthCount > 1 ? 's' : ''}`}
           </button>
@@ -222,7 +233,7 @@ export const CalendarView = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
         {monthVisibility.map(({ bucket, hideOnMobile }) => {
-          const shouldHide = hideOnMobile && !showEarlierMonths;
+          const shouldHide = hideOnMobile && !earlierMonthsVisible;
 
           return (
             <div

@@ -46,13 +46,6 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
     return () => query.removeListener(update);
   }, []);
 
-  useEffect(() => {
-    // Close tooltip when switching from touch to non-touch mode
-    if (!isTouch) {
-      setOpen(false);
-    }
-  }, [isTouch]);
-
   const tooltipProps = isTouch
     ? {
         open,

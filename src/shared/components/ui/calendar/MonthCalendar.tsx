@@ -1,3 +1,5 @@
+'use client';
+
 import {
   eachDayOfInterval,
   endOfMonth,
@@ -15,6 +17,7 @@ import { OptimizedDay } from '@/types';
 import { cn, DayType, dayTypeToColorScheme } from '@/shared/lib/utils';
 import { COLOR_SCHEMES, WEEKDAYS } from '@/constants';
 import { Lock } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface MonthCalendarProps {
   month: number;
@@ -36,6 +39,8 @@ interface DayInfo {
   textClass: string;
   isCurrentDay: boolean;
   isPastDay: boolean;
+  baseLabel: string;
+  descriptors: string[];
   accessibleLabel: string;
 }
 
@@ -43,6 +48,9 @@ interface CalendarDayProps {
   day: OptimizedDay;
   dayInfo: DayInfo;
   hasPublicHoliday: boolean;
+  isTouchMode: boolean;
+  isMobileSelected: boolean;
+  onMobileSelect: (info: DayInfo) => void;
 }
 
 const getDayColorScheme = (
@@ -79,7 +87,14 @@ const getDayColorScheme = (
 /**
  * Renders a single calendar day with appropriate styling and tooltip
  */
-const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
+const CalendarDay = ({
+  day,
+  dayInfo,
+  hasPublicHoliday,
+  isTouchMode,
+  isMobileSelected,
+  onMobileSelect,
+}: CalendarDayProps) => {
   const { date, tooltipText, bgClass, textClass, isCurrentDay, dayType, accessibleLabel } = dayInfo;
 
   const today = new Date();
@@ -87,6 +102,24 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
   const isCurrentYear = date.getFullYear() === currentYear;
 
   const colorScheme = getDayColorScheme(day, date, isCurrentDay, isCurrentYear);
+
+  const sharedButtonClasses = cn(
+    'relative z-10 flex h-full w-full items-center justify-center rounded-md text-xs font-medium gap-0.5',
+    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+    'transition-colors duration-150 cursor-default',
+    textClass,
+    day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700',
+    isMobileSelected && 'ring-2 ring-blue-500/80 shadow-md'
+  );
+
+  const renderButtonContent = () =>
+    day.isPreBooked ? (
+      <Lock className="w-3.5 h-3.5 opacity-60" aria-hidden="true" />
+    ) : (
+      <span aria-hidden="true" className="leading-none">
+        {format(date, 'd')}
+      </span>
+    );
 
   return (
     <>
@@ -104,48 +137,47 @@ const CalendarDay = ({ day, dayInfo, hasPublicHoliday }: CalendarDayProps) => {
         )}
       />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              'relative z-10 flex h-full w-full items-center justify-center rounded-md text-xs font-medium gap-0.5',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
-              'transition-colors duration-150 cursor-default',
-              textClass,
-              tooltipText && 'cursor-help',
-              day.isPartOfBreak && dayType !== 'extendedWeekend' && 'text-indigo-700'
-            )}
-            aria-label={accessibleLabel}
-          >
-            {day.isPreBooked ? (
-              <Lock className="w-3.5 h-3.5 opacity-60" aria-hidden="true" />
-            ) : (
-              <span aria-hidden="true" className="leading-none">
-                {format(date, 'd')}
-              </span>
-            )}
-          </button>
-        </TooltipTrigger>
-        {tooltipText && (
-          <StatTooltipContent colorScheme={colorScheme}>
-            {day.isPartOfBreak ? (
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-sm bg-indigo-500/70" />
-                  <p className="text-xs font-medium">Break Period</p>
+      {isTouchMode ? (
+        <button
+          type="button"
+          className={sharedButtonClasses}
+          aria-label={accessibleLabel}
+          aria-pressed={isMobileSelected}
+          onClick={() => onMobileSelect(dayInfo)}
+        >
+          {renderButtonContent()}
+        </button>
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className={cn(sharedButtonClasses, tooltipText && 'cursor-help')}
+              aria-label={accessibleLabel}
+            >
+              {renderButtonContent()}
+            </button>
+          </TooltipTrigger>
+          {tooltipText && (
+            <StatTooltipContent colorScheme={colorScheme}>
+              {day.isPartOfBreak ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-sm bg-indigo-500/70" />
+                    <p className="text-xs font-medium">Break Period</p>
+                  </div>
+                  {tooltipText !== 'Part of Break Period' && (
+                    <p className="text-xs pl-3 text-gray-600">{tooltipText}</p>
+                  )}
+                  <p className="text-xs pl-3 text-gray-500">{format(date, 'EEEE, MMMM d, yyyy')}</p>
                 </div>
-                {tooltipText !== 'Part of Break Period' && (
-                  <p className="text-xs pl-3 text-gray-600">{tooltipText}</p>
-                )}
-                <p className="text-xs pl-3 text-gray-500">{format(date, 'EEEE, MMMM d, yyyy')}</p>
-              </div>
-            ) : (
-              <p className="text-xs">{tooltipText}</p>
-            )}
-          </StatTooltipContent>
-        )}
-      </Tooltip>
+              ) : (
+                <p className="text-xs">{tooltipText}</p>
+              )}
+            </StatTooltipContent>
+          )}
+        </Tooltip>
+      )}
 
       {hasPublicHoliday && day.isPublicHoliday && (
         <div
@@ -205,6 +237,24 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   const today = new Date();
   const currentYear = today.getFullYear();
   const isCurrentYear = year === currentYear;
+  const [isTouchMode, setIsTouchMode] = useState(false);
+  const [mobileDaySelection, setMobileDaySelection] = useState<DayInfo | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const matcher = window.matchMedia('(pointer: coarse)');
+
+    const update = () => {
+      setIsTouchMode(matcher.matches);
+    };
+
+    update();
+    matcher.addEventListener('change', update);
+
+    return () => {
+      matcher.removeEventListener('change', update);
+    };
+  }, []);
 
   // Check if any day types exist in the data
   const dayTypeFlags = {
@@ -226,19 +276,58 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
   const weekendDayNumbers = getWeekendDayNumbers(days);
 
   const totalCells = Math.ceil((startingDayIndex + daysInMonth.length) / 7) * 7;
-  const calendarDays: Array<OptimizedDay | null> = Array(totalCells).fill(null);
-  daysInMonth.forEach((date, index) => {
+  const calendarDays: Array<OptimizedDay | null> = Array.from({ length: totalCells }, (_, cellIndex) => {
+    const dayOffset = cellIndex - startingDayIndex;
+    if (dayOffset < 0 || dayOffset >= daysInMonth.length) {
+      return null;
+    }
+
+    const date = daysInMonth[dayOffset];
     const dateStr = format(date, 'yyyy-MM-dd');
-    const day = days.find(d => d.date === dateStr);
-    calendarDays[startingDayIndex + index] = day || {
+    const existingDay = days.find(d => d.date === dateStr);
+    if (existingDay) {
+      return existingDay;
+    }
+
+    return {
       date: dateStr,
       isWeekend: weekendDayNumbers.has(getDay(date)),
       isPTO: false,
       isPartOfBreak: false,
       isPublicHoliday: false,
+      publicHolidayName: undefined,
       isCompanyDayOff: false,
-    };
+      companyDayName: undefined,
+      isPreBooked: false,
+    } satisfies OptimizedDay;
   });
+
+  const availableDateSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const day of calendarDays) {
+      if (!day) continue;
+      set.add(day.date);
+    }
+    return set;
+  }, [calendarDays]);
+
+  const selectedMobileDay = useMemo(() => {
+    if (!isTouchMode || !mobileDaySelection) {
+      return null;
+    }
+
+    const isoDate = format(mobileDaySelection.date, 'yyyy-MM-dd');
+    return availableDateSet.has(isoDate) ? mobileDaySelection : null;
+  }, [availableDateSet, isTouchMode, mobileDaySelection]);
+
+  const handleMobileSelect = (info: DayInfo) => {
+    setMobileDaySelection(prev => {
+      if (prev && prev.date.getTime() === info.date.getTime()) {
+        return null;
+      }
+      return info;
+    });
+  };
 
   /**
    * Helper function to process all day-related information in one pass
@@ -358,17 +447,20 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       textClass,
       isCurrentDay,
       isPastDay,
+      baseLabel: baseDateLabel,
+      descriptors,
       accessibleLabel,
     };
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-200">
-      {/* Calendar Header */}
-      <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <h4 className="text-base font-medium text-gray-900 leading-none">
-          {format(firstDay, 'MMMM yyyy')}
-        </h4>
+    <>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-200">
+        {/* Calendar Header */}
+        <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
+          <h4 className="text-base font-medium text-gray-900 leading-none">
+            {format(firstDay, 'MMMM yyyy')}
+          </h4>
         <div className="mt-1 text-xs text-gray-600 min-h-[1.25rem] flex items-center gap-2">
           {holidays.length > 0 && (
             <>Holidays: {holidays.map(h => h.publicHolidayName).join(', ')}</>
@@ -387,22 +479,62 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
           ))}
 
           {/* Calendar Days */}
-          {calendarDays.map((day, index) => (
-            <div
-              key={index}
-              className={cn('aspect-square p-1 text-xs relative', !day && 'bg-gray-50 ')}
-            >
-              {day && (
+          {calendarDays.map((day, index) => {
+            if (!day) {
+              return (
+                <div
+                  key={index}
+                  className={cn('aspect-square p-1 text-xs relative bg-gray-50')}
+                />
+              );
+            }
+
+            const info = getDayInfo(day);
+            const isMobileSelected = Boolean(
+              selectedMobileDay && selectedMobileDay.date.getTime() === info.date.getTime()
+            );
+
+            return (
+              <div key={index} className="aspect-square p-1 text-xs relative">
                 <CalendarDay
                   day={day}
-                  dayInfo={getDayInfo(day)}
+                  dayInfo={info}
                   hasPublicHoliday={dayTypeFlags.hasPublicHoliday}
+                  isTouchMode={isTouchMode}
+                  isMobileSelected={isMobileSelected}
+                  onMobileSelect={handleMobileSelect}
                 />
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+      </div>
+
+      {isTouchMode && selectedMobileDay && (
+        <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-sm text-blue-900">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold">{selectedMobileDay.baseLabel}</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                {selectedMobileDay.descriptors.map(detail => (
+                  <li key={detail} className="text-xs leading-snug">
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button
+              type="button"
+              className="text-xs font-medium text-blue-700 hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              onClick={() => setMobileDaySelection(null)}
+              aria-label="Dismiss day details"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
