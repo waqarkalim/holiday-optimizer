@@ -1,10 +1,23 @@
+'use client';
+
 import { OptimizationStats, OptimizedDay } from '@/types';
 import { CalendarLegend } from '@/shared/components/ui/calendar/CalendarLegend';
 import { WEEKDAYS } from '@/constants';
 import { MonthCalendar } from '@/shared/components/ui/calendar/MonthCalendar';
 import { AlertCircle, Calendar } from 'lucide-react';
-import { addMonths, format, getDay, isWithinInterval, parse, startOfDay, startOfMonth } from 'date-fns';
+import {
+  addMonths,
+  endOfMonth,
+  format,
+  getDay,
+  isWithinInterval,
+  parse,
+  startOfDay,
+  startOfMonth,
+} from 'date-fns';
 import { SectionCard } from '@/shared/components/ui/section-card';
+import { cn } from '@/shared/lib/utils';
+import { useEffect, useMemo, useState } from 'react';
 
 interface CalendarViewProps {
   stats: OptimizationStats;
@@ -125,6 +138,7 @@ export const CalendarView = ({
   const rangeIncludesToday =
     hasValidRange && isWithinInterval(todayStart, { start: rangeStart, end: rangeEnd });
   const shouldShowBanner = rangeIncludesToday;
+  const shouldHidePastMonthsOnMobile = rangeIncludesToday && todayStart > rangeStart;
   let subtitle = timeframeLabel ?? `Planning for ${selectedYear}`;
 
   if (usesCalendarRange) {
@@ -135,6 +149,32 @@ export const CalendarView = ({
   }
 
   const formattedToday = format(today, 'MMMM d, yyyy');
+
+  const monthVisibility = useMemo(() => {
+    if (!monthBuckets.length) {
+      return [] as Array<{
+        bucket: { month: number; year: number };
+        hideOnMobile: boolean;
+      }>;
+    }
+
+    return monthBuckets.map(bucket => {
+      const monthStart = startOfMonth(new Date(bucket.year, bucket.month));
+      const monthEnd = endOfMonth(monthStart);
+      const hideOnMobile = shouldHidePastMonthsOnMobile && monthEnd < todayStart;
+      return { bucket, hideOnMobile };
+    });
+  }, [monthBuckets, shouldHidePastMonthsOnMobile, todayStart]);
+
+  const hiddenMonthCount = monthVisibility.filter(entry => entry.hideOnMobile).length;
+  const hasHiddenMonths = hiddenMonthCount > 0;
+  const [showEarlierMonths, setShowEarlierMonths] = useState(false);
+
+  useEffect(() => {
+    if (!hasHiddenMonths) {
+      setShowEarlierMonths(false);
+    }
+  }, [hasHiddenMonths, startString, endString]);
 
   return (
     <SectionCard
@@ -165,15 +205,34 @@ export const CalendarView = ({
         weekendLabel={weekendLegendLabel}
       />
 
+      {hasHiddenMonths && (
+        <div className="mb-3 md:hidden">
+          <button
+            type="button"
+            onClick={() => setShowEarlierMonths(prev => !prev)}
+            className="inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm transition-colors duration-150 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            aria-pressed={showEarlierMonths}
+          >
+            {showEarlierMonths
+              ? 'Hide earlier months'
+              : `Show ${hiddenMonthCount} earlier month${hiddenMonthCount > 1 ? 's' : ''}`}
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-        {monthBuckets.map(bucket => (
-          <MonthCalendar
-            key={`${bucket.year}-${bucket.month}`}
-            month={bucket.month}
-            year={bucket.year}
-            days={optimizedDays}
-          />
-        ))}
+        {monthVisibility.map(({ bucket, hideOnMobile }) => {
+          const shouldHide = hideOnMobile && !showEarlierMonths;
+
+          return (
+            <div
+              key={`${bucket.year}-${bucket.month}`}
+              className={cn(shouldHide && 'hidden md:block')}
+            >
+              <MonthCalendar month={bucket.month} year={bucket.year} days={optimizedDays} />
+            </div>
+          );
+        })}
       </div>
     </SectionCard>
   );
