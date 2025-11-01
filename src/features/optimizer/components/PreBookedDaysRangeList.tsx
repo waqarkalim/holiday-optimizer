@@ -4,14 +4,11 @@ import { useState } from 'react';
 import { format, parse, getDay, differenceInCalendarDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Ban,
-  Briefcase,
   Building2,
   Calendar,
   ChevronDown,
   ChevronUp,
   Info,
-  Layers,
   Sparkles,
   Sun,
   Trash2,
@@ -80,7 +77,13 @@ export function PreBookedDaysRangeList() {
 
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
-  if (preBookedDays.length === 0) return null;
+  if (preBookedDays.length === 0) {
+    return (
+      <div className="text-xs text-gray-500 italic py-2 text-center">
+        No pre-booked days added yet. Add vacation days you've already planned above.
+      </div>
+    );
+  }
 
   const holidayMap = new Map(holidays.map(h => [h.date, h.name]));
   const companyDayMap = new Map(companyDaysOff.map(c => [c.date, c.name ?? 'Company day']));
@@ -190,8 +193,6 @@ export function PreBookedDaysRangeList() {
     ranges.push(currentRange);
   }
 
-  const totalWorkingDays = ranges.reduce((sum, range) => sum + range.workingDays, 0);
-  const totalExcludedDays = ranges.reduce((sum, range) => sum + range.excludedDays.length, 0);
   const toggleRow = (key: string) => {
     setExpandedRows(prev => ({ ...prev, [key]: !prev[key] }));
   };
