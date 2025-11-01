@@ -9,83 +9,45 @@
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
- 
+
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
- 
+
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
- 
+
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
- 
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
- 
+
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
- 
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
- 
-    --radius: 0.5rem;
- 
-    --sidebar-background: 0 0% 98%;
- 
-    --sidebar-foreground: 240 5.3% 26.1%;
- 
-    --sidebar-primary: 240 5.9% 10%;
- 
-    --sidebar-primary-foreground: 0 0% 98%;
- 
-    --sidebar-accent: 240 4.8% 95.9%;
- 
-    --sidebar-accent-foreground: 240 5.9% 10%;
- 
-    --sidebar-border: 220 13% 91%;
- 
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -94,4 +56,215 @@
   body {
     @apply min-h-screen antialiased;
   }
+}
+
+/* React Multi Date Picker Custom Styles */
+.rmdp-wrapper,
+.rmdp-container {
+  @apply w-full max-w-none select-none rounded-xl border border-gray-200 bg-white shadow-sm px-3 py-2.5 ring-1 ring-black/5 !important;
+}
+
+.rmdp-calendar {
+  @apply w-full max-w-none shadow-none !important;
+}
+
+.rmdp-calendar > div,
+.rmdp-calendar div {
+  @apply w-full max-w-none !important;
+}
+
+.rmdp-calendar [role="dialog"] {
+  @apply w-full max-w-none !important;
+}
+
+.rmdp-calendar [style*="display: flex"] {
+  @apply w-full !important;
+}
+
+.rmdp-calendar .rmdp-week {
+  @apply flex w-full !important;
+  margin-top: 0.25rem !important;
+}
+
+/* Add horizontal line after first week (below weekday headers) */
+.rmdp-calendar .rmdp-week:first-child {
+  @apply pb-1.5 !important;
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.rmdp-calendar .rmdp-day {
+  @apply relative p-0 text-center text-sm h-8 w-full !important;
+}
+
+.rmdp-calendar .rmdp-week-days {
+  @apply flex w-full pb-2 mb-0 relative !important;
+}
+
+/* Horizontal line under weekdays - multiple approaches to ensure it shows */
+.rmdp-wrapper .rmdp-calendar .rmdp-week-days {
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.rmdp-calendar .rmdp-week-days::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 1px !important;
+  background-color: #e5e7eb !important;
+  display: block !important;
+}
+
+.rmdp-calendar .rmdp-week-day {
+  @apply flex-1 text-center text-xs font-semibold tracking-wider uppercase text-gray-500 select-none transition-colors duration-200 !important;
+}
+
+/* First weekday (Sunday) - red color */
+.rmdp-calendar .rmdp-week-day:first-child {
+  @apply text-red-500 !important;
+}
+
+/* Force show other month days */
+.rmdp-calendar .rmdp-day.rmdp-deactive {
+  display: table-cell !important;
+  visibility: visible !important;
+}
+
+.rmdp-calendar .rmdp-day.rmdp-deactive span {
+  @apply text-gray-400 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.rmdp-calendar .rmdp-header {
+  @apply flex justify-between items-center w-full;
+}
+
+.rmdp-calendar .rmdp-month-picker,
+.rmdp-calendar .rmdp-year-picker {
+  @apply w-full;
+}
+
+/* Selected date styles - using violet theme like the reference */
+.rmdp-day.rmdp-selected span {
+  @apply bg-violet-50 text-violet-950 shadow-sm opacity-100 !important;
+}
+
+/* Range styles - dates in between */
+.rmdp-day.rmdp-range {
+  @apply bg-violet-50/70 shadow-sm !important;
+}
+
+.rmdp-day.rmdp-range:first-child {
+  @apply rounded-l-md !important;
+}
+
+.rmdp-day.rmdp-range:last-child {
+  @apply rounded-r-md !important;
+}
+
+.rmdp-day.rmdp-range span {
+  @apply bg-transparent text-violet-900 !important;
+}
+
+/* Start and end of range */
+.rmdp-day.rmdp-range.start span,
+.rmdp-day.rmdp-range.end span {
+  @apply bg-violet-50 text-violet-950 shadow-sm !important;
+}
+
+/* Header styles */
+.rmdp-header-values {
+  @apply text-sm font-semibold text-gray-900 !important;
+}
+
+.rmdp-calendar .rmdp-header {
+  @apply flex justify-center pt-0.5 relative items-center h-8 mb-1.5 !important;
+}
+
+/* Navigation arrows - clean minimal design */
+.rmdp-arrow-container {
+  @apply absolute flex items-center justify-center cursor-pointer transition-all duration-200 w-8 h-8 rounded-lg !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.rmdp-arrow-container:first-of-type {
+  @apply left-1 !important;
+}
+
+.rmdp-arrow-container:last-of-type {
+  @apply right-1 !important;
+}
+
+.rmdp-arrow-container:hover {
+  @apply bg-gray-100 !important;
+}
+
+.rmdp-arrow-container:focus,
+.rmdp-arrow-container:active,
+.rmdp-arrow-container:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Arrow icon - simple chevron */
+.rmdp-arrow {
+  border: solid rgb(107 114 128) !important;
+  border-width: 0 2px 2px 0 !important;
+  padding: 3px;
+  display: inline-block !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+.rmdp-left .rmdp-arrow {
+  transform: rotate(135deg) !important;
+}
+
+.rmdp-right .rmdp-arrow {
+  transform: rotate(-45deg) !important;
+}
+
+/* Day number styling */
+.rmdp-day span {
+  @apply h-8 w-full p-0 font-normal active:scale-95 hover:bg-violet-50 hover:text-violet-950 rounded-md transition-all duration-150 ease-out text-gray-900 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Today indicator */
+.rmdp-day.rmdp-today span {
+  @apply bg-transparent text-gray-900 font-semibold !important;
+}
+
+/* Disabled/outside month days - show previous/next month days */
+.rmdp-day.rmdp-disabled span,
+.rmdp-day.rmdp-day-hidden span {
+  @apply text-gray-400 opacity-100 hover:bg-transparent cursor-default transition-opacity duration-200 !important;
+  font-weight: 400 !important;
+}
+
+/* Weekend days (Saturday and Sunday) - lighter/grayed out */
+.rmdp-week .rmdp-day:first-child span,
+.rmdp-week .rmdp-day:last-child span {
+  @apply text-gray-500 !important;
+}
+
+/* Hover preview for range selection */
+.rmdp-day.hover-preview span {
+  @apply bg-violet-100/50 text-violet-900 !important;
+}
+
+/* Don't override already selected dates during hover preview */
+.rmdp-day.rmdp-selected.hover-preview span {
+  @apply bg-violet-50 text-violet-950 shadow-sm !important;
 }

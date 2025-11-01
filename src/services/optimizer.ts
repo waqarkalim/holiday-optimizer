@@ -5,456 +5,363 @@ import {
   OptimizationStats,
   OptimizationStrategy,
   OptimizedDay,
+  WeekdayNumber,
 } from '@/types';
+import { DEFAULT_WEEKEND_DAYS } from '@/constants';
+import { parse } from 'date-fns';
+
+type StrategyConfig = {
+  spacing: number;
+  lengthRanges: Array<[number, number]>;
+};
+
+const STRATEGY_CONFIG: Record<OptimizationStrategy, StrategyConfig> = {
+  balanced: {
+    spacing: 21,
+    lengthRanges: [
+      [3, 4],
+      [5, 6],
+      [7, 9],
+      [10, 15],
+    ],
+  },
+  longWeekends: { spacing: 7, lengthRanges: [[3, 4]] },
+  miniBreaks: { spacing: 14, lengthRanges: [[5, 6]] },
+  weekLongBreaks: { spacing: 21, lengthRanges: [[7, 9]] },
+  extendedVacations: { spacing: 30, lengthRanges: [[10, 15]] },
+};
 
 /* -----------------------------
    Helper Functions
 ----------------------------- */
 
-// Format a Date object as 'YYYY-MM-DD'
 const formatDate = (date: Date): string => {
-  const yr = date.getFullYear();
-  const mo = String(date.getMonth() + 1).padStart(2, '0');
-  const dy = String(date.getDate()).padStart(2, '0');
-  return `${yr}-${mo}-${dy}`;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
-// Add a specified number of days to a Date object.
 const addDays = (date: Date, days: number): Date =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 
-/**
- * Returns true if a day is naturally off (i.e., weekend, public holiday, or company day off).
- */
+const getWeekendDaysSet = (weekendDays?: WeekdayNumber[]): Set<WeekdayNumber> => {
+  if (!Array.isArray(weekendDays)) {
+    return new Set(DEFAULT_WEEKEND_DAYS);
+  }
+
+  const normalized = weekendDays.filter(day => Number.isInteger(day) && day >= 0 && day <= 6);
+
+  if (normalized.length === 0) {
+    return new Set(DEFAULT_WEEKEND_DAYS);
+  }
+
+  return new Set(normalized as WeekdayNumber[]);
+};
+
 const isFixedOff = (day: OptimizedDay): boolean =>
-  day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff;
+  day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff || day.isPreBooked === true;
 
-/**
- * Determine the dynamic spacing (in days) between segments based on strategy.
- */
-const getDynamicSpacing = (strategy?: OptimizationStrategy): number => {
-  switch (strategy) {
-    case 'longWeekends':
-      return 7;
-    case 'miniBreaks':
-      return 14;
-    case 'weekLongBreaks':
-      return 21;
-    case 'extendedVacations':
-      return 30;
-    case 'balanced':
-    default:
-      return 21;
+// Check if a day range contains or is adjacent to any pre-booked days
+const isNearPreBookedDays = (calendar: OptimizedDay[], start: number, end: number): boolean => {
+  // Check if any day in the range is pre-booked
+  for (let i = start; i <= end; i++) {
+    if (calendar[i]?.isPreBooked) {
+      return true;
+    }
   }
+
+  // Check if day before range is pre-booked
+  if (start > 0 && calendar[start - 1]?.isPreBooked) {
+    return true;
+  }
+
+  // Check if day after range is pre-booked
+  if (end < calendar.length - 1 && calendar[end + 1]?.isPreBooked) {
+    return true;
+  }
+
+  return false;
+};
+
+const countExtendedWeekendGroups = (days: OptimizedDay[]): number => {
+  let count = 0;
+  let index = 0;
+
+  while (index < days.length) {
+    const current = days[index];
+
+    if (!current.isWeekend) {
+      index += 1;
+      continue;
+    }
+
+    const groupStart = index;
+    while (index + 1 < days.length && days[index + 1].isWeekend) {
+      index += 1;
+    }
+
+    const groupEnd = index;
+    const beforeGroup = groupStart > 0 ? days[groupStart - 1] : undefined;
+    const afterGroup = groupEnd + 1 < days.length ? days[groupEnd + 1] : undefined;
+    const touchesBreakday =
+      (beforeGroup && !beforeGroup.isWeekend) || (afterGroup && !afterGroup.isWeekend);
+
+    if (touchesBreakday) {
+      count += 1;
+    }
+
+    index += 1;
+  }
+
+  return count;
 };
 
 /* -----------------------------
-   Candidate Segment Type
+   Calendar Construction
 ----------------------------- */
-interface CandidateSegment {
-  startIdx: number;
-  endIdx: number;
-  totalDays: number;
-  ptoUsed: number;
-  efficiency: number; // = totalDays / ptoUsed
-  startDate: string;
-  endDate: string;
-  segmentDays: OptimizedDay[];
-}
 
-/* -----------------------------
-   Strategy Parameter Setter
------------------------------ */
-const getStrategyParams = (strategy?: OptimizationStrategy) => {
-  let minBreak: number, maxBreak: number;
-  switch (strategy) {
-    case 'longWeekends':
-      minBreak = 3;
-      maxBreak = 4;
-      break;
-    case 'miniBreaks':
-      minBreak = 5;
-      maxBreak = 6;
-      break;
-    case 'weekLongBreaks':
-      minBreak = 7;
-      maxBreak = 9;
-      break;
-    case 'extendedVacations':
-      minBreak = 10;
-      maxBreak = 15;
-      break;
-    case 'balanced':
-    default:
-      // For "balanced", candidates are generated across all ranges.
-      minBreak = 3;
-      maxBreak = 15;
-      break;
-  }
-  return { minBreak, maxBreak };
+const parseDate = (value?: string) => {
+  if (!value) return null;
+  const parsed = parse(value, 'yyyy-MM-dd', new Date());
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
-/* -----------------------------
-   Build Full Calendar
------------------------------ */
 const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
-  // Determine target year (provided or current year).
-  const targetYear = params.year || new Date().getFullYear();
+  const targetYear = params.year ?? new Date().getFullYear();
   const now = new Date();
-  // If running on the current year, start from today's date; otherwise, start at January 1.
-  const startOfYear =
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const defaultStart =
     targetYear === now.getFullYear()
-      ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      ? today
       : new Date(targetYear, 0, 1);
-  const endOfYear = new Date(targetYear, 11, 31);
+  const defaultEnd = new Date(targetYear, 11, 31);
+
   const calendar: OptimizedDay[] = [];
 
-  for (let d = new Date(startOfYear); d <= endOfYear; d = addDays(d, 1)) {
-    const dateStr = formatDate(d);
-    const dayOfWeek = d.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  const holidays = params.holidays ?? [];
+  const companyDays = params.companyDaysOff ?? [];
+  const preBookedDays = params.preBookedDays ?? [];
+  const weekendDays = getWeekendDaysSet(params.weekendDays);
 
-    let isPublicHoliday = false;
-    let publicHolidayName: string | undefined;
-    if (params.holidays) {
-      for (const holiday of params.holidays) {
-        if (holiday.date === dateStr) {
-          isPublicHoliday = true;
-          publicHolidayName = holiday.name;
-          break;
-        }
-      }
-    }
+  const startOverride = parseDate(params.startDate);
+  const endOverride = parseDate(params.endDate);
 
-    let isCompanyDayOff = false;
-    let companyDayName: string | undefined;
-    if (params.companyDaysOff) {
-      for (const dayOff of params.companyDaysOff) {
-        if (
-          dayOff.isRecurring &&
-          dayOff.startDate &&
-          dayOff.endDate &&
-          dayOff.weekday !== undefined
-        ) {
-          const recurringStart = new Date(dayOff.startDate);
-          const recurringEnd = new Date(dayOff.endDate);
-          if (d >= recurringStart && d <= recurringEnd && d.getDay() === dayOff.weekday) {
-            isCompanyDayOff = true;
-            companyDayName = dayOff.name;
-            break;
-          }
-        } else if (dayOff.date === dateStr) {
-          isCompanyDayOff = true;
-          companyDayName = dayOff.name;
-          break;
-        }
-      }
-    }
+  let rangeStart = startOverride ?? defaultStart;
+  const rangeEnd = endOverride ?? defaultEnd;
 
-    const day: OptimizedDay = {
-      date: formatDate(d),
-      isWeekend,
-      isPublicHoliday,
-      publicHolidayName,
-      isCompanyDayOff,
-      companyDayName,
-      isPTO: false,
-      isPartOfBreak: false,
-    };
-
-    calendar.push(day);
+  // Forward-looking: If the start date is in the past, adjust it to today
+  // But only if the end date is today or in the future (i.e., the range is still relevant)
+  if (rangeStart < today && rangeEnd >= today) {
+    rangeStart = today;
   }
+
+  if (rangeEnd < rangeStart) {
+    return [];
+  }
+
+  const startDate = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate());
+  const endDate = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate());
+
+  // Create a set of pre-booked dates for O(1) lookup
+  const preBookedDatesSet = new Set(preBookedDays.map(day => day.date));
+
+  for (let date = new Date(startDate); date <= endDate; date = addDays(date, 1)) {
+    const iso = formatDate(date);
+    const dayOfWeek = date.getDay() as WeekdayNumber;
+    const isWeekend = weekendDays.has(dayOfWeek);
+
+    const holiday = holidays.find(h => h.date === iso);
+    const companyDay = companyDays.find(dayOff => {
+      if (
+        dayOff.isRecurring &&
+        dayOff.startDate &&
+        dayOff.endDate &&
+        dayOff.weekday !== undefined
+      ) {
+        const start = new Date(dayOff.startDate);
+        const end = new Date(dayOff.endDate);
+        return date >= start && date <= end && date.getDay() === dayOff.weekday;
+      }
+      return dayOff.date === iso;
+    });
+
+    const isPreBooked = preBookedDatesSet.has(iso);
+
+    calendar.push({
+      date: iso,
+      isWeekend,
+      isPublicHoliday: Boolean(holiday),
+      publicHolidayName: holiday?.name,
+      isCompanyDayOff: Boolean(companyDay),
+      companyDayName: companyDay?.name,
+      isPTO: isPreBooked, // Pre-booked days are already PTO
+      isPartOfBreak: false,
+      isPreBooked: isPreBooked,
+    });
+  }
+
   return calendar;
 };
 
 /* -----------------------------
-   Generate Candidate Segments
+   Core Optimizer
 ----------------------------- */
-const generateCandidateSegments = (
-  calendar: OptimizedDay[],
-  minBreak: number,
-  maxBreak: number
-): CandidateSegment[] => {
-  const candidates: CandidateSegment[] = [];
+
+type Choice = {
+  end: number;
+  ptoUsed: number;
+  nextIndex: number;
+};
+
+type MemoEntry = {
+  total: number;
+  choice: Choice | null;
+};
+
+export const optimizeDays = (params: OptimizationParams): OptimizationResult => {
+  const strategy: OptimizationStrategy = params.strategy ?? 'balanced';
+  const config = STRATEGY_CONFIG[strategy] ?? STRATEGY_CONFIG.balanced;
+
+  const calendar = buildCalendar(params);
   const totalDays = calendar.length;
+
+  // Use the PTO days as provided - user enters days they want to optimize
+  const availablePTO = Math.max(0, params.numberOfDays);
+
+  if (totalDays === 0 || availablePTO === 0) {
+    const emptyStats: OptimizationStats = {
+      totalPTODays: 0,
+      totalPublicHolidays: 0,
+      totalNormalWeekends: 0,
+      totalCompanyDaysOff: 0,
+      totalDaysOff: 0,
+      totalExtendedWeekends: 0,
+    };
+
+    return { days: calendar, breaks: [], stats: emptyStats };
+  }
+
+  const workdayPrefix = new Array<number>(totalDays + 1).fill(0);
   for (let i = 0; i < totalDays; i++) {
-    // Try all segment lengths in the specified range.
-    for (let L = minBreak; L <= maxBreak; L++) {
-      if (i + L - 1 >= totalDays) break;
-      const segmentDays: OptimizedDay[] = [];
-      let ptoUsed = 0;
-      for (let j = i; j < i + L; j++) {
-        const day = calendar[j];
-        if (!isFixedOff(day)) {
-          ptoUsed++;
-        }
-        segmentDays.push(day);
-      }
-      if (ptoUsed > 0) {
-        candidates.push({
-          startIdx: i,
-          endIdx: i + L - 1,
-          totalDays: L,
-          ptoUsed,
-          efficiency: L / ptoUsed,
-          startDate: calendar[i].date,
-          endDate: calendar[i + L - 1].date,
-          segmentDays: [...segmentDays],
-        });
-      }
+    workdayPrefix[i + 1] = workdayPrefix[i] + (isFixedOff(calendar[i]) ? 0 : 1);
+  }
+
+  const spacing = Math.max(1, config.spacing);
+  const maxAllowedLength = Math.max(...config.lengthRanges.map(([, max]) => max));
+  const isLengthAllowed = (length: number) =>
+    config.lengthRanges.some(([min, max]) => length >= min && length <= max);
+
+  const memo = new Map<string, MemoEntry>();
+  const memoKey = (idx: number, ptoLeft: number) => `${idx}-${ptoLeft}`;
+
+  const solve = (idx: number, ptoLeft: number): number => {
+    if (idx >= totalDays || ptoLeft <= 0) {
+      return 0;
     }
-  }
-  return candidates;
-};
 
-const pruneCandidateSegments = (
-  segments: CandidateSegment[],
-  availablePTO: number
-): CandidateSegment[] => {
-  // Filter out segments that exceed available PTO days.
-  const filtered = segments.filter(seg => seg.ptoUsed <= availablePTO);
-  const grouped = new Map<number, CandidateSegment[]>();
-  for (const seg of filtered) {
-    const group = grouped.get(seg.startIdx) || [];
-    group.push(seg);
-    grouped.set(seg.startIdx, group);
-  }
-  const pruned: CandidateSegment[] = [];
-  for (const group of grouped.values()) {
-    const nonDominated: CandidateSegment[] = [];
-    for (const seg of group) {
-      let dominated = false;
-      for (const other of group) {
-        if (other === seg) continue;
-        // One segment dominates another if it ends later,
-        // uses fewer or equal PTO days, and provides equal or greater total days off.
-        if (
-          other.endIdx >= seg.endIdx &&
-          other.ptoUsed <= seg.ptoUsed &&
-          other.totalDays >= seg.totalDays
-        ) {
-          dominated = true;
-          break;
-        }
+    const key = memoKey(idx, ptoLeft);
+    const cached = memo.get(key);
+    if (cached) {
+      return cached.total;
+    }
+
+    const skip = solve(idx + 1, ptoLeft);
+    let best = skip;
+    let bestChoice: Choice | null = null;
+
+    const maxLengthFromIdx = Math.min(totalDays - idx, maxAllowedLength);
+
+    for (let length = 1; length <= maxLengthFromIdx; length++) {
+      const end = idx + length - 1;
+      const ptoUsed = workdayPrefix[end + 1] - workdayPrefix[idx];
+
+      if (ptoUsed > ptoLeft) {
+        break;
       }
-      if (!dominated) nonDominated.push(seg);
-    }
-    pruned.push(...nonDominated);
-  }
-  pruned.sort((a, b) => a.startIdx - b.startIdx);
-  return pruned;
-};
 
-const binarySearch = (
-  candidates: CandidateSegment[],
-  requiredStart: number,
-  low: number
-): number => {
-  let lo = low,
-    hi = candidates.length;
-  while (lo < hi) {
-    const mid = Math.floor((lo + hi) / 2);
-    if (candidates[mid].startIdx < requiredStart) {
-      lo = mid + 1;
-    } else {
-      hi = mid;
-    }
-  }
-  return lo;
-};
+      if (ptoUsed === 0 || !isLengthAllowed(length)) {
+        continue;
+      }
 
-interface DPSolution {
-  totalDaysOff: number;
-  segments: CandidateSegment[];
-  totalPTOUsed: number;
-}
+      // Skip this break if it's near any pre-booked days
+      if (isNearPreBookedDays(calendar, idx, end)) {
+        continue;
+      }
 
-/* -----------------------------
-   Dynamic Programming Exhaustive Search
------------------------------ */
-const dpExhaustiveSearch = (
-  candidates: CandidateSegment[],
-  availablePTO: number,
-  spacing: number
-): DPSolution => {
-  const memo = new Map<string, DPSolution>();
+      const nextIndex = Math.min(totalDays, Math.max(end + 1, end + spacing));
+      const candidateTotal = length + solve(nextIndex, ptoLeft - ptoUsed);
 
-  const dp = (
-    idx: number,
-    lastEnd: number,
-    usedPTO: number
-  ): DPSolution => {
-    if (idx >= candidates.length) return { totalDaysOff: 0, segments: [], totalPTOUsed: 0 };
-    const key = `${idx}-${lastEnd}-${usedPTO}`;
-    if (memo.has(key)) return memo.get(key)!;
-
-    const requiredStart = lastEnd + spacing;
-    const nextIdx = binarySearch(candidates, requiredStart, idx);
-    let best: DPSolution = { totalDaysOff: 0, segments: [], totalPTOUsed: 0 };
-
-    for (let i = nextIdx; i < candidates.length; i++) {
-      const candidate = candidates[i];
-      if (candidate.startIdx < requiredStart) continue;
-      if (usedPTO + candidate.ptoUsed > availablePTO) continue;
-      const res = dp(i + 1, candidate.endIdx, usedPTO + candidate.ptoUsed);
-      const total = candidate.totalDays + res.totalDaysOff;
-      if (total > best.totalDaysOff) {
-        best = {
-          totalDaysOff: total,
-          segments: [candidate, ...res.segments],
-          totalPTOUsed: candidate.ptoUsed + res.totalPTOUsed,
-        };
+      if (candidateTotal > best) {
+        best = candidateTotal;
+        bestChoice = { end, ptoUsed, nextIndex };
       }
     }
-    memo.set(key, best);
+
+    memo.set(key, { total: best, choice: bestChoice });
     return best;
   };
 
-  return dp(0, -1, 0);
-};
+  solve(0, availablePTO);
 
-/* -----------------------------
-   Forced Extension and Additional Segments
------------------------------ */
-const forceExtendSegments = (
-  calendar: OptimizedDay[],
-  breaks: Break[],
-  remainingPTO: number
-): number => {
-  const totalDays = calendar.length;
-  for (const brk of breaks) {
-    let endIdx = calendar.findIndex(day => day.date === brk.endDate);
-    while (remainingPTO > 0 && endIdx < totalDays - 1) {
-      const nextDay = calendar[endIdx + 1];
-      if (nextDay.isPartOfBreak) break;
-      if (!isFixedOff(nextDay)) {
-        nextDay.isPTO = true;
-        nextDay.isPartOfBreak = true;
-        brk.days.push(nextDay);
-        brk.totalDays++;
-        brk.ptoDays++;
-        remainingPTO--;
-        endIdx++;
-        brk.endDate = nextDay.date;
-      } else {
-        break;
-      }
-    }
-  }
-  return remainingPTO;
-};
-
-const addForcedSegments = (
-  calendar: OptimizedDay[],
-  remainingPTO: number,
-): Break[] => {
-  const forcedBreaks: Break[] = [];
-  const totalDays = calendar.length;
-  let i = 0;
-  while (i < totalDays && remainingPTO > 0) {
-    if (!calendar[i].isPartOfBreak && !isFixedOff(calendar[i])) {
-      const forcedSegment: OptimizedDay[] = [];
-      while (i < totalDays && !calendar[i].isPartOfBreak && remainingPTO > 0) {
-        if (!isFixedOff(calendar[i])) {
-          calendar[i].isPTO = true;
-          calendar[i].isPartOfBreak = true;
-          forcedSegment.push(calendar[i]);
-          remainingPTO--;
-        }
-        i++;
-      }
-      if (forcedSegment.length > 0) {
-        forcedBreaks.push({
-          startDate: forcedSegment[0].date,
-          endDate: forcedSegment[forcedSegment.length - 1].date,
-          days: forcedSegment,
-          totalDays: forcedSegment.length,
-          ptoDays: forcedSegment.length,
-          publicHolidays: forcedSegment.filter(day => day.isPublicHoliday).length,
-          weekends: forcedSegment.filter(day => day.isWeekend).length,
-          companyDaysOff: forcedSegment.filter(day => day.isCompanyDayOff).length,
-        });
-      }
-    } else {
-      i++;
-    }
-  }
-  return forcedBreaks;
-};
-
-/* -----------------------------
-   Main Optimizer Function
------------------------------ */
-export const optimizeDays = (params: OptimizationParams): OptimizationResult => {
-  // 1. Get strategy parameters.
-  const { minBreak, maxBreak } = getStrategyParams(params.strategy);
-  const availablePTO = params.numberOfDays;
-  const spacing = getDynamicSpacing(params.strategy);
-
-  // 2. Build the calendar (from today to Dec 31 if in current year).
-  const calendar = buildCalendar(params);
-
-  // 3. Generate candidate segments.
-  let candidateSegments: CandidateSegment[] = [];
-  if (params.strategy === 'balanced') {
-    // For balanced strategy, combine candidates from all ranges.
-    candidateSegments.push(...generateCandidateSegments(calendar, 3, 4));    // longWeekends range
-    candidateSegments.push(...generateCandidateSegments(calendar, 5, 6));    // miniBreaks range
-    candidateSegments.push(...generateCandidateSegments(calendar, 7, 9));    // weekLongBreaks range
-    candidateSegments.push(...generateCandidateSegments(calendar, 10, 15));  // extendedVacations range
-  } else {
-    candidateSegments = generateCandidateSegments(calendar, minBreak, maxBreak);
-  }
-  candidateSegments.sort((a, b) => a.startIdx - b.startIdx);
-
-  // 4. Prune candidate segments.
-  candidateSegments = pruneCandidateSegments(candidateSegments, availablePTO);
-
-  // 5. Run the DP-based exhaustive search.
-  const bestSolution = dpExhaustiveSearch(candidateSegments, availablePTO, spacing);
-
-  // 6. Mark the chosen candidate segments and build break segments.
   const breaks: Break[] = [];
-  for (const seg of bestSolution.segments) {
-    for (let idx = seg.startIdx; idx <= seg.endIdx; idx++) {
-      calendar[idx].isPartOfBreak = true;
-      if (!isFixedOff(calendar[idx])) {
-        calendar[idx].isPTO = true;
-      }
+
+  const reconstruct = (idx: number, ptoLeft: number) => {
+    if (idx >= totalDays || ptoLeft <= 0) {
+      return;
     }
-    breaks.push({
-      startDate: seg.startDate,
-      endDate: seg.endDate,
-      days: seg.segmentDays.slice(),
-      totalDays: seg.totalDays,
-      ptoDays: seg.ptoUsed,
-      publicHolidays: seg.segmentDays.filter(d => d.isPublicHoliday).length,
-      weekends: seg.segmentDays.filter(d => d.isWeekend).length,
-      companyDaysOff: seg.segmentDays.filter(d => d.isCompanyDayOff).length,
+
+    const entry = memo.get(memoKey(idx, ptoLeft));
+    if (!entry) {
+      return;
+    }
+
+    const { choice } = entry;
+    if (!choice) {
+      reconstruct(idx + 1, ptoLeft);
+      return;
+    }
+
+    const { end, ptoUsed, nextIndex } = choice;
+    const segmentDays = calendar.slice(idx, end + 1);
+
+    segmentDays.forEach(day => {
+      day.isPartOfBreak = true;
+      day.isPTO = !isFixedOff(day);
     });
-  }
 
-  // 7. Forced extension: repeatedly extend segments and add forced segments until all PTO days are used.
-  let usedPTO = breaks.reduce((acc, br) => acc + br.ptoDays, 0);
-  let remainingPTO = availablePTO - usedPTO;
-  let prevRemainingPTO = remainingPTO + 1;
-  while (remainingPTO > 0 && remainingPTO < prevRemainingPTO) {
-    prevRemainingPTO = remainingPTO;
-    remainingPTO = forceExtendSegments(calendar, breaks, remainingPTO);
-    const forcedBreaks = addForcedSegments(calendar, remainingPTO);
-    forcedBreaks.forEach(brk => breaks.push(brk));
-    usedPTO = breaks.reduce((acc, br) => acc + br.ptoDays, 0);
-    remainingPTO = availablePTO - usedPTO;
-  }
+    breaks.push({
+      startDate: segmentDays[0].date,
+      endDate: segmentDays[segmentDays.length - 1].date,
+      days: [...segmentDays],
+      totalDays: segmentDays.length,
+      ptoDays: ptoUsed,
+      publicHolidays: segmentDays.filter(day => day.isPublicHoliday).length,
+      weekends: segmentDays.filter(day => day.isWeekend).length,
+      companyDaysOff: segmentDays.filter(day => day.isCompanyDayOff).length,
+    });
 
-  // 8. Compute final statistics.
+    reconstruct(nextIndex, ptoLeft - ptoUsed);
+  };
+
+  reconstruct(0, availablePTO);
+
+  breaks.sort((a, b) => a.startDate.localeCompare(b.startDate));
+
+  const sumBreakValues = (selector: (br: Break) => number) =>
+    breaks.reduce((total, brk) => total + selector(brk), 0);
+  const extendedWeekendCount = breaks.reduce(
+    (total, brk) => total + countExtendedWeekendGroups(brk.days),
+    0
+  );
+
   const stats: OptimizationStats = {
-    totalPTODays: breaks.reduce((acc, br) => acc + br.ptoDays, 0),
-    totalPublicHolidays: breaks.reduce((acc, br) => acc + br.publicHolidays, 0),
-    totalNormalWeekends: breaks.reduce((acc, br) => acc + br.weekends, 0),
-    totalCompanyDaysOff: breaks.reduce((acc, br) => acc + br.companyDaysOff, 0),
-    totalDaysOff: breaks.reduce((acc, br) => acc + br.totalDays, 0),
-    totalExtendedWeekends: breaks.reduce((acc, br) => acc + br.ptoDays, 0),
+    totalPTODays: sumBreakValues(br => br.ptoDays),
+    totalPublicHolidays: sumBreakValues(br => br.publicHolidays),
+    totalNormalWeekends: sumBreakValues(br => br.weekends),
+    totalCompanyDaysOff: sumBreakValues(br => br.companyDaysOff),
+    totalDaysOff: sumBreakValues(br => br.totalDays),
+    totalExtendedWeekends: extendedWeekendCount,
   };
 
   return {
@@ -464,15 +371,10 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
   };
 };
 
-/**
- * Wrap the synchronous optimizeDays function to make it asynchronous.
- */
 export const optimizeDaysAsync = (params: OptimizationParams): Promise<OptimizationResult> => {
-  return new Promise((resolve) => {
-    // Using setTimeout to yield execution and allow a loading spinner to render.
+  return new Promise(resolve => {
     setTimeout(() => {
-      const result = optimizeDays(params);
-      resolve(result);
+      resolve(optimizeDays(params));
     }, 0);
   });
 };

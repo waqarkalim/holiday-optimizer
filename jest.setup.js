@@ -23,7 +23,7 @@ jest.mock('next/navigation', () => ({
 // Mock window.scrollTo since it's not implemented in jsdom
 window.scrollTo = jest.fn();
 
-// Mock window.matchMedia for ThemeProvider
+// Mock window.matchMedia (jsdom doesn't implement it)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
@@ -87,7 +87,7 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock useLocalStorage hook
-jest.mock('@/hooks/useLocalStorage', () => ({
+jest.mock('@/features/optimizer/hooks/useLocalStorage', () => ({
   useLocalStorage: () => {
     const [value, setValue] = React.useState(null);
     return [value, setValue];
@@ -105,4 +105,3 @@ jest.mock('sonner', () => ({
     success: jest.fn(),
   },
 }));
-
