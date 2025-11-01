@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { WeekdayNumber } from '@/types';
@@ -193,9 +192,6 @@ export function PreBookedDaysRangeList() {
 
   const totalWorkingDays = ranges.reduce((sum, range) => sum + range.workingDays, 0);
   const totalExcludedDays = ranges.reduce((sum, range) => sum + range.excludedDays.length, 0);
-  const formatCountLabel = (count: number, singular: string, plural?: string) =>
-    `${count} ${count === 1 ? singular : plural ?? `${singular}s`}`;
-
   const toggleRow = (key: string) => {
     setExpandedRows(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -226,59 +222,23 @@ export function PreBookedDaysRangeList() {
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-blue-200/60 bg-gradient-to-br from-blue-50/80 to-blue-100/30 p-4 shadow-sm"
+      className={cn(
+        'rounded-xl border border-blue-100/70 bg-white p-3 shadow-sm',
+        'sm:border-blue-200/60 sm:bg-gradient-to-br sm:from-blue-50/80 sm:to-blue-100/30 sm:p-5'
+      )}
     >
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-3 flex items-center gap-2.5 sm:justify-between">
         <div className="flex items-center gap-2.5">
           <div className="rounded-lg bg-blue-100/50 p-1.5">
             <Calendar className="h-4 w-4 text-blue-600" aria-hidden="true" />
           </div>
-          <div>
-            <h3 className="text-sm font-medium leading-none text-blue-900 mb-1">
-              Pre-Booked Vacations
-            </h3>
-          </div>
+          <h3 className="text-sm font-medium leading-none text-blue-900">
+            Pre-Booked Vacations
+          </h3>
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-[0.75rem]">
-          <Badge
-            variant="outline"
-            size="sm"
-            icon={<Briefcase className="h-3 w-3 text-blue-600" aria-hidden="true" />}
-            className="border-blue-200 bg-white/60 text-blue-700 supports-[backdrop-filter]:bg-white/30"
-          >
-            {formatCountLabel(totalWorkingDays, 'working day')}
-          </Badge>
-          <Badge
-            variant="outline"
-            size="sm"
-            icon={<Ban className="h-3 w-3 text-blue-500" aria-hidden="true" />}
-            className="border-blue-200 bg-white/60 text-blue-600 supports-[backdrop-filter]:bg-white/30"
-          >
-            {formatCountLabel(totalExcludedDays, 'excluded day')}
-          </Badge>
-          <Badge
-            variant="outline"
-            size="sm"
-            icon={<Layers className="h-3 w-3 text-blue-500" aria-hidden="true" />}
-            className="border-blue-200 bg-white/60 text-blue-600 supports-[backdrop-filter]:bg-white/30"
-          >
-            {formatCountLabel(ranges.length, 'selection')}
-          </Badge>
-        </div>
-      </div>
-      <div className="mb-4 flex flex-wrap gap-3 text-xs text-blue-600/80">
-        {(['holiday', 'company', 'weekend'] as ExcludedReason[]).map(reason => {
-          const { label, icon: Icon, legendClass } = REASON_VISUALS[reason];
-          return (
-            <span key={reason} className="inline-flex items-center gap-1">
-              <Icon className={cn('h-3.5 w-3.5', legendClass)} aria-hidden="true" />
-              <span className="font-medium text-blue-700">{label}</span>
-            </span>
-          );
-        })}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3 sm:space-y-2">
         {ranges.map((range, index) => {
           const key = `${range.start.getTime()}-${range.end.getTime()}`;
           const excludedCount = range.excludedDays.length;
@@ -291,16 +251,19 @@ export function PreBookedDaysRangeList() {
             { weekend: 0, holiday: 0, company: 0 } as Record<ExcludedReason, number>
           );
 
+          const pluralize = (count: number, singular: string, plural?: string) =>
+            `${count} ${count === 1 ? singular : plural ?? `${singular}s`}`;
+
           const excludedSegments = [
-            reasonCounts.holiday ? formatCountLabel(reasonCounts.holiday, 'holiday', 'holidays') : null,
-            reasonCounts.company ? formatCountLabel(reasonCounts.company, 'company day') : null,
-            reasonCounts.weekend ? formatCountLabel(reasonCounts.weekend, 'weekend day') : null,
+            reasonCounts.holiday ? pluralize(reasonCounts.holiday, 'holiday', 'holidays') : null,
+            reasonCounts.company ? pluralize(reasonCounts.company, 'company day') : null,
+            reasonCounts.weekend ? pluralize(reasonCounts.weekend, 'weekend day') : null,
           ].filter(Boolean) as string[];
 
           const summaryText =
             excludedSegments.length > 0
-              ? `${formatCountLabel(range.workingDays, 'working day')} • ${excludedSegments.join(' • ')} excluded`
-              : formatCountLabel(range.workingDays, 'working day');
+              ? `${pluralize(range.workingDays, 'working day')} • ${excludedSegments.join(' • ')} excluded`
+              : pluralize(range.workingDays, 'working day');
 
           return (
             <motion.div
@@ -310,23 +273,46 @@ export function PreBookedDaysRangeList() {
               exit={{ opacity: 0, x: 10 }}
               transition={{ delay: index * 0.05 }}
               className={cn(
-                'group rounded-xl bg-white/95 ring-1 ring-blue-200/50',
-                'hover:ring-blue-300 hover:shadow-sm transition-all duration-200'
+                'group rounded-lg border border-blue-100 bg-white transition-all duration-200 shadow-sm',
+                'sm:border-transparent sm:bg-white/95 sm:ring-1 sm:ring-blue-200/50 sm:hover:ring-blue-300 sm:hover:shadow-sm'
               )}
             >
-              <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-blue-900">
-                    {formatRangeLabel(range)}
-                  </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-blue-500/90">
-                    <span>{summaryText}</span>
-                    {excludedCount > 0 && (
+              <div className="relative flex flex-col gap-3 p-3 sm:p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-blue-900 sm:text-base">
+                      {formatRangeLabel(range)}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveRange(range)}
+                    className={cn(
+                      'absolute right-3 top-3 h-9 w-9 rounded-full border border-blue-100 bg-blue-50 p-0 text-blue-600 focus:border-blue-200 focus:bg-blue-100',
+                      'sm:static sm:h-7 sm:w-7 sm:rounded-md sm:border-transparent sm:bg-transparent',
+                      'sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100',
+                      'transition-all duration-200',
+                      'hover:bg-red-100/70 hover:scale-105 active:scale-95'
+                    )}
+                    aria-label={`Remove ${formatRangeLabel(range)}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-blue-600 hover:text-red-500" />
+                  </Button>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm font-medium text-blue-500/90 sm:text-xs">
+                    {summaryText}
+                  </span>
+                  {excludedCount > 0 && (
+                    <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => toggleRow(key)}
                         aria-expanded={isExpanded}
-                        className="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-50 px-1.5 py-0.5 font-medium text-blue-600 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                        className="inline-flex w-full items-center justify-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-300 sm:w-auto sm:justify-start sm:rounded-md sm:border-transparent sm:bg-blue-50 sm:px-2.5"
                       >
                         <Info className="h-3 w-3" aria-hidden="true" />
                         {isExpanded ? 'Hide details' : 'View details'}
@@ -336,26 +322,8 @@ export function PreBookedDaysRangeList() {
                           <ChevronDown className="h-3 w-3" aria-hidden="true" />
                         )}
                       </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveRange(range)}
-                    className={cn(
-                      'h-7 w-7 p-0',
-                      'opacity-0 group-hover:opacity-100 focus:opacity-100',
-                      'transition-all duration-200',
-                      'hover:bg-red-100/70 hover:scale-110 active:scale-95'
-                    )}
-                    aria-label={`Remove ${formatRangeLabel(range)}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-blue-600 hover:text-red-500" />
-                  </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -367,7 +335,7 @@ export function PreBookedDaysRangeList() {
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="mx-3 mb-3 space-y-1 rounded-xl bg-blue-50/40 px-3 py-2 text-xs text-blue-700"
+                      className="mx-1 mb-2 space-y-1 rounded-md bg-white px-2.5 py-2 text-xs text-blue-700 sm:mx-3 sm:mb-3 sm:rounded-xl sm:bg-blue-50/40 sm:px-3"
                     >
                       {range.excludedDays.map(item => {
                         const visual = REASON_VISUALS[item.reason];
@@ -376,7 +344,7 @@ export function PreBookedDaysRangeList() {
                         return (
                           <li
                             key={item.date.toISOString()}
-                            className="flex items-center gap-3 rounded-lg bg-white/70 px-2 py-0.5"
+                            className="flex items-center gap-3 rounded-md bg-blue-50/60 px-2 py-1 sm:bg-white/70 sm:rounded-lg"
                           >
                             <span
                               className={cn(

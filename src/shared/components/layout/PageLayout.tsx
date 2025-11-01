@@ -40,10 +40,12 @@ export const PageDescription = ({ children, className }: PageSectionProps) => {
 
 export const PageContent = ({ children, className, fullWidth = false }: PageSectionProps) => {
   return (
-    <div className={cn('w-full py-6', className)}>
+    <div className={cn('w-full py-0 sm:py-6', className)}>
       <div
         className={cn(
-          fullWidth ? containerStyles : 'max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-8 xl:px-12'
+          fullWidth
+            ? containerStyles
+            : 'max-w-[1400px] mx-auto px-0 sm:px-4 lg:px-8 xl:px-12'
         )}
       >
         {children}

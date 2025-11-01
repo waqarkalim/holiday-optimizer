@@ -396,8 +396,11 @@ export function MultiRangeCalendar({
 
   return (
     <div className={className}>
-      <div ref={calendarRef} className="relative border border-gray-200 rounded-lg overflow-hidden">
-        <div className="p-4 pb-3">
+      <div
+        ref={calendarRef}
+        className="relative overflow-hidden rounded-lg border border-gray-100 bg-white sm:border-gray-200"
+      >
+        <div className="p-3 pb-2 sm:p-4 sm:pb-3">
           <Calendar
             value={values}
             onChange={nextValue => handleChange(nextValue as CalendarSelection)}
@@ -411,7 +414,7 @@ export function MultiRangeCalendar({
         </div>
 
         <TooltipProvider>
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border-t border-gray-200">
+          <div className="flex items-center gap-2 border-t border-gray-100 bg-gray-50/60 px-3 py-2 sm:border-gray-200 sm:bg-gray-50 sm:px-4 sm:py-2.5">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button

@@ -33,12 +33,11 @@ export function FormSection({ children, colorScheme, className, headingId }: For
   return (
     <section
       className={cn(
-        'bg-white/90',
-        'rounded-lg p-2.5',
-        'ring-1',
-        'relative',
+        'relative space-y-3',
+        'px-1.5 py-2',
+        'sm:px-4 sm:py-4',
+        'sm:bg-white/90 sm:rounded-xl sm:ring-1',
         colorStyles[colorScheme].ring,
-        'space-y-2',
         className
       )}
       aria-labelledby={headingId}
