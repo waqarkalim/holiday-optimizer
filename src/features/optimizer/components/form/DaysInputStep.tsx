@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/utils';
 import { StepHeader } from './components/StepHeader';
@@ -9,17 +7,8 @@ import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 
 export function DaysInputStep() {
   const { days, daysError, setDays } = useOptimizerForm();
-  const [shouldAutofocus, setShouldAutofocus] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    // Only auto-focus on devices with a precise pointer (desktop/laptop)
-    const prefersFinePointer = window.matchMedia('(pointer: fine)').matches;
-    setShouldAutofocus(prefersFinePointer);
-  }, []);
+  const shouldAutofocus =
+    typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setDays(e.target.value);
 
