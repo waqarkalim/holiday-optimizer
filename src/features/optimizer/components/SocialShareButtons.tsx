@@ -52,11 +52,11 @@ export function SocialShareButtons({
 
   if (variant === 'primary') {
     return (
-      <div className={cn('flex flex-wrap items-center gap-2', className)}>
+      <div className={cn('flex flex-nowrap items-stretch gap-3', className)}>
         <Button
           variant="outline"
           size="default"
-          className="min-w-[160px] justify-center gap-2 rounded-xl border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
+          className="flex-1 justify-center gap-2 rounded-xl border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
           asChild
           onClick={() => {
             trackEvent('Content shared', { platform: 'email' });
@@ -76,7 +76,7 @@ export function SocialShareButtons({
         <Button
           variant="outline"
           size="default"
-          className="min-w-[160px] justify-center gap-2 rounded-xl border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
+          className="flex-1 justify-center gap-2 rounded-xl border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
           onClick={copyToClipboard}
           aria-label="Copy link to clipboard"
         >

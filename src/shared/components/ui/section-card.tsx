@@ -14,6 +14,7 @@ interface SectionCardProps {
   children: ReactNode;
   className?: string;
   icon?: ReactNode;
+  iconWrapperClassName?: string;
   title?: string;
   subtitle?: string;
   rightContent?: ReactNode;
@@ -24,6 +25,7 @@ export function SectionCard({
   children,
   className,
   icon,
+  iconWrapperClassName,
   title,
   subtitle,
   rightContent,
@@ -39,7 +41,9 @@ export function SectionCard({
         {title && (
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {icon && <div className="p-1.5 bg-gray-100 rounded-lg">{icon}</div>}
+              {icon && (
+                <div className={cn('rounded-lg bg-gray-100 p-1.5', iconWrapperClassName)}>{icon}</div>
+              )}
               <div>
                 <h2 className="text-base font-semibold text-gray-900 leading-none mb-0.5">
                   {title}
