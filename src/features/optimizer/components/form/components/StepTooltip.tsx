@@ -23,6 +23,7 @@ export interface StepTooltipProps {
 
 export function StepTooltip({ title, description, colorScheme, ariaLabel }: StepTooltipProps) {
   const [isTouch, setIsTouch] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) {
@@ -44,6 +45,25 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
     query.addListener(update);
     return () => query.removeListener(update);
   }, []);
+
+  useEffect(() => {
+    if (!isTouch && open) {
+      setOpen(false);
+    }
+  }, [isTouch, open]);
+
+  const tooltipProps = isTouch
+    ? {
+        open,
+        onOpenChange: setOpen,
+      }
+    : {};
+
+  const handleTriggerClick = () => {
+    if (isTouch) {
+      setOpen(prev => !prev);
+    }
+  };
 
   // Map colorScheme to specific style classes
   const colorClasses = {
@@ -98,12 +118,13 @@ export function StepTooltip({ title, description, colorScheme, ariaLabel }: Step
   };
 
   return (
-    <Tooltip disableHoverableContent={isTouch}>
+    <Tooltip disableHoverableContent={isTouch} {...tooltipProps}>
       <TooltipTrigger asChild>
         <button
           type="button"
           className={`rounded-full p-1 ${colorClasses[colorScheme].hover} cursor-help transition-colors focus:outline-none focus:ring-2 ${colorClasses[colorScheme].ring} focus:ring-offset-1`}
           aria-label={ariaLabel}
+          onClick={handleTriggerClick}
         >
           <Info className={`h-3.5 w-3.5 ${colorClasses[colorScheme].icon}`} aria-hidden="true" />
         </button>
