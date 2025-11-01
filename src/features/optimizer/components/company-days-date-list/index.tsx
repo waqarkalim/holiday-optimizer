@@ -432,7 +432,6 @@ function GroupRow({
     <motion.li
       key={name + (isDefaultNamed ? '-month' : '-name')}
       {...ANIMATION_CONFIG}
-      className={theme.hover}
       aria-labelledby={groupId}
     >
       <motion.div
