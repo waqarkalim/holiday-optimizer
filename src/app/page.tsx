@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ResultsDisplay } from '@/features/optimizer/components/ResultsDisplay';
 import { OptimizerForm } from '@/features/optimizer/components/OptimizerForm';
@@ -198,7 +198,7 @@ const HomePage = () => {
                     />
                   </Card>
                 )}
-                <Activity mode={isOptimizing ? 'hidden' : 'visible'}>
+                <div className={cn(isOptimizing ? 'hidden' : 'block')}>
                   {optimizationResult && optimizationResult.days.length > 0 && (
                     <div itemScope itemType="https://schema.org/Event">
                       <meta
@@ -216,7 +216,7 @@ const HomePage = () => {
                       />
                     </div>
                   )}
-                </Activity>
+                </div>
               </div>
             )}
           </section>
