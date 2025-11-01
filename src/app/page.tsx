@@ -145,7 +145,6 @@ const HomePage = () => {
             {/* Form Section - Always visible */}
             <div
               className={cn(
-                'space-y-4',
                 isOptimizing || optimizationResult
                   ? 'lg:sticky lg:top-6 lg:self-start max-w-2xl'
                   : 'max-w-xl mx-auto w-full'
