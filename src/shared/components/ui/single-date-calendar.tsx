@@ -10,9 +10,9 @@ const buildStatusMessage = (
   selectedDates: Date[],
   weekendDays: WeekdayNumber[],
   holidays: Array<{ date: string; name: string }>
-) => {
+): React.ReactNode => {
   if (selectedDates.length === 0) {
-    return 'Click dates to select company days off';
+    return <span className="text-gray-500">Click dates to select company days off</span>;
   }
 
   const isWeekend = (date: Date): boolean => {
@@ -30,12 +30,23 @@ const buildStatusMessage = (
   const excluded = total - working;
 
   if (excluded > 0) {
-    return `${total} ${total === 1 ? 'day' : 'days'} selected: ${working} ${
-      working === 1 ? 'working day' : 'working days'
-    } (${excluded} excluded) • Click any to remove`;
+    return (
+      <>
+        <span className="text-gray-700">{total} {total === 1 ? 'day' : 'days'} selected: {working} {working === 1 ? 'working day' : 'working days'}</span>{' '}
+        <span className="text-gray-500">({excluded} excluded)</span>
+        <span className="text-gray-400 mx-1.5">•</span>
+        <span className="text-gray-500">Click any to remove</span>
+      </>
+    );
   }
 
-  return `${total} ${total === 1 ? 'day' : 'days'} selected • Click any to remove`;
+  return (
+    <>
+      <span className="text-gray-700">{total} {total === 1 ? 'day' : 'days'} selected</span>
+      <span className="text-gray-400 mx-1.5">•</span>
+      <span className="text-gray-500">Click any to remove</span>
+    </>
+  );
 };
 
 export interface SingleDateCalendarProps {
@@ -74,8 +85,8 @@ export function SingleDateCalendar({
 
   return (
     <div className={className}>
-      <div className="relative overflow-hidden rounded-lg border border-gray-100 bg-white sm:border-gray-200">
-        <div className="p-3 pb-2 sm:p-4 sm:pb-3">
+      <div className="relative overflow-hidden">
+        <div className="pb-2">
           <Calendar
             value={values}
             onChange={nextValue => handleChange(nextValue as CalendarSelection)}
@@ -88,19 +99,19 @@ export function SingleDateCalendar({
         </div>
 
         <TooltipProvider>
-          <div className="flex items-center gap-2 border-t border-gray-100 bg-gray-50/60 px-3 py-2 sm:border-gray-200 sm:bg-gray-50 sm:px-4 sm:py-2.5">
+          <div className="flex items-center gap-2.5 border-gray-200/60 bg-gray-50/50 px-3 py-2.5 sm:px-4 sm:py-3 rounded-b-lg">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-gray-400 hover:border-gray-500 hover:bg-gray-100 transition-colors"
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                   aria-label="How to use calendar"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 16 16"
                     fill="currentColor"
-                    className="h-3 w-3 text-gray-600"
+                    className="h-2.5 w-2.5 text-gray-600"
                   >
                     <path
                       fillRule="evenodd"
@@ -117,9 +128,9 @@ export function SingleDateCalendar({
                 </div>
               </TooltipContent>
             </Tooltip>
-            <span className="text-xs text-gray-700 leading-tight">
+            <div className="text-xs leading-tight flex-1">
               {statusMessage}
-            </span>
+            </div>
           </div>
         </TooltipProvider>
       </div>
