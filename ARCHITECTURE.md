@@ -2,53 +2,54 @@
 
 ## App Entry & Composition
 
-- **Root layout**: `src/app/layout.tsx` wires global metadata, fonts, and shared chrome (`Header`, `Footer`).
-- **Providers**: `src/app/Providers.tsx` wraps the tree with TanStack Query, theme, tooltip, and toast providers. Feature providers (e.g., optimizer state) live inside feature routes.
-- **Styling**: Tailwind CSS via `globals.css` plus shadcn/ui components located under `src/shared/components/ui`.
+- **Root layout (`src/app/layout.tsx`)** wires global metadata, fonts, and shared chrome (`Header`, `Footer`).
+- **Providers (`src/app/Providers.tsx`)** wrap the app with TanStack Query, tooltip context, and toast providers. Feature-level providers sit inside individual routes if required.
+- **Styling** is managed with Tailwind CSS (see `globals.css`) and a small set of custom wrappers around shadcn/ui primitives housed under `src/shared/components/ui`.
 
 ## Routing
 
-- **App router**: Next.js 15 app directory with the following public routes:
-  - `/` – optimizer flow.
-  - `/how-it-works` – explainer.
-  - `/holidays` and nested dynamic segments for country/state/region holiday pages.
-  - `/privacy`, `/terms`, plus auto-generated `sitemap.ts` and `robots.ts`.
-- Route components now import shared layout primitives via `@/shared/components/layout` and feature modules via `@/features/*`.
+- Built on the **Next.js 16 App Router**.
+- Public routes currently shipped:
+  - `/` – PTO optimizer flow (form + results).
+  - `/how-it-works` – algorithm explainer and onboarding content.
+  - `/privacy` and `/terms` – legal pages.
+  - `sitemap.ts` and `robots.ts` – generated metadata endpoints.
+- Notable route helpers: `not-found.tsx` redirects to `/`, and `Providers.tsx` lives beside `layout.tsx` to scope client providers.
 
 ## Feature Modules
 
 - **Optimizer (`src/features/optimizer`)**
-  - `components/` – form steps, results view, and modular sub-components (`common/`, `company-days-date-list/`, `holidays-date-list/`).
-  - `context/OptimizerContext.tsx` – reducer-driven state for PTO planning.
-  - `hooks/useOptimizer.ts` – single `useOptimizerForm` hook exposing state slices and typed actions; `useLocalStorage` handles persistence.
-  - `lib/storage/` – localStorage helpers for holidays and company days.
+  - `components/` – form steps, results display (stats, calendar, break cards), and supporting UI fragments.
+  - `context/OptimizerContext.tsx` – reducer-driven source of truth for the optimization form.
+  - `hooks/useOptimizer.ts` – exposes the consolidated `useOptimizerForm` hook plus utilities (e.g., `useLocalStorage`).
+  - `lib/` – date and storage helpers used by optimizer components.
 - **Holidays (`src/features/holidays`)**
-  - `components/` – country search and holiday detail pages.
-  - `hooks/useHolidayQueries.ts` – TanStack Query hooks for `date-holidays` data.
-  - `lib/location-storage.ts` – location persistence shared between optimizer and holiday routes.
+  - `components/` – dropdowns and lists when selecting locations/holidays.
+  - `hooks/useHolidayQueries.ts` – TanStack Query hooks that hydrate holiday data using the `date-holidays` package.
+  - `lib/location-storage.ts` – persists the user’s last known location selection.
 
-## Data Layer
+## Data & Services Layer
 
-- `src/services/optimizer.ts` – pure algorithm that produces optimized schedules from PTO/holiday inputs.
-- `src/services/holidays.ts` – fetches country/state/region data via `date-holidays` (server-only).
-- Client components consume data through React Query hooks (`useHolidayQueries`) or context actions (`useOptimizerForm`).
+- `src/services/optimizer.ts` – pure algorithm that analyzes PTO, weekends, holidays, and company days to build optimal break ranges.
+- `src/services/holidays.ts` – helpers around the `date-holidays` library, shared across optimizer and holiday features.
+- Shared utilities (`src/utils/`) cover date formatting, tracking events, and schema helpers.
 
 ## Shared Layer
 
-- `src/shared/components` – global UI primitives (shadcn/ui with tailwind-merge) and layout elements (header, footer, theme toggle, JSON-LD helpers).
-- `src/shared/hooks` – cross-cutting utilities such as `use-is-mobile`.
-- `src/shared/lib/utils.ts` – className helpers, design tokens, and color mappings used by multiple features.
+- `src/shared/components` – layout primitives (Header, Footer, ReleaseBanner, JSON-LD components) and reusable UI pieces.
+- `src/shared/hooks` – cross-cutting hooks such as viewport/touch detection.
+- `src/shared/lib/utils.ts` – design tokens, color schemes, and helpers (`cn`, day-type color mapping, etc.).
 
 ## State Management & Side Effects
 
-- Optimizer reducer centralizes form state, with deterministic actions (`SET_DAYS`, `ADD_HOLIDAY`, etc.).
-- `useOptimizerForm` provides memoized action creators so components avoid dispatch boilerplate.
-- Local storage sync is encapsulated in `useLocalStorage`, coordinating persistence per selected year.
-- React Query caches holiday lookups, and `Providers` disables refetch-on-focus for stability.
+- Optimizer state is centralized in a reducer. Actions mutate a single store that is surfaced via `useOptimizerForm`.
+- Local storage sync (`useLocalStorage`) persists optimizer form inputs per year.
+- TanStack Query caches holiday data; refetch on focus is disabled for a smoother wizard experience.
+- Toasting, analytics, and metadata live in shared utilities to avoid duplication.
 
 ## Conventions
 
-- Absolute imports via `@/features/*` and `@/shared/*` for discoverability.
-- Components prefer literal props over HOCs; hooks live beside their feature.
-- UI components remain presentational and expect domain objects from feature hooks.
-- Tests run with Jest/RTL; linting via `pnpm lint`; formatting via `pnpm format:write`.
+- Absolute imports with `@/features/*`, `@/shared/*`, and `@/services/*` for clarity.
+- Components favour props over HOCs; hooks co-locate with their feature.
+- Stateless UI pieces stay presentational; data orchestration happens inside feature hooks/containers.
+- Quality gates: `pnpm lint`, `pnpm test`, and `pnpm build` run before release.

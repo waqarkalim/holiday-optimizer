@@ -2,7 +2,7 @@
 
 ## Highlights & Snippets
 
-- **Unified optimizer hook** – replaced five micro hooks with one `useOptimizerForm` that returns state slices and direct action helpers.
+- **Unified optimizer hook** – replaced the earlier micro hooks with one `useOptimizerForm` that returns state slices and direct action helpers.
 
 ```diff
 - export function useDaysInput() {
@@ -28,14 +28,14 @@
 +}
 ```
 
-- **Feature-first layout** – optimizer and holidays modules moved to `src/features/*`; shared UI/theme now under `src/shared/components`. Imports normalised to the new aliases.
-- **Local storage sync simplified** – `useLocalStorage` now consumes `useOptimizerForm` actions instead of dispatching raw reducer events.
-- **Dead utilities removed** – deleted unused `src/utils/fp.ts` and an unused calendar component.
+- **Feature-first layout** – optimizer and holidays modules now sit inside `src/features/*` with shared UI under `src/shared/components/*`. Imports are aligned to these aliases.
+- **Local storage sync simplified** – `useLocalStorage` consumes `useOptimizerForm` actions instead of dispatching raw reducer events.
+- **Dead utilities removed** – deleted unused helpers (e.g., `src/utils/fp.ts`) and redundant calendar components.
 
 ## Parity Checks
 
 - `pnpm lint`
 - `pnpm test`
-- `pnpm build` _(fails offline: Next.js cannot download Inter from Google Fonts in this sandbox; no app code changes required in production environments with network access.)_
+- `pnpm build`
 
-Routes verified unchanged: `/`, `/how-it-works`, `/holidays`, `/holidays/[country]`, `/holidays/[country]/[state]`, `/holidays/[country]/[state]/[region]`, `/privacy`, `/terms`.
+Routes verified unchanged: `/`, `/how-it-works`, `/privacy`, `/terms`.

@@ -1,98 +1,81 @@
 # Deployment Guide
 
-This guide explains how to deploy the Holiday Optimizer application to Cloudflare Pages.
+Deploy Holiday Optimizer to Cloudflare Pages using the current Next.js 16 build pipeline.
 
 ## Infrastructure Overview
 
-The application uses Cloudflare Pages for hosting:
-
-- Automatic builds and deployments directly from GitHub
-- Global CDN for fast content delivery
-- Automatic HTTPS/SSL
-- Scalable hosting with no infrastructure management
+- Cloudflare Pages handles CI/CD from GitHub.
+- Static assets are served globally via Cloudflare's CDN with automatic HTTPS.
+- No additional server configuration is required.
 
 ## Deployment Setup
 
 ### 1. Cloudflare Account Setup
 
-1. Create a Cloudflare account if you don't have one
-2. Navigate to the Cloudflare Dashboard > Pages
+1. Create or sign in to your Cloudflare account.
+2. Open the Cloudflare Dashboard and navigate to **Pages**.
 
 ### 2. Connect to GitHub
 
-1. Click "Create a project" in Cloudflare Pages
-2. Choose "Connect to Git"
-3. Authorize Cloudflare to access your GitHub repositories
-4. Select the "holiday-optimizer" repository
+1. Click **Create a project**.
+2. Choose **Connect to Git**.
+3. Authorise Cloudflare to access your GitHub repositories (if prompted).
+4. Select the `holiday-optimizer` repository.
 
 ### 3. Configure Build Settings
 
-1. Configure the build settings:
+In the project configuration:
 
-   - **Project name**: holiday-optimizer (or your preferred name)
-   - **Production branch**: master
-   - **Framework preset**: Next.js
-   - **Build command**: npm run build
-   - **Build output directory**: out
-   - **Environment variables** (if needed):
-     - NODE_VERSION: 20
-     - PNPM_VERSION: 10.6.3
+- **Project name**: `holiday-optimizer` (or any alias you prefer).
+- **Production branch**: `main` (match your primary release branch).
+- **Framework preset**: Next.js.
+- **Build command**: `pnpm build`.
+- **Output directory**: leave blank (Cloudflare uploads the `.next` output automatically).
+- **Environment variables**:
+  - `NODE_VERSION=20`
+  - `PNPM_VERSION=10.6.3`
+  - Add any `NEXT_PUBLIC_*` values or analytics IDs your deployment requires.
 
-2. Click "Save and Deploy"
+Save the configuration and trigger the initial deployment.
 
 ## Development Workflow
 
-1. Make changes to your codebase
-2. Push to GitHub
-3. Cloudflare automatically:
-   - Detects the changes
-   - Builds the application
-   - Deploys to Cloudflare Pages
-   - Issues a unique preview URL for each commit/PR
+1. Develop locally and run the usual checks:
+   ```bash
+   pnpm lint
+   pnpm test
+   pnpm build
+   ```
+2. Push your changes to GitHub.
+3. Cloudflare Pages will:
+   - Install dependencies with pnpm.
+   - Execute `pnpm build` (which internally runs `scripts/build.mjs` to force the Webpack pipeline mandated by Cloudflare).
+   - Publish a preview deployment for the commit/PR, and update production when the main branch changes.
 
 ## Advanced Configuration
 
 ### Custom Domains
 
-1. In the Cloudflare Pages project:
-   - Go to "Custom domains"
-   - Click "Set up a custom domain"
-   - Enter your domain name
-   - Follow the verification steps
+1. In the Cloudflare Pages project, open **Custom domains**.
+2. Click **Set up a custom domain** and follow the verification prompts.
 
 ### Environment Variables
 
-1. For environment-specific settings:
-   - Go to "Settings" > "Environment variables"
-   - Add variables for Production and Preview environments
+1. Navigate to **Settings → Environment variables**.
+2. Add variables for the Production and Preview environments as needed.
 
 ### Build Configuration
 
-1. For more control over the build process:
-   - Create a `wrangler.toml` file in the root
-   - Specify detailed build configuration
+Most deployments do not need a `wrangler.toml`. Only add one if you require custom headers, redirects, or Worker bindings.
 
 ## Troubleshooting
 
-### Common Issues
+- **Build failures**: review the Cloudflare build logs to ensure pnpm installed correctly and the Node version is set to 20.
+- **Font downloads**: the build fetches Google Fonts; if the environment blocks outbound requests, vendor the fonts locally.
+- **Preview deployments**: verify the GitHub integration still has access to the repository and that the selected branch matches your workflow.
 
-1. **Build Failures**
+## Monitoring & Maintenance
 
-   - Check the build logs in Cloudflare Pages
-   - Ensure all dependencies are correctly installed
-   - Verify build commands match your project setup
-
-2. **Node.js Version Mismatch**
-
-   - Set NODE_VERSION environment variable in Cloudflare
-   - Ensure compatibility with your code
-
-3. **Preview Deployment Issues**
-   - Check GitHub repository permissions
-   - Verify webhook is properly configured
-
-## Monitoring and Maintenance
-
-- Monitor build and deployment status in Cloudflare Dashboard
-- Check analytics for traffic patterns and errors
-- Regular dependency updates through normal development workflow
+- Monitor build and deployment status from the Cloudflare Dashboard.
+- Keep an eye on Cloudflare Analytics for traffic and error trends.
+- Regularly run `pnpm update` locally to stay current with dependencies before redeploying.
