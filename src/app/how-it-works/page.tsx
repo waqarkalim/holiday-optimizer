@@ -175,7 +175,7 @@ export default function HowItWorksPage() {
         </PageDescription>
       </PageHeader>
 
-      <PageContent className="bg-gradient-to-b from-slate-50 to-white">
+      <PageContent className="bg-gradient-to-b from-slate-50 to-white py-8 sm:py-12">
         <div className="mx-auto w-full max-w-4xl space-y-8 sm:space-y-12 lg:space-y-16">
           {/* Hero Section */}
           <section className="space-y-4 sm:space-y-6">

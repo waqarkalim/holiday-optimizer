@@ -133,7 +133,7 @@ const HomePage = () => {
           </PageDescription>
         </PageHeader>
 
-        <PageContent>
+        <PageContent customPadding="px-0 sm:px-6 lg:px-8 xl:px-12">
           <section
             className={cn(
               'grid gap-6 mx-auto max-w-[1400px]',

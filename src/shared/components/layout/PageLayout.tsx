@@ -10,6 +10,7 @@ interface PageSectionProps {
   children: React.ReactNode;
   className?: string;
   fullWidth?: boolean;
+  customPadding?: string;
 }
 
 export const PageLayout = ({ children, className }: PageLayoutProps) => {
@@ -38,14 +39,16 @@ export const PageDescription = ({ children, className }: PageSectionProps) => {
   return <p className={cn('mt-2 text-sm text-gray-600', className)}>{children}</p>;
 };
 
-export const PageContent = ({ children, className, fullWidth = false }: PageSectionProps) => {
+export const PageContent = ({ children, className, fullWidth = false, customPadding }: PageSectionProps) => {
+  const defaultPadding = customPadding ?? 'px-4 sm:px-6 lg:px-8 xl:px-12';
+
   return (
     <div className={cn('w-full py-0 sm:py-6', className)}>
       <div
         className={cn(
           fullWidth
             ? containerStyles
-            : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12'
+            : `max-w-[1400px] mx-auto ${defaultPadding}`
         )}
       >
         {children}
