@@ -13,7 +13,13 @@ interface ShareSectionProps {
 export const ShareSection = ({ stats, selectedYear }: ShareSectionProps) => {
   // Create a more personalized share message if stats are available
   const getShareTitle = () => {
-    return `I optimized my ${stats.totalPTODays} PTO days to enjoy ${stats.totalDaysOff} days off in ${selectedYear}.`;
+    const remoteAddon =
+      stats.totalRemoteWorkDays > 0
+        ? ` plus ${stats.totalRemoteWorkDays} remote travel day${
+            stats.totalRemoteWorkDays === 1 ? '' : 's'
+          }`
+        : '';
+    return `I optimized my ${stats.totalPTODays} PTO days to enjoy ${stats.totalDaysOff} days off${remoteAddon} in ${selectedYear}.`;
   };
 
   const getShareDescription = () => {

@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { OptimizationStats } from '@/types';
 import StatCard from '@/shared/components/ui/cards/StatCard';
-import { BarChart2, Building2, Calendar, CalendarDays, Sun, Umbrella } from 'lucide-react';
+import { BarChart2, Building2, Calendar, CalendarDays, Laptop, Sun, Umbrella } from 'lucide-react';
 import { SectionCard } from '@/shared/components/ui/section-card';
 
 interface OptimizationStatsComponentProps {
@@ -50,6 +50,14 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
       tooltip:
         'Number of company-wide days off (e.g., Christmas closure) that are part of a longer break',
       colorScheme: 'violet' as const,
+    },
+    {
+      key: 'remote-days',
+      icon: <Laptop className="h-5 w-5" />,
+      value: stats.totalRemoteWorkDays,
+      label: 'Remote Travel Days',
+      tooltip: 'Remote work days that extend your break without using PTO',
+      colorScheme: 'sky' as const,
     },
   ];
 

@@ -19,10 +19,14 @@ import {
   getStoredWeekendDays,
   storeWeekendDays,
 } from '@/features/optimizer/lib/storage/weekend-days';
+import {
+  getStoredRemoteWorkDays,
+  storeRemoteWorkDays,
+} from '@/features/optimizer/lib/storage/remote-work-days';
 
 export function useLocalStorage() {
   const { state, dispatch } = useOptimizer();
-  const { holidays, companyDaysOff, preBookedDays, selectedYear, weekendDays } = state;
+  const { holidays, companyDaysOff, preBookedDays, selectedYear, weekendDays, remoteWorkDays } = state;
 
   // Load stored data when year changes or on mount
   useEffect(() => {
@@ -59,6 +63,11 @@ export function useLocalStorage() {
   useEffect(() => {
     const storedWeekendDays = getStoredWeekendDays();
     dispatch({ type: 'SET_WEEKEND_DAYS', payload: storedWeekendDays });
+  }, [dispatch]);
+
+  useEffect(() => {
+    const storedRemoteDays = getStoredRemoteWorkDays();
+    dispatch({ type: 'SET_REMOTE_WORK_DAYS', payload: storedRemoteDays });
   }, [dispatch]);
 
   // Sync individual holiday changes
@@ -104,6 +113,10 @@ export function useLocalStorage() {
   useEffect(() => {
     storeWeekendDays(weekendDays);
   }, [weekendDays]);
+
+  useEffect(() => {
+    storeRemoteWorkDays(remoteWorkDays);
+  }, [remoteWorkDays]);
 
   // Sync individual pre-booked day changes
   useEffect(() => {

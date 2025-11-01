@@ -33,7 +33,8 @@ interface DayInfo {
     | 'weekend'
     | 'pto'
     | 'publicHoliday'
-    | 'extendedWeekend';
+    | 'extendedWeekend'
+    | 'remoteWork';
   tooltipText: string;
   bgClass: string;
   textClass: string;
@@ -77,6 +78,8 @@ const getDayColorScheme = (
     dayType = 'publicHoliday';
   } else if (day.isCompanyDayOff) {
     dayType = 'companyDayOff';
+  } else if (day.isRemoteWorkDay) {
+    dayType = 'remoteWork';
   } else if (day.isWeekend) {
     dayType = 'weekend';
   }
@@ -264,6 +267,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
     hasExtendedWeekends: days.some(day => day.isPartOfBreak && day.isWeekend),
     hasBreaks: days.some(day => day.isPartOfBreak), // Added explicit check for breaks
     hasWeekends: days.some(day => day.isWeekend), // Add check for regular weekends
+    hasRemoteWorkDays: days.some(day => day.isRemoteWorkDay),
   };
 
   // Get holidays for the current month
@@ -299,6 +303,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       isCompanyDayOff: false,
       companyDayName: undefined,
       isPreBooked: false,
+      isRemoteWorkDay: false,
     } satisfies OptimizedDay;
   });
 
@@ -360,6 +365,9 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       } else if (dayTypeFlags.hasPTODays && day.isPTO) {
         dayType = 'pto';
         tooltipText = day.isPreBooked ? 'Pre-Booked Vacation (Locked)' : 'PTO Day';
+      } else if (dayTypeFlags.hasRemoteWorkDays && day.isRemoteWorkDay) {
+        dayType = 'remoteWork';
+        tooltipText = 'Remote Travel Day';
       } else if (day.isPartOfBreak) {
         // Add specific tooltip for break days that aren't weekends or holidays
         tooltipText = 'Part of Break Period';
@@ -409,6 +417,9 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       case 'weekend':
         addDescriptor('Weekend day');
         break;
+      case 'remoteWork':
+        addDescriptor('Remote work travel day');
+        break;
       default:
         break;
     }
@@ -422,6 +433,7 @@ export function MonthCalendar({ month, year, days }: MonthCalendarProps) {
       !day.isPTO &&
       !day.isPublicHoliday &&
       !day.isCompanyDayOff &&
+      !day.isRemoteWorkDay &&
       !day.isPartOfBreak &&
       !isPastDay &&
       !isCurrentDay

@@ -15,6 +15,7 @@ export type DayType =
   | 'companyDayOff'
   | 'weekend'
   | 'extendedWeekend'
+  | 'remoteWork'
   | 'default';
 
 // Mapping from day types to color schemes
@@ -24,6 +25,7 @@ export const dayTypeToColorScheme: Record<DayType, PossibleColors> = {
   companyDayOff: 'violet',
   weekend: 'orange',
   extendedWeekend: 'red',
+  remoteWork: 'sky',
   default: 'gray',
 };
 

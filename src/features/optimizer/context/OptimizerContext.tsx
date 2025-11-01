@@ -18,6 +18,7 @@ interface OptimizerState {
   selectedDates: Date[];
   selectedYear: number;
   weekendDays: WeekdayNumber[];
+  remoteWorkDays: WeekdayNumber[];
   customStartDate?: string;
   customEndDate?: string;
   timeframePreset: TimeframePreset;
@@ -55,6 +56,7 @@ type OptimizerAction =
   | { type: 'SET_HOLIDAYS'; payload: Array<{ date: string; name: string }> }
   | { type: 'SET_SELECTED_YEAR'; payload: number }
   | { type: 'SET_WEEKEND_DAYS'; payload: WeekdayNumber[] }
+  | { type: 'SET_REMOTE_WORK_DAYS'; payload: WeekdayNumber[] }
   | { type: 'APPLY_TIMEFRAME_PRESET'; payload: { preset: TimeframePreset; year?: number } }
   | { type: 'SET_CUSTOM_START_DATE'; payload: string | undefined }
   | { type: 'SET_CUSTOM_END_DATE'; payload: string | undefined }
@@ -96,6 +98,7 @@ const initialState: OptimizerState = {
   selectedDates: [],
   selectedYear: currentYear,
   weekendDays: DEFAULT_WEEKEND_DAYS,
+  remoteWorkDays: [],
   customStartDate: defaultRange.start,
   customEndDate: defaultRange.end,
   timeframePreset: 'calendar',
@@ -352,6 +355,21 @@ function optimizerReducer(state: OptimizerState, action: OptimizerAction): Optim
       return {
         ...state,
         weekendDays: validWeekendDays.length > 0 ? validWeekendDays : DEFAULT_WEEKEND_DAYS,
+      };
+    }
+
+    case 'SET_REMOTE_WORK_DAYS': {
+      const normalized = Array.from(
+        new Set(
+          action.payload.filter(
+            (day): day is WeekdayNumber => Number.isInteger(day) && day >= 0 && day <= 6
+          )
+        )
+      );
+
+      return {
+        ...state,
+        remoteWorkDays: normalized as WeekdayNumber[],
       };
     }
 

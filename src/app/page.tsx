@@ -26,6 +26,7 @@ interface FormState {
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
   weekendDays: WeekdayNumber[];
+  remoteWorkDays: WeekdayNumber[];
   customStartDate?: string;
   customEndDate?: string;
 }
@@ -86,6 +87,7 @@ const HomePage = () => {
         preBookedDays: data.preBookedDays,
         holidays: data.holidays,
         weekendDays: data.weekendDays,
+        remoteWorkDays: data.remoteWorkDays,
         startDate: data.customStartDate,
         endDate: data.customEndDate,
       });
@@ -161,6 +163,7 @@ const HomePage = () => {
                     holidays,
                     selectedYear,
                     weekendDays,
+                    remoteWorkDays,
                     customStartDate,
                     customEndDate,
                   }
@@ -173,6 +176,7 @@ const HomePage = () => {
                     holidays,
                     selectedYear,
                     weekendDays,
+                    remoteWorkDays,
                     customStartDate,
                     customEndDate,
                   };

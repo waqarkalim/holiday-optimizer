@@ -26,6 +26,7 @@ export interface OptimizedDay {
   isCompanyDayOff: boolean;
   companyDayName?: string;
   isPreBooked?: boolean;
+  isRemoteWorkDay?: boolean;
 }
 
 export interface Break {
@@ -37,6 +38,7 @@ export interface Break {
   publicHolidays: number;
   weekends: number;
   companyDaysOff: number;
+  remoteWorkDays: number;
 }
 
 export interface OptimizationStats {
@@ -46,6 +48,7 @@ export interface OptimizationStats {
   totalExtendedWeekends: number;
   totalCompanyDaysOff: number;
   totalDaysOff: number;
+  totalRemoteWorkDays: number;
 }
 
 export interface OptimizationResult {
@@ -71,6 +74,7 @@ export interface OptimizationParams {
   companyDaysOff?: Array<CompanyDayOff>;
   preBookedDays?: Array<{ date: string; name: string }>;
   weekendDays?: WeekdayNumber[];
+  remoteWorkDays?: WeekdayNumber[];
   startDate?: string;
   endDate?: string;
 }

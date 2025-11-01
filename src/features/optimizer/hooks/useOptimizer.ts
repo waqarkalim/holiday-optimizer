@@ -22,6 +22,10 @@ export function useOptimizerForm() {
     dispatch({ type: 'SET_WEEKEND_DAYS', payload: value });
   };
 
+  const setRemoteWorkDays = (value: WeekdayNumber[]) => {
+    dispatch({ type: 'SET_REMOTE_WORK_DAYS', payload: value });
+  };
+
   const addHoliday = (date: string, name: string) => {
     dispatch({ type: 'ADD_HOLIDAY', payload: { date, name } });
   };
@@ -102,6 +106,7 @@ export function useOptimizerForm() {
     selectedYear,
     selectedDates,
     weekendDays,
+    remoteWorkDays,
     customStartDate,
     customEndDate,
     timeframePreset,
@@ -117,6 +122,7 @@ export function useOptimizerForm() {
     selectedYear,
     selectedDates,
     weekendDays,
+    remoteWorkDays,
     customStartDate,
     customEndDate,
     timeframePreset,
@@ -128,6 +134,7 @@ export function useOptimizerForm() {
     setStrategy,
     setSelectedYear,
     setWeekendDays,
+    setRemoteWorkDays,
     addHoliday,
     removeHoliday,
     clearHolidays,

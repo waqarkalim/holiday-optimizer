@@ -210,6 +210,7 @@ export const CalendarView = ({
           hasCompanyDaysOff={stats.totalCompanyDaysOff > 0}
           hasExtendedWeekends={stats.totalExtendedWeekends > 0}
           hasWeekends={hasWeekendDays}
+          hasRemoteWorkDays={stats.totalRemoteWorkDays > 0}
           weekendLabel={weekendLegendLabel}
         />
       </div>

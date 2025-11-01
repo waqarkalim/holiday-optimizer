@@ -41,6 +41,7 @@ const getDayTypeGroup = (dayType: DayType): DayTypeGroup => {
     case 'weekend':
       return 'weekend';
     case 'pto':
+    case 'remoteWork':
       return 'time-off';
     default:
       return 'weekend';
@@ -53,6 +54,7 @@ interface CalendarLegendProps {
   hasCompanyDaysOff?: boolean;
   hasExtendedWeekends?: boolean;
   hasWeekends?: boolean;
+  hasRemoteWorkDays?: boolean;
   weekendLabel?: string;
 }
 
@@ -62,6 +64,7 @@ export function CalendarLegend({
   hasCompanyDaysOff = false,
   hasExtendedWeekends = false,
   hasWeekends = false,
+  hasRemoteWorkDays = false,
   weekendLabel,
 }: CalendarLegendProps) {
   // Define legend items with priority for importance-based visual hierarchy
@@ -99,6 +102,11 @@ export function CalendarLegend({
         label: weekendLabel ?? 'Normal Weekend',
         priority: 5,
       },
+    hasRemoteWorkDays && {
+      dayType: 'remoteWork',
+      label: 'Remote Travel Day',
+      priority: 6,
+    },
   ].filter((item): item is LegendItemProps => Boolean(item));
 
   // Sort by priority for cognitive processing order

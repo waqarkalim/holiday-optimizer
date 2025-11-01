@@ -15,6 +15,7 @@ import { useOptimizerForm } from '@/features/optimizer/hooks/useOptimizer';
 import { useLocalStorage } from '@/features/optimizer/hooks/useLocalStorage';
 import { OptimizationStrategy, WeekdayNumber } from '@/types';
 import { DEFAULT_WEEKEND_DAYS } from '@/constants';
+import { RemoteWorkTravelStep } from './form/RemoteWorkTravelStep';
 import {
   Card,
   CardContent,
@@ -35,6 +36,7 @@ interface FormData {
   holidays: Array<{ date: string; name: string }>;
   selectedYear: number;
   weekendDays: WeekdayNumber[];
+  remoteWorkDays: WeekdayNumber[];
   customStartDate?: string;
   customEndDate?: string;
 }
@@ -53,6 +55,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
     holidays,
     selectedYear,
     weekendDays,
+    remoteWorkDays,
     customStartDate,
     customEndDate,
   } =
@@ -123,6 +126,7 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
       holidays,
       selectedYear,
       weekendDays,
+      remoteWorkDays,
       customStartDate,
       customEndDate,
     };
@@ -212,18 +216,21 @@ export function OptimizerForm({ onSubmitAction, isLoading = false }: OptimizerFo
                   >
                     <PreBookedDaysStep />
                   </fieldset>
-                  <fieldset
-                    className="border-0 m-0 p-0"
-                    id="company-days-container"
-                    data-onboarding-target="company-days"
-                  >
-                    <CompanyDaysStep />
-                  </fieldset>
-                  <fieldset className="border-0 m-0 p-0" data-onboarding-target="weekend-preferences">
-                    <WeekendPreferencesStep />
-                  </fieldset>
-                </div>
-              )}
+            <fieldset
+              className="border-0 m-0 p-0"
+              id="company-days-container"
+              data-onboarding-target="company-days"
+            >
+              <CompanyDaysStep />
+            </fieldset>
+            <fieldset className="border-0 m-0 p-0" data-onboarding-target="weekend-preferences">
+              <WeekendPreferencesStep />
+            </fieldset>
+            <fieldset className="border-0 m-0 p-0" data-onboarding-target="remote-work-days">
+              <RemoteWorkTravelStep />
+            </fieldset>
+          </div>
+        )}
             </div>
           </TooltipProvider>
         </CardContent>

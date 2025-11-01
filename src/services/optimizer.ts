@@ -62,6 +62,15 @@ const getWeekendDaysSet = (weekendDays?: WeekdayNumber[]): Set<WeekdayNumber> =>
 const isFixedOff = (day: OptimizedDay): boolean =>
   day.isWeekend || day.isPublicHoliday || day.isCompanyDayOff || day.isPreBooked === true;
 
+const getRemoteWorkDaysSet = (remoteDays?: WeekdayNumber[]): Set<WeekdayNumber> => {
+  if (!Array.isArray(remoteDays)) {
+    return new Set();
+  }
+
+  const sanitized = remoteDays.filter(day => Number.isInteger(day) && day >= 0 && day <= 6);
+  return new Set(sanitized as WeekdayNumber[]);
+};
+
 // Check if a day range contains or is adjacent to any pre-booked days
 const isNearPreBookedDays = (calendar: OptimizedDay[], start: number, end: number): boolean => {
   // Check if any day in the range is pre-booked
@@ -143,6 +152,7 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
   const companyDays = params.companyDaysOff ?? [];
   const preBookedDays = params.preBookedDays ?? [];
   const weekendDays = getWeekendDaysSet(params.weekendDays);
+  const remoteWorkDays = getRemoteWorkDaysSet(params.remoteWorkDays);
 
   const startOverride = parseDate(params.startDate);
   const endOverride = parseDate(params.endDate);
@@ -170,6 +180,7 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
     const iso = formatDate(date);
     const dayOfWeek = date.getDay() as WeekdayNumber;
     const isWeekend = weekendDays.has(dayOfWeek);
+    const isRemoteWorkDay = !isWeekend && remoteWorkDays.has(dayOfWeek);
 
     const holiday = holidays.find(h => h.date === iso);
     const companyDay = companyDays.find(dayOff => {
@@ -198,6 +209,7 @@ const buildCalendar = (params: OptimizationParams): OptimizedDay[] => {
       isPTO: isPreBooked, // Pre-booked days are already PTO
       isPartOfBreak: false,
       isPreBooked: isPreBooked,
+      isRemoteWorkDay,
     });
   }
 
@@ -235,6 +247,7 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
       totalPublicHolidays: 0,
       totalNormalWeekends: 0,
       totalCompanyDaysOff: 0,
+      totalRemoteWorkDays: 0,
       totalDaysOff: 0,
       totalExtendedWeekends: 0,
     };
@@ -244,7 +257,9 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
 
   const workdayPrefix = new Array<number>(totalDays + 1).fill(0);
   for (let i = 0; i < totalDays; i++) {
-    workdayPrefix[i + 1] = workdayPrefix[i] + (isFixedOff(calendar[i]) ? 0 : 1);
+    const day = calendar[i];
+    const isChargeable = !isFixedOff(day) && !day.isRemoteWorkDay;
+    workdayPrefix[i + 1] = workdayPrefix[i] + (isChargeable ? 1 : 0);
   }
 
   const spacing = Math.max(1, config.spacing);
@@ -327,7 +342,7 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
 
     segmentDays.forEach(day => {
       day.isPartOfBreak = true;
-      day.isPTO = !isFixedOff(day);
+      day.isPTO = !isFixedOff(day) && !day.isRemoteWorkDay;
     });
 
     breaks.push({
@@ -339,6 +354,7 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
       publicHolidays: segmentDays.filter(day => day.isPublicHoliday).length,
       weekends: segmentDays.filter(day => day.isWeekend).length,
       companyDaysOff: segmentDays.filter(day => day.isCompanyDayOff).length,
+      remoteWorkDays: segmentDays.filter(day => day.isRemoteWorkDay).length,
     });
 
     reconstruct(nextIndex, ptoLeft - ptoUsed);
@@ -360,7 +376,8 @@ export const optimizeDays = (params: OptimizationParams): OptimizationResult => 
     totalPublicHolidays: sumBreakValues(br => br.publicHolidays),
     totalNormalWeekends: sumBreakValues(br => br.weekends),
     totalCompanyDaysOff: sumBreakValues(br => br.companyDaysOff),
-    totalDaysOff: sumBreakValues(br => br.totalDays),
+    totalRemoteWorkDays: sumBreakValues(br => br.remoteWorkDays),
+    totalDaysOff: sumBreakValues(br => br.totalDays - br.remoteWorkDays),
     totalExtendedWeekends: extendedWeekendCount,
   };
 

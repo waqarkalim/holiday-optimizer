@@ -8,7 +8,7 @@ import { format, parse } from 'date-fns';
 import { Break } from '@/types';
 import { Tooltip, TooltipTrigger, StatTooltipContent } from '@/shared/components/ui/tooltip';
 import { BREAK_LENGTHS, COLOR_SCHEMES } from '@/constants';
-import { Calendar, Clock, Sparkles, Star } from 'lucide-react';
+import { Calendar, Clock, Laptop, Sparkles, Star } from 'lucide-react';
 import { cn, DayType, dayTypeToColorScheme } from '@/shared/lib/utils';
 import { ReactNode } from 'react';
 
@@ -49,6 +49,7 @@ const getDayType = (day: Break['days'][0]): DayType => {
   if (day.isPTO) return 'pto';
   if (day.isPublicHoliday) return 'publicHoliday';
   if (day.isCompanyDayOff) return 'companyDayOff';
+  if (day.isRemoteWorkDay) return 'remoteWork';
   if (day.isWeekend) return 'weekend';
   return 'default';
 };
@@ -62,6 +63,7 @@ const getDayDescription = (day: Break['days'][0]): string => {
   if (day.isPTO) return 'PTO Day';
   if (day.isPublicHoliday) return day.publicHolidayName || 'Holiday';
   if (day.isCompanyDayOff) return day.companyDayName || 'Company Day Off';
+  if (day.isRemoteWorkDay) return 'Remote Travel Day';
   if (day.isWeekend) return 'Weekend';
   return 'Work Day';
 };
@@ -145,6 +147,23 @@ const DayCountsGrid = ({ breakPeriod }: DayCountsGridProps) => (
           <Clock className={cn(iconSize, COLOR_SCHEMES[dayTypeToColorScheme.weekend].icon.text)} />
         }
         label={breakPeriod.weekends === 1 ? 'Weekend' : 'Weekends'}
+      />
+    )}
+
+    {/* Remote work travel days count */}
+    {breakPeriod.remoteWorkDays > 0 && (
+      <DayCount
+        count={breakPeriod.remoteWorkDays}
+        icon={
+          <Laptop
+            className={cn(iconSize, COLOR_SCHEMES[dayTypeToColorScheme.remoteWork].icon.text)}
+          />
+        }
+        label={
+          breakPeriod.remoteWorkDays === 1
+            ? 'Remote Travel Day'
+            : 'Remote Travel Days'
+        }
       />
     )}
   </div>
