@@ -121,7 +121,7 @@ export const DateList = ({ title, colorScheme }: DateListProps) => {
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className={cn(
         'rounded-xl border p-4',
-        'shadow-sm hover:shadow-md',
+        'shadow-sm',
         'transition-all duration-300 ease-in-out',
         theme.container,
         theme.border
