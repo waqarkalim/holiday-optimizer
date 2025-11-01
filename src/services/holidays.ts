@@ -12,9 +12,6 @@ const allTypesOptions: HolidaysTypes.Options = {
   languages: [lang],
 };
 
-// const COUNTRIES_THAT_ARE_CAUSING_A_BUG = ['IR', 'CX', 'KE', 'RW', 'KM', 'DJ', 'SD', 'AW'];
-// const COUNTRIES_THAT_ARE_CAUSING_A_BUG = [];
-
 /**
  * Fetches public holidays for a specific country
  */

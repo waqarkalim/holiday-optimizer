@@ -57,7 +57,7 @@ const OptimizationStatsComponent: FC<OptimizationStatsComponentProps> = ({ stats
           icon={<Building2 className="h-5 w-5" />}
           value={stats.totalCompanyDaysOff}
           label="Company Days Off"
-          tooltip="Number of company-wide days off (e.g., Christmas closure) that part of a longer break"
+          tooltip="Number of company-wide days off (e.g., Christmas closure) that are part of a longer break"
           colorScheme="violet"
         />
       </div>
