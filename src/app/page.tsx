@@ -110,7 +110,6 @@ const HomePage = () => {
         }
       );
     } catch (e) {
-      console.error('Optimization error:', e);
       const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred';
       runWithViewTransition(() => {
         setOptimizationResult(null);

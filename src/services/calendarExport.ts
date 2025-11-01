@@ -100,7 +100,6 @@ export const exportToICS = async (
     const { error, value } = createEvents(events);
 
     if (error) {
-      console.error('Error creating calendar events:', error);
       return { success: false, message: `Error creating calendar file: ${error}` };
     }
 
@@ -114,7 +113,6 @@ export const exportToICS = async (
         'Calendar exported successfully! Your events will appear on the correct dates in your calendar.',
     };
   } catch (error) {
-    console.error('Error exporting to ICS:', error);
     return {
       success: false,
       message: `An error occurred while exporting the calendar: ${error instanceof Error ? error.message : String(error)}`,

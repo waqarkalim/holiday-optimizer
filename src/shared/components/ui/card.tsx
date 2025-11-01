@@ -11,7 +11,7 @@ const Card = React.forwardRef<
   const variantStyles = {
     primary: 'bg-teal-50/30 ring-teal-900/5',
     secondary: 'bg-violet-50/30 ring-violet-900/5',
-    neutral: 'bg-white/90 ring-blue-900/5',
+    neutral: 'bg-white/90 ring-gray-900/5',
   };
 
   return (

@@ -46,7 +46,6 @@ export function SocialShareButtons({
       setTimeout(() => setCopied(false), 1500);
     } catch (error) {
       toast.error('Unable to copy link');
-      console.error(error);
     }
   };
 
