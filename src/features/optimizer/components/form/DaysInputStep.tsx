@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { Input } from '@/shared/components/ui/input';
 import { cn } from '@/shared/lib/utils';
 import { StepHeader } from './components/StepHeader';
@@ -7,6 +9,17 @@ import { StepTitleWithInfo } from './components/StepTitleWithInfo';
 
 export function DaysInputStep() {
   const { days, daysError, setDays } = useOptimizerForm();
+  const [shouldAutofocus, setShouldAutofocus] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // Only auto-focus on devices with a precise pointer (desktop/laptop)
+    const prefersFinePointer = window.matchMedia('(pointer: fine)').matches;
+    setShouldAutofocus(prefersFinePointer);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setDays(e.target.value);
 
@@ -30,7 +43,7 @@ export function DaysInputStep() {
     'bg-white',
     'border-teal-200',
     'focus:border-teal-400',
-    'text-sm font-medium text-teal-900',
+    'text-base font-medium text-teal-900',
     'placeholder:text-teal-400',
     'transition-colors duration-200',
     daysError && 'border-red-300 focus:ring-red-500 focus:border-red-500'
@@ -52,7 +65,7 @@ export function DaysInputStep() {
           <span className="sr-only">(numeric input field)</span>
         </label>
         <Input
-          autoFocus
+          autoFocus={shouldAutofocus}
           id="days"
           name="days"
           type="number"

@@ -38,7 +38,7 @@ function BulkRenameInput() {
             }
           }}
           placeholder="e.g., Summer Fridays, Winter Break, Q3 Benefits..."
-          className={cn('h-8 text-sm', 'bg-white', 'flex-1', theme.input)}
+          className={cn('h-9 text-base leading-tight', 'bg-white', 'flex-1', theme.input)}
         />
         <div className="flex">
           <Button
@@ -268,7 +268,7 @@ function DateListItem({ item, isGrouped = false, groupIsDefaultNamed = false }: 
                 onKeyDown={event => handleItemKeyDown(event, item.date)}
                 onBlur={handleInputBlur}
                 className={cn(
-                  'h-7 text-sm font-medium flex-1',
+                  'h-8 text-base font-medium leading-tight flex-1',
                   'bg-white',
                   theme.input,
                   theme.text
