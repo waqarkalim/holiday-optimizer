@@ -1,9 +1,12 @@
 ![Solo Project](https://img.shields.io/badge/project-solo-blue.svg)
+
 > 🚫 **Solo Project** – I’m not accepting contributions at this time.
 
 # Holiday Optimizer
 
 A web application for optimizing Paid Time Off (PTO) usage.
+
+> 🔍 **Transparency Notice** – This codebase is public so others can review how the app works. It remains my personal project; please do not copy, deploy, rebrand, or monetize it without explicit permission.
 
 ## Overview
 
@@ -44,17 +47,20 @@ This project is built with:
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/holiday-optimizer.git
    cd holiday-optimizer
    ```
 
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. Start the development server:
+
    ```bash
    pnpm dev
    ```
@@ -111,11 +117,22 @@ pnpm lint
 pnpm format
 ```
 
+## Usage Policy
+
+This repository is published for transparency so others can review how the application works. **All rights remain with Waqar Bin Kalim.**
+
+- © 2025 Waqar Bin Kalim. All rights reserved.
+- You may read and learn from the code, but you may **not** copy, fork, host, deploy, redistribute, rebrand, or commercialize this project—whether in its original form or in modified/“revamped” versions—without written permission.
+- Automated rewrites or derivative deployments created with AI tooling are equally prohibited unless you have an explicit license from me.
+- If you’re interested in collaboration or licensing, please contact me directly.
+
 ## Contribution
 
-Thank you for your interest! This repository is maintained solely by me.  
-I’m not accepting pull requests or forks.  
-If you’d like to support the project, feel free to ⭐ the repo.
+Thank you for your interest! This repository is maintained solely by me.
+
+- Pull requests and issues will be closed without merge.
+- If you spot a bug, feel free to reach out privately or open a discussion, but please don’t submit patches.
+- If you’d like to support the project, a ⭐ is appreciated.
 
 ## License
 
