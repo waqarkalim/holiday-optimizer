@@ -8,19 +8,49 @@ A web application for optimizing Paid Time Off (PTO) usage.
 
 > 🔍 **Transparency Notice** – This codebase is public so others can review how the app works. It remains my personal project; please do not copy, deploy, rebrand, or monetize it without explicit permission.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [How It Works](#how-it-works)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Local Development](#local-development)
+- [Scripts](#scripts)
+- [Project Structure](#project-structure)
+- [Documentation](#documentation)
+- [Deployment](#deployment)
+- [Testing & Linting](#testing--linting)
+- [Usage Policy](#usage-policy)
+- [Contribution](#contribution)
+- [License](#license)
+
 ## Overview
 
-Holiday Optimizer helps users maximize their time off by intelligently planning PTO days around public and company holidays. By inputting your available PTO and selecting your location, the application generates an optimized schedule suggesting the best days to take off to create longer breaks throughout the year.
+Holiday Optimizer helps users maximize their time off by intelligently planning PTO days around public and company holidays. By inputting your available PTO, selecting your location, and flagging the weekdays you can comfortably work remotely, the application generates an optimized schedule suggesting the best days to take off to create longer breaks throughout the year.
 
 ## Features
 
-- Input your total available Paid Time Off (PTO) days.
-- Select your country (and region/province, where applicable) to automatically fetch public holidays for a chosen year.
-- Add custom company-specific non-working days.
-- Choose an optimization strategy (e.g., maximize long weekends, distribute evenly).
-- Generate a visual schedule highlighting suggested PTO days and resulting time-off blocks.
-- Plan for the current or upcoming year.
-- Responsive design for use on various devices.
+- Guided PTO planner that captures how many days off you can spend in a given year.
+- Per-country holiday retrieval (with provincial/state awareness) powered by the `date-holidays` library.
+- Custom company days to reflect internal shutdowns or unique holidays.
+- Remote-work weekday selection so the planner can extend trips by inserting work-from-anywhere days without spending PTO.
+- Optimization strategies that prioritize extended breaks, long weekends, or even distribution.
+- Calendar, stats, and summary cards that highlight recommended PTO combinations.
+- Optionally export shareable artifacts such as `.ics` calendar events.
+- Responsive UI designed to work smoothly on desktop, tablet, and mobile.
+
+## How It Works
+
+The optimizer combines built-in calendars with your inputs to recommend time off:
+
+1. Public holidays are fetched and cached via TanStack Query when you choose a location.
+2. Custom company days, remote-friendly weekdays, and weekends are merged into a working calendar.
+3. The algorithm in `src/services/optimizer.ts` scans permutations of PTO days alongside remote-work days to build contiguous break windows.
+4. Suggested PTO slots and the resulting breaks are visualized in the UI so you can review, tweak, or export them.
 
 ## Technology Stack
 
@@ -40,7 +70,6 @@ This project is built with:
 ## Getting Started
 
 ### Prerequisites
-
 - Node.js 20+
 - pnpm 10+
 
@@ -49,7 +78,7 @@ This project is built with:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/holiday-optimizer.git
+   git clone https://github.com/popcsev/holiday-optimizer.git
    cd holiday-optimizer
    ```
 
@@ -66,6 +95,37 @@ This project is built with:
    ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Configuration
+
+Holiday Optimizer works with zero configuration. Optionally, you can create a `.env.local` file with:
+
+```bash
+NEXT_PUBLIC_BASE_URL=https://holiday-optimizer.com
+```
+
+Set this value to the canonical URL of your deployment so generated metadata (Open Graph, sitemap, etc.) points to the right domain.
+
+### Local Development
+
+- Start the dev server with live reload: `pnpm dev`
+- Run a production build locally: `pnpm build && pnpm start`
+- Update formatting once you are happy with your changes: `pnpm format:write`
+
+## Scripts
+
+Commonly used scripts defined in `package.json`:
+
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Run Next.js locally with Turbopack. |
+| `pnpm build` | Execute the Cloudflare-compatible build pipeline. |
+| `pnpm start` | Serve the production build. |
+| `pnpm lint` | Run the ESLint ruleset. |
+| `pnpm format` / `pnpm format:write` | Check or apply Prettier formatting. |
+| `pnpm test` | Run the Jest suite (passes with no tests). |
+| `pnpm test:unit` / `pnpm test:integration` / `pnpm test:e2e` | Scoped test runs. |
+| `pnpm test:coverage` | Generate a coverage report. |
 
 ## Deployment
 
@@ -92,7 +152,13 @@ holiday-optimizer/
 └── tests/                      # Jest test suites
 ```
 
-## Development Workflow
+## Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) – High-level overview of feature modules, routing, and conventions.
+- [DEPLOYMENT.md](DEPLOYMENT.md) – Step-by-step guide for Cloudflare Pages.
+- [CONTRIBUTING.md](CONTRIBUTING.md) – Additional notes on the project’s solo-maintained policy.
+
+## Testing & Linting
 
 ### Running Tests
 
