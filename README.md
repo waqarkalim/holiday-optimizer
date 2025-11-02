@@ -1,3 +1,7 @@
+> 🚨 **Archived Snapshot – Active Development Has Moved**
+>
+> This repository is kept public for historical reference only. The production-ready Holiday Optimizer and its ongoing updates now live in a private codebase to prevent unauthorized forks and rebrands. Please do not redeploy or reuse this snapshot; contact me directly if you need legitimate access or collaboration.
+
 ![Solo Project](https://img.shields.io/badge/project-solo-blue.svg)
 
 > 🚫 **Solo Project** – I’m not accepting contributions at this time.
